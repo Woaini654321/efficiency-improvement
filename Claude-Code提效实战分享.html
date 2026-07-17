@@ -1,0 +1,2265 @@
+<!DOCTYPE html><html><head>
+      <title>Claude-Code提效实战分享</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="file:///c:\Users\leon.yan\.cursor\extensions\shd101wyy.markdown-preview-enhanced-0.8.30-universal\crossnote\dependencies\katex\katex.min.css">
+      
+      
+      
+      <script type="text/javascript" src="file:///c:\Users\leon.yan\.cursor\extensions\shd101wyy.markdown-preview-enhanced-0.8.30-universal\crossnote\dependencies\mermaid\mermaid.min.js" charset="UTF-8"></script>
+      
+      
+      
+      <style>
+      code[class*=language-],pre[class*=language-]{color:#333;background:0 0;font-family:Consolas,"Liberation Mono",Menlo,Courier,monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.4;-moz-tab-size:8;-o-tab-size:8;tab-size:8;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:.8em;overflow:auto;border-radius:3px;background:#f5f5f5}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal;background:#f5f5f5}.token.blockquote,.token.comment{color:#969896}.token.cdata{color:#183691}.token.doctype,.token.macro.property,.token.punctuation,.token.variable{color:#333}.token.builtin,.token.important,.token.keyword,.token.operator,.token.rule{color:#a71d5d}.token.attr-value,.token.regex,.token.string,.token.url{color:#183691}.token.atrule,.token.boolean,.token.code,.token.command,.token.constant,.token.entity,.token.number,.token.property,.token.symbol{color:#0086b3}.token.prolog,.token.selector,.token.tag{color:#63a35c}.token.attr-name,.token.class,.token.class-name,.token.function,.token.id,.token.namespace,.token.pseudo-class,.token.pseudo-element,.token.url-reference .token.variable{color:#795da3}.token.entity{cursor:help}.token.title,.token.title .token.punctuation{font-weight:700;color:#1d3e81}.token.list{color:#ed6a43}.token.inserted{background-color:#eaffea;color:#55a532}.token.deleted{background-color:#ffecec;color:#bd2c00}.token.bold{font-weight:700}.token.italic{font-style:italic}.language-json .token.property{color:#183691}.language-markup .token.tag .token.punctuation{color:#333}.language-css .token.function,code.language-css{color:#0086b3}.language-yaml .token.atrule{color:#63a35c}code.language-yaml{color:#183691}.language-ruby .token.function{color:#333}.language-markdown .token.url{color:#795da3}.language-makefile .token.symbol{color:#795da3}.language-makefile .token.variable{color:#183691}.language-makefile .token.builtin{color:#0086b3}.language-bash .token.keyword{color:#0086b3}pre[data-line]{position:relative;padding:1em 0 1em 3em}pre[data-line] .line-highlight-wrapper{position:absolute;top:0;left:0;background-color:transparent;display:block;width:100%}pre[data-line] .line-highlight{position:absolute;left:0;right:0;padding:inherit 0;margin-top:1em;background:hsla(24,20%,50%,.08);background:linear-gradient(to right,hsla(24,20%,50%,.1) 70%,hsla(24,20%,50%,0));pointer-events:none;line-height:inherit;white-space:pre}pre[data-line] .line-highlight:before,pre[data-line] .line-highlight[data-end]:after{content:attr(data-start);position:absolute;top:.4em;left:.6em;min-width:1em;padding:0 .5em;background-color:hsla(24,20%,50%,.4);color:#f4f1ef;font:bold 65%/1.5 sans-serif;text-align:center;vertical-align:.3em;border-radius:999px;text-shadow:none;box-shadow:0 1px #fff}pre[data-line] .line-highlight[data-end]:after{content:attr(data-end);top:auto;bottom:.4em}html body{font-family:'Helvetica Neue',Helvetica,'Segoe UI',Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ol,html body>ul{margin-bottom:16px}html body ol,html body ul{padding-left:2em}html body ol.no-list,html body ul.no-list{padding:0;list-style-type:none}html body ol ol,html body ol ul,html body ul ol,html body ul ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:700;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:700}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::after,html body code::before{letter-spacing:-.2em;content:'\00a0'}html body pre>code{padding:0;margin:0;word-break:normal;white-space:pre;background:0 0;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:after,html body pre code:before,html body pre tt:after,html body pre tt:before{content:normal}html body blockquote,html body dl,html body ol,html body p,html body pre,html body ul{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body code,html body pre{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview ul{list-style:disc}.markdown-preview ul ul{list-style:circle}.markdown-preview ul ul ul{list-style:square}.markdown-preview ol{list-style:decimal}.markdown-preview ol ol,.markdown-preview ul ol{list-style-type:lower-roman}.markdown-preview ol ol ol,.markdown-preview ol ul ol,.markdown-preview ul ol ol,.markdown-preview ul ul ol{list-style-type:lower-alpha}.markdown-preview .newpage,.markdown-preview .pagebreak{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center!important}.markdown-preview:not([data-for=preview]) .code-chunk .code-chunk-btn-group{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .status{display:none}.markdown-preview:not([data-for=preview]) .code-chunk .output-div{margin-bottom:16px}.markdown-preview .md-toc{padding:0}.markdown-preview .md-toc .md-toc-details{margin:0;padding:0;border:none}.markdown-preview .md-toc summary.md-toc-link-wrapper{cursor:pointer;list-style-position:outside}.markdown-preview .md-toc summary.md-toc-link-wrapper::marker{font-size:.85em}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link div,.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}.markdown-preview .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}.markdown-preview .md-toc .md-toc-link-wrapper[data-level='0']{margin-left:12px}.markdown-preview .md-toc .md-toc-link-wrapper[data-level='1']{margin-left:28px}.markdown-preview .md-toc .md-toc-link-wrapper[data-level='2']{margin-left:44px}.markdown-preview .md-toc .md-toc-link-wrapper[data-level='3']{margin-left:60px}.markdown-preview .md-toc .md-toc-link-wrapper[data-level='4']{margin-left:76px}.markdown-preview .md-toc .md-toc-link-wrapper[data-level='5']{margin-left:80px}.markdown-preview a.tag,.markdown-preview a.tag:active,.markdown-preview a.tag:link,.markdown-preview a.tag:visited,.markdown-preview span.tag:not(.token){display:inline-block;background-color:var(--vscode-badge-background,rgba(127,127,127,.18));color:var(--vscode-badge-foreground,currentColor);border-radius:2em;font-size:.85em;font-weight:500;padding:.05em .55em;line-height:1.5;white-space:nowrap;text-decoration:none;text-shadow:none;box-shadow:none;transition:background-color .12s ease,opacity .12s ease}.markdown-preview a.tag{cursor:pointer}.markdown-preview a.tag:focus,.markdown-preview a.tag:hover{background-color:var(--vscode-badge-background,rgba(127,127,127,.32));color:var(--vscode-badge-foreground,currentColor);opacity:.85;text-decoration:none;outline:0}.markdown-preview .wikilink-embed-content{border-left:3px solid var(--vscode-textBlockQuote-border,rgba(128,128,128,.3));background:var(--vscode-textBlockQuote-background,rgba(128,128,128,.05));margin:.5em 0;padding:.5em .75em;border-radius:0 3px 3px 0}.markdown-preview .wikilink-embed-content.wikilink-embed-error{border-left-color:var(--vscode-errorForeground,#cf222e);color:var(--vscode-errorForeground,#cf222e);font-style:italic;opacity:.8}.markdown-preview .wikilink-embed-content h1:first-child,.markdown-preview .wikilink-embed-content h2:first-child,.markdown-preview .wikilink-embed-content h3:first-child,.markdown-preview .wikilink-embed-content h4:first-child,.markdown-preview .wikilink-embed-content h5:first-child,.markdown-preview .wikilink-embed-content h6:first-child{margin-top:.25em}.markdown-preview .wikilink-embed-content .wikilink-embed-content{margin:.25em 0;padding:.25em .5em}.markdown-preview .block-id{display:none}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:var(--vscode-scrollbarSlider-background,rgba(150,150,150,.66));border:4px solid var(--vscode-scrollbarSlider-background,rgba(150,150,150,.66));background-clip:content-box}.scrollbar-style::-webkit-scrollbar-thumb:hover{background-color:var(--vscode-scrollbarSlider-hoverBackground,rgba(120,120,120,.66))}html body[for=html-export]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0;min-height:100vh}@media screen and (min-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{font-size:14px!important;padding:1em}}@media print{html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for=html-export]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:var(--vscode-scrollbarSlider-background,rgba(150,150,150,.66));border:4px solid var(--vscode-scrollbarSlider-background,rgba(150,150,150,.66));background-clip:content-box}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb:hover{background-color:var(--vscode-scrollbarSlider-hoverBackground,rgba(120,120,120,.66))}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc{padding:0 16px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-details{margin:0;padding:0;border:none}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link div,html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link p{display:inline}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper[data-level='0']{padding-left:0}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper[data-level='1']{padding-left:16px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper[data-level='2']{padding-left:32px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper[data-level='3']{padding-left:48px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper[data-level='4']{padding-left:64px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper[data-level='5']{padding-left:80px}html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% - 300px);padding:2em calc(50% - 457px - 300px / 2);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+      </style>
+      <!-- The content below will be included at the end of the <head> element. -->
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function () {
+    // your code here
+  });
+</script>
+    </head>
+    <body for="html-export">
+      <div class="crossnote markdown-preview  ">
+      <div>
+<h1 id="claude-code-项目提效实战分享">Claude Code 项目提效实战分享 </h1>
+<hr>
+<h2 id="目录">目录 </h2>
+<ul>
+<li><strong>Part A 认知与价值</strong>
+<ul>
+<li>第 0 章 3 分钟看清价值：ROI 一页纸</li>
+<li>第 1 章 认知对齐：AI 辅助开发 = 人机协作工程</li>
+</ul>
+</li>
+<li><strong>Part B 个人提效基本功</strong>
+<ul>
+<li>第 2 章 5 分钟上手 + 常见姿势纠错</li>
+<li>第 3 章 核心工作流六步法</li>
+<li>第 4 章 提效技巧库</li>
+</ul>
+</li>
+<li><strong>Part C 岗位视角与全流程协同</strong>
+<ul>
+<li>第 5 章 七大岗位提效地图</li>
+<li>第 6 章 全流程不跑偏：单一事实源机制</li>
+<li>第 7 章 事实沟通：用可验证的产物说话</li>
+<li>第 8 章 Subagent 与 Agent Teams 实战</li>
+<li>第 9 章 Harness 自我进化机制：让工具越用越懂你</li>
+</ul>
+</li>
+<li><strong>Part D 真实案例复盘</strong>
+<ul>
+<li>第 10 章 四个项目案例</li>
+</ul>
+</li>
+<li><strong>Part E 团队协作 · 质量 · 治理</strong>
+<ul>
+<li>第 11 章 团队一致性机制</li>
+<li>第 12 章 质量保障</li>
+<li>第 13 章 安全合规红线</li>
+</ul>
+</li>
+<li><strong>Part F 量化与落地</strong>
+<ul>
+<li>第 14 章 提效度量体系与成本测算</li>
+<li>第 15 章 落地路线图</li>
+</ul>
+</li>
+<li><strong>附录</strong> 命令速查 / 反模式清单 / 岗位提示词模板</li>
+</ul>
+<hr>
+<h1 id="part-a-认知与价值">Part A 认知与价值 </h1>
+<h2 id="第-0-章-3-分钟看清价值roi-一页纸">第 0 章 3 分钟看清价值：ROI 一页纸 </h2>
+<h3 id="01-四个真实数据点全部来自我们自己的项目">0.1 四个真实数据点（全部来自我们自己的项目） </h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>类型</th>
+<th>传统模式预估</th>
+<th>AI 协作实际</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>思政项目</strong>（上海长宁，已上线）</td>
+<td>0→1 全栈三端</td>
+<td>后端整栈换语言（Node→Java）：中级工程师单人 <strong>6~9 周</strong>（1.5~2 人月），且跨语言重写必然出现接口漂移</td>
+<td><strong>设计文档 + 实施计划当天成文并驱动迁移</strong>：8 个业务模块（auth/teacher/classroom/resource/article/news/file/ai）完成迁移；迁移期<strong>两端并行、API 路由 100% 一致，前端零改动</strong></td>
+<td>一人交付 Web 管理端 + H5 + Java 后端；迁移动机正是"统一到公司 Java 技术栈"</td>
+</tr>
+<tr>
+<td><strong>NCM 音频转换器</strong>（baseProject 分支）</td>
+<td>0→1 纯前端产品</td>
+<td>设计+开发+测试约 2~3 周</td>
+<td><strong>设计文档当天定稿，实施当天交付</strong>：8 个模块 TDD 全部落地，36 个单测通过、类型检查零错误</td>
+<td>采用"子代理驱动开发"模式</td>
+</tr>
+<tr>
+<td><strong>web-tool 工具平台</strong></td>
+<td>0→1 全栈平台</td>
+<td>前后端联调通常 1~2 周+多轮返工</td>
+<td><strong>两天合并 3 个 PR</strong>：主站+SEO 引擎（131 测试）→ 音频栈+47 个落地页（206 测试）→ 完整 Spring Boot 后端（前后端 294 测试）；<strong>前后端契约先行，联调零返工</strong></td>
+<td>一人完成前端+后端+部署产物</td>
+</tr>
+<tr>
+<td><strong>工单系统</strong>（存量项目）</td>
+<td>存量提效</td>
+<td>全面业务审计需外部审计或数周专项</td>
+<td><strong>入场第 1 天完成项目配置；第 2 天六角色深度走查产出带证据的漏洞文档</strong>（挖出 3 个 P0 安全红线 + 多个 P1）；随后按组并行修复，单组 11 任务一天闭环、322 个单测全绿</td>
+<td>AI 发现了长期存在、一直无人发现的认证绕过漏洞</td>
+</tr>
+</tbody>
+</table>
+<h3 id="02-价值不只是写代码快">0.2 价值不只是"写代码快" </h3>
+<div class="mermaid">graph LR
+    A[AI 辅助开发的价值] --&gt; B[提速&lt;br/&gt;编码/测试/文档产出快]
+    A --&gt; C[提质&lt;br/&gt;多角色评审+安全走查&lt;br/&gt;抓到人漏掉的问题]
+    A --&gt; D[降门槛&lt;br/&gt;前端能写后端&lt;br/&gt;新人能读懂存量系统]
+    A --&gt; E[资产化&lt;br/&gt;经验沉淀为规则/技能&lt;br/&gt;不随人员流动丢失]
+</div><ul>
+<li><strong>提速</strong>是表象；<strong>提质</strong>和<strong>资产化</strong>（经验写进 <a href="http://CLAUDE.md/Skill%EF%BC%8C%E6%96%B0%E4%BA%BA%E7%AC%AC%E4%B8%80%E5%A4%A9%E5%B0%B1%E7%BB%A7%E6%89%BF%E5%9B%A2%E9%98%9F%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%EF%BC%89%E6%89%8D%E6%98%AF%E7%BB%84%E7%BB%87%E7%BA%A7%E5%A4%8D%E5%88%A9%E3%80%82">CLAUDE.md/Skill，新人第一天就继承团队最佳实践）才是组织级复利。</a></li>
+<li><strong>提质有两种形态</strong>：存量项目里是"挖出人没发现的问题"（工单系统六角色走查挖出 JWT 伪造漏洞）；0→1 项目里是"把能跑拉到能上线"——思政项目一轮安全加固冲刺同时清零了四类问题：API 密钥从前端移到后端签名/代理、所有 <code>v-html</code> 走 DOMPurify、防护中间件补齐（Helmet/CORS/限流/JWT 鉴权/模型白名单）、前端 35 处 + 后端 3 处 <code>any</code> 消除，并把测试从 0 补到 37 个用例。</li>
+<li><strong>降门槛</strong>改变人才结构：思政项目一人交付 Web 管理端 + H5 + Java 后端三端，web-tool 一人完成前端+后端+部署产物——<strong>一个熟练使用者可以覆盖过去 2~3 个角色的产出</strong>（见第 10 章案例）。</li>
+</ul>
+<h3 id="03-关于投入产出的四个问题">0.3 关于投入产出的四个问题 </h3>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>答案在</th>
+<th>一句话结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>到底能省多少？</td>
+<td>第 14 章</td>
+<td>别信通用百分比，用我们自己的度量体系跑 1 个月试点拿真数据</td>
+</tr>
+<tr>
+<td>怎么推广不翻车？</td>
+<td>第 15 章</td>
+<td>试点→规范→规模化三阶段，每阶段有明确门禁</td>
+</tr>
+<tr>
+<td>代码/数据安全吗？</td>
+<td>第 13 章</td>
+<td>有明确红线机制（密钥、权限模式、审计），且已在工单系统验证</td>
+</tr>
+<tr>
+<td>质量会不会下滑？</td>
+<td>第 11/12 章</td>
+<td>一致性靠机制（共享配置+门禁）不靠自觉，质量线反而比纯人工更严</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="第-1-章-认知对齐ai-辅助开发--人机协作工程">第 1 章 认知对齐：AI 辅助开发 = 人机协作工程 </h2>
+<h3 id="11-一个必须先纠正的心智模型">1.1 一个必须先纠正的心智模型 </h3>
+<blockquote>
+<p>❌ 错误期待："我把需求丢给 AI，它给我完美代码。"<br>
+✅ 正确模型："AI 是一个<strong>不知疲倦、知识面极广、但需要明确边界和验证机制的高级工程师</strong>。我的工作从『写代码』变成『定义问题、把关方案、验证结果』。"</p>
+</blockquote>
+<p>两者差别决定了成败：抱错误期待的人用两周就会说"AI 不行"，因为他把 AI 当成自动售货机；建立正确模型的人产出翻倍，因为他把 AI 当成需要管理的团队成员。</p>
+<h3 id="12-人机分工的黄金分界线">1.2 人机分工的黄金分界线 </h3>
+<table>
+<thead>
+<tr>
+<th>人负责（判断）</th>
+<th>AI 负责（执行）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>定义问题和验收标准</td>
+<td>探索代码库、检索资料</td>
+</tr>
+<tr>
+<td>架构决策拍板</td>
+<td>方案对比分析、给出推荐</td>
+</tr>
+<tr>
+<td>审查关键代码</td>
+<td>编写代码、测试、文档</td>
+</tr>
+<tr>
+<td>设定红线（安全/合规）</td>
+<td>在红线内自主执行</td>
+</tr>
+<tr>
+<td>验收最终结果</td>
+<td>自我验证、跑测试、报告证据</td>
+</tr>
+</tbody>
+</table>
+<p><strong>核心原则：决策权始终在人，执行权大胆放给 AI，验证机制兜底。</strong></p>
+<h3 id="13-提效的本质压缩等待和返工">1.3 提效的本质：压缩"等待"和"返工" </h3>
+<p>传统开发中真正写代码的时间占比其实不高，大量时间花在：读懂旧代码、查资料、写样板代码、联调返工、写文档、开对齐会。Claude Code 压缩的正是这些"非创造性时间"——在我们的案例里：读懂存量系统从数周专项变成 2 天走查（工单系统）、前后端联调返工直接归零（web-tool）、日报从每天 15 分钟变 1 分钟（思政）。具体倍数因场景差异很大，所以第 14 章坚持"用自己的基线测"而不引用通用百分比；但方向是确定的：体感提效远超"代码补全工具"。</p>
+<hr>
+<h1 id="part-b-个人提效基本功">Part B 个人提效基本功 </h1>
+<h2 id="第-2-章-5-分钟上手--常见姿势纠错">第 2 章 5 分钟上手 + 常见姿势纠错 </h2>
+<h3 id="21-最小上手路径">2.1 最小上手路径 </h3>
+<pre data-role="codeBlock" data-info="bash" class="language-bash bash"><code><span class="token comment"># 1. 安装（Node 18+）</span>
+<span class="token function">npm</span> <span class="token function">install</span> <span class="token parameter variable">-g</span> @anthropic-ai/claude-code
+<span class="token comment"># 或免 Node 原生安装（Windows PowerShell）：irm https://claude.ai/install.ps1 | iex</span>
+
+<span class="token comment"># 2. 进入你的项目目录，启动</span>
+<span class="token builtin class-name">cd</span> your-project
+claude
+
+<span class="token comment"># 3. 第一件事：让它初始化项目认知（生成 CLAUDE.md）</span>
+<span class="token operator">&gt;</span> /init
+
+<span class="token comment"># 4. 第一个任务：从"读"开始，不要从"写"开始</span>
+<span class="token operator">&gt;</span> 帮我梳理这个项目的整体架构，模块之间的依赖关系，用图表示
+</code></pre><blockquote>
+<p>💡 <strong>为什么第一个任务是"读"</strong>：先让 AI 展示它对项目的理解，你能立刻判断它的靠谱程度，同时它生成的架构图/文档本身就是有用产出。</p>
+</blockquote>
+<blockquote>
+<p>🧩 <strong>不习惯终端？</strong> VS Code / JetBrains 官方插件提供同样的能力，diff 直接在编辑器里审、文件改动实时可见。习惯 IDE 的同事从插件入门，推广阻力小一半——能力和 CLI 完全一致，本文档所有方法通用。</p>
+</blockquote>
+<h3 id="22-会用但不深八个姿势纠错">2.2 会用但不深？八个姿势纠错 </h3>
+<p>这是针对"普遍会用但不深"团队的核心章节。对照自查：</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>❌ 常见错误姿势</th>
+<th>✅ 正确姿势</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>一句话需求直接开干："帮我加个导出功能"</td>
+<td>先澄清再动手：让 AI 复述需求、列出它的假设和方案，确认后再实施</td>
+<td>模糊输入 = 大概率返工。第 3 章六步法解决</td>
+</tr>
+<tr>
+<td>2</td>
+<td>从不用计划模式，AI 边想边改文件</td>
+<td>复杂任务先 <strong>Plan Mode</strong>（Shift+Tab 切换）：只读分析产出计划，批准后才动代码</td>
+<td>计划批准制把返工消灭在动手前</td>
+</tr>
+<tr>
+<td>3</td>
+<td>一个会话从早聊到晚，上下文混满杂讯</td>
+<td>一个任务一个会话；换任务 <code>/clear</code>；上下文快满用 <code>/compact</code></td>
+<td>上下文污染是输出质量下降的头号原因</td>
+</tr>
+<tr>
+<td>4</td>
+<td>项目没有 <a href="http://CLAUDE.md">CLAUDE.md</a>，每次都重新交代背景</td>
+<td><code>/init</code> 生成后<strong>持续维护</strong> <a href="http://CLAUDE.md">CLAUDE.md</a>：技术栈、规范、红线、常用命令</td>
+<td>这是 AI 的"入职手册"，一次投入长期受益</td>
+</tr>
+<tr>
+<td>5</td>
+<td>AI 说"完成了"就直接信</td>
+<td>要求它<strong>跑测试/构建给出证据</strong>再收货："跑一下测试，把输出贴出来"</td>
+<td>"声称完成"和"验证完成"是两回事</td>
+</tr>
+<tr>
+<td>6</td>
+<td>大任务一口气丢过去："把整个模块重构了"</td>
+<td>拆成可验证的小步：每步有明确产出和验收标准</td>
+<td>小步快跑，错了损失也小</td>
+</tr>
+<tr>
+<td>7</td>
+<td>AI 跑偏了就干等它结束</td>
+<td>立刻 <strong>Esc 打断</strong>，纠正方向再继续；错得离谱直接回退重来</td>
+<td>打断不是不礼貌，是止损</td>
+</tr>
+<tr>
+<td>8</td>
+<td>只把它当"代码生成器"</td>
+<td>让它读代码、查 bug、写测试、评审方案、生成文档、做数据分析</td>
+<td>写代码只是它能力的 30%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-一个立竿见影的习惯需求描述三要素">2.3 一个立竿见影的习惯：需求描述三要素 </h3>
+<p>每次给任务带上这三样，输出质量立刻上一个台阶：</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>【目标】要做什么 + 为什么（业务背景一句话）
+【边界】技术栈约束 / 不要动哪些文件 / 遵循哪个现有模式（给个参照文件路径）
+【验收】怎么算做完（测试通过？某个页面能跑通？性能指标？）
+</code></pre><hr>
+<h2 id="第-3-章-核心工作流六步法">第 3 章 核心工作流六步法 </h2>
+<p>这是我在四个项目中验证过的标准流程，已写入各项目 <a href="http://CLAUDE.md">CLAUDE.md</a> 成为强制规范。</p>
+<blockquote>
+<p><strong>先立一个总纲：多角色评审不是流程中的"某一步"，而是每个阶段产物的收口门禁。</strong> 需求、设计、计划、代码——每个阶段产出后都要过 1~3 轮多角色评审才能进入下一阶段。"零返工"不是实施得好，而是<strong>每一层的错误都被拦在了本层</strong>，没有机会流到下游放大。</p>
+</blockquote>
+<div class="mermaid">flowchart LR
+    Z[⓪ 开工前&lt;br/&gt;继承并改写项目配置&lt;br/&gt;每个项目只做一次] -.每个项目一次.-&gt; A
+    A[① 需求澄清&lt;br/&gt;brainstorm] --&gt; RA{评审门禁&lt;br/&gt;1轮}
+    RA --&gt; B[② 设计方案&lt;br/&gt;spec 文档]
+    B --&gt; RB{多角色评审&lt;br/&gt;1~3轮}
+    RB --&gt; C[③ 实施计划&lt;br/&gt;plan]
+    C --&gt; RC{多角色评审&lt;br/&gt;1~2轮+人工批准}
+    RC --&gt; D[④ 分块实施&lt;br/&gt;TDD 小步]
+    D --&gt; RD{逐块评审&lt;br/&gt;每块1轮}
+    RD --&gt; E[⑤ 全量终审&lt;br/&gt;整体一致性]
+    E --&gt; F[⑥ 验证收口&lt;br/&gt;verify + 提交]
+    RA -.需求有歧义.-&gt; A
+    RB -.方案被否.-&gt; B
+    RC -.计划有漏洞.-&gt; C
+    RD -.本块必修.-&gt; D
+    E -.跨块问题.-&gt; D
+</div><h3 id="31-第-0-步开工前继承并改写项目配置每个项目只做一次">3.1 第 ⓪ 步：开工前继承并改写项目配置（每个项目只做一次） </h3>
+<p><strong>六步法是每个任务跑一遍，⓪ 是每个项目跑一遍。</strong> 拿到一个项目——不管是新立项还是接手存量——第一件事不是写需求，而是<strong>把一个相似项目的 <code>CLAUDE.md</code> / <code>AGENTS.md</code> / <code>MEMORY.md</code> / <code>settings.json</code> 搬过来，然后逐条改写成本项目的版本</strong>。</p>
+<p><strong>这一步值得花时间，甚至花掉大半天。</strong> 它是整套流程里唯一一个"投入一次、后面每个任务都在吃红利"的动作：配置写对了，后面几十上百个会话自动继承正确的栈约束、流程和红线，不需要你每次重复交代；写错了，错误会被同样忠实地复制到每一个会话。</p>
+<p><strong>但绝对不能照搬。</strong> 这不是危言耸听——看我们自己两个项目的对照：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>思政项目</th>
+<th>工单系统</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>后端</td>
+<td>Spring Boot <strong>3.4</strong> + JDK <strong>17</strong> + MyBatis-Plus + <strong>MySQL</strong></td>
+<td>Spring Boot <strong>2.7.18</strong> + JDK <strong>1.8</strong> + <strong>MongoDB</strong></td>
+</tr>
+<tr>
+<td>前端</td>
+<td>Vue3 + <strong>Pinia</strong> + <strong>Ant Design Vue</strong> + <strong>pnpm</strong></td>
+<td>Vue3 + <strong>Element Plus</strong> + <strong>npm</strong>（<strong>无 Pinia</strong>）</td>
+</tr>
+<tr>
+<td>鉴权</td>
+<td>SSO Token + 远程 user 服务</td>
+<td><strong>自建 JWT</strong></td>
+</tr>
+<tr>
+<td>i18n</td>
+<td>无强制要求</td>
+<td><strong>强制中英双语</strong></td>
+</tr>
+<tr>
+<td>🔴 安全红线</td>
+<td>内部仓库，<strong>配置文件里的凭据允许直接提交</strong></td>
+<td><strong>严禁任何明文密钥</strong>，凭据 AES-GCM 加密入库</td>
+</tr>
+</tbody>
+</table>
+<p>两个项目粗看都是"Spring Boot + Vue3"，实际上 JDK 差了 9 个大版本、数据库一个关系型一个文档型、UI 库和包管理器全不同——<strong>而最后一行是致命的：红线完全相反</strong>。如果把思政的 <a href="http://CLAUDE.md">CLAUDE.md</a> 整个拷进工单系统，你就在一个"绝对不许出现明文密钥"的项目里，白纸黑字写了一条"凭据可以直接提交"——而且 AI 会<strong>严格遵守</strong>这条规则。配置照搬的代价不是不好用，是<strong>把上一个项目的安全假设，静默地装进了一个假设完全不同的项目</strong>。</p>
+<p><strong>改写的正确姿势</strong>（工单系统 2026-07-14 的真实做法）：</p>
+<ol>
+<li><strong>先让 AI 读懂新项目</strong>，再改配置——不要凭印象写。让它扫一遍 <code>pom.xml</code>/<code>package.json</code>/目录结构/启动类，把真实的栈版本列出来。</li>
+<li><strong>拿老项目的配置逐条过堂</strong>，每条只问一个问题：<strong>"这条在本项目还成立吗？"</strong> 成立就留、不成立就改、拿不准就标记待定。红线条款尤其要一条条确认，不许默认继承。</li>
+<li><strong>让多角色评审这份配置</strong>——把配置本身当产物评一轮。</li>
+<li><strong>当天收口即可开工</strong>：工单系统 2026-07-14 入场当天完成 <a href="http://CLAUDE.md">CLAUDE.md</a>（项目宪法）+ <a href="http://AGENTS.md">AGENTS.md</a>（6 角色分工）+ <a href="http://MEMORY.md">MEMORY.md</a>（长期记忆）三件套，<strong>第 2 天就能开始六角色深度业务走查</strong>。</li>
+</ol>
+<p><strong>一个意外收益</strong>：第 3 步"多角色评审配置"的过程中，顺带发现了 <strong>RBAC 菜单耦合等 4 个存量问题</strong>——因为要写对配置，AI 必须先读懂这个项目，而<strong>读懂的过程本身就是第一次免费的代码走查</strong>。这也是为什么这一步值得慢慢做：你以为在配环境，其实已经在审代码了。</p>
+<blockquote>
+<p>一句话总结：<strong>继承的是方法论，改写的是事实。</strong> 老项目的六步流程、角色分工表、评审门禁——这些是通用的，尽管抄；技术栈、路径、红线、安全姿态——这些是本项目的事实，必须一条条重新确认。</p>
+</blockquote>
+<p><strong>还有一层容易搞反：继承骨架，但规则条目要从本项目自己的失误里长出来。</strong> ⓪ 步搬的是流程、角色、门禁这套骨架，<strong>不是一份完备的规则手册</strong>。老项目 <a href="http://CLAUDE.md">CLAUDE.md</a> 里那些具体条目（"禁止 Options API"、"高写日志表用 BIGINT 自增主键"）是从那个项目的真实失误里长出来的——它们记录的是<strong>那个项目踩过的坑</strong>。整份搬过来，等于把别人的失误史当成自己的规则：条目一多，AI 的注意力被稀释，而本项目真正该防的坑一条都没写。</p>
+<p>正确的节奏是：<strong>⓪ 步把骨架和已确认的事实写进去就收口开工，规则条目留白</strong>；之后每遇到一次 AI 在本项目上的典型失误，就沉淀一条精确规则（第 9 章"自我进化"讲的就是这条长大的路径）。<strong><a href="http://CLAUDE.md">CLAUDE.md</a> 是长出来的，不是抄出来的。</strong></p>
+<h3 id="32-六步法靠什么跑起来superpowers-插件">3.2 六步法靠什么跑起来：superpowers 插件 </h3>
+<p><strong>这套流程不是靠自觉喊口号，而是每一步都有一个 skill 兜底。</strong> 我用的是社区插件 <strong>superpowers</strong>（GitHub：<code>obra/superpowers-marketplace</code>，本机版本 6.1.1），它把"先想清楚再动手"做成了强制流程——你不批准设计，它就不写代码。</p>
+<table>
+<thead>
+<tr>
+<th>六步</th>
+<th>实际调用</th>
+<th>它强制你做的事</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① 需求澄清</td>
+<td><code>superpowers:brainstorming</code></td>
+<td>一次只问一个问题，问到设计成形；<strong>不给设计、不批准，不许进下一步</strong></td>
+</tr>
+<tr>
+<td>② 设计 spec</td>
+<td>同上产出落盘 → <code>docs/superpowers/specs/YYYY-MM-DD-*-design.md</code></td>
+<td>设计进版本库，成为后续一切的事实锚点</td>
+</tr>
+<tr>
+<td>③ 实施计划</td>
+<td><code>superpowers:writing-plans</code> → <code>docs/superpowers/plans/</code> → <strong>EnterPlanMode 等人批准</strong></td>
+<td>计划落盘 + 人工门禁，杠杆率最高的一次介入</td>
+</tr>
+<tr>
+<td>④ 分块实施</td>
+<td><code>superpowers:test-driven-development</code>、<code>subagent-driven-development</code>（SDD）</td>
+<td>先测后码、块块可审</td>
+</tr>
+<tr>
+<td>⑤/⑥ 验证收口</td>
+<td><code>superpowers:verification-before-completion</code></td>
+<td>完成前强制自检、<strong>必须给证据</strong>，不许说"应该没问题"</td>
+</tr>
+<tr>
+<td>涉敏时（输入/鉴权/接口/存储）</td>
+<td><code>security-review</code> 强制介入</td>
+<td>安全不靠自觉</td>
+</tr>
+<tr>
+<td>出问题时</td>
+<td><code>superpowers:systematic-debugging</code></td>
+<td>先复现再修，不许猜</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键做法：把它写进 <a href="http://CLAUDE.md">CLAUDE.md</a> 变成项目宪法。</strong> 思政项目的 <a href="http://CLAUDE.md">CLAUDE.md</a> 里这六步是"不可违背"条款——新会话、新同事、新代理进来自动继承，不需要有人在旁边盯。插件只是提供了 skill，<strong>真正让它生效的是你把它固化成项目规则</strong>（见第 9 章"自我进化"四级阶梯）。</p>
+<blockquote>
+<p>💡 插件装完还有一批用得上的 skill：<code>dispatching-parallel-agents</code>（并行分派）、<code>requesting-code-review</code> / <code>receiving-code-review</code>（评审收发）、<code>using-git-worktrees</code>（隔离工作区）、<code>writing-skills</code>（写你自己的 skill）、<code>executing-plans</code>、<code>finishing-a-development-branch</code>。</p>
+</blockquote>
+<h3 id="33-各步骤要点与真实产出示例">3.3 各步骤要点与真实产出示例 </h3>
+<blockquote>
+<p>下面用<strong>同一个项目（工单系统）从头走到尾</strong>，这样六步之间的衔接看得见——而不是六个互不相干的片段。</p>
+</blockquote>
+<p><strong>① 需求澄清（Brainstorm）+ 评审门禁</strong> — 让 AI 一次只问一个问题，把模糊需求磨成明确规格；收口时让 AI 以开发/测试视角把需求"挑一遍刺"（歧义、缺失异常流、边界未定义）再冻结。<strong>每个拍板的决策当场写回 spec</strong>，否则同一个问题会被反复问。</p>
+<blockquote>
+<p>工单系统实例：走查判定"状态机是半成品"之后，澄清阶段的核心争议是"工单发布上线了到底算不算完结"。PM 拍板 <strong>"RESOLVED 唯一终态、发布≠完结"</strong>，当场写入 spec §7 决策记录并附 Architect 通知清单——从此没人再问第二遍。</p>
+</blockquote>
+<p><strong>② 设计方案（Spec）+ 多角色评审 1~3 轮</strong> — 产出设计文档存入 <code>docs/superpowers/specs/</code>，包含架构、数据流、错误处理、测试策略；随后多角色（PM/架构/前后端/测试，涉敏加安全）评审，<strong>每轮修完 must-fix 再评下一轮，直到各角色一致放行才定稿</strong>。设计文档是后续一切环节的"事实锚点"。</p>
+<blockquote>
+<p>工单系统实例：状态机 8 态简化方案经<strong>五角色评审一致放行</strong>才动手，最终删掉 8 个死状态、零回归；组D 运营能力的 spec 经<strong>两轮四角色评审</strong>才定稿。</p>
+</blockquote>
+<p><strong>③ 实施计划（Plan）+ 多角色评审 + 人工批准</strong> — 计划拆成带验收标准的任务块，先过一轮多角色评审（重点：任务边界、依赖顺序、验收标准是否可执行），再交人批准。<strong>人只需要审计划，不需要盯每行代码</strong>——这是杠杆率最高的一次人工介入。</p>
+<blockquote>
+<p><strong>每个原子任务写全四要素</strong>：<strong>产出物</strong>（改哪些文件/交付什么）、<strong>验收条件</strong>（怎样算完成，可执行可验证）、<strong>前置依赖</strong>（等谁先完成）、<strong>复杂度评估</strong>（决定要不要再拆）。判据很简单：<strong>AI 拿到这个任务能直接开工、不用回头问"这个具体怎么实现"，四要素就写够了</strong>；它一问，说明计划还欠。<br>
+工单系统实例：走查文档里的问题清单被拆成<strong>四组带验收标准的任务</strong>——状态机简化 / 组B 越权与配额 11 任务 / 组C 前端 i18n 与可达性 13 任务 / 组D 运营能力 9 任务；分组方案经人工批准后四组并行推进，互不阻塞。<br>
+计划阶段评审的价值，思政项目的对照更直观：数据中心需求 <strong>spec 和 plan 双阶段都评</strong>，plan 轮抓到"403 走 HTTP-200+R.code 约定""tenantType 大小写"——<strong>同一批问题若流到编码后才发现，返工成本至少放大十倍</strong>。</p>
+</blockquote>
+<p><strong>④ 分块实施（TDD 小步）+ 逐块评审</strong> — 每块先写测试再实现，块与块之间可独立验证；每块完成即评审（SDD 模式：实现代理+评审代理接力，见第 8 章），本块 must-fix 清零才进下一块。</p>
+<blockquote>
+<p>工单系统实例：组B 11 个任务走 <strong>SDD 双车道</strong>（两条流水线并行，实现代理与评审代理接力），逐任务评审；状态机改造用 <strong>8×8 全矩阵穷举测试</strong>替代抽样覆盖——这是人工不可能做到的覆盖密度。</p>
+</blockquote>
+<p><strong>⑤ 全量终审</strong> — 所有块完成后做一次整体多角色评审：跨块一致性、契约对齐、遗漏项（逐块评审只看局部，终审看全局）。</p>
+<blockquote>
+<p>工单系统实例：组B 终审结论 <strong>READY_TO_MERGE</strong>；组D <strong>"终审零必修"</strong>。</p>
+</blockquote>
+<p><strong>⑥ 验证收口</strong> — 跑全量测试/构建/类型检查，贴出证据，人工验收后提交。提交信息规范化（<code>type(scope): 中文描述</code>）。</p>
+<blockquote>
+<p>工单系统实例：状态机改造后 <strong>322 个单测 0 失败</strong>；组C 13 个任务 13 次提交，提交信息全部中文规范化。</p>
+</blockquote>
+<blockquote>
+<p>💬 <strong>贯穿六步的一个习惯：AI 回你术语，就让它说人话。</strong><br>
+走查和评审的产出天然术语密集——"Hermes baseUrl 存在 SSRF"、"Archery 幂等 marker 跨工单污染"、"JWT 弱默认密钥"。<strong>看到不熟的术语不要跳过，让它按四个问题重讲一遍</strong>：<br>
+<strong>① 这是什么 → ② 为什么会出现 → ③ 业界通常怎么解 → ④ 我们现在采用的是哪个方案、为什么选它</strong><br>
+三个好处：<strong>你能真正判断结论对不对</strong>，而不是被术语唬住照单全收；<strong>这四段话可以直接贴进走查文档和汇报材料</strong>，PM、业务方、老板都看得懂，不用你再翻译一遍；<strong>它讲不清楚的地方，往往就是它自己没想清楚的地方</strong>——这是一个免费的"结论可信度探针"。</p>
+</blockquote>
+<h3 id="34-评审节拍几轮才够什么时候停">3.4 评审节拍：几轮才够，什么时候停 </h3>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>典型轮数</th>
+<th>收口标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>需求澄清</td>
+<td>1 轮</td>
+<td>无歧义、异常流和边界已定义</td>
+</tr>
+<tr>
+<td>设计 spec</td>
+<td>1~3 轮</td>
+<td>must-fix 清零，各角色一致放行</td>
+</tr>
+<tr>
+<td>实施计划</td>
+<td>1~2 轮</td>
+<td>任务边界清晰、验收标准可执行，人工批准</td>
+</tr>
+<tr>
+<td>每个任务块</td>
+<td>1 轮</td>
+<td>本块 must-fix 清零</td>
+</tr>
+<tr>
+<td>全量终审</td>
+<td>1 轮</td>
+<td>READY_TO_MERGE 结论</td>
+</tr>
+</tbody>
+</table>
+<p><strong>按什么标准评？五个维度。</strong> 光说"多角色评审"是不够的——不给标准，每个角色只会凭感觉挑刺。每份产物按这五性过一遍：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>问什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>完整性</strong></td>
+<td>该覆盖的场景/异常流/边界，有没有漏</td>
+</tr>
+<tr>
+<td><strong>精确性</strong></td>
+<td><strong>有没有模糊表述</strong></td>
+</tr>
+<tr>
+<td><strong>可验证性</strong></td>
+<td>每条要求能不能被测试或人工核实</td>
+</tr>
+<tr>
+<td><strong>一致性</strong></td>
+<td>与上游 spec、既有契约、其他模块有没有冲突</td>
+</tr>
+<tr>
+<td><strong>可追溯性</strong></td>
+<td>每个结论能不能追到出处（file:line、需求条目、决策记录）</td>
+</tr>
+</tbody>
+</table>
+<p>其中<strong>精确性是含金量最高的一条</strong>：禁止"优化性能""提升体验"这类表述，必须量化成可验收的指标——<strong>"单次查询 ≤10 万条、P95 &lt; 500ms"</strong>。原因在第 3 章开头那句总纲的反面：<strong>spec 里模糊一处，AI 不会回头问你，它会直接猜一个实现出去</strong>——设计文档每模糊一处，就在代码里多一处等着返工的 bug。这条和第 7 章"事实沟通"是同一个信仰：<strong>观点会扯皮，事实不会</strong>。</p>
+<blockquote>
+<p>💡 这套五性标准借鉴自公司内数智基座团队的《AI 编程时代软件工程》落地方案——不同业务线、不同技术栈，得出的评审标准高度一致。</p>
+</blockquote>
+<p><strong>停止规则</strong>：一轮评审只剩建议项（没有 must-fix）就停，<strong>不要为评而评</strong>——评审轮数的边际收益递减很快，3 轮还收不了口说明上游（需求/设计）有问题，该回退而不是继续评。</p>
+<p><strong>拿不准要不要再评一轮？直接问它。</strong> 到了第 2、第 3 轮，与其凭感觉决定，不如把判断交给最了解现场的人——AI 自己知道上一轮改了什么、哪些角度还没覆盖过：</p>
+<blockquote>
+<p><strong>提示词</strong>：<code>从投入产出看，还值得再审一轮吗？请给出理由：上一轮的 must-fix 是否已全部消化？还有哪些角度/风险没有覆盖过？如果再审一轮，预期能发现什么级别的问题？</code></p>
+</blockquote>
+<p>关键是<strong>要它给理由，不要只要"需要/不需要"三个字</strong>——只要结论它容易顺着你的期待答，要理由才能看出它是真发现了未覆盖的风险，还是在凑数。这一问本身只花几百 token，却能挡掉一整轮无效评审（一轮多角色评审是几万 token 起步）。<strong>省 token 和提质量在这里是同一件事</strong>：把评审轮次花在真有未覆盖风险的地方，而不是均匀撒。</p>
+<p><strong>成本直觉</strong>：一轮多角色评审 = 几分钟 + 少量 token；一个流到下游的设计错误 = 数小时到数天返工。这是整套方法论中投入产出比最高的机制。</p>
+<h3 id="35-什么任务走全流程什么任务抄近道">3.5 什么任务走全流程，什么任务抄近道 </h3>
+<table>
+<thead>
+<tr>
+<th>任务类型</th>
+<th>流程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>新功能 / 重构 / 涉及架构</td>
+<td>完整六步</td>
+</tr>
+<tr>
+<td>明确的小 bug 修复</td>
+<td>④→⑥（但先让 AI 复现 bug 再修）</td>
+</tr>
+<tr>
+<td>查询/解释/生成文档</td>
+<td>直接问</td>
+</tr>
+<tr>
+<td>涉及鉴权/输入/存储/资金</td>
+<td>六步 + 强制安全评审（第 13 章）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="第-4-章-提效技巧库">第 4 章 提效技巧库 </h2>
+<p>按投入产出比排序，前三项是"必装"，后面按需采用。</p>
+<h3 id="41-claudemd给-ai-的入职手册">4.1 <a href="http://CLAUDE.md">CLAUDE.md</a>：给 AI 的入职手册（★★★★★） </h3>
+<p>项目根目录的 <a href="http://CLAUDE.md">CLAUDE.md</a> 每次会话自动加载。我们四个项目的实践结构：</p>
+<pre data-role="codeBlock" data-info="markdown" class="language-markdown markdown"><code><span class="token title important"><span class="token punctuation">#</span> 项目名</span>
+<span class="token title important"><span class="token punctuation">##</span> 技术栈与约束     ← Vue3+TS strict / SpringBoot2.7+JDK8，禁止混用其他 UI 库</span>
+<span class="token title important"><span class="token punctuation">##</span> 强制工作流       ← 六步法 + 什么情况必须走安全评审</span>
+<span class="token title important"><span class="token punctuation">##</span> 代码规范         ← 命名/格式/commit 规范（type(scope): 中文描述）</span>
+<span class="token title important"><span class="token punctuation">##</span> 常用命令         ← 构建/测试/启动，AI 自己就会跑</span>
+<span class="token title important"><span class="token punctuation">##</span> 目录速查         ← 关键路径，AI 不用每次重新探索</span>
+<span class="token title important"><span class="token punctuation">##</span> 安全红线         ← 不可自动执行的操作清单</span>
+</code></pre><blockquote>
+<p>⚠️ 关键教训：<strong>不同项目红线可能完全相反</strong>。思政项目（内网仓库）允许配置文件提交凭据；工单系统严禁任何明文密钥、必须 AES-GCM 加密入库。<a href="http://CLAUDE.md">CLAUDE.md</a> 按项目写死，AI 就不会拿 A 项目的习惯祸害 B 项目。</p>
+</blockquote>
+<h3 id="42-计划模式-plan-mode">4.2 计划模式 Plan Mode（★★★★★） </h3>
+<p>Shift+Tab 进入。AI 只读分析、产出计划，<strong>你批准前它一个文件都不会改</strong>。所有超过半小时的任务都应该从计划模式开始。</p>
+<p><strong>配套旋钮——按难度要求思考深度</strong>：难题（并发 bug、架构权衡、疑难排查）在提示词里明确要求"深入思考这个问题"，AI 会投入更多推理再动手；简单任务不必——这是一个"用时间换质量"的显式旋钮，该拧就拧。</p>
+<h3 id="43-上下文管理">4.3 上下文管理（★★★★★) </h3>
+<ul>
+<li>一个任务一个会话，<code>/clear</code> 是最常用的命令</li>
+<li>长会话用 <code>/compact</code> 主动压缩，别等它自动截断</li>
+<li>大项目让 AI 把阶段结论写进文档（<code>docs/</code> 或记忆），下个会话读文档而不是重新探索</li>
+</ul>
+<p><strong>上下文到底是怎么进来的？—— 按需检索模型 + 三层排除机制</strong></p>
+<p>很多人以为 Claude Code 会"把整个项目读进上下文"，然后到处找"排除清单"配置。真相是它<strong>不索引仓库，一切按需检索</strong>——上下文里只有它主动搜到/读到的内容：</p>
+<div class="mermaid">flowchart LR
+    A[Claude 需要信息] --&gt; B[Glob/Grep&lt;br/&gt;全库搜索]
+    A --&gt; C[Read&lt;br/&gt;显式读取某文件]
+    B --&gt;|自动跳过 .gitignore 内容&lt;br/&gt;node_modules/dist 天然搜不到| E[只有命中的片段&lt;br/&gt;进入上下文]
+    C --&gt; F{settings.json&lt;br/&gt;deny 规则?}
+    F --&gt;|命中 🚫| G[工具调用被拒绝&lt;br/&gt;模型想读也读不到]
+    F --&gt;|未命中 ✅| E
+    X[.claudeignore ❌] -. 不被解析 · 对任何环节零效力 .-&gt; A
+</div><p>三层机制各管一段，<strong>别指望错的那层</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>作用层</th>
+<th>效力</th>
+<th>正确用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.gitignore</code></td>
+<td>搜索层：Glob/Grep 自动跳过</td>
+<td>软排除——搜不到，但仍可显式读</td>
+<td><strong>省上下文</strong>：依赖/构建产物/lock 文件不进搜索结果（多数项目天然已满足，零配置）</td>
+</tr>
+<tr>
+<td><code>settings.json</code> <code>permissions.deny</code></td>
+<td>工具调用层：Read 直接被拒</td>
+<td><strong>硬禁止</strong>——显式读也读不到</td>
+<td><strong>防泄露</strong>：密钥/凭据/证书，如 <code>"Read(./.env*)"</code>、<code>"Read(./secrets/**)"</code></td>
+</tr>
+<tr>
+<td><code>.claudeignore</code></td>
+<td>——（根本不被解析）</td>
+<td><strong>零效力</strong></td>
+<td>没有用途。见到就删，防止后人误以为有防护</td>
+</tr>
+</tbody>
+</table>
+<p>快问快答（分享现场高频疑问）：</p>
+<table>
+<thead>
+<tr>
+<th>疑问</th>
+<th>答案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>启动时会把整个项目读进上下文吗？</td>
+<td>不会。只自动加载 <a href="http://CLAUDE.md/%E8%AE%B0%E5%BF%86%E7%AD%89%E5%B0%91%E6%95%B0%E6%96%87%E4%BB%B6%EF%BC%8C%E5%85%B6%E4%BD%99%E5%85%A8%E9%83%A8%E6%8C%89%E9%9C%80%E6%A3%80%E7%B4%A2">CLAUDE.md/记忆等少数文件，其余全部按需检索</a></td>
+</tr>
+<tr>
+<td>没配任何排除，node_modules 会不会污染上下文？</td>
+<td>不会被搜索命中（<code>.gitignore</code> 已排除）；但 Claude 排查第三方库行为时可<strong>显式读</strong>具体文件——这通常是合理行为，无需禁止</td>
+</tr>
+<tr>
+<td><code>.env</code> 写进了 <code>.claudeignore</code>，安全吗？</td>
+<td><strong>不安全，照样能被读出来</strong>（官方 issue #36163 实测）。必须用 deny 规则，在工具调用层拦截</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ <strong>纠错一个流传极广的错误说法</strong>：网上（甚至 AI 自己）常推荐建 <code>.claudeignore</code> 文件——<strong>它不是官方机制，实测拦不住文件读取</strong>。它给你的只是"已经排除了"的错觉，比没有更危险。我们早期项目也建过，本文档已统一纠正——别把它写进你的团队规范。</p>
+</blockquote>
+<h3 id="44-斜杠命令把重复操作固化">4.4 斜杠命令：把重复操作固化（★★★★） </h3>
+<p><code>.claude/commands/</code> 下放一个 Markdown 文件，就成了团队共享的斜杠命令。<strong>最值得第一个做的就是日报/周报</strong>——它是全场复现门槛最低、受益人最多的一个案例。</p>
+<pre data-role="codeBlock" data-info="markdown" class="language-markdown markdown"><code><span class="token comment">&lt;!-- .claude/commands/daily-report.md --&gt;</span>
+扫描本项目今日 git 提交记录，按模块归类生成工作日报，
+格式：【项目】学校AI Box【内容】...【进度】...
+经我确认后调用上报接口提交。
+</code></pre><p>思政项目里这条命令的真实效果：<strong>每天 15 分钟写日报 → 1 分钟确认</strong>。周报同理，把"今日"改成"本周"即可；月报、迭代总结都是同一个模子。</p>
+<p><strong>为什么它有效——因为它打的不是"写"，是"回忆"。</strong> 日报真正的耗时从来不是敲字，而是"我今天到底干了啥来着"：翻聊天记录、翻分支、翻 PR，想半天挤出三行，还经常漏掉最花时间的那件事。<strong>而 git 提交记录本来就是你这一天最准确、最完整的工作日志</strong>——只是从来没人愿意人肉去翻它、归类它、翻译成人话。AI 把这件事从"回忆"变成了"扫描"。</p>
+<p><strong>这一条就足够让订阅费回本。</strong> 每天省 14 分钟 × 每月约 20 个工作日 ≈ <strong>每月 4.7 小时，接近一整个工作日</strong>——而第 14 章的回本门槛是"每月每人省半天以上即为正收益"。<strong>只靠日报这一项，就已经越过回本线了</strong>，后面所有的提效都是净赚。这也是为什么它适合当团队推广的第一站：<strong>没有争议、没有风险、当天见效</strong>。</p>
+<p>三个设计要点，照抄时别丢：</p>
+<table>
+<thead>
+<tr>
+<th>要点</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>必须人工确认后才上报</strong></td>
+<td>上报是对外动作，一旦发出无法撤回。红线：自动审批类动作永远人按最后一个按钮（第 13 章）</td>
+</tr>
+<tr>
+<td><strong>命令进 <code>.claude/commands/</code> 随仓库分发</strong></td>
+<td>它就不再是"leon 的个人技巧"，而是全组 clone 即得的团队资产（第 11 章）</td>
+</tr>
+<tr>
+<td><strong>把口径固定写进命令里</strong></td>
+<td>项目名、格式模板、上报接口、扫描范围写死在命令中，AI 每次不用再问、你每次不用再教</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>🚀 <strong>进阶</strong>：这条命令还能再往前一步——挂到 CI 上定时跑，扫 git 自动生成周报草稿（见 4.11 无头模式）。但<strong>上报动作仍然建议留人确认</strong>，别让机器替你对外发言。</p>
+</blockquote>
+<h3 id="45-skills可复用的方法论包">4.5 Skills：可复用的方法论包（★★★★） </h3>
+<p>比斜杠命令更重的复用单元：一个 <a href="http://SKILL.md">SKILL.md</a> 装下完整方法论（何时用、步骤、检查清单、经验教训）。我的 <code>solo-fullstack-project</code> skill 332 行，从项目分期、技术选型到部署清单，新项目直接继承全部历史经验（详见第 9 章"自我进化"）。</p>
+<h3 id="46-mcp接入外部系统">4.6 MCP：接入外部系统（★★★☆） </h3>
+<p>MCP（Model Context Protocol）让 Claude Code 直接操作外部系统：GitHub PR、数据库查询、浏览器自动化（Playwright/Chrome DevTools）、内部平台 API。</p>
+<blockquote>
+<p>实用例：接 Playwright 后，"打开本地页面 → 截图 → 检查控制台报错 → 自己修" 全程无需人搬运报错信息。</p>
+</blockquote>
+<h3 id="47-hooks强制性护栏">4.7 Hooks：强制性护栏（★★★☆） </h3>
+<p>在工具调用前后插入检查脚本：提交前强制跑 lint、拦截危险命令、格式化落盘文件。与 <a href="http://CLAUDE.md">CLAUDE.md</a> 的区别：<strong><a href="http://CLAUDE.md">CLAUDE.md</a> 是"请遵守"，Hook 是"违反就拦截"</strong>。团队治理靠 Hook 不靠自觉（第 11 章展开）。</p>
+<p><strong>双层防线：AI 侧软提醒 + Git 侧硬阻断。</strong> 这两层的定位完全不同，混在一起是新手最常见的错误：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>时机</th>
+<th>姿态</th>
+<th>典型动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AI 侧 Hook</strong></td>
+<td>AI 编辑文件之后</td>
+<td><strong>软提醒，不打断</strong></td>
+<td>改完 <code>.java</code> 提示跑 <code>mvn compile</code>；改完前端提示跑 <code>npm run lint:check</code></td>
+</tr>
+<tr>
+<td><strong>Git 侧 Hook</strong></td>
+<td>提交时</td>
+<td><strong>硬阻断</strong></td>
+<td><code>pre-commit</code>：敏感信息扫描（密钥/私钥/密码/身份证号）+ 调试残留检测（<code>System.out</code> / <code>console.log</code>）；<code>commit-msg</code>：提交信息格式校验</td>
+</tr>
+<tr>
+<td><strong>Git 侧 Hook</strong></td>
+<td>推送时</td>
+<td><strong>硬阻断</strong></td>
+<td><code>pre-push</code>：编译检查（<code>mvn compile</code> / <code>tsc --noEmit</code>）+ 禁止直推 <code>main</code>/<code>master</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>为什么必须分两层</strong>：AI 编辑阶段全用硬阻断，AI 会被频繁打断、开发节奏碎掉；全用软提醒，等于没有防线。<strong>编辑时提醒、提交时拦截</strong>——摩擦成本花在最后一道关口，前面保持顺畅。</p>
+<blockquote>
+<p>⚠️ <strong>按角色分档安装</strong>：研发装全量检查，非研发（PM/产品/测试）只装安全扫描那几条。否则一个 PM 改完 PRD 想提交，被 <code>pre-push</code> 的编译检查拦下来——他不会修编译，他只会觉得"这套 AI 玩意儿真麻烦"然后再也不用了。第 5 章我们让非开发岗也进仓库用 AI，这个洞就必须堵上。</p>
+</blockquote>
+<blockquote>
+<p>💡 双层防线的结构借鉴自公司内数智基座团队的落地方案，具体条目按本项目栈调整（<strong>这本身就是 ⓪ 步"继承骨架、改写事实"的一次实践</strong>）。</p>
+</blockquote>
+<h3 id="48-并行开发git-worktree--多会话">4.8 并行开发：git worktree + 多会话（★★★☆） </h3>
+<p>互不依赖的任务开多个终端并行推进，配合 git worktree 每个会话独立工作副本，互不踩踏：</p>
+<pre data-role="codeBlock" data-info="bash" class="language-bash bash"><code><span class="token function">git</span> worktree <span class="token function">add</span> <span class="token punctuation">..</span>/proj-feat-a feature/a   <span class="token comment"># 会话1在这里做功能A</span>
+<span class="token function">git</span> worktree <span class="token function">add</span> <span class="token punctuation">..</span>/proj-fix-b  hotfix/b    <span class="token comment"># 会话2在这里修bug B</span>
+</code></pre><blockquote>
+<p>实例：工单系统组B/组C/组D 三组任务并行推进，互不阻塞（第 10 章）。</p>
+</blockquote>
+<h3 id="49-无人值守模式慎用需授权">4.9 无人值守模式（★★★，慎用需授权） </h3>
+<p>明确授权范围后让 AI 长时间自主推进（自动选型、自动装依赖），保留硬红线（不 push、不删库、不碰生产）。适合：夜间跑长任务、批量迁移、大规模重构。</p>
+<blockquote>
+<p>实例：baseProject 授权无人值守后，整个转型实施"设计当天定稿、当天交付"。<strong>前提是红线写清楚 + 事后全量验证</strong>，不是裸奔。</p>
+</blockquote>
+<h3 id="410-token-经济学省钱与提质的双赢技巧">4.10 Token 经济学：省钱与提质的双赢技巧（★★★★） </h3>
+<blockquote>
+<p>核心洞察：<strong>省 token 和提质量在多数情况下是同一件事</strong>——浪费 token 的头号来源（上下文污染、重复探索、失败历史堆积）恰恰也是质量下降的头号来源。省 token 的最高境界不是抠着用，而是<strong>让每个 token 都只为"新信息"付费</strong>。</p>
+</blockquote>
+<p><strong>① 上下文卫生（省得最多）</strong></p>
+<table>
+<thead>
+<tr>
+<th>妙招</th>
+<th>为什么省</th>
+<th>为什么不降质</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一任务一会话，<code>/clear</code> 常用</td>
+<td>每轮请求都重新携带全部历史，长会话每问一句都在为旧内容付费</td>
+<td>旧任务杂讯本来就在拉低新任务质量</td>
+</tr>
+<tr>
+<td>自然节点主动 <code>/compact</code></td>
+<td>历史变摘要</td>
+<td>任务收口时压缩，关键结论保留；等自动截断反而可能丢关键信息</td>
+</tr>
+<tr>
+<td>deny 规则排除 dist/lock/大 JSON（见 4.3）</td>
+<td>无关大文件不进上下文</td>
+<td>这些文件本来就不该参与推理</td>
+</tr>
+<tr>
+<td>别粘贴大段日志，让 AI 自己 Grep 精准读</td>
+<td>粘贴=全文进上下文；检索=只有命中的几十行</td>
+<td>AI 自己检索往往更完整更相关</td>
+</tr>
+<tr>
+<td>文本类内容贴文字不贴截图</td>
+<td>同样一段报错：截图 ~1000+ token，文字 ~200 token（图片按缩放后像素计费：≈宽×高÷750，单张封顶约 1600）</td>
+<td>文字可被 Grep/引用/diff，截图不能</td>
+</tr>
+<tr>
+<td>该用图时裁剪再发，用完 <code>/clear</code></td>
+<td>只截相关区域（报错弹窗而非全屏），像素面积小 token 按比例降；图片留在历史里每轮重发</td>
+<td>UI/设计稿/图表该用图就用图——1600 token 换一张设计稿是划算的，视觉信息文字无法替代</td>
+</tr>
+</tbody>
+</table>
+<p><strong>② 记忆外化成文件（一次投入，永久免费）</strong></p>
+<p>对话是易失内存（每次都要付费重载），文件是硬盘（写一次读无数次）。凡是会被第二次用到的结论，都应该落盘：</p>
+<ul>
+<li><a href="http://CLAUDE.md">CLAUDE.md</a> 的"目录速查"：项目探索一次烧几万 token，落盘后每个新会话零成本继承</li>
+<li>阶段结论写进 <code>docs/</code>：300 行 spec = 上个会话几十万 token 推理成果的免费复用</li>
+<li><a href="http://MEMORY.md">MEMORY.md</a>：踩过的坑不用付费再踩一遍</li>
+</ul>
+<p><strong>③ 子代理隔离</strong>：大范围探索派子代理，垃圾细节用完即弃，主会话（最贵的资产）只收结论——同时是省钱手段和提质手段。反面：小事别开子代理，启动开销反而更贵。</p>
+<p><strong>④ 一次说清 vs 挤牙膏</strong>：需求三要素一次给全（挤牙膏式往返每轮都为全部历史重复付费，且模糊期的错误尝试永久留在上下文）；给参照文件路径省全库搜索；明确"只改哪几个文件"防大范围读写。</p>
+<p><strong>⑤ 止损比修补便宜</strong>：跑偏立刻 Esc（错误产出+纠正+重来三份都计费且污染后续）；改砸了用 <code>/rewind</code> 检查点一键回退文件状态（比 git 回退更轻，Claude Code 内置）；错得离谱就 git 回退 + <code>/clear</code> 带一句教训重开——比同会话"对话式修补"便宜且质量高，修补会话里 AI 始终带着失败历史的惯性。</p>
+<p><strong>⑥ 机制层</strong>：机械性任务（批量格式化、i18n 补键）可显式用小模型，核心设计/评审用大模型——<strong>省要省得明白，不接受静默降级</strong>（与第 8 章"派 agent 显式指定模型"同一原则的两面）；同一任务集中连续推进可命中提示缓存，比零碎聊一天便宜。</p>
+<h3 id="411-cicd-无头集成人不在场也在提效">4.11 CI/CD 无头集成：人不在场也在提效（★★★★） </h3>
+<p>前面所有技巧都是"人开会话"的交互模式；提效的下一站是<strong>把 AI 挂进流水线</strong>——<code>claude -p "任务"</code> 无头模式可以在任何脚本/CI 环境里调用：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>做法</th>
+<th>收益</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PR 自动评审</strong></td>
+<td>CI 里跑无头评审（或装官方 GitHub App，PR 中 @claude 直接指派任务）</td>
+<td>每个 PR 先过 AI 初审（bug/安全/规范），人只终审 AI 标注的重点——评审等待时间大幅压缩</td>
+</tr>
+<tr>
+<td><strong>夜间定时走查</strong></td>
+<td>定时任务每晚跑一轮安全走查/依赖审计，报告落文件</td>
+<td>早上上班看报告，第 13 章"AI 安全走查入流程"零人力成本落地</td>
+</tr>
+<tr>
+<td><strong>Issue 自动分诊</strong></td>
+<td>新 issue 触发：自动复现、定位嫌疑代码、打标签、评估影响面</td>
+<td>分诊从"轮值半天"变成"看 AI 结论 5 分钟"</td>
+</tr>
+<tr>
+<td><strong>文档/日报流水线</strong></td>
+<td>定时扫 git 生成周报、变更日志、API 文档同步</td>
+<td>/daily-report 的全自动版</td>
+</tr>
+</tbody>
+</table>
+<p><strong>落地要点</strong>：CI 中的 AI 权限要<strong>最小化</strong>（只读+产出报告，不自动改码合并）；产出物统一落到固定路径供人复核；先从"评审建议"类零风险场景起步，跑稳了再扩权。计费上有两条路：<code>claude setup-token</code> 生成长期令牌复用现有订阅额度（与交互用量共享限额），或走 API Key 按量计费——试点期实测用量再定。这条线的 ROI 很直观——<strong>同一套工具链，产出时间从 8 小时/天变成 24 小时/天</strong>。</p>
+<hr>
+<h1 id="part-c-岗位视角与全流程协同">Part C 岗位视角与全流程协同 </h1>
+<h2 id="第-5-章-七大岗位提效地图">第 5 章 七大岗位提效地图 </h2>
+<blockquote>
+<p>本章目的：让每个岗位的人都找到"跟我有关"的第一个切入点。每个岗位给出：高频场景 → 实操示例 → 提效亮点。</p>
+</blockquote>
+<h3 id="51-项目经理pm">5.1 项目经理（PM） </h3>
+<table>
+<thead>
+<tr>
+<th>高频场景</th>
+<th>怎么用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>排期推演</td>
+<td>把需求列表丢给 AI：按依赖关系排出关键路径，标出风险项和缓冲建议</td>
+</tr>
+<tr>
+<td>进度事实核查</td>
+<td>AI 直接读 git 提交/PR 状态汇总真实进度，<strong>不再靠口头汇报</strong>："统计本周 feature/xxx 分支的提交，按模块归类，对照计划标出偏差"</td>
+</tr>
+<tr>
+<td>会议纪要→行动项</td>
+<td>粘贴会议记录，产出带负责人和截止日期的行动项表格</td>
+</tr>
+<tr>
+<td>周报/日报自动化</td>
+<td><code>/daily-report</code> 类命令扫 git 记录自动生成（思政项目实例）</td>
+</tr>
+<tr>
+<td>风险清单</td>
+<td>"读一遍当前项目 TODO/FIXME 和未合并分支，给我一份技术风险清单"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>提效亮点</strong>：PM 的信息来源从"问人"变成"问代码库"——进度、风险、变更都以仓库事实为准，沟通成本和信息失真双降。</p>
+<h3 id="52-产品经理">5.2 产品经理 </h3>
+<table>
+<thead>
+<tr>
+<th>高频场景</th>
+<th>怎么用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PRD 撰写与自查</td>
+<td>用 brainstorm 模式让 AI 一次一个问题地磨需求，产出结构化 PRD；再让它以"开发视角"挑 PRD 的歧义和遗漏</td>
+</tr>
+<tr>
+<td>竞品分析</td>
+<td>结合联网检索做竞品功能矩阵对比</td>
+</tr>
+<tr>
+<td>需求→可交互 Demo</td>
+<td>描述交互逻辑，AI 直接生成可点击的 HTML 原型（比文字描述高效一个量级）</td>
+</tr>
+<tr>
+<td>存量功能盘点</td>
+<td>"读代码告诉我：当前系统实际支持哪些工单状态流转？" —— 以代码为准，不靠过时文档</td>
+</tr>
+<tr>
+<td>决策留痕</td>
+<td>每个产品决策让 AI 记录进 spec（工单系统实例：PM 拍板"RESOLVED 唯一终态、发布≠完结"直接写入 spec §7，后续开发不再反复问）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>提效亮点</strong>：UI 选型"用看的不用猜的"——NCM 转换器美化时让 AI 生成 4 套自包含 HTML 样张，产品/用户直接选中意的一套再落地，避免"做完了说不是这个感觉"。</p>
+<h3 id="53-架构师">5.3 架构师 </h3>
+<table>
+<thead>
+<tr>
+<th>高频场景</th>
+<th>怎么用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>方案对比推演</td>
+<td>"给出 3 种方案，从性能/复杂度/迁移成本/团队熟悉度四维对比，给推荐"</td>
+</tr>
+<tr>
+<td>架构图与文档</td>
+<td>从代码反向生成 Mermaid 架构图、依赖图，架构文档不再过时</td>
+</tr>
+<tr>
+<td>技术债扫描</td>
+<td>定期让 AI 全库扫描：过大文件、循环依赖、重复实现、危险模式</td>
+</tr>
+<tr>
+<td>ADR 决策记录</td>
+<td>每个架构决策生成 ADR 存档，含背景/选项/理由——半年后没人说不清"当初为什么这么设计"</td>
+</tr>
+<tr>
+<td>技术栈迁移</td>
+<td>思政项目 NestJS→Spring Boot 整体迁移：设计文档先行、双端并行、API 100% 对齐</td>
+</tr>
+<tr>
+<td>契约守门</td>
+<td>API 契约变更时自动通知各端（工单系统实践："知会 Architect：4 项契约变化"是每个任务组的固定收尾动作）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>提效亮点</strong>：<strong>契约先行</strong>。web-tool 项目先写 <code>api-contract-v1.md</code>（状态码、错误格式、文件名编码全部定死），前后端各自实施后端到端实测<strong>零返工</strong>。</p>
+<h3 id="54-前端工程师">5.4 前端工程师 </h3>
+<table>
+<thead>
+<tr>
+<th>高频场景</th>
+<th>怎么用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>设计稿→组件</td>
+<td>截图/描述→组件代码，遵循项目现有组件模式（<a href="http://CLAUDE.md">CLAUDE.md</a> 指定参照文件）</td>
+</tr>
+<tr>
+<td>样式一致性</td>
+<td>主题/设计系统抽取与批量套用（web-tool 全站重皮实例，教训：<strong>迁 CSS ≠ 还原外观，组件结构必须匹配主题选择器</strong>）</td>
+</tr>
+<tr>
+<td>状态管理与类型</td>
+<td>前端 35 处 any 一次性消除+新增 10 个接口类型（思政项目实测）</td>
+</tr>
+<tr>
+<td>i18n</td>
+<td>双语键值批量生成与遗漏扫描（工单系统组C：4 个配置页约 155 组键一天补齐；教训：cherry-pick 单 locale 会静默丢键）</td>
+</tr>
+<tr>
+<td>E2E/组件测试</td>
+<td>让 AI 按用户行为路径写测试，接 Playwright MCP 自己跑自己修</td>
+</tr>
+</tbody>
+</table>
+<h3 id="55-后端工程师">5.5 后端工程师 </h3>
+<table>
+<thead>
+<tr>
+<th>高频场景</th>
+<th>怎么用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>接口开发全套</td>
+<td>设计→实现→单测→API 文档一体产出，文档与代码同步生成不漂移</td>
+</tr>
+<tr>
+<td>DB 变更评审</td>
+<td>DDL/索引让 AI 评审：锁表风险、索引命中、回滚方案（实测教训：WHERE 里 <code>DATE(col)</code> 杀索引，必须裸列范围比较）</td>
+</tr>
+<tr>
+<td>存量代码考古</td>
+<td>"梳理这个 500 行 Service 的调用链和副作用，画时序图"</td>
+</tr>
+<tr>
+<td>并发与事务</td>
+<td>乐观锁/幂等/竞态专项审查（工单系统实例：@Version 乐观锁补齐、Archery 幂等 marker 从 8 位截断改 24 位全量——8 位截断=秒级时间戳，会跨工单污染）</td>
+</tr>
+<tr>
+<td>日志与可观测</td>
+<td>高写日志表设计模式：BIGINT 自增主键+异步落盘+ThreadLocal 快照要在异步跳变前取（思政项目沉淀进 skill 的教训）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="56-测试工程师">5.6 测试工程师 </h3>
+<table>
+<thead>
+<tr>
+<th>高频场景</th>
+<th>怎么用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>需求→用例矩阵</td>
+<td>PRD 丢给 AI 产出测试用例矩阵（等价类/边界/异常流），人工补业务盲区</td>
+</tr>
+<tr>
+<td>自动化脚本</td>
+<td>用例→可执行脚本（单测/接口/E2E），维护成本大幅下降</td>
+</tr>
+<tr>
+<td>缺陷复现</td>
+<td>把 bug 描述给 AI：先写"复现该 bug 的失败测试"，修复后测试转绿=修复证明+永久回归防线</td>
+</tr>
+<tr>
+<td>穷举校验</td>
+<td>状态机 8×8 全矩阵穷举测试（工单系统实测：从抽样测试升级为穷举，人工不可能做到）</td>
+</tr>
+<tr>
+<td>测试有效性审计</td>
+<td>"检查这批测试是不是真的在测行为，有没有只测了 mock 的假测试"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>提效亮点</strong>：测试角色从"写用例的人"升级为"定义质量标准、审计 AI 产出的人"，覆盖率和深度都不降反升。</p>
+<h3 id="57-安全工程师">5.7 安全工程师 </h3>
+<table>
+<thead>
+<tr>
+<th>高频场景</th>
+<th>怎么用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全库安全扫描</td>
+<td>OWASP 视角全库走查：注入/XSS/SSRF/越权/密钥硬编码</td>
+</tr>
+<tr>
+<td>真实战绩</td>
+<td>工单系统六角色走查一次性挖出：<strong>JWT 弱默认密钥可离线伪造 admin 令牌</strong>（完全认证绕过）、<strong>Hermes baseUrl 用户可控→SSRF+API Key 外泄</strong>、<strong>幂等 marker 跨工单污染</strong>——三个 P0 都是长期存在但人工没发现的</td>
+</tr>
+<tr>
+<td>依赖审计</td>
+<td>死依赖清理+供应链风险面收敛（工单系统实测：<code>@ai-sdk/vue</code> 等零引用依赖清除）</td>
+</tr>
+<tr>
+<td>修复验证闭环</td>
+<td>每个安全修复配攻击视角测试用例，修复必须让攻击用例失败</td>
+</tr>
+<tr>
+<td>安全规范固化</td>
+<td>把安全红线写进 <a href="http://CLAUDE.md">CLAUDE.md</a> + Hook 强制拦截（凭据 AES-GCM、失败原因脱敏、SQL 审核绝不自动执行）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="58-全栈工程师--独立交付者">5.8 全栈工程师 / 独立交付者 </h3>
+<p>全栈是 AI 辅助开发的最大受益者——过去"一个人干不过来"的宽度问题被直接解决。四个真实项目就是证据（第 10 章）。核心心法：</p>
+<ol>
+<li><strong>架构分期</strong>：数据层→后端通用层→鉴权→业务→前端，返工最少（skill 沉淀结论）</li>
+<li><strong>安全前置</strong>：后端跑通立即加固，不留到最后</li>
+<li><strong>每个阶段一个可验收里程碑</strong>（PR 粒度）</li>
+<li>把跨栈知识缺口交给 AI 补（前端出身写 Spring Boot，靠 AI + 评审门禁保证质量）</li>
+</ol>
+<hr>
+<h2 id="第-6-章-全流程不跑偏单一事实源机制">第 6 章 全流程不跑偏：单一事实源机制 </h2>
+<h3 id="61-问题传统流程的传话失真">6.1 问题：传统流程的"传话失真" </h3>
+<p>需求→设计→开发→测试→验收，每个环节都在"翻译"上个环节的输出，每次翻译都在失真。传统解法是开会对齐——低效且结论不留痕。</p>
+<h3 id="62-解法文档链--单一事实源single-source-of-truth">6.2 解法：文档链 = 单一事实源（Single Source of Truth） </h3>
+<div class="mermaid">flowchart TD
+    PRD[PRD 需求文档&lt;br/&gt;产品经理 + AI 磨出] --&gt; SPEC[Spec 设计文档&lt;br/&gt;docs/specs/]
+    UED[UED 设计稿/样张] --&gt; SPEC
+    SPEC --&gt; PLAN[实施计划&lt;br/&gt;docs/plans/ 带验收标准]
+    PLAN --&gt; CODE[代码 + 测试&lt;br/&gt;每个任务块引用计划条目]
+    CODE --&gt; REVIEW[多角色评审记录&lt;br/&gt;结论写回 spec]
+    REVIEW --&gt; ACCEPT[验收&lt;br/&gt;对照 PRD 验收标准逐条核对]
+    ACCEPT -.验收差异写回.-&gt; PRD
+</div><p><strong>机制要点</strong>：</p>
+<ol>
+<li><strong>每环节产物都是版本化文档</strong>，进 git 仓库（<code>docs/specs/</code>、<code>docs/plans/</code>），不散落在聊天记录/群消息里</li>
+<li><strong>下游只认上游文档</strong>：开发照 spec 写，测试照 spec+PRD 出用例，验收照 PRD 验收标准——谁都不凭记忆干活</li>
+<li><strong>变更走文档</strong>：需求变了先改 PRD/spec 再改代码，AI 可以自动 diff 出"这次需求变更影响哪些已实现模块"</li>
+<li><strong>决策写回上游</strong>：评审/开发中的每个决策补录进 spec（工单系统实例：PM 拍板"发布≠完结"直接修订 spec §7 决策记录，并附 Architect 通知清单）</li>
+</ol>
+<h3 id="63-每个环节的防跑偏门禁">6.3 每个环节的"防跑偏门禁" </h3>
+<table>
+<thead>
+<tr>
+<th>环节交接</th>
+<th>门禁动作</th>
+<th>谁执行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PRD → 设计</td>
+<td>AI 以开发视角挑 PRD 歧义，产品澄清后冻结 v1</td>
+<td>产品 + AI</td>
+</tr>
+<tr>
+<td>设计 → 计划</td>
+<td>多角色评审 spec（架构/前后端/测试视角）</td>
+<td>架构师主持</td>
+</tr>
+<tr>
+<td>计划 → 编码</td>
+<td>人工批准计划（Plan Mode）</td>
+<td>技术负责人</td>
+</tr>
+<tr>
+<td>编码 → 合并</td>
+<td>测试全绿 + 代码评审 + （涉敏）安全评审</td>
+<td>CI + 评审者</td>
+</tr>
+<tr>
+<td>合并 → 验收</td>
+<td>对照 PRD 验收标准逐条核对，AI 生成验收报告</td>
+<td>测试 + 产品</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>实测效果：思政项目 spec+plan 双阶段评审，<strong>每一轮都抓到会导致返工的真问题</strong>；工单系统每个任务组固定"知会 Architect 契约变化"收尾，跨端契约从未失配。</p>
+</blockquote>
+<h3 id="64-需求变更与逻辑漂移必须全局统一不能只改一处">6.4 需求变更与逻辑漂移：必须全局统一，不能只改一处 </h3>
+<p>单一事实源不是建完就一劳永逸的——<strong>它会漂移</strong>。而漂移的那一刻，前面所有的文档投资就开始变成负资产。</p>
+<p><strong>为什么这件事对 AI 协作格外致命：AI 不会怀疑你的文档。</strong></p>
+<p>一个人看到 spec 写 A、代码做 B，会皱眉说"这不对啊，我问一下"。<strong>AI 看到的是两条同样白纸黑字的规范——它没有任何理由认为其中一份是过期的。</strong> 于是它会做三件事里的一件，而且都很糟：挑一个（可能正好挑中过期的那份）、把两个混着实现（产出一个谁都没设计过的四不像）、或者按旧 spec"修正"你新写的正确代码——<strong>它以为自己在帮你消除不一致</strong>。最坏的是：这三件事它都不会告诉你它做了。</p>
+<p><strong>不一致的三个来源，都很日常：</strong></p>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>典型场景</th>
+<th>漏改的地方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>需求变更</strong></td>
+<td>产品说"这个规则改一下"</td>
+<td>改了 PRD，忘了 spec、plan、已实现的代码、已写的测试</td>
+</tr>
+<tr>
+<td><strong>实现漂移</strong></td>
+<td>编码时发现设计方案行不通，就地换了实现</td>
+<td>改了代码，spec 还停在原方案</td>
+</tr>
+<tr>
+<td><strong>口头决策</strong></td>
+<td>评审时拍板"这个字段就用大写"</td>
+<td>只在对话里说了，任何文档都没留下</td>
+</tr>
+</tbody>
+</table>
+<p><strong>铁律：变更是一次成组的改动，不是改一处。</strong> 改需求 = 一次性同步 PRD → spec → plan → 代码 → 测试 → 决策记录，<strong>要么全改，要么先别改</strong>。只改代码不回写 spec，你省下的 5 分钟，会在下一个会话里以"AI 按旧 spec 把你的代码改回去"的形式还给你。</p>
+<p><strong>发现不一致时，按这个顺序处理：</strong></p>
+<ol>
+<li><strong>先定权威源</strong>——哪个是对的？是新需求对、还是代码里的实现对？<strong>先把这个问题问清楚再动手</strong>，不要一边改一边想。</li>
+<li><strong>让 AI 扫出全部受影响处</strong>——不要凭记忆改。变更的辐射范围通常比你以为的大：<blockquote>
+<p><code>需求变更：&lt;描述&gt;。请全库扫描并列出所有与新逻辑冲突的位置——包括 PRD/spec/plan 文档、实现代码、测试用例、注释、决策记录。只列清单和 file:line，先不要改。</code></p>
+</blockquote>
+</li>
+<li><strong>一次性对齐全部</strong>——按清单逐条改，改完再让它复扫一遍确认清零。</li>
+<li><strong>补一条决策记录</strong>：<strong>为什么变、什么时候变的、原方案为什么不行</strong>。这条最容易被跳过，也最值钱——半年后有人（或某个新会话）问"这里为什么这么设计"，它就是唯一的答案。</li>
+</ol>
+<p><strong>一个配套原则：权威源只有一份，其他地方只引用、不复制。</strong> 同一条规则在 spec 里写一遍、<a href="http://CLAUDE.md">CLAUDE.md</a> 里抄一遍、注释里再抄一遍——<strong>这三份将来必然失同步，只是时间问题</strong>。让下游指向上游（"鉴权规则见 spec §4"），而不是把内容拷过去。<strong>复制的那一刻，你就欠下了一笔一致性债务。</strong></p>
+<blockquote>
+<p>💡 一致性维护是单一事实源这套机制的<strong>月供</strong>。不交这个月供，文档链会从"防跑偏的护栏"退化成"让 AI 跑偏的噪声源"——而且退化是悄无声息的，等你发现时，已经不知道该信哪份了。</p>
+</blockquote>
+<hr>
+<h2 id="第-7-章-事实沟通用可验证的产物说话">第 7 章 事实沟通：用可验证的产物说话 </h2>
+<h3 id="71-核心理念">7.1 核心理念 </h3>
+<blockquote>
+<p><strong>观点会扯皮，事实不会。</strong> Claude Code 让"拿出事实"的成本降到接近零，于是大量协商式会议可以被"可验证产物"替代。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>传统沟通</th>
+<th>事实沟通（AI 产出）</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"我做得差不多了"</td>
+<td>git diff + 测试报告："37 个用例全绿，剩 2 项待 Docker 环境复跑"</td>
+<td>进度不再靠形容词</td>
+</tr>
+<tr>
+<td>"这个改动应该没影响别的"</td>
+<td>AI 全库引用分析："该函数被 6 处调用，其中 2 处受影响，已加回归测试"</td>
+<td>影响面有清单</td>
+</tr>
+<tr>
+<td>"线上问题可能是配置引起的"</td>
+<td>AI 走查报告：file:line 级证据 + 复现路径 + 修复方案</td>
+<td>归因有证据</td>
+</tr>
+<tr>
+<td>"这个方案更好"</td>
+<td>多方案对比表：性能/成本/迁移风险量化对比</td>
+<td>决策有依据</td>
+</tr>
+<tr>
+<td>口头需求确认</td>
+<td>spec 文档 diff：本次变更新增/修改条目高亮</td>
+<td>变更有痕迹</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-实战范例带证据的走查文档">7.2 实战范例：带证据的走查文档 </h3>
+<p>工单系统 <code>business-logic-walkthrough</code> 文档格式（六角色走查产物），可直接作为团队模板：</p>
+<pre data-role="codeBlock" data-info="markdown" class="language-markdown markdown"><code><span class="token title important"><span class="token punctuation">##</span> [P0] JWT 弱默认密钥可伪造 admin 令牌</span>
+<span class="token list punctuation">-</span> 证据：auth/JwtService.java:26 使用默认值 <span class="token code-snippet code keyword">`ticket-platform-local-secret`</span>，
+  且全部 *.yml/环境变量 零注入（已逐一核实）
+<span class="token list punctuation">-</span> 影响：任何人可离线签发 admin 令牌，完全认证绕过
+<span class="token list punctuation">-</span> 复现：<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>离线签发步骤</span><span class="token punctuation">&gt;</span></span>
+<span class="token list punctuation">-</span> 修复建议：强制外部注入随机密钥，启动时校验非空且 ≥32 字节
+<span class="token list punctuation">-</span> 状态：未修复
+</code></pre><p>每条有 <strong>证据（file:line）→ 影响 → 复现 → 建议 → 状态</strong>，任何人 5 分钟能核实。这份文档同时服务了：开发（修复输入）、测试（用例输入）、PM（排期输入）、高层（风险汇报输入）——<strong>一份事实，四方共用，零翻译损耗</strong>。</p>
+<h3 id="73-跨岗位事实沟通的三个习惯">7.3 跨岗位事实沟通的三个习惯 </h3>
+<ol>
+<li><strong>汇报带证据</strong>：任何"完成了"必须附测试输出/截图/构建日志</li>
+<li><strong>争议先核事实</strong>：两人对系统行为理解不一致时，先让 AI 读代码给出"实际行为"再讨论"应该行为"（实测：一个疑似权限 bug 排查后是误报，但排查过程反而挖出真问题——菜单可见性与接口鉴权耦合）</li>
+<li><strong>决策必留痕</strong>：口头拍板 30 秒内让 AI 补录进 spec/ADR</li>
+</ol>
+<hr>
+<h2 id="第-8-章-subagent-与-agent-teams-实战">第 8 章 Subagent 与 Agent Teams 实战 </h2>
+<blockquote>
+<p>这是从"一个 AI 助手"升级到"一支 AI 团队"的分水岭，也是本次分享的进阶重点。</p>
+</blockquote>
+<h3 id="81-subagent子代理任务级分身">8.1 Subagent（子代理）：任务级分身 </h3>
+<p>主会话可以派出子代理去执行独立子任务，子代理有<strong>独立上下文</strong>，干完把结论带回来。</p>
+<div class="mermaid">graph TD
+    M[主会话&lt;br/&gt;保持全局视野和决策权] --&gt; A[子代理1&lt;br/&gt;探索:梳理鉴权模块调用链]
+    M --&gt; B[子代理2&lt;br/&gt;实现:按计划完成任务块3]
+    M --&gt; C[子代理3&lt;br/&gt;评审:安全视角审查diff]
+    A --&gt; M2[结论汇总回主会话]
+    B --&gt; M2
+    C --&gt; M2
+</div><p><strong>什么任务该拆给子代理</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>适合 ✅</th>
+<th>不适合 ❌</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>大范围代码探索（读 50 个文件，只要结论）</td>
+<td>需要频繁人工确认的任务</td>
+</tr>
+<tr>
+<td>独立任务块的实现（有明确验收标准）</td>
+<td>与主线强耦合、边界模糊的改动</td>
+</tr>
+<tr>
+<td>多视角评审（每个评审员一个子代理）</td>
+<td>三两下就能完成的小事（开销不划算）</td>
+</tr>
+<tr>
+<td>并行批量作业（迁移 N 个模块）</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键收益：上下文隔离</strong>。子代理读 50 个文件的垃圾细节不会污染主会话——主会话只拿到干净结论，能持续保持高质量判断。</p>
+<blockquote>
+<p>⚠️ 实践约定（工单系统沉淀）：派子代理时<strong>必须显式指定模型</strong>——子代理不继承主会话的模型，不指定就是静默降级。怎么按角色分档配、省在哪不能省在哪，见 8.5。</p>
+</blockquote>
+<h3 id="82-多角色评审子代理的最高性价比用法">8.2 多角色评审：子代理的最高性价比用法 </h3>
+<p>让多个子代理分别戴上不同帽子审同一份产物：</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>&gt; 用 5 个子代理分别以 PM/架构师/前端/后端/测试 的视角评审 docs/specs/xxx.md，
+  各自输出：CONFIRMED 问题（有证据）/ 建议 / 放行结论。汇总后给我终审意见。
+</code></pre><p>真实战绩回顾：</p>
+<ul>
+<li>思政项目 spec+plan 双阶段多角色评审 → 每轮抓到真 blocker</li>
+<li>工单系统六角色业务走查 → 挖出 3 个 P0 安全漏洞</li>
+<li>工单系统状态机简化 → 五角色评审一致放行才实施，删掉 8 个死状态零回归</li>
+</ul>
+<p><strong>为什么有效</strong>：单一视角有盲区，角色提示词强制切换关注面；多个独立上下文互不干扰，相当于真开了一场评审会，但成本是几分钟。</p>
+<h3 id="83-sdd子代理驱动开发subagent-driven-development">8.3 SDD：子代理驱动开发（Subagent-Driven Development） </h3>
+<p>把六步法的"实施"环节升级为流水线：<strong>每个任务块 = 实现子代理 + 评审子代理接力</strong>，主会话只做调度和终审。</p>
+<div class="mermaid">flowchart LR
+    P[已批准的实施计划&lt;br/&gt;N个任务块] --&gt; T1[块1: 实现代理] --&gt; R1[块1: 评审代理]
+    R1 --&gt; T2[块2: 实现代理] --&gt; R2[块2: 评审代理]
+    R2 --&gt; T3[...] --&gt; F[全量终审&lt;br/&gt;整体一致性+全量测试]
+</div><p>真实数据：</p>
+<ul>
+<li>NCM 转换器：8 块 SDD 当日交付，36 单测全绿</li>
+<li>工单系统组B：11 任务 SDD 双车道（两条流水线并行）+ 逐任务评审 + 终审 READY_TO_MERGE，一天闭环</li>
+<li>工单系统组D：9 任务 SDD 全闭环，"终审零必修"</li>
+</ul>
+<h3 id="84-agent-teams会话级团队协作">8.4 Agent Teams：会话级团队协作 </h3>
+<p>Subagent 是"派活出去、拿结论回来"；<strong>Agent Teams 是多个平级 agent 长期共存、互相通信、各守一摊</strong>。适合更大颗粒的并行：</p>
+<div class="mermaid">graph LR
+    L[Lead 主控&lt;br/&gt;拆解+分配+集成] &lt;--&gt; FE[Teammate: 前端&lt;br/&gt;组件+页面]
+    L &lt;--&gt; BE[Teammate: 后端&lt;br/&gt;接口+DB]
+    L &lt;--&gt; QA[Teammate: 测试&lt;br/&gt;用例+回归]
+    FE &lt;-.契约对齐.-&gt; BE
+</div><p><strong>Subagent vs Agent Teams 怎么选</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Subagent</th>
+<th>Agent Teams</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>生命周期</td>
+<td>单任务，用完即回收</td>
+<td>长期存活，跨任务协作</td>
+</tr>
+<tr>
+<td>通信</td>
+<td>只向主会话汇报</td>
+<td>队员间可直接互通</td>
+</tr>
+<tr>
+<td>适用</td>
+<td>探索/评审/独立任务块</td>
+<td>前后端并行开发、大型专项</td>
+</tr>
+<tr>
+<td>成本</td>
+<td>低~中</td>
+<td>高（多个完整会话）</td>
+</tr>
+<tr>
+<td>配套</td>
+<td>计划批准+终审</td>
+<td>必须有契约文档+集成门禁</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Agent Teams 实践要点</strong>（工单系统经验）：</p>
+<ol>
+<li>每个 teammate 显式指定模型，不接受静默降级</li>
+<li>分工按<strong>边界清晰的模块</strong>切，不按"前半段后半段"切</li>
+<li>契约文档（API contract）是队员间的宪法，改契约必须走 Lead</li>
+<li><a href="http://AGENTS.md">AGENTS.md</a> 定义角色分工表（思政/工单系统均建立 6 角色分工），角色职责、交接物、通知义务写清楚</li>
+</ol>
+<h3 id="85-给每个代理配对模型兼顾-token-与效果">8.5 给每个代理配对模型：兼顾 token 与效果 </h3>
+<p>多代理真正的成本旋钮不在"派几个"，而在**"每个派谁去"**。同一份活，配错模型要么烧钱、要么烧掉质量。</p>
+<p><strong>先说必须知道的默认行为：子代理和 teammate 不继承主会话的模型。</strong> 你在主会话用着顶配，派出去的代理<strong>不指定就可能落到别的档位</strong>——这是<strong>静默降级</strong>：不报错、不提示，你以为一场 Opus 级的安全评审，实际拿到的是另一个档次的结论。工单系统的约定就是这么来的：<strong>Agent Teams / subagent 一律显式指定模型</strong>。</p>
+<p><strong>但"一律配最贵的"同样是浪费。</strong> 一个子代理读 50 个文件梳理调用链，钱花在了"读"上——而读不需要顶级判断力。按任务性质分档才是正解：</p>
+<table>
+<thead>
+<tr>
+<th>代理干的活</th>
+<th>配什么</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>判断类</strong>：终审、安全评审、架构评审、方案取舍</td>
+<td><strong>最强档</strong>（Opus / Fable）</td>
+<td>这里买的就是判断力，降档等于放弃这次评审的意义</td>
+</tr>
+<tr>
+<td><strong>实现类</strong>：按已批准的计划写代码 + 测试</td>
+<td><strong>中档</strong>（Sonnet）</td>
+<td>计划已经把判断做完了，代理只需忠实执行</td>
+</tr>
+<tr>
+<td><strong>检索/机械类</strong>：找文件、梳理调用链、批量改名、汇总结论</td>
+<td><strong>轻量档</strong>（Haiku）</td>
+<td>要的是覆盖面和速度，不是深度推理</td>
+</tr>
+</tbody>
+</table>
+<p>参考量级（官方 API 价目，每百万 token 输入/输出）：<strong>Fable 5 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10</mn><mi mathvariant="normal">/</mi></mrow><annotation encoding="application/x-tex">10/</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">10/</span></span></span></span>50 · Opus 4.8 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>5</mn><mi mathvariant="normal">/</mi></mrow><annotation encoding="application/x-tex">5/</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">5/</span></span></span></span>25 · Sonnet 5 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mi mathvariant="normal">/</mi></mrow><annotation encoding="application/x-tex">3/</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">3/</span></span></span></span>15 · Haiku 4.5 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi mathvariant="normal">/</mi></mrow><annotation encoding="application/x-tex">1/</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1/</span></span></span></span>5</strong>。也就是说<strong>同样的输出量，Haiku 比 Opus 便宜约 5 倍、比 Fable 便宜 10 倍</strong>。订阅制下你付的不是账单而是额度，但额度消耗的速率差是同一个比例——<strong>六角色评审全上顶配和"两个判断角色上顶配、四个检索角色用轻量档"，跑一天的额度差得非常明显</strong>（计费两条路见 4.11）。</p>
+<p><strong>第二个旋钮：推理力度（effort）。</strong> 除了换模型，还能调同一个模型想多深（<code>low</code> / <code>medium</code> / <code>high</code> / <code>xhigh</code> / <code>max</code>）。机械型子代理开 <code>low</code> 就够——<strong>它少想、少绕、少输出，省的是纯浪费的那部分</strong>；终审和难题留给 <code>high</code> 以上。</p>
+<p><strong>配在哪：写进 <code>.claude/agents/*.md</code> 的 frontmatter</strong>（模型和推理力度都可以固定在角色定义里），随仓库进版本库——<strong>全团队派出的"安全评审员"就都是同一个档位的安全评审员</strong>，不靠每个人记得手动指定（第 11 章"一致性靠机制不靠自觉"）。</p>
+<blockquote>
+<p>🔴 <strong>一条铁律：省 token 可以省在"手"上，绝不能省在"眼"上。</strong><br>
+实现代理降档，最坏结果是代码写得笨，评审会拦下来；<strong>评审代理降档，最坏结果是它给你一份看起来很专业的"通过"</strong>——你不但没得到评审，还得到了一个虚假的安全感。<strong>假评审比不评审更危险</strong>，因为它让你停止了怀疑。</p>
+</blockquote>
+<h3 id="86-多代理的反模式什么时候别用">8.6 多代理的反模式（什么时候别用） </h3>
+<table>
+<thead>
+<tr>
+<th>反模式</th>
+<th>后果</th>
+<th>正确做法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>小任务也开团队</td>
+<td>token 成本数倍，收益为零</td>
+<td>单会话直接干</td>
+</tr>
+<tr>
+<td>无契约并行开发</td>
+<td>集成时对不上，返工超过节省</td>
+<td>契约先行再并行</td>
+</tr>
+<tr>
+<td>层层转包无终审</td>
+<td>错误在代理链中放大</td>
+<td>主会话必须终审+全量验证</td>
+</tr>
+<tr>
+<td>用多代理掩盖模糊需求</td>
+<td>N 个代理各自理解各自跑偏</td>
+<td>需求先澄清，再谈并行</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="第-9-章-harness-自我进化机制让工具越用越懂你">第 9 章 Harness 自我进化机制：让工具越用越懂你 </h2>
+<blockquote>
+<p>大多数人用 AI 工具是"每次从零开始"；高手的环境是<strong>用得越久越强</strong>。这就是自我进化机制——把每一次纠偏、每一个教训固化为环境资产。本章全部机制均已在我的四个项目中实际运行。</p>
+</blockquote>
+<h3 id="91-四级固化阶梯">9.1 四级固化阶梯 </h3>
+<p>经验按"重要性和强制程度"逐级升格：</p>
+<div class="mermaid">flowchart TD
+    E[一次具体经验/纠偏] --&gt; M["① 记忆 Memory&lt;br/&gt;项目级 memory/ 目录&lt;br/&gt;会话自动加载 · 记得"]
+    M --&gt;|反复适用| R["② 规则 CLAUDE.md/AGENTS.md&lt;br/&gt;项目宪法 · 必须遵守"]
+    R --&gt;|跨项目通用| S["③ 技能 Skill&lt;br/&gt;方法论包 · 新项目直接继承"]
+    S --&gt;|违反代价高| H["④ 钩子 Hook&lt;br/&gt;脚本强制拦截 · 做不到才怪"]
+</div><table>
+<thead>
+<tr>
+<th>层级</th>
+<th>载体</th>
+<th>性质</th>
+<th>真实例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① 记忆</td>
+<td><code>memory/*.md</code> + <a href="http://MEMORY.md">MEMORY.md</a> 索引</td>
+<td>软性——AI 记得并参考</td>
+<td>"无人值守授权范围"、"commit 用中文"、"派 agent 显式指定模型"</td>
+</tr>
+<tr>
+<td>② 规则</td>
+<td><a href="http://CLAUDE.md">CLAUDE.md</a> / <a href="http://AGENTS.md">AGENTS.md</a></td>
+<td>硬性约定——每次会话必守</td>
+<td>六步强制工作流、安全红线、技术栈禁令</td>
+</tr>
+<tr>
+<td>③ 技能</td>
+<td><code>~/.claude/skills/*/SKILL.md</code></td>
+<td>可复用方法论——跨项目继承</td>
+<td>solo-fullstack-project（332 行，含 Lessons Learned 演进章节）</td>
+</tr>
+<tr>
+<td>④ 钩子</td>
+<td><code>.claude/settings.json</code> hooks</td>
+<td>机器强制——违反即拦截</td>
+<td>提交前强制 lint、危险命令拦截</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键：不是所有经验都该往上爬——先软后硬，能停就停。</strong></p>
+<p>这个阶梯最容易被误读成"越往上越好，都升到 Hook 最保险"。恰恰相反：</p>
+<blockquote>
+<p><strong>如果所有约束都是强制拦截，AI 会被频繁打断，开发效率断崖式下降；如果所有约束都是软性建议，约束就形同虚设。</strong></p>
+</blockquote>
+<p>正确的做法是<strong>梯度分层</strong>：<strong>绝大多数约束停在 ①②（低摩擦运行），只有安全红线才升到 ④（高摩擦强制）</strong>。判断该升到哪一级，问两个问题：</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>决定</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>这类问题<strong>反复出现</strong>吗？</td>
+<td>偶发 → 停在 ① 记忆；反复 → 升 ② 规则</td>
+</tr>
+<tr>
+<td>违反的<strong>代价</strong>有多大？</td>
+<td>影响可维护性 → 停在 ② 规则（软红线，建议遵循）<br>导致生产事故或合规问题 → 升 ④ Hook（硬红线，必须拦截）</td>
+</tr>
+</tbody>
+</table>
+<p>所以规则本身也要<strong>分级标注</strong>：哪些是"硬红线"（违反即事故），哪些是"软建议"（违反只是不优雅）——<strong>让 AI 能区分优先级</strong>。一份所有条目都标着"CRITICAL / 必须 / 严禁"的 <a href="http://CLAUDE.md">CLAUDE.md</a>，等于没有优先级：模型会把注意力均摊到几十条同等紧急的规则上，真正的红线反而被淹没。<strong>红线之所以是红线，是因为它稀少。</strong></p>
+<blockquote>
+<p>另外：<strong>每次升级都要人工确认，禁止 AI 自动改写规范文件</strong>——否则规则会在你不知情的情况下漂移，这比没有规则更危险。</p>
+</blockquote>
+<h3 id="92-记忆系统怎么运转">9.2 记忆系统怎么运转 </h3>
+<p>每个项目有独立记忆目录，记忆分四类：</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>memory/
+├── MEMORY.md                        ← 索引，每次会话自动加载
+├── project-xxx.md                   ← project: 项目状态/架构决策/待办
+├── feedback-xxx.md                  ← feedback: 用户纠偏(含 Why + How to apply)
+├── user-xxx.md                      ← user: 用户背景与偏好
+└── reference-xxx.md                 ← reference: 外部资源指针
+</code></pre><p><strong>feedback 记忆是进化的核心</strong>。真实例子（思政项目）：</p>
+<blockquote>
+<p>我连续用多选题问卷方式澄清需求，被用户拒绝两次。沉淀记忆：<br>
+<em>"复杂设计澄清：先查证代码事实 → 文字给出 2-3 方案及利弊+推荐 → 用户文字拍板。仅在选项清晰互斥时才用选择题。<strong>Why</strong>: 用户需要看到严谨的事实核实与利弊分析，而不是被动选择预设选项。"</em></p>
+<p>从此以后所有会话自动带着这条行为准则——<strong>同一个错误不犯第二次</strong>。</p>
+</blockquote>
+<h3 id="93-skill-演进方法论的复利">9.3 Skill 演进：方法论的复利 </h3>
+<p><code>solo-fullstack-project</code> skill 的演进规则（写在 skill 内部）：</p>
+<pre data-role="codeBlock" data-info="markdown" class="language-markdown markdown"><code><span class="token title important"><span class="token punctuation">##</span> Skill Evolution</span>
+本 skill 随真实项目经验进化。触发时机：
+<span class="token list punctuation">-</span> 新业务模块完成 / 重大 bug 解决 / 部署上线
+<span class="token list punctuation">-</span> 性能优化 / 安全修复 / 流程改进
+触发时 AI 主动询问："本次经验是否需要更新到 skill？"
+</code></pre><p>已沉淀的教训举例（每条都来自真实踩坑）：</p>
+<ul>
+<li>开发顺序：数据层→后端通用→鉴权→业务→前端，返工最少</li>
+<li>API key 永不进前端，内部项目也走后端代理</li>
+<li>"访问量"语义必须让业务方签字（API 调用数 ≈ 页面浏览量 × 10，报表时点炸雷）</li>
+<li>高写日志表：自增主键+异步落盘+ThreadLocal 快照在异步跳变前取</li>
+</ul>
+<p><strong>复利效应</strong>：第 1 个项目踩的坑，第 4 个项目开工第一天就全部免疫。这是 AI 辅助开发和传统开发最大的差异之一——<strong>经验的边际复制成本为零</strong>。</p>
+<h3 id="94-进化的两个触发器关键不进化的环境会退化">9.4 进化的两个触发器（关键！不进化的环境会退化） </h3>
+<ol>
+<li><strong>AI 主动提议</strong>：在里程碑节点（模块完成/踩坑/上线）主动问"要不要沉淀"</li>
+<li><strong>人及时纠偏</strong>：AI 行为不符合预期时，别只是当场纠正——花 30 秒说"记住这一点"，让它写入 feedback 记忆</li>
+</ol>
+<p>配套纪律：<strong>错误的记忆要删除</strong>。记忆是资产也需要 GC，过时信息比没有信息更有害。</p>
+<h3 id="95-团队级进化个人资产--团队资产">9.5 团队级进化（个人资产 → 团队资产） </h3>
+<table>
+<thead>
+<tr>
+<th>个人级</th>
+<th>团队级升格方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>个人 memory</td>
+<td>周会 5 分钟：值得共享的沉淀 → 提 PR 进项目 <a href="http://CLAUDE.md">CLAUDE.md</a></td>
+</tr>
+<tr>
+<td>个人 skill</td>
+<td>评审后放入团队 skill 仓库，全员安装</td>
+</tr>
+<tr>
+<td>个人纠偏</td>
+<td>高频纠偏 → 固化为团队 Hook，机器强制</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>换电脑实证：Mac→Windows 迁移时，skills + memory 全部随身迁移，四个项目的经验资产零丢失。<strong>员工的隐性经验变成了可迁移、可继承、可审计的显性资产</strong>——这一点的组织意义不亚于提效本身。</p>
+</blockquote>
+<h3 id="96-环境即资产换设备只需带走一个文件夹">9.6 环境即资产：换设备只需带走一个文件夹 </h3>
+<p>自我进化机制的全部成果都存在用户主目录的 <code>~/.claude/</code> 文件夹里——<strong>换电脑/重装系统，拷走这一个文件夹，整个"进化后的环境"就跟着走</strong>：</p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>~/.claude/
+├── projects/&lt;各项目&gt;/          ← 每个项目的会话历史 + memory/ 长期记忆
+├── skills/                     ← 个人技能包（方法论资产）
+├── commands/                   ← 个人斜杠命令
+├── settings.json               ← 权限/Hooks/偏好配置
+└── plugins/                    ← 已装插件
+</code></pre><p><strong>真实案例就是本文档自己</strong>：Mac→Windows 换机后，从旧 <code>.claude</code> 文件夹里完整恢复了思政/baseProject/web-tool 三个项目的全部项目记忆、踩坑教训和 skill——本文档第 10 章的案例数据全部来自这次恢复。</p>
+<p><strong>三个实操注意点</strong>：</p>
+<ol>
+<li><strong>项目记忆按"项目路径"归档</strong>：新机器上项目路径变了（如 <code>/Users/x/proj</code> → <code>D:\proj</code>），旧记忆不会自动加载——把旧项目的 <code>memory/</code> 内容汇总导入新路径对应目录，或让 Claude 帮你做一次迁移整理（一句话的事）</li>
+<li><strong>凭据文件当密钥对待</strong>：文件夹里含登录凭据/OAuth token，拷贝传输走安全通道，不要发聊天工具/网盘明文</li>
+<li><strong>可以瘦身</strong>：<code>cache/</code>、<code>debug/</code>、<code>file-history/</code> 等目录是临时产物，迁移时可跳过；真正的资产是 projects/*/memory、skills、commands、settings</li>
+</ol>
+<blockquote>
+<p>团队视角的延伸：个人资产在 <code>~/.claude/</code>，<strong>团队资产在各项目仓库的 <a href="http://CLAUDE.md">CLAUDE.md</a> + <code>.claude/</code> 目录里</strong>（随 git 走，天然多机同步）。两层资产都不会因换设备、换人而丢失——这就是"经验资产化"的完整闭环。</p>
+</blockquote>
+<hr>
+<h1 id="part-d-真实案例复盘">Part D 真实案例复盘 </h1>
+<h2 id="第-10-章-四个项目案例">第 10 章 四个项目案例 </h2>
+<h3 id="101-案例一思政项目01-全栈含技术栈整体迁移">10.1 案例一：思政项目（0→1 全栈，含技术栈整体迁移） </h3>
+<p><strong>背景</strong>：教育行业项目（学校 AI Box / 长宁项目），monorepo：Web 前端（Vue3+TS+AntDV）+ H5 + 后端。</p>
+<p><strong>关键战役</strong>：</p>
+<ol>
+<li><strong>0→1 搭建</strong>：单人完成前端+H5+后端+部署整条线</li>
+<li><strong>安全加固冲刺</strong>（一轮完成）：API 密钥从前端全部移到后端代理、XSS 全量 DOMPurify 消毒、前端 35 处 any 消除、前后端 37 个测试补齐——传统模式这是一个"排期两周的专项"，实际一个冲刺收口</li>
+<li><strong>NestJS→Spring Boot 整体迁移</strong>：公司技术栈统一要求。设计文档先行（迁移设计+实施计划），8 大业务模块迁移，双端并行期 API 路由 100% 一致，前端无感切换</li>
+<li><strong>数据中心/活跃度统计需求</strong>：spec+plan 双阶段多角色评审（PM/架构/前后端），抓到漏 @EnableAsync、ThreadLocal 跨线程竞态、403 走 HTTP-200+R.code 契约约定、tenantType 大小写等真 blocker</li>
+</ol>
+<p><strong>可讲的经验</strong>：</p>
+<ul>
+<li>强制六步工作流写进 <a href="http://CLAUDE.md">CLAUDE.md</a>，是后面所有项目的流程母版</li>
+<li>多角色评审第一次展现威力：<strong>评审几分钟 vs 调试几天</strong></li>
+<li>/daily-report 自动化：日报从 15 分钟/天 → 1 分钟确认</li>
+</ul>
+<h3 id="102-案例二baseproject-分支产品线一个仓库长出多个产品">10.2 案例二：baseProject 分支产品线（一个仓库长出多个产品） </h3>
+<p><strong>模式</strong>：<code>main</code> 分支 = 企业级跨平台 IM 模板（RN+Node+PostgreSQL 完整资产）；新产品 = 开新分支转型，历史资产保留可随时恢复。</p>
+<p><strong>战绩</strong>：<code>feature/NCM-mp3</code> 分支从 IM 模板转型为纯前端音频转换器：</p>
+<ul>
+<li>Day 1：四问定架构 → 设计文档定稿 → <strong>8 块 SDD 当日全部落地</strong>（36 单测、类型零错、构建通过）</li>
+<li>Day 3：扩展为通用音频转换器：可插拔引擎抽象 + 47 个 SEO 组合落地页构建期预渲染，68 单测、覆盖率 ≥87%，两轮评审 must-fix 全修</li>
+</ul>
+<p><strong>可讲的经验</strong>：</p>
+<ul>
+<li><strong>无人值守模式</strong>的正确打开方式：显式授权范围（可自动选型/装依赖）+ 保留硬红线（不 push/不删库）+ 事后全量验证</li>
+<li><strong>真实样本验证教训</strong>：NCM 3.0+ 格式偏移坑——自造测试夹具测不出真实文件的容器差异，上真实样本后 80/80 通过才收口。<strong>AI 的自测可能构造出"自洽但脱离现实"的验证，关键路径必须注入真实数据</strong></li>
+<li>UI 选型样张化：4 套 HTML 样张让干系人"用看的选"</li>
+</ul>
+<h3 id="103-案例三web-tool-工具平台资产组合--契约驱动两天成型">10.3 案例三：web-tool 工具平台（资产组合 + 契约驱动，两天成型） </h3>
+<p><strong>模式</strong>：pdf-tools 的插件式架构（内核）+ baseProject 的视觉主题（皮肤）→ 合成新平台。<strong>已有项目资产像积木一样组合</strong>。</p>
+<p><strong>战绩</strong>：设计定稿次日，一天合并 3 个 PR：</p>
+<table>
+<thead>
+<tr>
+<th>PR</th>
+<th>内容</th>
+<th>测试</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S0 主站地基</td>
+<td>4 工具 + SEO 引擎（双语正文+JSON-LD 预渲染）+ 合规组件</td>
+<td>131</td>
+</tr>
+<tr>
+<td>S0.5 音频迁移</td>
+<td>ffmpeg.wasm 栈 + 47 组合落地页（构建 115 页）</td>
+<td>206</td>
+</tr>
+<tr>
+<td>S1 后端</td>
+<td>完整 Spring Boot 3（反馈 API+文档转换+管理后台+限流+部署产物）</td>
+<td>后端 69 + 前端 225</td>
+</tr>
+</tbody>
+</table>
+<p><strong>可讲的经验</strong>：</p>
+<ul>
+<li><strong>契约先行 = 前后端零返工</strong>：<code>api-contract-v1.md</code> 先定死（成功二进制/失败 JSON 互斥、429 Retry-After、RFC5987 文件名），双方照契约各自实施，端到端 curl 实测一次对齐</li>
+<li>每 Chunk 双阶段审查 + 全量终审的质量节拍</li>
+<li>分阶段交付：每阶段一个 PR 一个可验收里程碑，进度对外完全透明</li>
+</ul>
+<h3 id="104-案例四工单系统存量项目提效对多数团队最有参考价值">10.4 案例四：工单系统（存量项目提效——对多数团队最有参考价值） </h3>
+<blockquote>
+<p>前三个案例是 0→1，但多数同事日常面对的是存量系统。这个案例回答："接手一个跑了很久的系统，AI 能干什么？"</p>
+</blockquote>
+<p><strong>背景</strong>：P0 问题工单平台（Spring Boot 2.7 + JDK8 + MongoDB + Vue3/Element Plus），接手时已有大量存量代码。</p>
+<p><strong>三天时间线</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>天</th>
+<th>动作</th>
+<th>产出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day 1</td>
+<td><strong>入场三板斧</strong>：建 <a href="http://CLAUDE.md">CLAUDE.md</a>（按本项目栈和安全姿态改写，与思政完全不同）+ <a href="http://AGENTS.md">AGENTS.md</a>（6 角色）+ <a href="http://MEMORY.md">MEMORY.md</a>，外加敏感/大文件排除规则</td>
+<td>AI 完成项目认知；顺带发现 4 个存量问题</td>
+</tr>
+<tr>
+<td>Day 2</td>
+<td><strong>六角色深度业务走查</strong>（产品/架构/前端/后端/测试/安全各一个视角）</td>
+<td>带 file:line 证据的走查文档：3 个 P0（JWT 可伪造 admin、SSRF+密钥外泄、幂等 marker 跨工单污染）+ 一批 P1</td>
+</tr>
+<tr>
+<td>Day 3+</td>
+<td><strong>分组并行修复</strong>：状态机 8 态简化（五角色评审后实施，322 单测 0 失败）；组B 越权+配额 11 任务 SDD 一天闭环；组C 前端 i18n 13 任务 13 提交；组D 运营能力 9 任务"终审零必修"</td>
+<td>3 个 P0 修掉 2 个，4 组任务并行推进</td>
+</tr>
+</tbody>
+</table>
+<p><strong>可讲的经验</strong>：</p>
+<ul>
+<li>存量项目第一步永远是<strong>建立 AI 的项目认知</strong>（三板斧），当天完成当天开工</li>
+<li><strong>AI 审计的深度是人工不可及的</strong>：JWT 弱密钥漏洞长期存在，六角色走查一次挖出——并且逐一核实了"所有 yml/环境变量确实零注入"这种人工不会去穷举的证据链</li>
+<li>组间并行（B/C/D 互不阻塞）展示了多代理协作的现实收益</li>
+<li>诚实汇报文化：文档里明确记着"JWT 弱默认密钥仍未修"、"集成测试待 Docker 复跑"——<strong>AI 时代的工程诚信是刻意设计出来的</strong>（第 12 章）</li>
+</ul>
+<h3 id="105-四案例横向总结">10.5 四案例横向总结 </h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>思政</th>
+<th>baseProject</th>
+<th>web-tool</th>
+<th>工单系统</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>类型</td>
+<td>0→1 + 迁移</td>
+<td>分支产品线</td>
+<td>资产组合</td>
+<td>存量提效</td>
+</tr>
+<tr>
+<td>核心方法</td>
+<td>六步法+多角色评审</td>
+<td>无人值守+SDD</td>
+<td>契约驱动+分阶段</td>
+<td>走查+分组并行</td>
+</tr>
+<tr>
+<td>标志性数据</td>
+<td>35 any 清零/37 测试一冲刺</td>
+<td>设计当天→交付当天</td>
+<td>两天 3 PR/零返工</td>
+<td>3 天走查+修复 3 组并行</td>
+</tr>
+<tr>
+<td>最大启示</td>
+<td>流程即质量</td>
+<td>授权即速度</td>
+<td>契约即并行</td>
+<td>认知即入场券</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1 id="part-e-团队协作--质量--治理">Part E 团队协作 · 质量 · 治理 </h1>
+<h2 id="第-11-章-团队一致性机制">第 11 章 团队一致性机制 </h2>
+<blockquote>
+<p><strong>一致性靠机制，不靠自觉。</strong> 十个人各自用 AI，没有机制就是十种风格、十套流程、十个风险面。</p>
+</blockquote>
+<h3 id="111-三层共享配置随仓库分发clone-即继承">11.1 三层共享配置（随仓库分发，clone 即继承） </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>项目仓库/
+├── CLAUDE.md                 ← 项目宪法：技术栈/工作流/规范/红线（进版本库）
+├── AGENTS.md                 ← 角色分工表：谁负责什么、交接物、通知义务
+└── .claude/
+    ├── settings.json         ← 团队级权限与 Hooks（进版本库），含敏感/大文件 deny 排除规则
+    ├── commands/*.md         ← 团队共享斜杠命令（/daily-report、/review-api...）
+    └── skills/               ← 项目级技能包
+</code></pre><p><strong>效果</strong>：新成员 <code>git clone</code> 后启动 Claude Code，<strong>自动继承</strong>团队的全部规范、流程、红线和工具——AI 时代的新人培养从数周变成半天。</p>
+<h3 id="112-claudemd-团队维护规约">11.2 <a href="http://CLAUDE.md">CLAUDE.md</a> 团队维护规约 </h3>
+<ol>
+<li><a href="http://CLAUDE.md">CLAUDE.md</a> 变更<strong>走 PR 评审</strong>，和代码同等待遇（它就是"给 AI 的代码"）</li>
+<li>每个"AI 干了蠢事"的案例 → 反思是否该补一条规则</li>
+<li>定期瘦身：过时规则删除，太长的下沉到子文档</li>
+<li><strong>各项目独立成文，禁止跨项目复制粘贴</strong>（真实教训：思政项目"凭据可提交"与工单系统"严禁明文密钥"完全相反，抄错红线就是事故）</li>
+</ol>
+<h3 id="113-一致性检查的自动化hook--ci">11.3 一致性检查的自动化（Hook + CI） </h3>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>机制</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>会话内</td>
+<td>Hook 拦截</td>
+<td>AI 侧编辑后软提醒、Git 侧提交时硬阻断（双层防线见 4.7）</td>
+</tr>
+<tr>
+<td>仓库级</td>
+<td>CI 门禁</td>
+<td>测试全绿+类型零错才能合并（web-tool 每个 PR 实测标准）</td>
+</tr>
+<tr>
+<td>评审级</td>
+<td>固定评审流</td>
+<td>涉敏改动强制安全评审；契约变更强制知会架构师</td>
+</tr>
+</tbody>
+</table>
+<p><strong>门禁按角色分档安装</strong>：研发装全量（安全扫描 + 格式 + 编译 + 分支保护），非研发（PM/产品）只装安全扫描。第 5 章我们请非开发岗也进仓库用 AI，如果他们改份 PRD 就被编译检查拦住，第二天就不会再来了——<strong>门禁是用来拦风险的，不是用来拦人的</strong>。</p>
+<h3 id="114-团队节拍建议">11.4 团队节拍建议 </h3>
+<ul>
+<li><strong>周会 +5 分钟</strong>："本周 AI 协作的最佳实践/踩坑" → 值得固化的提 PR 进 <a href="http://CLAUDE.md">CLAUDE.md</a></li>
+<li><strong>提示词/命令库共建</strong>：好用的斜杠命令直接进 <code>.claude/commands/</code> 共享</li>
+<li><strong>结对启动</strong>：新手前两周与熟练者结对使用，纠正姿势的效率最高</li>
+</ul>
+<h2 id="第-12-章-质量保障">第 12 章 质量保障 </h2>
+<h3 id="121-ai-时代的质量公式">12.1 AI 时代的质量公式 </h3>
+<blockquote>
+<p>质量 = 明确的验收标准 × 自动化验证 × 分层评审 × 诚实汇报</p>
+</blockquote>
+<p>四个都是机制，没有一个依赖"AI 足够聪明"。</p>
+<h3 id="122-tdd-是-ai-协作的最佳拍档">12.2 TDD 是 AI 协作的最佳拍档 </h3>
+<p>先让 AI 写失败测试（人审测试是否真的表达需求）→ 再让 AI 实现到测试转绿。测试即规格：<strong>审 10 个测试用例比审 500 行实现快得多，而且审的是"行为"而不是"写法"</strong>。</p>
+<blockquote>
+<p>实测：NCM 转换器 8 块全程 TDD；工单系统状态机简化用 8×8 穷举矩阵测试替代抽样。</p>
+</blockquote>
+<h3 id="123-分层验证金字塔">12.3 分层验证金字塔 </h3>
+<div class="mermaid">graph TD
+    A[人工终审&lt;br/&gt;关键决策与验收] --&gt; B[多角色评审&lt;br/&gt;子代理 PM/架构/安全/测试视角]
+    B --&gt; C[自动化门禁&lt;br/&gt;测试/类型/lint/构建 全绿]
+    C --&gt; D[AI 自我验证&lt;br/&gt;跑测试给证据 不许口头完成]
+</div><p>自下而上成本递增、频率递减：AI 每步自验 → 每任务块过门禁 → 每 PR 多角色评审 → 人只终审。</p>
+<h3 id="124-防-ai-特有风险的三道防线">12.4 防 AI 特有风险的三道防线 </h3>
+<table>
+<thead>
+<tr>
+<th>AI 特有风险</th>
+<th>防线</th>
+<th>真实案例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>自洽但脱离现实的验证</strong>（自造测试数据测不出真实差异）</td>
+<td>关键路径强制真实样本验证</td>
+<td>NCM 3.0 格式坑：自加密夹具全绿，真实文件乱码；换 80 个真实样本验证后才收口</td>
+</tr>
+<tr>
+<td><strong>声称完成但没做</strong>（幻觉式汇报）</td>
+<td>验证前置："跑给我看"文化 + Hook 强制</td>
+<td>工单系统所有任务组以"322 单测 0 失败"这类可复核证据收口</td>
+</tr>
+<tr>
+<td><strong>顺手改了不该改的</strong>（范围蔓延）</td>
+<td>Plan Mode 限定范围 + diff 审查 + git 及时提交做还原点</td>
+<td>六步法第③步计划批准即范围冻结</td>
+</tr>
+</tbody>
+</table>
+<h3 id="125-诚实汇报是设计出来的">12.5 诚实汇报是设计出来的 </h3>
+<p>要求 AI 汇报格式固定为三栏：<strong>已完成（附证据）/ 未完成（原因）/ 风险与待办</strong>。</p>
+<blockquote>
+<p>工单系统实践示范："本地门全绿（单元 24/24+前端 276/276）；<strong>待办</strong>：Docker 全量集成测试复跑、手动提交、知会 Architect。" —— 未尽事项永远显式列出，不允许"差不多都好了"。</p>
+</blockquote>
+<h2 id="第-13-章-安全合规红线">第 13 章 安全合规红线 </h2>
+<h3 id="131-数据边界">13.1 数据边界 </h3>
+<table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一般业务代码</td>
+<td>允许用于 AI 辅助开发</td>
+</tr>
+<tr>
+<td>密钥/凭据/证书</td>
+<td><strong>绝不进上下文</strong>：settings.json deny 规则排除（<code>Read(./.env*)</code> 等）+ 环境变量注入 + Hook 拦截含密钥文件读取</td>
+</tr>
+<tr>
+<td>客户数据/生产数据</td>
+<td>禁止投喂；调试用脱敏样本</td>
+</tr>
+<tr>
+<td>未公开商业信息</td>
+<td>按公司密级政策单独评估</td>
+</tr>
+</tbody>
+</table>
+<p>企业落地可选：企业级 API 合同（数据不用于训练）、专有云/网关部署、审计日志全量留存。</p>
+<h3 id="132-权限分级claude-code-内置机制">13.2 权限分级（Claude Code 内置机制） </h3>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>行为</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>默认（逐项确认）</td>
+<td>每个写操作/命令需人工批准</td>
+<td>新手、敏感项目</td>
+</tr>
+<tr>
+<td>项目级白名单</td>
+<td>settings.json 允许常用安全命令</td>
+<td>团队标准配置（进版本库统一）</td>
+</tr>
+<tr>
+<td>无人值守</td>
+<td>大范围自主执行</td>
+<td>显式授权+红线保留+事后全量验证（见 4.9）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="133-不可自动执行清单我们四个项目的公约数">13.3 不可自动执行清单（我们四个项目的公约数） </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>❌ git push / 强制回退 / 批量删除
+❌ 生产环境任何操作（部署/DB 变更/配置修改）
+❌ 对外发布（发消息/发邮件/开票据）
+❌ 自动审批类动作（工单系统铁律：Archery SQL 审核绝不自动审批执行，AI 全程只建议）
+✅ 以上全部 = AI 准备好一切 + 人按下最后一个按钮
+</code></pre><h3 id="134-ai-是安全的净增益">13.4 AI 是安全的净增益 </h3>
+<p>担心 AI 引入安全风险是对的，但账要算全：工单系统的 JWT 认证绕过、SSRF 密钥外泄都是<strong>长期存在、一直没被发现的存量漏洞，AI 走查一次挖出</strong>。配合红线机制，AI 对安全是显著净增益。建议把"AI 安全走查"纳入固定研发流程（每次大版本前跑一轮六角色走查）。</p>
+<hr>
+<h1 id="part-f-量化与落地">Part F 量化与落地 </h1>
+<h2 id="第-14-章-提效度量体系与成本测算">第 14 章 提效度量体系与成本测算 </h2>
+<h3 id="141-度量原则别用感觉用基线对比">14.1 度量原则：别用感觉，用基线对比 </h3>
+<p>试点前先测 2~4 周基线，再对比。推荐指标（速度/质量两维<strong>对齐 DORA 四指标</strong>——业界研发效能度量的事实标准，Google 每年发布行业基准线可直接对标）：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>指标</th>
+<th>对齐行业标准</th>
+<th>采集方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>速度</td>
+<td>需求交付周期（需求确认→合并）、部署频率、评审等待时长</td>
+<td>DORA：变更前置时间 / 部署频率</td>
+<td>项目管理工具/git</td>
+</tr>
+<tr>
+<td>质量</td>
+<td>变更失败率（上线后需修复的变更占比）、缺陷密度、返工率、测试覆盖率</td>
+<td>DORA：变更失败率 / 故障恢复时长（MTTR）</td>
+<td>CI/缺陷系统</td>
+</tr>
+<tr>
+<td>深度</td>
+<td>安全漏洞发现数、技术债清理量</td>
+<td>—</td>
+<td>走查文档/扫描报告</td>
+</tr>
+<tr>
+<td>资产</td>
+<td><a href="http://CLAUDE.md/skill/%E5%91%BD%E4%BB%A4%E7%9A%84%E6%B2%89%E6%B7%80%E6%95%B0%E9%87%8F%E4%B8%8E%E5%A4%8D%E7%94%A8%E6%AC%A1%E6%95%B0">CLAUDE.md/skill/命令的沉淀数量与复用次数</a></td>
+<td>—</td>
+<td>仓库统计</td>
+</tr>
+<tr>
+<td>体验</td>
+<td>开发者满意度（NPS）、"愿意回到没有 AI 的工作方式吗"</td>
+<td>SPACE 框架的 S（满意度）维度</td>
+<td>匿名问卷</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>🔧 <strong>采集自动化</strong>：Claude Code 原生支持 OpenTelemetry 指标导出——使用量、成本、会话数可直接接入公司现有监控体系（Grafana 等），使用侧数据零人工统计；DORA 指标从 CI/CD 与 git 记录自动计算。<strong>度量本身不允许增加开发者负担</strong>，否则数据一定失真。</p>
+</blockquote>
+<blockquote>
+<p>⚠️ 反指标警告：<strong>不要考核"AI 生成代码占比"或"AI 使用时长"</strong>——会催生为用而用；也不要用代码行数（AI 时代更没意义了）。</p>
+</blockquote>
+<h3 id="142-成本测算模型">14.2 成本测算模型 </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>月成本 = 席位订阅费 × 人数 + 超额 token 费用（重度多代理场景）
+月收益 = Σ(节省工时 × 人力成本) + 避免的缺陷成本 + 提前交付的业务价值
+</code></pre><p>经验法则：一个研发人员月成本数万元，订阅费约为其 1%~3%。<strong>只要每月为每人节省半天以上，即为正收益</strong>——从我们的案例看（日报自动化每天节省 14 分钟一项就够了），这个门槛非常容易越过。真实的争议从来不是"值不值"，而是"如何让不熟练的人也达到熟练者的收益水平"——这正是本次分享和第 15 章路线图要解决的。</p>
+<h3 id="143-月度汇报模板一页纸">14.3 月度汇报模板（一页纸） </h3>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>本月 AI 协作月报
+├─ 覆盖：活跃使用 X/Y 人，深度使用（用到计划模式/多代理）Z 人
+├─ 速度：需求平均交付周期 从 A 天 → B 天（环比 -N%）
+├─ 质量：缺陷密度环比 ±N%；AI 走查发现并修复安全问题 N 个
+├─ 资产：新增团队规则 N 条 / 共享命令 N 个 / skill 更新 N 次
+└─ 下月：&lt;瓶颈与改进动作&gt;
+</code></pre><h2 id="第-15-章-落地路线图">第 15 章 落地路线图 </h2>
+<h3 id="151-三阶段推进">15.1 三阶段推进 </h3>
+<div class="mermaid">flowchart LR
+    subgraph P1["阶段1 试点 (1~2月)"]
+        A1[3~5人种子队伍&lt;br/&gt;1~2个真实项目&lt;br/&gt;建立基线+度量]
+    end
+    subgraph P2["阶段2 规范化 (2~3月)"]
+        B1[产出团队规范v1&lt;br/&gt;CLAUDE.md模板/红线/门禁&lt;br/&gt;全员培训+结对推广]
+    end
+    subgraph P3["阶段3 规模化 (持续)"]
+        C1[全项目覆盖&lt;br/&gt;多代理进阶/自我进化机制&lt;br/&gt;月度度量汇报]
+    end
+    P1 --&gt; G1{门禁:试点数据&lt;br/&gt;正收益+无安全事故} --&gt; P2
+    P2 --&gt; G2{门禁:80%成员&lt;br/&gt;过基本功考核} --&gt; P3
+</div><p><strong>阶段 1 试点</strong>：挑选标准——自愿+骨干+真实项目（不要拿玩具项目试点，数据没说服力）。种子队员即未来各团队的"AI 教练"。</p>
+<p><strong>阶段 2 规范化</strong>：把试点沉淀为《团队 AI 协作规范 v1》（<a href="http://CLAUDE.md">CLAUDE.md</a> 模板、红线清单、门禁标准、本文档附录的命令库）；全员培训用"1 天课程 + 2 周结对"模式；出口考核用<strong>附录 D 基本功清单</strong>（10 项实操，结对演示 8/10 通过）。</p>
+<p><strong>阶段 3 规模化</strong>：新项目默认带 AI 配置脚手架；把"AI 安全走查"纳入版本发布流程；月度度量汇报驱动持续改进。</p>
+<h3 id="152-角色分工">15.2 角色分工 </h3>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>高层发起人（CTO）</td>
+<td>定调、给试点授权、看月度数据</td>
+</tr>
+<tr>
+<td>AI 效能负责人（1 人，可兼任）</td>
+<td>规范维护、工具配置、度量汇报</td>
+</tr>
+<tr>
+<td>各团队 AI 教练（种子队员）</td>
+<td>结对辅导、收集反馈、案例沉淀</td>
+</tr>
+<tr>
+<td>安全负责人</td>
+<td>红线制定、数据边界审计</td>
+</tr>
+</tbody>
+</table>
+<h3 id="153-常见阻力与应对">15.3 常见阻力与应对 </h3>
+<table>
+<thead>
+<tr>
+<th>阻力</th>
+<th>心声</th>
+<th>应对</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"AI 写的代码我不放心"</td>
+<td>质量担忧</td>
+<td>展示门禁机制（第 12 章）：AI 代码过的关卡比人写的更多；用工单系统安全走查实战反转认知</td>
+</tr>
+<tr>
+<td>"我自己写更快"</td>
+<td>熟练者的真实感受（前两周）</td>
+<td>承认学习曲线；结对让他看到熟练者的真实速度；从"读代码/写测试/查资料"等无争议场景切入</td>
+</tr>
+<tr>
+<td>"会不会替代我"</td>
+<td>职业焦虑</td>
+<td>讲清楚人机分工（1.2 节）：决策、审查、验收的价值更高了</td>
+</tr>
+<tr>
+<td>"又来一个新工具，过阵子就凉"</td>
+<td>变革疲劳</td>
+<td>试点数据说话；把工具收益直接兑现到个人（少加班、少写重复代码）</td>
+</tr>
+<tr>
+<td>"太贵了"</td>
+<td>成本顾虑</td>
+<td>14.2 成本模型：订阅费 ≈ 人力成本 1~3%，半天/月即回本</td>
+</tr>
+</tbody>
+</table>
+<h3 id="154-第一周就能做的五件事行动清单">15.4 第一周就能做的五件事（行动清单） </h3>
+<ul>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox"> 每人：在自己项目跑 <code>/init</code> 生成 <a href="http://CLAUDE.md">CLAUDE.md</a>，补齐技术栈/规范/红线三节</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox"> 每人：用"计划模式"完成一个真实任务，体验批准制</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox"> 团队：建 <code>.claude/commands/</code> 放入第一个共享命令——<strong>建议就从 <code>/daily-report</code> 开始</strong>（4.4）：零风险、当天见效、每人每月省近一个工作日，单这一项就越过回本线</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox"> 团队：定出本团队"不可自动执行清单"（抄 13.3 改）</li>
+<li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox"> 负责人：选定试点项目和种子队员，测基线数据</li>
+</ul>
+<hr>
+<h1 id="附录">附录 </h1>
+<h2 id="附录-a-命令与快捷键速查">附录 A 命令与快捷键速查 </h2>
+<table>
+<thead>
+<tr>
+<th>命令/操作</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude</code></td>
+<td>在项目目录启动</td>
+</tr>
+<tr>
+<td><code>/init</code></td>
+<td>生成 <a href="http://CLAUDE.md">CLAUDE.md</a> 项目认知</td>
+</tr>
+<tr>
+<td><code>/clear</code></td>
+<td>清空上下文（换任务必用）</td>
+</tr>
+<tr>
+<td><code>/compact</code></td>
+<td>压缩上下文（长会话续命）</td>
+</tr>
+<tr>
+<td><code>/rewind</code></td>
+<td>回退到检查点，一键还原文件状态（止损三件套之一）</td>
+</tr>
+<tr>
+<td>Shift+Tab</td>
+<td>切换计划模式（Plan Mode）</td>
+</tr>
+<tr>
+<td>Esc</td>
+<td>打断当前执行（纠偏止损）</td>
+</tr>
+<tr>
+<td><code>/model</code></td>
+<td>切换模型</td>
+</tr>
+<tr>
+<td><code>claude -p "..."</code></td>
+<td>无头模式（脚本/CI 中调用）</td>
+</tr>
+<tr>
+<td><code>.claude/commands/x.md</code></td>
+<td>自定义斜杠命令 <code>/x</code></td>
+</tr>
+<tr>
+<td>settings.json <code>permissions.deny</code></td>
+<td>排除敏感/大文件读取（官方机制，勿用 <code>.claudeignore</code>，见 4.3）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="附录-b-反模式清单贴墙版">附录 B 反模式清单（贴墙版） </h2>
+<ol>
+<li><strong>无验收标准就开工</strong> —— 返工之母</li>
+<li><strong>跳过计划模式做大改动</strong> —— 范围失控之源</li>
+<li><strong>一个会话干到天荒地老</strong> —— 上下文污染，质量崩塌</li>
+<li><strong>AI 说完成就信</strong> —— 必须"跑给我看"</li>
+<li><strong>AI 生成的代码没人审就合并</strong> —— 事故只是时间问题</li>
+<li><strong>把密钥/生产数据贴进对话</strong> —— 安全红线</li>
+<li><strong>跨项目复制 <a href="http://CLAUDE.md">CLAUDE.md</a> 红线</strong> —— 每个项目的红线可能相反</li>
+<li><strong>纠偏之后不沉淀</strong> —— 同一个坑每周踩一次</li>
+<li><strong>过度依赖不学原理</strong> —— 审查能力是人的最后护城河，必须保持</li>
+</ol>
+<h2 id="附录-c-岗位提示词模板精选">附录 C 岗位提示词模板精选 </h2>
+<p><strong>PM - 进度事实核查</strong></p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>统计本仓库最近一周所有分支的提交记录，按功能模块归类，
+对照 docs/plans/ 中的计划，输出：已完成/进行中/未开始/偏差项，
+偏差项标注证据（提交缺失或测试未过）。
+</code></pre><p><strong>产品 - PRD 自查</strong></p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>以资深开发的视角审查这份 PRD：列出所有歧义表述、缺失的异常流程、
+未定义的边界条件和状态流转漏洞。每条给出你建议的补充问法。
+</code></pre><p><strong>架构 - 方案对比</strong></p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>针对&lt;需求&gt;，给出 3 种技术方案。对比维度：实现复杂度/性能/可维护性/
+与现有架构的一致性/迁移风险。给出推荐和理由。先读 docs/specs/ 了解现有架构决策。
+</code></pre><p><strong>后端 - 安全走查</strong></p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>以攻击者视角审查 &lt;模块&gt; 的代码：认证绕过/越权（水平+垂直）/注入/SSRF/
+敏感信息泄露。每个发现必须给出 file:line 证据和复现思路，按 P0/P1/P2 分级。
+</code></pre><p><strong>测试 - 用例矩阵</strong></p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>基于 docs/specs/&lt;xxx&gt;.md 生成测试用例矩阵：正常流/边界值/异常流/并发冲突/
+权限组合。标注哪些适合自动化，直接生成对应的测试代码骨架。
+</code></pre><p><strong>通用 - 多角色评审</strong></p>
+<pre data-role="codeBlock" data-info="" class="language-text"><code>分别以 PM/架构师/前端/后端/测试/安全 六个视角评审 &lt;产物&gt;，
+每个视角独立输出：确认的问题（附证据）/建议/是否放行。最后汇总终审意见。
+</code></pre><h2 id="附录-d-基本功考核清单阶段-2-门禁用10-项实操">附录 D 基本功考核清单（阶段 2 门禁用，10 项实操） </h2>
+<blockquote>
+<p>用法：结对形式现场演示，8/10 通过即合格。考的是"做给我看"，不是笔试。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>考核项</th>
+<th>通过标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>在自己项目维护 <a href="http://CLAUDE.md">CLAUDE.md</a></td>
+<td>含技术栈/规范/红线三节且内容与项目实际一致</td>
+</tr>
+<tr>
+<td>2</td>
+<td>计划模式完成一个真实任务</td>
+<td>能解释为什么这个计划批准/该打回</td>
+</tr>
+<tr>
+<td>3</td>
+<td>需求三要素提问</td>
+<td>随机给个模糊需求，能按【目标/边界/验收】重述</td>
+</tr>
+<tr>
+<td>4</td>
+<td>上下文管理</td>
+<td>知道何时 /clear、/compact，说出本项目 deny 规则排除了哪些文件</td>
+</tr>
+<tr>
+<td>5</td>
+<td>验证收货</td>
+<td>演示"跑测试给证据"，能识别一次"声称完成但未验证"</td>
+</tr>
+<tr>
+<td>6</td>
+<td>打断与止损</td>
+<td>演示 Esc 纠偏；说出止损三件套（Esc / rewind / clear 重开）</td>
+</tr>
+<tr>
+<td>7</td>
+<td>发起一次多角色评审</td>
+<td>用子代理对一份 spec 或 diff 跑多视角评审并汇总结论</td>
+</tr>
+<tr>
+<td>8</td>
+<td>红线清单</td>
+<td>背出本团队"不可自动执行清单"，说明理由</td>
+</tr>
+<tr>
+<td>9</td>
+<td>沉淀一条经验</td>
+<td>现场把本周一个踩坑写成 feedback 记忆或 <a href="http://CLAUDE.md">CLAUDE.md</a> 规则 PR</td>
+</tr>
+<tr>
+<td>10</td>
+<td>事实沟通</td>
+<td>把一次"完成汇报"改写成"证据+未尽事项+风险"三栏格式</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<blockquote>
+<p><strong>分享结束。</strong> 配套《宣讲提纲（90 分钟版）》见同目录。<br>
+本文档所有案例数据来自真实项目记录（思政项目 / baseProject / web-tool / 工单系统），可现场演示。</p>
+</blockquote>
+</div>
+      </div>
+      
+      
+    
+    
+    <script type="module">
+// TODO: If ZenUML gets integrated into mermaid in the future,
+//      we can remove the following lines.
+
+
+var MERMAID_CONFIG = ({"startOnLoad":false});
+if (typeof MERMAID_CONFIG !== 'undefined') {
+  MERMAID_CONFIG.startOnLoad = false
+  MERMAID_CONFIG.cloneCssStyles = false
+  MERMAID_CONFIG.theme = "default"
+}
+
+mermaid.initialize(MERMAID_CONFIG || {})
+if (typeof(window['Reveal']) !== 'undefined') {
+  function mermaidRevealHelper(event) {
+    var currentSlide = event.currentSlide
+    var diagrams = currentSlide.querySelectorAll('div.mermaid')
+    for (var i = 0; i < diagrams.length; i++) {
+      var diagram = diagrams[i]
+      if (!diagram.hasAttribute('data-processed')) {
+        mermaid.init(null, diagram, ()=> {
+          Reveal.slide(event.indexh, event.indexv)
+        })
+      }
+    }
+  }
+  Reveal.addEventListener('slidetransitionend', mermaidRevealHelper)
+  Reveal.addEventListener('ready', mermaidRevealHelper)
+  await mermaid.run({
+    nodes: document.querySelectorAll('div.mermaid')
+  })
+} else {
+  await mermaid.run({
+    nodes: document.querySelectorAll('div.mermaid')
+  })
+}
+</script>
+    
+    
+    
+  
+    </body></html>
