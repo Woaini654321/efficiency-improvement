@@ -1,0 +1,237 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PAGE-PC-14 操作日志</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+  .audit-log-page { padding: 24px; }
+  .filter-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-bar-title { font-size: 20px; font-weight: 600; margin-right: 8px; }
+  .json-block { background: #f5f5f5; border: 1px solid #d9d9d9; border-radius: 6px; padding: 12px; font-family: 'Courier New', monospace; font-size: 12px; white-space: pre-wrap; word-break: break-all; max-height: 240px; overflow-y: auto; }
+  .drawer-field { margin-bottom: 16px; }
+  .drawer-label { color: #888; font-size: 13px; margin-bottom: 4px; }
+  .diff-col { flex: 1; min-width: 0; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo } = React;
+const { Table, Input, Select, DatePicker, Button, Tag, Drawer, Space, message, Empty, Descriptions, Row, Col, Card, Statistic } = antd;
+const { RangePicker } = DatePicker;
+
+
+const ACTION_TYPES = ['发布','下架','删除','角色变更','隔离配置变更','分类变更','登录','SLA升级'];
+const SENSITIVE_ACTIONS = ['角色变更','隔离配置变更','删除'];
+const ACTION_ICONS = {
+  '发布': { icon:'ti-send', color:'#1677ff', bg:'#e6f7ff' },
+  '下架': { icon:'ti-arrow-down-circle', color:'#fa8c16', bg:'#fff7e6' },
+  '删除': { icon:'ti-trash', color:'#ff4d4f', bg:'#fff1f0' },
+  '角色变更': { icon:'ti-user-shield', color:'#722ed1', bg:'#f9f0ff' },
+  '隔离配置变更': { icon:'ti-lock', color:'#eb2f96', bg:'#fff0f6' },
+  '分类变更': { icon:'ti-folders', color:'#13c2c2', bg:'#e6fffb' },
+  '登录': { icon:'ti-login', color:'#52c41a', bg:'#f6ffed' },
+  'SLA升级': { icon:'ti-arrow-up-circle', color:'#faad14', bg:'#fffbe6' }
+};
+const OPERATOR_AVATARS = ['#1890ff','#52c41a','#fa8c16','#722ed1','#eb2f96','#13c2c2','#2f54eb','#faad14'];
+
+const mockData = [
+  { id:1, time:'2026-05-29 10:23:45', operator:'Tony.Zhang 张伟(GQ10234)', name:'Tony.Zhang 张伟', empNo:'GQ10234', actionType:'发布', target:'方案#BIZ-20260529-001', result:'成功', ip:'10.20.30.41', ua:'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/125.0', before:null, after:{ status:'已发布', publishTime:'2026-05-29 10:23:45' }},
+  { id:2, time:'2026-05-29 09:58:12', operator:'Nina.Li 李娜(GQ10087)', name:'Nina.Li 李娜', empNo:'GQ10087', actionType:'角色变更', target:'用户 Kevin.Wang 王强(GQ10301)', result:'成功', ip:'10.20.30.55', ua:'Mozilla/5.0 (Windows NT 10.0) Chrome/125.0', before:{ role:'普通用户', permissions:['view'] }, after:{ role:'区域管理员', permissions:['view','edit','publish'] }},
+  { id:3, time:'2026-05-29 09:30:00', operator:'Amy.Zhao 赵敏(GQ10102)', name:'Amy.Zhao 赵敏', empNo:'GQ10102', actionType:'下架', target:'方案#BIZ-20260528-015', result:'成功', ip:'10.20.31.12', ua:'Mozilla/5.0 (Macintosh) Safari/605.1', before:{ status:'已发布' }, after:{ status:'已下架', reason:'信息过期' }},
+  { id:4, time:'2026-05-28 17:45:33', operator:'Owen.Liu 刘洋(GQ10045)', name:'Owen.Liu 刘洋', empNo:'GQ10045', actionType:'删除', target:'方案#BIZ-20260520-008', result:'成功', ip:'10.20.30.78', ua:'Mozilla/5.0 (Windows NT 10.0) Edge/125.0', before:{ id:'BIZ-20260520-008', title:'车载模组需求' }, after:null },
+  { id:5, time:'2026-05-28 16:20:10', operator:'Jing.Chen 陈静(GQ10199)', name:'Jing.Chen 陈静', empNo:'GQ10199', actionType:'隔离配置变更', target:'隔离规则#ISO-003', result:'成功', ip:'10.20.32.05', ua:'Mozilla/5.0 (Windows NT 10.0) Chrome/125.0', before:{ isolationLevel:'部门级', scope:['销售一部'] }, after:{ isolationLevel:'区域级', scope:['华东区','华南区'] }},
+  { id:6, time:'2026-05-28 14:05:22', operator:'Ray.Wang 王磊(GQ10311)', name:'Ray.Wang 王磊', empNo:'GQ10311', actionType:'分类变更', target:'分类"智慧城市"', result:'成功', ip:'10.20.30.90', ua:'Mozilla/5.0 (Windows NT 10.0) Chrome/125.0', before:{ parentCategory:'行业方案', sortOrder:5 }, after:{ parentCategory:'重点行业', sortOrder:2 }},
+  { id:7, time:'2026-05-28 11:30:55', operator:'Lily.Sun 孙丽(GQ10078)', name:'Lily.Sun 孙丽', empNo:'GQ10078', actionType:'登录', target:'运营中心', result:'成功', ip:'10.20.33.18', ua:'Mozilla/5.0 (Windows NT 10.0) Chrome/125.0', before:null, after:{ loginTime:'2026-05-28 11:30:55', sessionId:'sess_abc123' }},
+  { id:8, time:'2026-05-28 10:12:08', operator:'Tao.Zhou 周涛(GQ10156)', name:'Tao.Zhou 周涛', empNo:'GQ10156', actionType:'SLA升级', target:'方案#BIZ-20260525-012', result:'失败', ip:'10.20.30.66', ua:'Mozilla/5.0 (Windows NT 10.0) Chrome/125.0', before:{ slaLevel:'P3', responseTime:'48h' }, after:{ slaLevel:'P1', responseTime:'4h' }},
+  { id:9, time:'2026-05-27 18:40:30', operator:'Flora.Wu 吴芳(GQ10220)', name:'Flora.Wu 吴芳', empNo:'GQ10220', actionType:'发布', target:'方案#BIZ-20260527-003', result:'成功', ip:'10.20.31.44', ua:'Mozilla/5.0 (Macintosh) Chrome/125.0', before:null, after:{ status:'已发布', publishTime:'2026-05-27 18:40:30' }},
+  { id:10, time:'2026-05-27 15:55:19', operator:'Kai.Zheng 郑凯(GQ10088)', name:'Kai.Zheng 郑凯', empNo:'GQ10088', actionType:'删除', target:'方案#BIZ-20260515-020', result:'失败', ip:'10.20.30.33', ua:'Mozilla/5.0 (Windows NT 10.0) Firefox/126.0', before:{ id:'BIZ-20260515-020', title:'NB-IoT模组询价' }, after:null },
+];
+
+function AuditLogPage() {
+  const [searchText, setSearchText] = useState('');
+  const [actionFilter, setActionFilter] = useState(undefined);
+  const [resultFilter, setResultFilter] = useState(undefined);
+  const [sensitiveOnly, setSensitiveOnly] = useState(false);
+  const [dateRange, setDateRange] = useState([dayjs().subtract(7,'day'), dayjs()]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [currentRecord, setCurrentRecord] = useState(null);
+  const [exportLoading, setExportLoading] = useState(false);
+
+  const filteredData = useMemo(() => {
+    return mockData.filter(item => {
+      if (searchText && !item.operator.includes(searchText) && !item.target.includes(searchText)) return false;
+      if (actionFilter && item.actionType !== actionFilter) return false;
+      if (resultFilter && item.result !== resultFilter) return false;
+      if (sensitiveOnly && SENSITIVE_ACTIONS.indexOf(item.actionType) < 0) return false;
+      if (dateRange && dateRange[0] && dateRange[1]) {
+        const t = dayjs(item.time);
+        if (t.isBefore(dateRange[0], 'day') || t.isAfter(dateRange[1], 'day')) return false;
+      }
+      return true;
+    });
+  }, [searchText, actionFilter, resultFilter, sensitiveOnly, dateRange]);
+
+  // 操作统计
+  var todayTotal = mockData.filter(function(r) { return dayjs(r.time).isSame(dayjs(), 'day'); }).length;
+  var todaySensitive = mockData.filter(function(r) { return dayjs(r.time).isSame(dayjs(), 'day') && SENSITIVE_ACTIONS.indexOf(r.actionType) >= 0; }).length;
+  var todayFailed = mockData.filter(function(r) { return dayjs(r.time).isSame(dayjs(), 'day') && r.result === '失败'; }).length;
+  var todayOperators = (function() {
+    var names = {};
+    mockData.filter(function(r) { return dayjs(r.time).isSame(dayjs(), 'day'); }).forEach(function(r) { names[r.name] = true; });
+    return Object.keys(names).length;
+  })();
+
+  const handleExport = () => {
+    if (exportLoading) return;
+    setExportLoading(true);
+    message.loading({ content: '导出中...', key: 'export', duration: 3 });
+    setTimeout(() => {
+      if (filteredData.length > 10000) {
+        message.warning({ content: 'BR-061: 单次导出不超过10000条，请缩小筛选范围', key: 'export' });
+      } else {
+        message.success({ content: '导出完成', key: 'export' });
+      }
+      setExportLoading(false);
+    }, 2000);
+  };
+
+  const renderActionTag = (type) => {
+    var ac = ACTION_ICONS[type] || { icon:'ti-circle', color:'#666', bg:'#f5f5f5' };
+    var isSensitive = SENSITIVE_ACTIONS.includes(type);
+    return React.createElement('div', { style:{display:'flex', alignItems:'center', gap:6} },
+      React.createElement('div', { style:{width:28, height:28, borderRadius:8, background:ac.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0} },
+        React.createElement('i', { className:'ti '+ac.icon, style:{fontSize:14, color:ac.color} })
+      ),
+      React.createElement(Tag, { color: isSensitive ? 'red' : 'blue' }, type)
+    );
+  };
+
+  const renderOperator = (operator, name) => {
+    var idx = (name || operator || '').charCodeAt(0) % OPERATOR_AVATARS.length;
+    var initial = (name || operator || '?').charAt(0);
+    return React.createElement('div', { style:{display:'flex', alignItems:'center', gap:8} },
+      React.createElement('div', { style:{width:28, height:28, borderRadius:'50%', background:OPERATOR_AVATARS[idx], display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:12, fontWeight:600, flexShrink:0} }, initial),
+      React.createElement('span', { style:{fontSize:13} }, operator)
+    );
+  };
+
+  const renderResultTag = (result) => {
+    return React.createElement(Tag, { color: result === '成功' ? 'green' : 'red' }, result);
+  };
+
+  const columns = [
+    { title: '操作时间', dataIndex: 'time', key: 'time', width: 180 },
+    { title: '操作人', dataIndex: 'operator', key: 'operator', width: 180, render: (op, record) => renderOperator(op, record.name) },
+    { title: '操作类型', dataIndex: 'actionType', key: 'actionType', width: 150, render: renderActionTag },
+    { title: '操作对象', dataIndex: 'target', key: 'target', width: 220 },
+    { title: '结果', dataIndex: 'result', key: 'result', width: 80, render: renderResultTag },
+    { title: 'IP地址', dataIndex: 'ip', key: 'ip', width: 140 },
+    { title: '操作', key: 'action', width: 80, render: (_, record) =>
+      React.createElement(Button, { type:'link', icon: React.createElement('i', {className:'ti ti-eye', style:{fontSize:18}}), onClick: () => { setCurrentRecord(record); setDrawerOpen(true); } }, '详情')
+    },
+  ];
+
+  return React.createElement('div', { className: 'audit-log-page' },
+    // Z0 统计卡片
+    React.createElement(Row, { gutter: 16, style: { marginBottom: 16 } },
+      [
+        { label: '今日操作', value: todayTotal, color: '#1677ff', icon:'ti-activity', bg:'#e6f7ff' },
+        { label: '敏感操作', value: todaySensitive, color: todaySensitive > 0 ? '#ff4d4f' : '#52c41a', icon:'ti-alert-triangle', bg: todaySensitive > 0 ? '#fff1f0' : '#f6ffed' },
+        { label: '失败操作', value: todayFailed, color: todayFailed > 0 ? '#faad14' : '#52c41a', icon:'ti-x', bg: todayFailed > 0 ? '#fffbe6' : '#f6ffed' },
+        { label: '活跃操作人', value: todayOperators + '人', color: '#1677ff', icon:'ti-users', bg:'#f0f5ff' }
+      ].map(function(c) {
+        return React.createElement(Col, { span: 6, key: c.label },
+          React.createElement(Card, { size: 'small', style: { textAlign: 'center' } },
+            React.createElement('div', { style:{display:'flex', alignItems:'center', justifyContent:'center', gap:12} },
+              React.createElement('div', { style:{width:40, height:40, borderRadius:10, background:c.bg, display:'flex', alignItems:'center', justifyContent:'center'} },
+                React.createElement('i', { className:'ti '+c.icon, style:{fontSize:18, color:c.color} })
+              ),
+              React.createElement(Statistic, { title: c.label, value: c.value, valueStyle: { color: c.color, fontSize: 22 } })
+            )
+          )
+        );
+      })
+    ),
+    // Z1 筛选栏
+    React.createElement('div', { className: 'filter-bar' },
+      React.createElement('span', { className: 'filter-bar-title' }, '操作日志'),
+      React.createElement(Input.Search, { placeholder: '搜索操作人/操作对象', style: { width: 220 }, allowClear: true, prefix: React.createElement('i', {className:'ti ti-search', style:{fontSize:18}}), onSearch: v => setSearchText(v), onChange: e => { if(!e.target.value) setSearchText(''); } }),
+      React.createElement(Select, { placeholder: '操作类型', style: { width: 160 }, allowClear: true, value: actionFilter, onChange: v => setActionFilter(v),
+        options: [{ label:'全部', value: undefined }].concat(ACTION_TYPES.map(t => ({ label: t, value: t })))
+      }),
+      React.createElement(Select, { placeholder: '操作结果', style: { width: 120 }, allowClear: true, value: resultFilter, onChange: v => setResultFilter(v),
+        options: [{ label: '成功', value: '成功' }, { label: '失败', value: '失败' }]
+      }),
+      React.createElement(RangePicker, { value: dateRange, onChange: v => setDateRange(v), style: { width: 260 } }),
+      React.createElement(Button, { type: sensitiveOnly ? 'primary' : 'default', size: 'small', danger: sensitiveOnly, onClick: function() { setSensitiveOnly(!sensitiveOnly); } },
+        React.createElement('i', {className:'ti ti-alert-triangle', style:{fontSize:18, marginRight:4}}), '仅敏感'
+      ),
+      React.createElement(Button, { icon: React.createElement('i', {className:'ti ti-file-export', style:{fontSize:18}}), loading: exportLoading, onClick: handleExport }, '导出'),
+    ),
+    // Z2 列表
+    React.createElement(Table, {
+      footer: function() {
+        return React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+          React.createElement('span', { style: { color: '#999', fontSize: 12 } },
+            React.createElement('i', { className: 'ti ti-archive', style: { fontSize: 18, marginRight: 4 } }),
+            '日志保留策略：90天热存储 + 180天冷存储 (BR-062)'
+          ),
+          React.createElement('span', { style: { color: '#999', fontSize: 12 } }, '共 ' + filteredData.length + ' 条记录')
+        );
+      },
+      rowKey: 'id',
+      columns,
+      dataSource: filteredData,
+      locale: { emptyText: React.createElement(Empty, { description: 'EX-030: 暂无操作日志' }) },
+      pagination: { defaultPageSize: 50, pageSizeOptions: ['20','50','100'], showSizeChanger: true, showTotal: total => '共 ' + total + ' 条' },
+    }),
+    // DRAWER-01 日志详情
+    React.createElement(Drawer, {
+      title: '日志详情', width: 560, open: drawerOpen, onClose: () => setDrawerOpen(false),
+      footer: React.createElement('div', { style: { textAlign: 'right' } }, React.createElement(Button, { onClick: () => setDrawerOpen(false) }, '关闭')),
+    },
+      currentRecord && React.createElement('div', null,
+        React.createElement('div', { className: 'drawer-field' }, React.createElement('div', { className: 'drawer-label' }, '操作时间'), React.createElement('div', null, currentRecord.time)),
+        React.createElement('div', { className: 'drawer-field' }, React.createElement('div', { className: 'drawer-label' }, '操作人'), React.createElement('div', null, currentRecord.name + '(' + currentRecord.empNo + ')')),
+        React.createElement('div', { className: 'drawer-field' }, React.createElement('div', { className: 'drawer-label' }, '操作类型'), renderActionTag(currentRecord.actionType)),
+        React.createElement('div', { className: 'drawer-field' }, React.createElement('div', { className: 'drawer-label' }, '操作对象'), React.createElement('div', null, currentRecord.target)),
+        React.createElement('div', { className: 'drawer-field' }, React.createElement('div', { className: 'drawer-label' }, '结果'), renderResultTag(currentRecord.result)),
+        React.createElement('div', { className: 'drawer-field' }, React.createElement('div', { className: 'drawer-label' }, 'IP地址'), React.createElement('div', null, currentRecord.ip)),
+        React.createElement('div', { style: { display: 'flex', gap: 12 } },
+          React.createElement('div', { style: { flex: 1 } },
+            React.createElement('div', { className: 'drawer-label', style: { color: '#52c41a', fontWeight: 600 } }, '变更前'),
+            currentRecord.before ? React.createElement('pre', { className: 'json-block', style: { borderColor: '#b7eb8f' } }, JSON.stringify(currentRecord.before, null, 2)) : React.createElement(Tag, null, '无')
+          ),
+          React.createElement('div', { style: { display: 'flex', alignItems: 'flex-start', paddingTop: 24 } },
+            React.createElement('i', { className: 'ti ti-arrow-right', style: { fontSize: 24, color: '#1677ff' } })
+          ),
+          React.createElement('div', { style: { flex: 1 } },
+            React.createElement('div', { className: 'drawer-label', style: { color: '#ff4d4f', fontWeight: 600 } }, '变更后'),
+            currentRecord.after ? React.createElement('pre', { className: 'json-block', style: { borderColor: '#ffa39e' } }, JSON.stringify(currentRecord.after, null, 2)) : React.createElement(Tag, { color: 'red' }, '已删除')
+          )
+        ),
+        React.createElement('div', { className: 'drawer-field', style: { marginTop: 16 } }, React.createElement('div', { className: 'drawer-label' }, 'User-Agent'), React.createElement('div', { style: { fontSize: 12, color: '#666', wordBreak: 'break-all' } }, currentRecord.ua)),
+      )
+    )
+  );
+}
+
+window.PROTO_SHELL.renderShell('audit-log');
+  // 埋点：页面浏览
+  if (window.DataTracker) { window.DataTracker.trackPageView('audit-log', '操作日志'); }
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(AuditLogPage));
+</script>
+</body>
+</html>

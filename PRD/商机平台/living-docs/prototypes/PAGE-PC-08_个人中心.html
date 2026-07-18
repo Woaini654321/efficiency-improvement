@@ -1,0 +1,645 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>个人中心 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+body { margin: 0; background: #f5f6fa; }
+#root { min-height: 100vh; }
+.profile-avatar { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, #1677ff, #722ed1); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 28px; font-weight: 600; flex-shrink: 0; }
+.user-card { background: #fff; border-radius: 10px; padding: 24px 32px; display: flex; align-items: center; gap: 24px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+.user-meta-item { color: #8c8c8c; font-size: 13px; }
+.stat-card { background: #fafafa; border-radius: 8px; padding: 12px 18px; text-align: center; cursor: pointer; transition: all .2s; border: 1px solid transparent; min-width: 80px; }
+.stat-card:hover { background: #f0f5ff; border-color: #d6e4ff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(24,144,255,.1); }
+.stat-card .stat-num { font-size: 24px; font-weight: 700; color: #262626; line-height: 1.2; }
+.stat-card .stat-label { font-size: 12px; color: #8c8c8c; margin-top: 2px; }
+.sub-tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; min-height: 32px; align-items: center; }
+.sub-tag-empty { color: #bfbfbf; font-size: 13px; }
+.notif-card { background: #fafafa; border-radius: 8px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; border: 1px solid #f0f0f0; transition: all .2s; }
+.notif-card:hover { border-color: #d6e4ff; background: #f0f5ff; }
+.fav-item, .pub-item { background: #fff; border-radius: 6px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; border: 1px solid #f0f0f0; transition: box-shadow .2s; }
+.fav-item:hover, .pub-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.fav-title, .pub-title { cursor: pointer; color: #1677ff; font-weight: 500; }
+.fav-title:hover, .pub-title:hover { text-decoration: underline; }
+.deleted-item { opacity: .45; pointer-events: none; position: relative; }
+.deleted-item::after { content: '该内容已被删除'; position: absolute; right: 20px; color: #ff4d4f; font-size: 12px; }
+.draft-item { background: #fffbe6; border-left: 3px solid #faad14; }
+.draft-item:hover { box-shadow: 0 2px 8px rgba(250,173,20,.12); }
+.pub-stats-row { display: flex; gap: 12px; margin-bottom: 20px; }
+.pub-stat-card { flex: 1; background: #fafafa; border-radius: 8px; padding: 14px 16px; text-align: center; cursor: pointer; transition: all .2s; border: 1px solid transparent; }
+.pub-stat-card:hover { border-color: #d6e4ff; background: #f0f5ff; transform: translateY(-2px); }
+.pub-stat-card.active { border-color: #1677ff; background: #e6f4ff; }
+.pub-stat-card .ps-num { font-size: 22px; font-weight: 700; color: #262626; }
+.pub-stat-card .ps-label { font-size: 12px; color: #8c8c8c; }
+.pub-stat-card.active .ps-num { color: #1677ff; }
+.comment-timeline { position: relative; padding-left: 8px; }
+.comment-timeline-item { position: relative; padding-left: 24px; padding-bottom: 20px; }
+.comment-timeline-item::before { content: ''; position: absolute; left: 0; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: #1677ff; border: 2px solid #fff; box-shadow: 0 0 0 2px #1677ff; z-index: 1; }
+.comment-timeline-item::after { content: ''; position: absolute; left: 4px; top: 20px; bottom: 0; width: 2px; background: #e8e8e8; }
+.comment-timeline-item:last-child::after { display: none; }
+.comment-timeline-item.deleted::before { background: #d9d9d9; box-shadow: 0 0 0 2px #d9d9d9; }
+.comment-card { background: #fff; border-radius: 8px; padding: 14px 18px; border: 1px solid #f0f0f0; transition: box-shadow .2s; }
+.comment-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.comment-card .cmt-content { color: #595959; font-size: 14px; line-height: 1.7; margin-bottom: 10px; }
+.comment-card .cmt-meta { font-size: 12px; color: #8c8c8c; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.comment-card .cmt-source { color: #1677ff; cursor: pointer; }
+.comment-card .cmt-source:hover { text-decoration: underline; }
+.analytics-bar { height: 6px; border-radius: 3px; background: #f0f0f0; margin-top: 8px; overflow: hidden; }
+.analytics-bar .fill { height: 100%; border-radius: 3px; transition: width .6s ease; }
+.history-item { background: #fff; border-radius: 8px; padding: 12px 18px; border: 1px solid #f0f0f0; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; transition: box-shadow .2s; }
+.history-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.history-item .hi-title { cursor: pointer; color: #1677ff; font-weight: 500; font-size: 14px; }
+.history-item .hi-title:hover { text-decoration: underline; }
+
+  /* 响应式 */
+  @media(max-width:768px){
+    .user-card{padding:20px 20px!important;gap:16px!important;border-radius:14px!important;}
+    .profile-avatar{width:64px!important;height:64px!important;}
+    .user-meta-item{min-width:70px!important;font-size:12px!important;}
+    .pub-stats-row{flex-wrap:wrap!important;gap:10px!important;}
+    .pub-stat-card{flex:1 1 calc(50% - 5px)!important;min-width:140px!important;}
+    .ant-tabs>.ant-tabs-nav .ant-tabs-tab{padding:8px 12px!important;font-size:13px!important;}
+  }
+  @media(max-width:600px){
+    .user-card{flex-direction:column!important;align-items:flex-start!important;padding:16px 16px!important;}
+    .user-card .profile-avatar{margin-bottom:4px!important;}
+    .user-meta-item{min-width:auto!important;font-size:11px!important;padding:4px 8px!important;}
+    .pub-stat-card{flex:1 1 100%!important;padding:14px!important;}
+    .comment-timeline-item{padding-left:16px!important;}
+    .comment-timeline-item:before{left:0!important;width:8px!important;height:8px!important;}
+    .history-item{flex-direction:column!important;align-items:flex-start!important;gap:6px!important;padding:10px 14px!important;}
+    .stat-card{min-width:60px!important;padding:10px 12px!important;}
+    .fav-item,.pub-item{padding:14px!important;}
+  }</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+const { Tabs, Tag, TreeSelect, Button, Checkbox, Segmented, message, Space, Empty, Alert, Modal, Tooltip, Popconfirm } = antd;
+
+var oppSubTree = [
+  { title: 'IoT模组', value: 'iot', key: 'iot', children: [
+    { title: '5G模组', value: '5g', key: '5g' },
+    { title: '4G模组', value: '4g', key: '4g' },
+    { title: 'WiFi模组', value: 'wifi', key: 'wifi' },
+    { title: 'NB-IoT', value: 'nb', key: 'nb' }
+  ]},
+  { title: '天线产品', value: 'antenna', key: 'antenna', children: [
+    { title: 'GNSS天线', value: 'gnss', key: 'gnss' },
+    { title: 'LTE天线', value: 'lte', key: 'lte' },
+    { title: 'WiFi天线', value: 'wifi-ant', key: 'wifi-ant' }
+  ]},
+  { title: '行业方案', value: 'solution', key: 'solution', children: [
+    { title: '车载方案', value: 'vehicle', key: 'vehicle' },
+    { title: '智慧表计', value: 'smart-meter', key: 'smart-meter' },
+    { title: '支付POS', value: 'pos', key: 'pos' }
+  ]},
+  { title: '成功案例', value: 'case', key: 'case', children: [
+    { title: '运营商', value: 'operator', key: 'operator' },
+    { title: '企业客户', value: 'enterprise', key: 'enterprise' }
+  ]}
+];
+var demandSubTree = [
+  { title: '需求类型', value: 'dm-type', key: 'dm-type', children: [
+    { title: '硬件采购', value: 'hw-proc', key: 'hw-proc' },
+    { title: '方案定制', value: 'sol-custom', key: 'sol-custom' },
+    { title: '技术支持', value: 'tech-support', key: 'tech-support' },
+    { title: '样品申请', value: 'sample', key: 'sample' }
+  ]},
+  { title: '应用领域', value: 'dm-field', key: 'dm-field', children: [
+    { title: '智慧城市', value: 'smart-city', key: 'smart-city' },
+    { title: '车联网', value: 'vehicle-net', key: 'vehicle-net' },
+    { title: '工业物联网', value: 'industrial', key: 'industrial' },
+    { title: '智慧农业', value: 'smart-agri', key: 'smart-agri' }
+  ]}
+];
+var subLabelMap = {};
+function walkNodes(nodes) { nodes.forEach(function(n) { subLabelMap[n.value] = n.title; if (n.children) walkNodes(n.children); }); }
+walkNodes(oppSubTree);
+walkNodes(demandSubTree);
+
+var initFavBiz = [
+  { id:1, title:'深圳智慧交通5G模组采购项目', type:'biz', tag:'方案信息', time:'2026-05-20 14:30', deleted:false },
+  { id:2, title:'上海车联网平台升级项目', type:'biz', tag:'方案信息', time:'2026-05-18 09:15', deleted:false },
+  { id:3, title:'杭州工业IoT网关集成项目', type:'biz', tag:'方案信息', time:'2026-05-15 16:42', deleted:true },
+  { id:4, title:'北京智慧城市数据中台项目', type:'biz', tag:'方案信息', time:'2026-05-12 11:00', deleted:false },
+  { id:5, title:'成都WiFi模组量产需求', type:'biz', tag:'方案信息', time:'2026-05-10 08:20', deleted:false }
+];
+var initFavReq = [
+  { id:101, title:'4G Cat.1模组低功耗定制需求', type:'req', tag:'方案需求', time:'2026-05-22 10:00', deleted:false },
+  { id:102, title:'车载5G模组耐高温需求', type:'req', tag:'方案需求', time:'2026-05-19 13:45', deleted:false },
+  { id:103, title:'WiFi 6模组小型化需求', type:'req', tag:'方案需求', time:'2026-05-17 15:30', deleted:false },
+  { id:104, title:'智慧城市边缘计算模组需求', type:'req', tag:'方案需求', time:'2026-05-14 09:10', deleted:true },
+  { id:105, title:'工业网关多协议支持需求', type:'req', tag:'方案需求', time:'2026-05-11 17:55', deleted:false }
+];
+var pubRecordsAll = [
+  { id:201, title:'广州5G智慧园区项目方案', cat:'方案', status:'已发布', time:'2026-05-25 10:00', editTime:'2026-05-25 09:55', views:238, likes:15, comments:7, collects:12, replies:[{ replyId:1, content:'这个方案目前还有效吗？我们团队可以提供5G模组支持。', time:'2026-06-15 09:20', from:'Si.Li 李四' },{ replyId:2, content:'已联系客户，正在跟进中。', time:'2026-06-16 14:30', from:'Wu.Wang 王五' }] },
+  { id:202, title:'武汉车联网模组集成需求', cat:'需求', status:'已发布', time:'2026-05-23 14:20', editTime:'2026-05-23 14:10', views:156, likes:8, comments:3, collects:5 },
+  { id:203, title:'南京工业IoT网关方案', cat:'方案', status:'草稿', time:'2026-05-21 09:30', editTime:'2026-06-09 17:22' },
+  { id:204, title:'西安智慧交通平台需求', cat:'需求', status:'已下架', time:'2026-05-16 11:45', editTime:'2026-05-16 11:40', views:89, likes:3, comments:1, collects:2 },
+  { id:205, title:'重庆WiFi模组批量采购方案', cat:'方案', status:'草稿', time:'2026-05-13 08:00', editTime:'2026-06-08 15:10' },
+  { id:206, title:'深圳5G RedCap模组选型方案', cat:'方案', status:'已发布', time:'2026-05-10 14:00', editTime:'2026-05-10 13:50', views:310, likes:22, comments:9, collects:18, best:true, replies:[{ replyId:3, content:'RedCap方案非常及时，我们正在为客户选型。', time:'2026-06-20 10:30', from:'Liu.Zhao 赵六' },{ replyId:4, content:'请问有详细的RedCap vs 标准5G的对比数据吗？', time:'2026-06-22 15:45', from:'Qi.Qian 钱七' }] },
+  { id:207, title:'成都智慧园区网络覆盖需求', cat:'需求', status:'已发布', time:'2026-05-08 10:30', editTime:'2026-05-08 10:20', views:195, likes:12, comments:5, collects:8, replies:[{ replyId:5, content:'我们公司有成熟的智慧园区解决方案，可以对接。', time:'2026-06-18 11:00', from:'Ben.Sun 孙八' }] }
+];
+var initMyComments = [
+  { id:1, content:'这个方案非常实用，我在华东某智能电表客户项目中正好需要Cat.1低功耗方案，已下载规格书给客户参考，客户反馈功耗指标符合预期。', sourceTitle:'EC200A Cat.1模组低功耗方案', sourceType:'方案', sourceId:'OPP-0001', time:'2026-06-10 14:30', deleted:false },
+  { id:2, content:'请问EC200A和EC200S在PSM模式下的功耗差异具体是多少？客户需要做对比选型，希望产品线能提供详细的对比测试数据。', sourceTitle:'5G车载模组选型咨询', sourceType:'需求', sourceId:'REQ-0001', time:'2026-06-09 10:15', deleted:false },
+  { id:3, content:'海外市场对低功耗模组需求很大，这个方案能否补充全球频段适配信息？', sourceTitle:'EC200A Cat.1模组低功耗方案', sourceType:'方案', sourceId:'OPP-0001', time:'2026-06-08 16:45', deleted:true },
+  { id:4, content:'附件里的硬件设计参考指南非常详细，已经在客户项目中参考使用了，建议补充PCB布局注意事项。', sourceTitle:'EC200A Cat.1模组低功耗方案', sourceType:'方案', sourceId:'OPP-0001', time:'2026-06-07 09:20', deleted:false },
+  { id:5, content:'感谢产品线快速响应！方案中的Cat.1 bis支持确实是选型关键优势。', sourceTitle:'智慧城市边缘计算模组需求', sourceType:'需求', sourceId:'REQ-0002', time:'2026-06-05 11:00', deleted:false },
+  { id:6, content:'WiFi 6模组在工业场景下的抗干扰能力如何？有没有在工厂产线环境下的实测数据？', sourceTitle:'WiFi 6模组小型化需求', sourceType:'需求', sourceId:'REQ-0003', time:'2026-06-03 15:30', deleted:false },
+  { id:7, content:'已收藏，后续有客户咨询4G模组选型会优先推荐这个方案。Cat.1在表计行业的应用案例很有说服力。', sourceTitle:'4G Cat.1模组低功耗定制需求', sourceType:'需求', sourceId:'REQ-0004', time:'2026-06-01 08:45', deleted:false },
+  { id:8, content:'智慧交通方案中的边缘计算架构设计很清晰，建议增加本地缓存策略说明。', sourceTitle:'深圳智慧交通5G模组采购项目', sourceType:'方案', sourceId:'OPP-0002', time:'2026-05-28 13:10', deleted:true }
+];
+var initMySolutions = [
+  { id: 1, demandTitle: '4G Cat.1模组低功耗定制需求', demandId: 'REQ-0004', adoptedBy: 'Kevin.Wang 王强', adoptedByDept: '华南大区', adoptedTime: '2026-06-10 15:30', solutionContent: '推荐EC200A Cat.1模组，支持低功耗PSM模式，在智能表计行业已有成熟应用案例。', best: true },
+  { id: 2, demandTitle: '智慧城市边缘计算模组需求', demandId: 'REQ-0002', adoptedBy: 'Leo.Zhao 赵磊', adoptedByDept: '西南大区', adoptedTime: '2026-06-05 11:20', solutionContent: '建议使用RG500Q系列搭配边缘计算网关，提供端到端低延迟解决方案。', best: true }
+];
+var statusColorMap = { '已发布':'green', '草稿':'default', '已下架':'red' };
+var TYPE_LABELS = { product_info:'产品信息', solution:'解决方案', success_case:'成功案例' };
+var TYPE_COLORS = { product_info:'blue', solution:'green', success_case:'orange' };
+
+function ProfilePage() {
+  function getHash() { return (location.hash || '').replace('#', '') || 'subscribe'; }
+
+  var activeTabState = useState(getHash);
+  var activeTab = activeTabState[0];
+  var setActiveTab = activeTabState[1];
+
+  var subSourceState = useState('opp');
+  var subSource = subSourceState[0];
+  var setSubSource = subSourceState[1];
+
+  var oppSubsState = useState(['5g', 'vehicle']);
+  var oppSubs = oppSubsState[0];
+  var setOppSubs = oppSubsState[1];
+
+  var demandSubsState = useState([]);
+  var demandSubs = demandSubsState[0];
+  var setDemandSubs = demandSubsState[1];
+
+  var favSegState = useState('方案信息');
+  var favSeg = favSegState[0];
+  var setFavSeg = favSegState[1];
+
+  var favBizState = useState(initFavBiz);
+  var favBiz = favBizState[0];
+  var setFavBiz = favBizState[1];
+
+  var favReqState = useState(initFavReq);
+  var favReq = favReqState[0];
+  var setFavReq = favReqState[1];
+
+  var pubFilterState = useState('全部');
+  var pubFilter = pubFilterState[0];
+  var setPubFilter = pubFilterState[1];
+
+  var pubRecordsState = useState(pubRecordsAll);
+  var pubRecords = pubRecordsState[0];
+  var setPubRecords = pubRecordsState[1];
+
+  var myCommentsState = useState(initMyComments);
+  var myComments = myCommentsState[0];
+  var setMyComments = myCommentsState[1];
+
+  var mySolutionsState = useState(function() {
+    var stored = JSON.parse(localStorage.getItem('adopted_solutions') || '[]');
+    // 合并初始 mock 和 localStorage 数据（去重）
+    var merged = initMySolutions.slice();
+    stored.forEach(function(s) {
+      if (!merged.some(function(m) { return m.demandId === s.demandId && m.adoptedBy === s.adoptedBy; })) {
+        merged.unshift(s);
+      }
+    });
+    return merged;
+  });
+  var mySolutions = mySolutionsState[0];
+  var setMySolutions = mySolutionsState[1];
+
+  var expandedCommentsState = useState({});
+  var expandedComments = expandedCommentsState[0];
+  var setExpandedComments = expandedCommentsState[1];
+
+  var historyItemsState = useState(function() {
+    var raw = localStorage.getItem('browse_history');
+    return raw ? JSON.parse(raw) : [];
+  });
+  var historyItems = historyItemsState[0];
+  var setHistoryItems = historyItemsState[1];
+
+  useEffect(function() {
+    function onHash() { setActiveTab(getHash()); }
+    window.addEventListener('hashchange', onHash);
+    localStorage.setItem('pc08_subscriptions', JSON.stringify({ opp: oppSubs, demand: demandSubs }));
+    return function() { window.removeEventListener('hashchange', onHash); };
+  }, []);
+
+  useEffect(function() {
+    localStorage.setItem('pc08_subscriptions', JSON.stringify({ opp: oppSubs, demand: demandSubs }));
+  }, [oppSubs, demandSubs]);
+
+  function refreshMySolutions() {
+    var stored = JSON.parse(localStorage.getItem('adopted_solutions') || '[]');
+    var merged = initMySolutions.slice();
+    stored.forEach(function(s) {
+      if (!merged.some(function(m) { return m.demandId === s.demandId && m.adoptedBy === s.adoptedBy; })) {
+        merged.unshift(s);
+      }
+    });
+    setMySolutions(merged);
+  }
+  function handleTabChange(key) { location.hash = key; setActiveTab(key); if (key === 'solutions') refreshMySolutions(); }
+  function navToTab(key) { location.hash = key; setActiveTab(key); if (key === 'solutions') refreshMySolutions(); }
+
+  var favCount = favBiz.filter(function(i) { return !i.deleted; }).length + favReq.filter(function(i) { return !i.deleted; }).length;
+  var commentCount = myComments.filter(function(c) { return !c.deleted; }).length;
+  var draftCount = pubRecords.filter(function(r) { return r.status === '草稿'; }).length;
+  var pubCount = pubRecords.filter(function(r) { return r.status !== '草稿'; }).length;
+  var solutionCount = mySolutions.length;
+  var historyCount = historyItems.length;
+
+  var subscriptions = subSource === 'opp' ? oppSubs : demandSubs;
+  var currentSubTree = subSource === 'opp' ? oppSubTree : demandSubTree;
+  var totalSubCount = oppSubs.length + demandSubs.length;
+
+  function handleSubChange(vals) {
+    if (subSource === 'opp') setOppSubs(vals); else setDemandSubs(vals);
+  }
+
+  function handleRemoveTag(val) {
+    if (subSource === 'opp') {
+      setOppSubs(function(p) { return p.filter(function(v) { return v !== val; }); });
+    } else {
+      setDemandSubs(function(p) { return p.filter(function(v) { return v !== val; }); });
+    }
+  }
+
+  function handleQuickPreset(type) {
+    if (subSource === 'opp') {
+      if (type === 'modem') setOppSubs(['5g', '4g', 'wifi', 'nb']);
+      else if (type === 'antenna') setOppSubs(['gnss', 'lte', 'wifi-ant']);
+      else if (type === 'solution') setOppSubs(['vehicle', 'smart-meter', 'pos']);
+      else if (type === 'clear') setOppSubs([]);
+    } else {
+      if (type === 'hw') setDemandSubs(['hw-proc', 'sol-custom', 'tech-support', 'sample']);
+      else if (type === 'field') setDemandSubs(['smart-city', 'vehicle-net', 'industrial', 'smart-agri']);
+      else if (type === 'clear') setDemandSubs([]);
+    }
+  }
+
+  function handleSaveSub() {
+    if (totalSubCount === 0) {
+      message.success('未选择订阅，将默认推送全部（BR-034）');
+    } else {
+      message.success('订阅已保存（方案' + oppSubs.length + '个 + 需求' + demandSubs.length + '个，共' + totalSubCount + '个分类）');
+    }
+  }
+
+  function removeFav(id, type) {
+    if (type === 'biz') setFavBiz(function(p) { return p.filter(function(i) { return i.id !== id; }); });
+    else setFavReq(function(p) { return p.filter(function(i) { return i.id !== id; }); });
+    message.success('已取消收藏');
+  }
+
+  function navToDetail(item) {
+    if (item.deleted) return;
+    var url = item.type === 'biz' ? 'PAGE-PC-02_商机详情页.html' : 'PAGE-PC-05_需求详情页.html';
+    window.open(url + '?id=' + item.id, '_blank');
+  }
+
+  function navToPubDetail(item) {
+    if (item.status === '草稿') { window.location.href = 'PAGE-PC-03_创建编辑商机.html?id=' + item.id; return; }
+    var url = item.cat === '方案' ? 'PAGE-PC-02_商机详情页.html' : 'PAGE-PC-05_需求详情页.html';
+    window.open(url + '?id=' + item.id, '_blank');
+  }
+
+  function deleteDraft(id) {
+    Modal.confirm({ title: '删除草稿', content: '确认删除该草稿？', okText: '确认删除', okType: 'danger', cancelText: '取消', onOk: function() { message.success('草稿已删除'); } });
+  }
+
+  var drafts = pubRecords.filter(function(r) { return r.status === '草稿'; });
+  var filteredPub = pubFilter === '全部' ? pubRecords : pubRecords.filter(function(r) { return r.status === pubFilter; });
+
+  function toggleExpandComment(id) {
+    setExpandedComments(function(p) { var n = {}; for (var k in p) n[k] = p[k]; n[id] = !p[id]; return n; });
+  }
+
+  function deleteMyComment(id) {
+    Modal.confirm({ title: '删除评论', content: '确认删除该评论？', okText: '确认删除', okType: 'danger', cancelText: '取消',
+      onOk: function() { setMyComments(function(p) { return p.map(function(c) { return c.id === id ? Object.assign({}, c, { deleted: true }) : c; }); }); message.success('评论已删除'); }
+    });
+  }
+
+  function navToCommentSource(item) {
+    var url = item.sourceType === '方案' ? 'PAGE-PC-02_商机详情页.html' : 'PAGE-PC-05_需求详情页.html';
+    window.open(url + '?id=' + item.sourceId, '_blank');
+  }
+
+  function truncate(text, max) { return text.length > max ? text.slice(0, max) + '...' : text; }
+
+  function clearHistory() { localStorage.removeItem('browse_history'); setHistoryItems([]); message.success('浏览记录已清空'); }
+
+  function refreshHistory() {
+    var raw = localStorage.getItem('browse_history');
+    setHistoryItems(raw ? JSON.parse(raw) : []);
+  }
+
+  function renderFavList(list, type) {
+    if (!list.length) { return React.createElement(Empty, { description: '暂无收藏' }); }
+    return list.map(function(item) {
+      return React.createElement('div', { key: item.id, className: 'fav-item' + (item.deleted ? ' deleted-item' : '') },
+        React.createElement('div', { style: { flex: 1 } },
+          React.createElement('span', { className: 'fav-title', onClick: function() { navToDetail(item); } }, item.title),
+          React.createElement(Tag, { color: type === 'biz' ? 'blue' : 'orange', style: { marginLeft: 8 } }, item.tag),
+          React.createElement('span', { style: { color: '#8c8c8c', fontSize: 12, marginLeft: 12 } }, item.time),
+          item.deleted ? React.createElement(Tag, { color: 'red', style: { marginLeft: 8 } }, 'EX-016 已删除') : null
+        ),
+        !item.deleted ? React.createElement(Button, { type: 'text', danger: true, icon: React.createElement('i', { className: 'ti ti-star-off', style: { fontSize: 16 } }), onClick: function() { removeFav(item.id, type); } }, '取消收藏') : null
+      );
+    });
+  }
+
+  function renderDraftList() {
+    if (!drafts.length) { return React.createElement(Empty, { description: '暂无草稿，去发布页创建吧', image: Empty.PRESENTED_IMAGE_SIMPLE }); }
+    return drafts.map(function(item) {
+      return React.createElement('div', { key: item.id, className: 'pub-item draft-item' },
+        React.createElement('div', { style: { flex: 1 } },
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } },
+            React.createElement(Tag, { color: 'default' }, '草稿'),
+            React.createElement('span', { className: 'pub-title', onClick: function() { navToPubDetail(item); } }, item.title)
+          ),
+          React.createElement('div', { style: { fontSize: 12, color: '#8c8c8c' } },
+            React.createElement('i', { className: 'ti ti-edit', style: { fontSize: 14, marginRight: 4, verticalAlign: -2 } }),
+            '最后编辑于 ' + item.editTime,
+            React.createElement(Tag, { color: item.cat === '方案' ? 'blue' : 'orange', style: { marginLeft: 8, fontSize: 11 } }, item.cat)
+          )
+        ),
+        React.createElement(Space, null,
+          React.createElement(Button, { type: 'primary', size: 'small', icon: React.createElement('i', { className: 'ti ti-edit', style: { fontSize: 16 } }), onClick: function() { window.location.href = 'PAGE-PC-03_创建编辑商机.html?id=' + item.id; } }, '继续编辑'),
+          React.createElement(Button, { type: 'text', danger: true, size: 'small', icon: React.createElement('i', { className: 'ti ti-trash', style: { fontSize: 16 } }), onClick: function() { deleteDraft(item.id); } }, '删除')
+        )
+      );
+    });
+  }
+
+  function renderPublishedList(list) {
+    if (!list.length) { return React.createElement(Empty, { description: '暂无记录' }); }
+    return list.map(function(item) {
+      var hasData = item.views !== undefined;
+      var barWidth = hasData ? Math.min(100, Math.round(item.views / 350 * 100)) : 0;
+      var isAdopted = item.best || item.adopted || item.status === '已采纳';
+      return React.createElement('div', { key: item.id, className: 'pub-item' },
+        React.createElement('div', { style: { flex: 1 } },
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' } },
+            React.createElement('span', { className: 'pub-title', onClick: function() { navToPubDetail(item); } }, item.title),
+            React.createElement(Tag, { color: item.cat === '方案' ? 'blue' : 'orange', style: { marginLeft: 8 } }, item.cat),
+            React.createElement(Tag, { color: statusColorMap[item.status], style: { marginLeft: 4 } }, item.status),
+            isAdopted ? React.createElement(Tag, { color: 'green', style: { marginLeft: 4 } }, '⭐ 已被采纳') : null,
+            React.createElement('span', { style: { color: '#8c8c8c', fontSize: 12, marginLeft: 12 } }, item.time)
+          ),
+          hasData ? React.createElement('div', null,
+            React.createElement('div', { className: 'analytics-bar' },
+              React.createElement('div', { className: 'fill', style: { width: barWidth + '%', background: 'linear-gradient(90deg,#1677ff,#36cfc9)' } })
+            ),
+            React.createElement('div', { style: { fontSize: 11, color: '#8c8c8c', marginTop: 4, display: 'flex', gap: 16 } },
+              React.createElement('span', null, React.createElement('i', { className: 'ti ti-eye', style: { fontSize: 12, marginRight: 2 } }), item.views, ' 浏览'),
+              React.createElement('span', null, React.createElement('i', { className: 'ti ti-heart', style: { fontSize: 12, marginRight: 2 } }), item.likes, ' 点赞'),
+              React.createElement('span', null, React.createElement('i', { className: 'ti ti-message', style: { fontSize: 12, marginRight: 2 } }), item.comments, ' 评论'),
+              React.createElement('span', null, React.createElement('i', { className: 'ti ti-star', style: { fontSize: 12, marginRight: 2 } }), item.collects, ' 收藏')
+            )
+          ) : null,
+item.replies && item.replies.length > 0 ? React.createElement('div', { style: { marginTop: 12, paddingTop: 12, borderTop: '1px solid #f0f0f0' } }, React.createElement('div', { style: { fontSize: 12, color: '#8c8c8c', marginBottom: 8 } }, React.createElement('i', { className: 'ti ti-messages', style: { fontSize: 14, marginRight: 4, verticalAlign: -3 } }), '回复 (' + item.replies.length + ')'), item.replies.map(function(reply) { return React.createElement('div', { key: reply.replyId, style: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '8px 12px', background: '#fafafa', borderRadius: 6, marginBottom: 6 } }, React.createElement('div', { style: { flex: 1, minWidth: 0 } }, React.createElement('div', { style: { fontSize: 13, color: '#595959', lineHeight: 1.6, wordBreak: 'break-all' } }, reply.content), React.createElement('div', { style: { fontSize: 12, color: '#8c8c8c', marginTop: 4 } }, React.createElement('i', { className: 'ti ti-user-circle', style: { fontSize: 14, marginRight: 4, verticalAlign: -3 } }), reply.from, React.createElement('span', { style: { margin: '0 8px', color: '#d9d9d9' } }, '|'), React.createElement('i', { className: 'ti ti-clock', style: { fontSize: 12, marginRight: 4, verticalAlign: -2 } }), reply.time)), React.createElement(Popconfirm, { title: '确认删除该回复？', okText: '确认删除', cancelText: '取消', onConfirm: function() { setPubRecords(function(prev) { return prev.map(function(r) { if (r.id === item.id) { var filtered = r.replies ? r.replies.filter(function(rp) { return rp.replyId !== reply.replyId; }) : []; return Object.assign({}, r, { replies: filtered }); } return r; }); }); message.success('回复已删除'); } }, React.createElement(Button, { type: 'text', danger: true, size: 'small', icon: React.createElement('i', { className: 'ti ti-trash', style: { fontSize: 14 } }) }))); })) : null
+        )
+      );
+    });
+  }
+
+  function renderMySolutions() {
+    if (!mySolutions.length) { return React.createElement(Empty, { description: '暂无被采纳的方案，去需求广场提交方案吧', image: Empty.PRESENTED_IMAGE_SIMPLE }); }
+    return mySolutions.map(function(item, idx) {
+      return React.createElement('div', { key: item.id || idx, className: 'pub-item', style: { borderLeft: '3px solid #fa8c16', background: '#fffbe6' } },
+        React.createElement('div', { style: { flex: 1 } },
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } },
+            React.createElement('i', { className: 'ti ti-award', style: { fontSize: 18, color: '#fa8c16' } }),
+            React.createElement('span', { style: { fontWeight: 600, fontSize: 14, color: '#262626' } }, '最佳方案'),
+            React.createElement(Tag, { color: 'orange', style: { margin: 0 } }, '被采纳'),
+            React.createElement('span', { style: { color: '#8c8c8c', fontSize: 12, marginLeft: 'auto' } }, item.adoptedTime)
+          ),
+          React.createElement('div', { style: { marginBottom: 6, fontSize: 13, color: '#595959' } },
+            React.createElement('span', { style: { color: '#8c8c8c' } }, '需求：'),
+            React.createElement('span', { style: { color: '#1677ff', cursor: 'pointer' }, onClick: function() { window.open('PAGE-PC-05_需求详情页.html?id=' + item.demandId, '_blank'); } }, item.demandTitle)
+          ),
+          React.createElement('div', { style: { fontSize: 13, color: '#595959', lineHeight: 1.6, marginBottom: 4, background: '#fff', padding: '8px 12px', borderRadius: 6, border: '1px solid #f0f0f0' } },
+            React.createElement('span', { style: { color: '#8c8c8c', fontSize: 12 } }, '方案摘要：'),
+            item.solutionContent && item.solutionContent.length > 100 ? item.solutionContent.substring(0, 100) + '...' : item.solutionContent
+          ),
+          React.createElement('div', { style: { fontSize: 12, color: '#8c8c8c' } },
+            React.createElement('i', { className: 'ti ti-user-check', style: { fontSize: 14, marginRight: 4, verticalAlign: -2 } }),
+            '被 ', React.createElement('strong', { style: { color: '#262626' } }, item.adoptedBy), '（' + item.adoptedByDept + '）采纳'
+          )
+        ),
+        React.createElement(Button, { type: 'link', size: 'small', icon: React.createElement('i', { className: 'ti ti-arrow-right', style: { fontSize: 14 } }), onClick: function() { window.open('PAGE-PC-05_需求详情页.html?id=' + item.demandId, '_blank'); } }, '查看需求')
+      );
+    });
+  }
+
+  function renderCommentTimeline() {
+    if (!myComments.length) { return React.createElement(Empty, { description: '暂无评论记录，去浏览方案参与讨论吧' }); }
+    return myComments.map(function(item) {
+      var isExpanded = expandedComments[item.id];
+      var needTruncate = item.content.length > 120;
+      return React.createElement('div', { key: item.id, className: 'comment-timeline-item' + (item.deleted ? ' deleted' : '') },
+        React.createElement('div', { className: 'comment-card', style: item.deleted ? { opacity: 0.5 } : {} },
+          React.createElement('div', { className: 'cmt-content' },
+            item.deleted
+              ? React.createElement('span', { style: { color: '#ff4d4f', fontStyle: 'italic' } }, '该评论已被作者删除')
+              : React.createElement('span', null,
+                  needTruncate && !isExpanded ? truncate(item.content, 120) : item.content,
+                  needTruncate ? React.createElement('span', { style: { color: '#1677ff', cursor: 'pointer', marginLeft: 4, whiteSpace: 'nowrap' }, onClick: function() { toggleExpandComment(item.id); } }, isExpanded ? ' 收起' : ' 展开全文') : null
+                )
+          ),
+          React.createElement('div', { className: 'cmt-meta' },
+            React.createElement('span', { className: 'cmt-source', onClick: function() { if (!item.deleted) navToCommentSource(item); } },
+              '评论了', React.createElement(Tag, { color: item.sourceType === '方案' ? 'blue' : 'orange', style: { margin: '0 4px', fontSize: 11 } }, item.sourceType), '《' + item.sourceTitle + '》'
+            ),
+            React.createElement('span', null, item.time),
+            !item.deleted ? React.createElement(Button, { type: 'link', danger: true, size: 'small', style: { padding: 0, fontSize: 12 }, onClick: function() { deleteMyComment(item.id); } }, '删除') : null,
+            React.createElement(Button, { type: 'link', size: 'small', style: { padding: 0, fontSize: 12 }, onClick: function() { navToCommentSource(item); } }, '查看原文')
+          )
+        )
+      );
+    });
+  }
+
+  function renderHistoryList() {
+    if (!historyItems.length) { return React.createElement(Empty, { description: '暂无浏览记录，去发现方案吧' }); }
+    return historyItems.map(function(item, i) {
+      var typeLabel = TYPE_LABELS[item.type] || item.type || '方案';
+      return React.createElement('div', { key: i, className: 'history-item' },
+        React.createElement('div', { style: { flex: 1, display: 'flex', alignItems: 'center', gap: 10 } },
+          React.createElement('i', { className: 'ti ti-clock', style: { fontSize: 16, color: '#bfbfbf' } }),
+          React.createElement('span', { className: 'hi-title', onClick: function() { var url = item.type === 'demand' ? 'PAGE-PC-05_需求详情页.html' : 'PAGE-PC-02_商机详情页.html'; window.location.href = url + '?id=' + item.id; } }, item.title),
+          React.createElement(Tag, { color: TYPE_COLORS[item.type] || 'blue', style: { borderRadius: 4, fontSize: 10, border: 'none', padding: '0 6px' } }, typeLabel)
+        ),
+        React.createElement('span', { style: { fontSize: 12, color: '#bfbfbf', flexShrink: 0 } }, item.time)
+      );
+    });
+  }
+
+  var tabItems = [
+    {
+      key: 'subscribe', label: '订阅设置', children:
+      React.createElement('div', { style: { background: '#fff', borderRadius: 8, padding: 24 } },
+        React.createElement(Alert, { message: 'BR-034：未选择分类时默认推送全部内容', type: 'info', showIcon: true, style: { marginBottom: 16 } }),
+        React.createElement('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 } },
+          React.createElement('span', { style: { fontWeight: 600, fontSize: 14 } }, '分类来源'),
+          React.createElement(Segmented, { size: 'small', value: subSource, onChange: function(v) { setSubSource(v); }, options: [{ label: '方案分类', value: 'opp' }, { label: '需求分类', value: 'demand' }] })
+        ),
+        React.createElement('div', { style: { fontWeight: 500, marginBottom: 8, fontSize: 14 } }, '当前订阅分类'),
+        React.createElement('div', { className: 'sub-tag-row' },
+          subscriptions.length === 0
+            ? React.createElement('span', { className: 'sub-tag-empty' }, React.createElement('i', { className: 'ti ti-info-circle', style: { marginRight: 4 } }), '未选择任何分类，将接收全部推送')
+            : subscriptions.map(function(val) {
+                return React.createElement(Tag, { key: val, closable: true, color: subSource === 'opp' ? 'blue' : 'orange', onClose: function() { handleRemoveTag(val); } }, subLabelMap[val] || val);
+              })
+        ),
+        React.createElement('div', { style: { fontWeight: 500, marginBottom: 8, fontSize: 14, marginTop: 20 } }, '选择分类'),
+        React.createElement(Space, { style: { marginBottom: 12 } },
+          subSource === 'opp'
+            ? React.createElement(Space, { key: 'opp-quick' },
+                React.createElement(Button, { size: 'small', onClick: function() { handleQuickPreset('modem'); } }, '全部模组'),
+                React.createElement(Button, { size: 'small', onClick: function() { handleQuickPreset('antenna'); } }, '全部天线'),
+                React.createElement(Button, { size: 'small', onClick: function() { handleQuickPreset('solution'); } }, '全部方案'),
+                React.createElement(Button, { size: 'small', onClick: function() { handleQuickPreset('clear'); } }, '清空全部')
+              )
+            : React.createElement(Space, { key: 'demand-quick' },
+                React.createElement(Button, { size: 'small', onClick: function() { handleQuickPreset('hw'); } }, '全部类型'),
+                React.createElement(Button, { size: 'small', onClick: function() { handleQuickPreset('field'); } }, '全部领域'),
+                React.createElement(Button, { size: 'small', onClick: function() { handleQuickPreset('clear'); } }, '清空全部')
+              )
+        ),
+        React.createElement(TreeSelect, { key: subSource, treeData: currentSubTree, value: subscriptions, onChange: handleSubChange, treeCheckable: true, showCheckedStrategy: TreeSelect.SHOW_CHILD, placeholder: '请选择订阅分类', style: { width: '100%', maxWidth: 600 }, maxTagCount: 'responsive', allowClear: true }),
+        React.createElement('div', { style: { marginTop: 8, fontSize: 13, color: '#8c8c8c' } },
+          '当前 ', React.createElement('strong', { style: { color: '#1677ff' } }, subSource === 'opp' ? '方案' : '需求'), ' 订阅 ', React.createElement('strong', { style: { color: '#1677ff' } }, subscriptions.length), ' 个分类',
+          React.createElement('span', { style: { marginLeft: 12 } }, '合计：方案', React.createElement('strong', { style: { color: '#1677ff' } }, oppSubs.length), ' 个 + 需求', React.createElement('strong', { style: { color: '#1677ff' } }, demandSubs.length), ' 个 = ', React.createElement('strong', { style: { color: '#262626' } }, totalSubCount), ' 个')
+        ),
+        React.createElement(Button, { type: 'primary', icon: React.createElement('i', { className: 'ti ti-device-floppy', style: { fontSize: 18 } }), onClick: handleSaveSub, style: { marginTop: 20 } }, '保存设置'),
+        React.createElement('div', { style: { marginTop: 24, paddingTop: 20, borderTop: '1px solid #f0f0f0' } },
+          React.createElement('div', { style: { fontWeight: 600, fontSize: 14, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 } },
+            React.createElement('i', { className: 'ti ti-bell', style: { fontSize: 18, color: '#1677ff' } }),
+            '通知偏好'
+          ),
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
+            React.createElement('span', { style: { fontSize: 13, color: '#8c8c8c' } }, '管理通知渠道、频率与免打扰时段'),
+            React.createElement(Button, { type: 'link', icon: React.createElement('i', { className: 'ti ti-settings', style: { fontSize: 16 } }), onClick: function() { window.open('PAGE-PC-15_通知偏好设置.html', '_blank'); } }, '详细设置')
+          )
+        )
+      )
+    },
+    {
+      key: 'favorites', label: '我的收藏', children:
+      React.createElement('div', { style: { background: '#fff', borderRadius: 8, padding: 24 } },
+        React.createElement('div', { style: { marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
+          React.createElement(Segmented, { options: ['方案信息', '方案需求'], value: favSeg, onChange: setFavSeg }),
+          React.createElement('span', { style: { fontSize: 13, color: '#8c8c8c' } }, '共收藏 ', React.createElement('strong', { style: { color: '#262626' } }, favCount), ' 项')
+        ),
+        favSeg === '方案信息' ? renderFavList(favBiz, 'biz') : renderFavList(favReq, 'req')
+      )
+    },
+    {
+      key: 'published', label: '我的发布', children:
+      React.createElement('div', { style: { background: '#fff', borderRadius: 8, padding: 24 } },
+        React.createElement('div', { className: 'pub-stats-row' },
+          React.createElement('div', { className: 'pub-stat-card' + (pubFilter === '草稿' ? ' active' : ''), onClick: function() { setPubFilter('草稿'); } }, React.createElement('div', { className: 'ps-num' }, draftCount), React.createElement('div', { className: 'ps-label' }, '草稿')),
+          React.createElement('div', { className: 'pub-stat-card' + (pubFilter === '已发布' ? ' active' : ''), onClick: function() { setPubFilter('已发布'); } }, React.createElement('div', { className: 'ps-num' }, pubRecords.filter(function(r) { return r.status === '已发布'; }).length), React.createElement('div', { className: 'ps-label' }, '已发布')),
+          React.createElement('div', { className: 'pub-stat-card' + (pubFilter === '已下架' ? ' active' : ''), onClick: function() { setPubFilter('已下架'); } }, React.createElement('div', { className: 'ps-num' }, pubRecords.filter(function(r) { return r.status === '已下架'; }).length), React.createElement('div', { className: 'ps-label' }, '已下架')),
+          React.createElement('div', { className: 'pub-stat-card' + (pubFilter === '全部' ? ' active' : ''), onClick: function() { setPubFilter('全部'); } }, React.createElement('div', { className: 'ps-num' }, pubRecords.length), React.createElement('div', { className: 'ps-label' }, '全部'))
+        ),
+        (pubFilter === '全部' || pubFilter === '草稿') && drafts.length > 0 ? React.createElement('div', { style: { marginBottom: 20 } },
+          React.createElement('div', { style: { fontWeight: 600, fontSize: 14, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 } }, React.createElement('i', { className: 'ti ti-pencil', style: { fontSize: 18, color: '#faad14' } }), '草稿 (' + draftCount + ')'),
+          renderDraftList()
+        ) : null,
+        React.createElement(Segmented, { options: ['全部', '已发布', '已下架'], value: pubFilter, onChange: setPubFilter, style: { marginBottom: 16 } }),
+        renderPublishedList(filteredPub.filter(function(r) { return r.status !== '草稿'; }))
+      )
+    },
+    {
+      key: 'solutions', label: '我的方案', children:
+      React.createElement('div', { style: { background: '#fff', borderRadius: 8, padding: 24 } },
+        React.createElement('div', { style: { marginBottom: 16, fontSize: 13, color: '#8c8c8c' } },
+          '共 ', React.createElement('strong', { style: { color: '#fa8c16' } }, solutionCount), ' 个方案被采纳',
+          React.createElement('span', { style: { marginLeft: 12 } }, '采纳后将收到通知')
+        ),
+        React.createElement('div', null, renderMySolutions())
+      )
+    },
+    {
+      key: 'comments', label: '我的评论', children:
+      React.createElement('div', { style: { background: '#fff', borderRadius: 8, padding: 24 } },
+        React.createElement('div', { style: { marginBottom: 16, fontSize: 13, color: '#8c8c8c' } },
+          '共 ', React.createElement('strong', { style: { color: '#262626' } }, commentCount), ' 条评论',
+          React.createElement('span', { style: { marginLeft: 12 } }, '（含 ', React.createElement('strong', { style: { color: '#ff4d4f' } }, myComments.filter(function(c) { return c.deleted; }).length), ' 条已删除）')
+        ),
+        React.createElement('div', { className: 'comment-timeline' }, renderCommentTimeline())
+      )
+    },
+    {
+      key: 'history', label: '浏览记录', children:
+      React.createElement('div', { style: { background: '#fff', borderRadius: 8, padding: 24 } },
+        React.createElement('div', { style: { marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
+          React.createElement('span', { style: { fontSize: 13, color: '#8c8c8c' } }, '共 ', React.createElement('strong', { style: { color: '#262626' } }, historyCount), ' 条记录（最近30条）'),
+          historyItems.length > 0 ? React.createElement(Popconfirm, { title: '确认清空全部浏览记录？', okText: '确认清空', cancelText: '取消', onConfirm: function() { clearHistory(); } }, React.createElement(Button, { size: 'small', danger: true, icon: React.createElement('i', { className: 'ti ti-trash', style: { fontSize: 14 } }) }, '清空全部')) : null
+        ),
+        React.createElement('div', null, renderHistoryList())
+      )
+    }
+  ];
+
+  return React.createElement('div', { style: { maxWidth: 960, margin: '0 auto', padding: '24px 16px' } },
+    React.createElement('div', { className: 'user-card' },
+      React.createElement('div', { className: 'profile-avatar' }, '张'),
+      React.createElement('div', { style: { flex: 1 } },
+        React.createElement('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 } },
+          React.createElement('div', null,
+            React.createElement('div', { style: { fontSize: 20, fontWeight: 600, marginBottom: 6 } }, 'San.Zhang 张三'),
+            React.createElement(Space, { size: 16 },
+              React.createElement('span', { className: 'user-meta-item' }, React.createElement('i', { className: 'ti ti-user', style: { fontSize: 16, marginRight: 4 } }), '华东大区'),
+              React.createElement(Tag, { color: 'blue' }, '销售人员'),
+              React.createElement('span', { className: 'user-meta-item' }, '工号：EMP-001')
+            ),
+            React.createElement('div', { style: { marginTop: 4, fontSize: 12, color: '#bfbfbf' } }, React.createElement('i', { className: 'ti ti-info-circle', style: { fontSize: 14, marginRight: 4 } }), 'BR-035：个人信息由SSO统一管理')
+          ),
+          React.createElement('div', { style: { display: 'flex', gap: 8 } },
+            React.createElement(Tooltip, { title: '查看收藏' }, React.createElement('div', { className: 'stat-card', onClick: function() { navToTab('favorites'); } }, React.createElement('div', { className: 'stat-num' }, favCount), React.createElement('div', { className: 'stat-label' }, '收藏'))),
+            React.createElement(Tooltip, { title: '查看评论' }, React.createElement('div', { className: 'stat-card', onClick: function() { navToTab('comments'); } }, React.createElement('div', { className: 'stat-num' }, commentCount), React.createElement('div', { className: 'stat-label' }, '评论'))),
+            React.createElement(Tooltip, { title: '查看发布' }, React.createElement('div', { className: 'stat-card', onClick: function() { navToTab('published'); } }, React.createElement('div', { className: 'stat-num' }, pubCount), React.createElement('div', { className: 'stat-label' }, '发布'))),
+            React.createElement(Tooltip, { title: '查看被采纳方案' }, React.createElement('div', { className: 'stat-card', onClick: function() { navToTab('solutions'); } }, React.createElement('div', { className: 'stat-num', style: { color: solutionCount > 0 ? '#fa8c16' : '#262626' } }, solutionCount), React.createElement('div', { className: 'stat-label' }, '方案'))),
+            React.createElement(Tooltip, { title: '查看草稿' }, React.createElement('div', { className: 'stat-card', onClick: function() { navToTab('published'); setPubFilter('草稿'); } }, React.createElement('div', { className: 'stat-num', style: { color: draftCount > 0 ? '#faad14' : '#262626' } }, draftCount), React.createElement('div', { className: 'stat-label' }, '草稿'))),
+            React.createElement(Tooltip, { title: '查看浏览记录' }, React.createElement('div', { className: 'stat-card', onClick: function() { navToTab('history'); refreshHistory(); } }, React.createElement('div', { className: 'stat-num', style: { color: '#722ed1' } }, historyCount), React.createElement('div', { className: 'stat-label' }, '浏览')))
+          )
+        )
+      )
+    ),
+    React.createElement(Tabs, { activeKey: activeTab, onChange: handleTabChange, items: tabItems, style: { background: '#fff', borderRadius: 8, padding: '0 16px' } })
+  );
+}
+
+if (window.PROTO_SHELL && window.PROTO_SHELL.renderShell) {
+  window.PROTO_SHELL.renderShell('profile');
+  if (window.DataTracker) { window.DataTracker.trackPageView('profile', '个人中心'); }
+}
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(ProfilePage, null));
+</script>
+</body>
+</html>

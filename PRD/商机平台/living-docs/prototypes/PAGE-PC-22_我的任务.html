@@ -1,0 +1,351 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>我的任务 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+.page-container { padding: 4px 0 40px; }
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.page-header-title { font-size: 20px; font-weight: 700; color: #1a1a2e; display: flex; align-items: center; gap: 8px; }
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.task-card { background: #fff; border-radius: 14px; padding: 20px 24px; margin-bottom: 14px; border: 1px solid #f0f0f0; transition: all 0.25s cubic-bezier(0.4,0,0.2,1); position: relative; }
+.task-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); border-color: #d9d9d9; }
+.task-card.overdue { border-left: 3px solid #ff4d4f; }
+.task-card.transferred-card { border-left: 3px solid #722ed1; }
+.task-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.task-card-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; font-size: 12px; color: #8c8c8c; }
+.task-card-meta i { font-size: 14px; margin-right: 3px; }
+.task-card-desc { font-size: 14px; color: #333; line-height: 1.6; margin-bottom: 14px; }
+.task-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid #f5f5f5; }
+.task-card-tags { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.task-card-actions { display: flex; gap: 8px; }
+.transfer-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f9f0ff; border: 1px solid #d3adf7; border-radius: 6px; font-size: 12px; color: #722ed1; margin-bottom: 8px; }
+.empty-state { text-align: center; padding: 80px 0; }
+@keyframes overdueBlink { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.overdue-blink { animation: overdueBlink 1s ease-in-out infinite; }
+@media(max-width:768px){
+  .page-container { padding: 12px; }
+  .task-card { padding: 16px; }
+  .task-card-footer { flex-direction: column; gap: 10px; align-items: flex-start; }
+  .task-card-actions { width: 100%; justify-content: flex-end; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+(function() {
+  var useState = React.useState;
+  var useMemo = React.useMemo;
+  var Typography = antd.Typography;
+  var Text = Typography.Text;
+  var Paragraph = Typography.Paragraph;
+  var Button = antd.Button;
+  var Tag = antd.Tag;
+  var Segmented = antd.Segmented;
+  var Select = antd.Select;
+  var Modal = antd.Modal;
+  var message = antd.message;
+  var Space = antd.Space;
+  var Input = antd.Input;
+  var Empty = antd.Empty;
+  var TextArea = Input.TextArea;
+  var PRIORITY_LABELS = { normal: '普通', urgent: '紧急', critical: '特急' };
+  var PRIORITY_COLORS = { normal: 'default', urgent: 'orange', critical: 'red' };
+  var STATUS_LABELS = { pending: '待处理', processing: '处理中', completed: '已完成', transferred: '已转交', cancelled: '已作废' };
+  var STATUS_COLORS = { pending: 'blue', processing: 'orange', completed: 'green', transferred: 'purple', cancelled: 'default' };
+  var ALL_USERS = [
+    { id: 's1', name: '张三 San.Zhang', dept: '华东销售部' },
+    { id: 's2', name: '李四 Si.Li', dept: '华南销售部' },
+    { id: 's3', name: '王五 Wu.Wang', dept: '华北销售部' },
+    { id: 's4', name: '赵六 Liu.Zhao', dept: '华东销售部' },
+    { id: 's5', name: '孙七 Sean.Sun', dept: '华南销售部' },
+    { id: 's6', name: '周八 Ben.Zhou', dept: '西南销售部' },
+    { id: 's7', name: '吴九 Jack.Wu', dept: '华北销售部' },
+    { id: 's8', name: '郑十 Sam.Zheng', dept: '海外销售部' },
+    { id: 's9', name: '张伟 Tony.Zhang', dept: '华东销售部' },
+    { id: 's10', name: '李娜 Nina.Li', dept: '华南销售部' }
+  ];
+  var CURRENT_USER_ID = 's1';
+  function getUserName(uid) {
+    var u = ALL_USERS.find(function(s) { return s.id === uid; });
+    return u ? u.name : uid;
+  }
+  function MyTaskPage() {
+  var _tasksState = useState([
+    { id: 'TASK-001', meetingName: '2026Q3华东区QBR复盘会', meetingDate: '2026-07-05', recorder: '运营管理员', description: '跟进华东区5G模组批量采购项目，完成方案报价并发送给客户', priority: 'critical', deadline: '2026-07-10', assignees: ['s1', 's3'], status: 'pending', transferFrom: null, transferReason: null, transferHistory: [], createdAt: '2026-07-05' },
+    { id: 'TASK-002', meetingName: '2026Q3华东区QBR复盘会', meetingDate: '2026-07-05', recorder: '运营管理员', description: '整理Cat.1模组在智能电表行业的成功案例，形成标准化方案文档', priority: 'urgent', deadline: '2026-07-12', assignees: ['s4'], status: 'processing', transferFrom: null, transferReason: null, transferHistory: [], createdAt: '2026-07-05' },
+    { id: 'TASK-003', meetingName: '2026Q3华南区QBR复盘会', meetingDate: '2026-07-06', recorder: '运营管理员', description: '协调产品线解决NB-IoT水表方案的供货周期问题，与供应链确认交期', priority: 'critical', deadline: '2026-07-08', assignees: ['s2'], status: 'completed', transferFrom: null, transferReason: null, transferHistory: [], createdAt: '2026-07-06' },
+    { id: 'TASK-011', meetingName: '2026Q2全员复盘大会', meetingDate: '2026-06-28', recorder: '运营管理员', description: '推进客户满意度调查方案落地，协调各区域收集客户反馈信息', priority: 'critical', deadline: '2026-07-01', assignees: ['s1', 's2', 's3', 's5', 's7'], status: 'pending', transferFrom: null, transferReason: null, transferHistory: [], createdAt: '2026-06-28' },
+    { id: 'TASK-013', meetingName: '2026Q3海外业务季度复盘', meetingDate: '2026-07-02', recorder: '运营管理员', description: '分析东南亚市场5G模组竞争格局，输出竞品动态周报', priority: 'normal', deadline: '2026-07-18', assignees: ['s1'], status: 'pending', transferFrom: 's8', transferReason: '对东南亚市场不熟悉，转交华东同事处理', transferHistory: [{ from: 's8', to: 's1', reason: '对东南亚市场不熟悉，转交华东同事处理', time: '2026-07-03 10:30' }], createdAt: '2026-07-02' },
+    { id: 'TASK-014', meetingName: '2026Q3华北区QBR复盘会', meetingDate: '2026-07-04', recorder: '运营管理员', description: '调研华北区智能电网行业下半年技术路线和采购需求', priority: 'urgent', deadline: '2026-07-30', assignees: ['s1'], status: 'completed', transferFrom: 's7', transferReason: '华北区域人手不足，转交华东同事协助', transferHistory: [{ from: 's7', to: 's1', reason: '华北区域人手不足，转交华东同事协助', time: '2026-07-05 14:20' }], createdAt: '2026-07-04' }
+  ]);
+  var tasks = _tasksState[0];
+  var setTasks = _tasksState[1];
+  var _tabState = useState('all');
+  var activeTab = _tabState[0];
+  var setActiveTab = _tabState[1];
+  var _priorityFilterState = useState(null);
+  var priorityFilter = _priorityFilterState[0];
+  var setPriorityFilter = _priorityFilterState[1];
+  var _sortState = useState('deadline');
+  var sortBy = _sortState[0];
+  var setSortBy = _sortState[1];
+  var _transferOpenState = useState(false);
+  var transferOpen = _transferOpenState[0];
+  var setTransferOpen = _transferOpenState[1];
+  var _transferTargetState = useState(null);
+  var transferTarget = _transferTargetState[0];
+  var setTransferTarget = _transferTargetState[1];
+  var _transferToState = useState(null);
+  var transferTo = _transferToState[0];
+  var setTransferTo = _transferToState[1];
+  var _transferReasonState = useState('');
+  var transferReason = _transferReasonState[0];
+  var setTransferReason = _transferReasonState[1];
+  var _completeOpenState = useState(false);
+  var completeOpen = _completeOpenState[0];
+  var setCompleteOpen = _completeOpenState[1];
+  var _completeTargetState = useState(null);
+  var completeTarget = _completeTargetState[0];
+  var setCompleteTarget = _completeTargetState[1];
+  var _completeNoteState = useState('');
+  var completeNote = _completeNoteState[0];
+  var setCompleteNote = _completeNoteState[1];
+  function isOverdue(task) {
+    if (task.status === 'completed' || task.status === 'cancelled' || task.status === 'transferred') return false;
+    return dayjs().isAfter(dayjs(task.deadline), 'day');
+  }
+  var myTasks = useMemo(function() {
+    var result = tasks.filter(function(t) {
+      return t.assignees.indexOf(CURRENT_USER_ID) >= 0 && t.status !== 'cancelled';
+    });
+    if (activeTab !== 'all') {
+      result = result.filter(function(t) { return t.status === activeTab; });
+    }
+    if (priorityFilter) {
+      result = result.filter(function(t) { return t.priority === priorityFilter; });
+    }
+    result.sort(function(a, b) {
+      if (sortBy === 'deadline') return dayjs(a.deadline).unix() - dayjs(b.deadline).unix();
+      var priOrder = { critical: 0, urgent: 1, normal: 2 };
+      return (priOrder[a.priority] || 2) - (priOrder[b.priority] || 2);
+    });
+    return result;
+  }, [tasks, activeTab, priorityFilter, sortBy]);
+  var counts = useMemo(function() {
+    var userTasks = tasks.filter(function(t) { return t.assignees.indexOf(CURRENT_USER_ID) >= 0 && t.status !== 'cancelled'; });
+    return {
+      all: userTasks.length,
+      pending: userTasks.filter(function(t) { return t.status === 'pending'; }).length,
+      processing: userTasks.filter(function(t) { return t.status === 'processing'; }).length,
+      completed: userTasks.filter(function(t) { return t.status === 'completed'; }).length,
+      transferred: userTasks.filter(function(t) { return t.status === 'transferred'; }).length
+    };
+  }, [tasks]);
+  var handleStartProcessing = function(task) {
+    setTasks(function(prev) {
+      return prev.map(function(t) {
+        if (t.id === task.id) { return Object.assign({}, t, { status: 'processing' }); }
+        return t;
+      });
+    });
+    message.success('任务已标记为处理中');
+  };
+  var openCompleteModal = function(task) { setCompleteTarget(task); setCompleteNote(''); setCompleteOpen(true); };
+  var confirmComplete = function() {
+    setTasks(function(prev) {
+      return prev.map(function(t) {
+        if (t.id === completeTarget.id) { return Object.assign({}, t, { status: 'completed' }); }
+        return t;
+      });
+    });
+    message.success('任务已完成');
+    setCompleteOpen(false); setCompleteTarget(null);
+  };
+  var openTransferModal = function(task) { setTransferTarget(task); setTransferTo(null); setTransferReason(''); setTransferOpen(true); };
+  var confirmTransfer = function() {
+    if (!transferTo) { message.warning('请选择转交对象'); return; }
+    if (!transferReason.trim()) { message.warning('请填写转交原因'); return; }
+    var toName = getUserName(transferTo);
+    setTasks(function(prev) {
+      var updated = prev.map(function(t) {
+        if (t.id === transferTarget.id) {
+          var newHistory = (t.transferHistory || []).slice();
+          newHistory.push({ from: CURRENT_USER_ID, to: transferTo, reason: transferReason.trim(), time: dayjs().format('YYYY-MM-DD HH:mm') });
+          return Object.assign({}, t, { status: 'transferred', transferHistory: newHistory });
+        }
+        return t;
+      });
+      var newTask = {
+        id: 'TASK-' + String(100 + prev.length).padStart(3, '0'),
+        meetingName: transferTarget.meetingName, meetingDate: transferTarget.meetingDate, recorder: transferTarget.recorder,
+        description: transferTarget.description, priority: transferTarget.priority, deadline: transferTarget.deadline,
+        assignees: [transferTo], status: 'pending', transferFrom: CURRENT_USER_ID, transferReason: transferReason.trim(),
+        transferHistory: (transferTarget.transferHistory || []).slice().concat([{ from: CURRENT_USER_ID, to: transferTo, reason: transferReason.trim(), time: dayjs().format('YYYY-MM-DD HH:mm') }]),
+        createdAt: transferTarget.createdAt
+      };
+      return updated.concat([newTask]);
+    });
+    message.success('任务已转交给 ' + toName);
+    setTransferOpen(false); setTransferTarget(null);
+  };
+  var PERMANENT_COUNTS = counts;
+  var tabOptions = [
+    { label: '全部 (' + counts.all + ')', value: 'all' },
+    { label: '待处理 (' + counts.pending + ')', value: 'pending' },
+    { label: '处理中 (' + counts.processing + ')', value: 'processing' },
+    { label: '已完成 (' + counts.completed + ')', value: 'completed' },
+    { label: '已转交 (' + counts.transferred + ')', value: 'transferred' }
+  ];
+  return React.createElement('div', { className: 'page-container' },
+    React.createElement('div', { className: 'page-header' },
+      React.createElement('div', { className: 'page-header-title' },
+        React.createElement('i', { className: 'ti ti-checklist', style: { fontSize: 22, color: '#1677ff' } }), '我的任务'
+      ),
+      React.createElement('div', { className: 'header-actions' },
+        React.createElement(Select, { placeholder: '优先级', allowClear: true, style: { width: 100 }, size: 'small', value: priorityFilter, onChange: function(v) { setPriorityFilter(v || null); },
+          options: [{ value: 'critical', label: '特急' }, { value: 'urgent', label: '紧急' }, { value: 'normal', label: '普通' }]
+        }),
+        React.createElement(Select, { style: { width: 110 }, size: 'small', value: sortBy, onChange: setSortBy,
+          options: [{ value: 'deadline', label: '按截止日期' }, { value: 'priority', label: '按优先级' }]
+        })
+      )
+    ),
+    React.createElement(Segmented, { value: activeTab, onChange: setActiveTab, options: tabOptions, style: { marginBottom: 20 } }),
+    myTasks.length === 0 ? React.createElement('div', { className: 'empty-state' },
+      React.createElement(Empty, { description: activeTab === 'all' ? '暂无任务，会议任务由运营管理人员下发' : '当前分类下暂无任务', image: Empty.PRESENTED_IMAGE_SIMPLE })
+    ) : myTasks.map(function(task) {
+      var overdue = isOverdue(task);
+      var isTransferred = task.transferFrom !== null && task.transferFrom !== undefined;
+      return React.createElement('div', { key: task.id, className: 'task-card' + (overdue ? ' overdue' : '') + (isTransferred ? ' transferred-card' : '') },
+        isTransferred && React.createElement('div', { className: 'transfer-badge' },
+          React.createElement('i', { className: 'ti ti-switch-horizontal', style: { fontSize: 14 } }),
+          ' 转自 ', React.createElement('strong', null, getUserName(task.transferFrom)),
+          task.transferReason ? '：' + task.transferReason : ''
+        ),
+        React.createElement('div', { className: 'task-card-header' },
+          React.createElement('div', null,
+            React.createElement(Text, { strong: true, style: { fontSize: 15 } }, task.id),
+            React.createElement(Text, { style: { marginLeft: 8, color: '#8c8c8c', fontSize: 13 } }, task.meetingName)
+          ),
+          React.createElement('div', { style: { display: 'flex', gap: 6 } },
+            React.createElement(Tag, { color: PRIORITY_COLORS[task.priority] }, PRIORITY_LABELS[task.priority]),
+            React.createElement(Tag, { color: STATUS_COLORS[task.status] }, STATUS_LABELS[task.status])
+          )
+        ),
+        React.createElement('div', { className: 'task-card-meta' },
+          React.createElement('span', null, React.createElement('i', { className: 'ti ti-calendar-event' }), task.meetingDate),
+          React.createElement('span', null, React.createElement('i', { className: 'ti ti-user' }), task.recorder),
+          React.createElement('span', { style: { color: overdue ? '#ff4d4f' : '#8c8c8c', fontWeight: overdue ? 600 : 400 } },
+            React.createElement('i', { className: 'ti ti-clock' }),
+            overdue ? React.createElement('span', { className: 'overdue-blink' }, '截止: ' + task.deadline + ' (已超期)') : '截止: ' + task.deadline
+          ),
+          task.assignees.length > 1 && React.createElement('span', null,
+            React.createElement('i', { className: 'ti ti-users' }), '协作: ' + task.assignees.map(function(uid) { return getUserName(uid); }).join(', ')
+          )
+        ),
+        React.createElement('div', { className: 'task-card-desc' },
+          React.createElement(Paragraph, { style: { marginBottom: 0 }, ellipsis: { rows: 2, expandable: true, symbol: '展开' } }, task.description)
+        ),
+        (task.transferHistory && task.transferHistory.length > 0) && React.createElement('div', { style: { marginBottom: 12, background: '#fafafa', borderRadius: 8, padding: '8px 12px', fontSize: 12 } },
+          React.createElement(Text, { type: 'secondary' },
+            React.createElement('i', { className: 'ti ti-history', style: { marginRight: 4, fontSize: 14 } }), '转交记录：'
+          ),
+          task.transferHistory.map(function(h, i) {
+            return React.createElement('div', { key: i, style: { marginTop: i === 0 ? 4 : 2, color: '#8c8c8c' } },
+              h.time, ' ', getUserName(h.from), ' to ', getUserName(h.to), '：', h.reason
+            );
+          })
+        ),
+        React.createElement('div', { className: 'task-card-footer' },
+          React.createElement('div', { className: 'task-card-tags' },
+            React.createElement(Text, { type: 'secondary', style: { fontSize: 12 } }, '创建于 ' + task.createdAt)
+          ),
+          React.createElement('div', { className: 'task-card-actions' },
+            task.status === 'pending' && React.createElement(Space, null,
+              React.createElement(Button, { type: 'primary', size: 'small', icon: React.createElement('i', { className: 'ti ti-player-play', style: { fontSize: 16 } }), onClick: function() { handleStartProcessing(task); } }, '开始处理'),
+              React.createElement(Button, { size: 'small', icon: React.createElement('i', { className: 'ti ti-switch-horizontal', style: { fontSize: 16 } }), onClick: function() { openTransferModal(task); } }, '转交')
+            ),
+            task.status === 'processing' && React.createElement(Space, null,
+              React.createElement(Button, { type: 'primary', size: 'small', icon: React.createElement('i', { className: 'ti ti-circle-check', style: { fontSize: 16 } }), onClick: function() { openCompleteModal(task); } }, '标记完成'),
+              React.createElement(Button, { size: 'small', icon: React.createElement('i', { className: 'ti ti-switch-horizontal', style: { fontSize: 16 } }), onClick: function() { openTransferModal(task); } }, '转交')
+            ),
+            task.status === 'completed' && React.createElement(Tag, { color: 'success', icon: React.createElement('i', { className: 'ti ti-circle-check' }) }, '已完成'),
+            task.status === 'transferred' && React.createElement(Text, { type: 'secondary', style: { fontSize: 13 } },
+              React.createElement('i', { className: 'ti ti-switch-horizontal', style: { marginRight: 4 } }), '已转交，等待对方处理'
+            )
+          )
+        )
+      );
+    }),
+    transferOpen && transferTarget && React.createElement(Modal, {
+      title: React.createElement('span', null, React.createElement('i', { className: 'ti ti-switch-horizontal', style: { marginRight: 8, fontSize: 18, color: '#722ed1' } }), '转交任务'),
+      open: true, width: 480,
+      onCancel: function() { setTransferOpen(false); setTransferTarget(null); },
+      footer: React.createElement(Space, null,
+        React.createElement(Button, { onClick: function() { setTransferOpen(false); setTransferTarget(null); } }, '取消'),
+        React.createElement(Button, { type: 'primary', onClick: confirmTransfer, icon: React.createElement('i', { className: 'ti ti-send', style: { fontSize: 16 } }) }, '确认转交')
+      )
+    },
+      React.createElement('div', { style: { marginBottom: 12 } },
+        React.createElement(Text, { type: 'secondary' }, '任务：'), React.createElement(Text, { strong: true }, ' ' + transferTarget.id),
+        React.createElement(Text, { style: { marginLeft: 8, color: '#8c8c8c' } }, transferTarget.meetingName)
+      ),
+      React.createElement('div', { style: { marginBottom: 20 } },
+        React.createElement(Text, { type: 'secondary', style: { fontSize: 13 } }, transferTarget.description)
+      ),
+      React.createElement('div', { style: { marginBottom: 20 } },
+        React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 8, color: '#333' } }, '转交给'),
+        React.createElement(Select, {
+          placeholder: '选择转交对象', style: { width: '100%' }, value: transferTo, onChange: setTransferTo,
+          options: ALL_USERS.filter(function(u) { return u.id !== CURRENT_USER_ID; }).map(function(u) { return { value: u.id, label: u.name + ' · ' + u.dept }; }),
+          filterOption: function(input, option) { return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0; }
+        })
+      ),
+      React.createElement('div', { style: { marginBottom: 8 } },
+        React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 8, color: '#333' } }, '转交原因'),
+        React.createElement(TextArea, { rows: 3, placeholder: '请说明转交原因，以便对方了解背景...', value: transferReason, onChange: function(e) { setTransferReason(e.target.value); }, maxLength: 200, showCount: true })
+      ),
+      React.createElement('div', { style: { padding: '10px 14px', background: '#fffbe6', border: '1px solid #ffe58f', borderRadius: 8, fontSize: 12, color: '#8c8c8c' } },
+        React.createElement('i', { className: 'ti ti-info-circle', style: { marginRight: 4, color: '#faad14' } }),
+        '转交后你的任务状态将变为已转交，对方会收到一条新的待处理任务'
+      )
+    ),
+    completeOpen && completeTarget && React.createElement(Modal, {
+      title: React.createElement('span', null, React.createElement('i', { className: 'ti ti-circle-check', style: { marginRight: 8, fontSize: 18, color: '#52c41a' } }), '标记任务完成'),
+      open: true, width: 440,
+      onCancel: function() { setCompleteOpen(false); setCompleteTarget(null); },
+      footer: React.createElement(Space, null,
+        React.createElement(Button, { onClick: function() { setCompleteOpen(false); setCompleteTarget(null); } }, '取消'),
+        React.createElement(Button, { type: 'primary', onClick: confirmComplete }, '确认完成')
+      )
+    },
+      React.createElement('div', { style: { marginBottom: 12 } },
+        React.createElement(Text, { type: 'secondary' }, '任务：'), React.createElement(Text, { strong: true }, ' ' + completeTarget.id)
+      ),
+      React.createElement('div', { style: { marginBottom: 20 } }, React.createElement(Text, null, completeTarget.description)),
+      React.createElement('div', null,
+        React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 8, color: '#333' } }, '完成备注（可选）'),
+        React.createElement(TextArea, { rows: 3, placeholder: '可填写完成说明、交付物链接或备注...', value: completeNote, onChange: function(e) { setCompleteNote(e.target.value); }, maxLength: 300, showCount: true })
+      )
+    )
+  );
+  }
+  window.PROTO_SHELL && window.PROTO_SHELL.renderShell('my-tasks');
+  if (window.DataTracker) { window.DataTracker.trackPageView('my-tasks', '我的任务'); }
+  var container = document.getElementById('proto-content') || document.getElementById('root');
+  ReactDOM.createRoot(container).render(React.createElement(MyTaskPage));
+})();

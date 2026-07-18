@@ -1,0 +1,216 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quectel商机互助平台 · 原型预览门户</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #001529, #003a70); color: #fff; padding: 48px 32px 36px; text-align: center; }
+    .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    .header p { font-size: 14px; opacity: 0.7; }
+    .container { max-width: 1200px; margin: -24px auto 40px; padding: 0 24px; }
+    .section { margin-bottom: 32px; }
+    .section-title { font-size: 16px; font-weight: 600; color: #1a1a2e; margin-bottom: 16px; padding-left: 12px; border-left: 3px solid #1890ff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .card { background: #fff; border-radius: 12px; padding: 20px; cursor: pointer; transition: all 0.25s; border: 1px solid #f0f0f0; text-decoration: none; color: inherit; display: block; }
+    .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); transform: translateY(-2px); border-color: #1890ff; }
+    .card .id { font-size: 12px; color: #1890ff; font-weight: 600; margin-bottom: 4px; }
+    .card .name { font-size: 15px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px; }
+    .card .desc { font-size: 12px; color: #8c8c8c; line-height: 1.5; }
+    .card .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-top: 8px; }
+    .tag-p0 { background: #fff1f0; color: #cf1322; }
+    .tag-p1 { background: #fff7e6; color: #d46b08; }
+    .tag-p2 { background: #f0f5ff; color: #2f54eb; }
+    .tag-user { background: #e6f7ff; color: #1890ff; }
+    .tag-admin { background: #f6ffed; color: #389e0d; }
+    .footer { text-align: center; padding: 24px; color: #bbb; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Quectel商机互助平台</h1>
+    <p>交互原型预览 · v1.1 · 评审后优化版 · 响应式Web端</p>
+  </div>
+  <div class="container">
+
+    <div class="section">
+      <div class="section-title">用户端 · 核心业务流程</div>
+      <div class="grid">
+        <a class="card" href="PAGE-PC-00_登录页.html">
+          <div class="id">PAGE-PC-00</div>
+          <div class="name">登录页</div>
+          <div class="desc">SSO企业统一登录 + 账号密码降级</div>
+          <span class="tag tag-p0">P0</span>
+        </a>
+        <a class="card" href="PAGE-PC-01_找方案.html">
+          <div class="id">PAGE-PC-01</div>
+          <div class="name">首页</div>
+          <div class="desc">聚合门户工作台：Hero搜索、数据概览、快捷操作、热门方案、讨论热帖、工具入口</div>
+          <span class="tag tag-p0">P0</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-02_商机详情页.html">
+          <div class="id">PAGE-PC-02</div>
+          <div class="name">方案详情页</div>
+          <div class="desc">查看方案全貌、下载附件、评论互动</div>
+          <span class="tag tag-p0">P0</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-03_创建编辑商机.html">
+          <div class="id">PAGE-PC-03</div>
+          <div class="name">创建/编辑方案</div>
+          <div class="desc">产品经理填写方案信息、保存草稿、发布</div>
+          <span class="tag tag-p0">P0</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-04_提需求.html">
+          <div class="id">PAGE-PC-04</div>
+          <div class="name">提需求</div>
+          <div class="desc">销售/产品均可发布需求，快捷筛选、截止时间跟踪</div>
+          <span class="tag tag-p0">P0</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-17_查方案.html">
+          <div class="id">PAGE-PC-17</div>
+          <div class="name">查方案</div>
+          <div class="desc">方案搜索浏览：增强筛选、卡片/列表双视图、分类浏览</div>
+          <span class="tag tag-p1">P1</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-18_讨论区.html">
+          <div class="id">PAGE-PC-18</div>
+          <div class="name">讨论区</div>
+          <div class="desc">商机讨论社区：话题分类、发帖回复、热门话题</div>
+          <span class="tag tag-p1">P1</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-18-1_讨论详情页.html">
+          <div class="id">PAGE-PC-18-1</div>
+          <div class="name">讨论详情页</div>
+          <div class="desc">帖子详情查看：话题信息、正文内容、评论回复</div>
+          <span class="tag tag-p1">P1</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-18-2_发帖页.html">
+          <div class="id">PAGE-PC-18-2</div>
+          <div class="name">发帖页</div>
+          <div class="desc">发布新讨论：富文本编辑、话题选择、内容预览</div>
+          <span class="tag tag-p1">P1</span> <span class="tag tag-user">用户端</span>
+        </a>
+<a class="card" href="PAGE-PC-20_工具助手.html">
+          <div class="id">PAGE-PC-20</div>
+          <div class="name">工具助手</div>
+          <div class="desc">销售工具集：报价计算器、竞品对比、模板库、邮件模板、方案推荐、话术生成、智能撰写</div>
+          <span class="tag tag-p2">P2</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-05_需求详情页.html">
+          <div class="id">PAGE-PC-05</div>
+          <div class="name">需求详情页</div>
+          <div class="desc">查看需求、提交方案、采纳最佳、关闭需求</div>
+          <span class="tag tag-p0">P0</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-06_发布编辑需求.html">
+          <div class="id">PAGE-PC-06</div>
+          <div class="name">发布/编辑需求</div>
+          <div class="desc">描述需求、设定截止时间、选择紧急程度</div>
+          <span class="tag tag-p0">P0</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-07_通知中心.html">
+          <div class="id">PAGE-PC-07</div>
+          <div class="name">通知中心</div>
+          <div class="desc">站内通知列表、强制确认阅读</div>
+          <span class="tag tag-p0">P0</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-08_个人中心.html">
+          <div class="id">PAGE-PC-08</div>
+          <div class="name">个人中心</div>
+          <div class="desc">订阅设置、通知偏好、收藏、发布记录</div>
+          <span class="tag tag-p1">P1</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-15_通知偏好设置.html">
+          <div class="id">PAGE-PC-15</div>
+          <div class="name">通知偏好设置</div>
+          <div class="desc">通知类型 × 接收渠道矩阵开关</div>
+          <span class="tag tag-p2">P2</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-16_公告详情页.html">
+          <div class="id">PAGE-PC-16</div>
+          <div class="name">公告详情页</div>
+          <div class="desc">平台公告全文查看、富文本渲染、附件下载</div>
+          <span class="tag tag-p1">P1</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-20_情报中心.html">
+          <div class="id">PAGE-PC-20_情报</div>
+          <div class="name">情报中心</div>
+          <div class="desc">竞品情报列表：品牌筛选、类型筛选、提交情报；行业资讯浏览</div>
+          <span class="tag tag-p1">P1</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-20-3_提交竞品情报.html">
+          <div class="id">PAGE-PC-20-3</div>
+          <div class="name">提交竞品情报</div>
+          <div class="desc">全页表单提交竞品情报，富文本编辑器撰写内容</div>
+          <span class="tag tag-p1">P1</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-20-1_竞品情报详情页.html">
+          <div class="id">PAGE-PC-20-1</div>
+          <div class="name">竞品情报详情页</div>
+          <div class="desc">资讯文章风格详情：动态概述、竞品分析、影响评估、评论讨论、相关推荐</div>
+          <span class="tag tag-p1">P1</span> <span class="tag tag-user">用户端</span>
+        </a>
+        <a class="card" href="PAGE-PC-20-2_行业情报详情页.html">
+          <div class="id">PAGE-PC-20-2</div>
+          <div class="name">行业情报详情页</div>
+          <div class="desc">行业资讯文章风格：关键要点、行业分析、对Quectel影响、分类行动建议、评论讨论</div>
+          <span class="tag tag-p1">P1</span> <span class="tag tag-user">用户端</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">运营中心 · 运营管理</div>
+      <div class="grid">
+
+        <a class="card" href="PAGE-PC-10_内容审核管理.html">
+          <div class="id">PAGE-PC-10</div>
+          <div class="name">内容审核管理</div>
+          <div class="desc">全平台内容下架/删除、手动排序、置顶、替发方案</div>
+          <span class="tag tag-p0">P0</span> <span class="tag tag-admin">运营中心</span>
+        </a>
+        <a class="card" href="PAGE-PC-11_分类体系维护.html">
+          <div class="id">PAGE-PC-11</div>
+          <div class="name">分类体系维护</div>
+          <div class="desc">左树右表、拖拽排序、层级管理</div>
+          <span class="tag tag-p0">P0</span> <span class="tag tag-admin">运营中心</span>
+        </a>
+        <a class="card" href="PAGE-PC-12_运营数据看板.html">
+          <div class="id">PAGE-PC-12</div>
+          <div class="name">运营数据看板</div>
+          <div class="desc">指标卡片、趋势图、分布图、告警列表</div>
+          <span class="tag tag-p1">P1</span> <span class="tag tag-admin">运营中心</span>
+        </a>
+        <a class="card" href="PAGE-PC-13_SLA监控.html">
+          <div class="id">PAGE-PC-13</div>
+          <div class="name">需求时效监控</div>
+          <div class="desc">需求响应截止时间监控、超时提醒、多通道催办</div>
+          <span class="tag tag-p0">P0</span> <span class="tag tag-admin">运营中心</span>
+        </a>
+        <a class="card" href="PAGE-PC-23_批量发布任务.html">
+          <div class="id">PAGE-PC-23</div>
+          <div class="name">批量发布任务</div>
+          <div class="desc">从会议记录批量创建行动项、统一下发执行人、预览后发布</div>
+          <span class="tag tag-p0">P0</span> <span class="tag tag-admin">运营中心</span>
+        </a>
+        <a class="card" href="PAGE-PC-14_操作日志.html">
+          <div class="id">PAGE-PC-14</div>
+          <div class="name">操作日志</div>
+          <div class="desc">操作审计、变更快照、导出</div>
+          <span class="tag tag-p1">P1</span> <span class="tag tag-admin">运营中心</span>
+        </a>
+        <a class="card" href="PAGE-PC-15_公告发布.html">
+          <div class="id">PAGE-PC-15</div>
+          <div class="name">公告发布</div>
+          <div class="desc">平台公告编辑、定时发布、推送给全部用户</div>
+          <span class="tag tag-p1">P1</span> <span class="tag tag-admin">运营中心</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+  <div class="footer">Quectel商机互助平台 · 交互原型 v1.1 · 评审后优化 · 2026</div>
+</body>
+</html>

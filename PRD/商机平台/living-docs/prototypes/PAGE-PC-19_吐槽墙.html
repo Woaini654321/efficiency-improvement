@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>吐槽墙 - Quectel商机互助平台</title>
+  <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="prototype-shell.js"></script>
+  <script src="data-tracker.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f5f7fa; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:translateY(0);} }
+    @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+    .vent-card {
+      background:#fff; border-radius:16px; padding:24px; border:1px solid #f0f0f0;
+      transition:all .25s; animation:fadeIn .4s ease both; position:relative; overflow:hidden;
+    }
+    .vent-card:hover { border-color:#eb2f96; box-shadow:0 6px 20px rgba(235,47,150,.08); transform:translateY(-3px); }
+    .vent-card::after {
+      content:''; position:absolute; top:-40px; right:-40px;
+      width:120px; height:120px; border-radius:50%; background:rgba(235,47,150,.03);
+    }
+    .vent-avatar { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+    .like-btn { display:inline-flex; align-items:center; gap:4px; padding:4px 14px; border-radius:20px; border:1px solid #ffd6e7; background:transparent; cursor:pointer; color:#eb2f96; font-size:13px; transition:all .2s; }
+    .like-btn:hover { background:#fff0f6; }
+    .like-btn.liked { background:#eb2f96; color:#fff; border-color:#eb2f96; }
+    .banner-notice { background:linear-gradient(135deg,#fff0f6,#ffd6e7); border-radius:16px; padding:20px 24px; margin-bottom:24px; border:1px solid #ffadd2; }
+    @media(max-width:768px){ .vent-grid{grid-template-columns:1fr!important;} }
+  </style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+(function(){
+  const { useState } = React;
+  const { Button, Tag, Input, Modal, message, Empty, Segmented } = antd;
+
+  const MOCK_VENTS = [
+    { id:'V1', title:'每次产品更新都要翻300条群消息才能找到文档链接', content:'飞书群消息太多，重要文档链接经常被淹没。建议在平台建一个"产品文档中心"，按产品线分类，每次更新自动置顶。', likes:78, date:'2026-07-06', color:'#eb2f96', emoji:'😤' },
+    { id:'V2', title:'客户问的NB-IoT方案三个月了还没人跟进', content:'在平台上提了需求，标了"特急"，结果三个月过去了状态还是"待响应"。客户那边我已经不好意思再拖了。', likes:65, date:'2026-07-04', color:'#fa8c16', emoji:'😫' },
+    { id:'V3', title:'报销流程比打单还难，财务能不能简化一下', content:'出一趟差，机票酒店打车吃饭，要填6个表格找4个人审批。打单都没这么复杂。', likes:52, date:'2026-07-02', color:'#722ed1', emoji:'😩' },
+    { id:'V4', title:'公司WiFi在客户演示时断了三回，尴尬到脚趾抠地', content:'上周去客户现场做技术演示，公司VPN连不上，WiFi信号只有一格。客户看着我在那里刷新页面等了5分钟。IT能不能给销售配个随身WiFi？', likes:91, date:'2026-06-30', color:'#eb2f96', emoji:'🫣' },
+    { id:'V5', title:'产品线的规格书还是2024年的数据', content:'客户要看最新的技术参数，我只能从产品经理微信聊天记录里翻。平台上的规格书还是去年的版本。', likes:44, date:'2026-06-28', color:'#1890ff', emoji:'😤' },
+    { id:'V6', title:'海外出差补贴什么时候能跟上市场水平', content:'东南亚出差一天补贴300，连酒店都不够。隔壁部门去同样的地方补贴500。都是为公司赚钱，能不能统一标准？', likes:37, date:'2026-06-25', color:'#13c2c2', emoji:'💸' }
+  ];
+
+  const [activeTab, setActiveTab] = useState('hot');
+  const [likedIds, setLikedIds] = useState({});
+  const [showNew, setShowNew] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newContent, setNewContent] = useState('');
+
+  var sorted = MOCK_VENTS.slice();
+  if (activeTab==='hot') sorted.sort(function(a,b){ return b.likes - a.likes; });
+  else sorted.sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
+
+  function toggleLike(id) {
+    setLikedIds(function(prev) { var n={}; for(var k in prev)n[k]=prev[k]; n[id]=!prev[id]; return n; });
+  }
+
+  function submitVent() {
+    if (!newTitle.trim() || !newContent.trim()) { message.warning('请填写标题和内容'); return; }
+    message.success('吐槽发布成功！你的声音会被听到 💪');
+    setShowNew(false); setNewTitle(''); setNewContent('');
+  }
+
+  function VentPage() {
+    return React.createElement('div', { style:{padding:'4px 0 40px'} },
+      // Banner
+      React.createElement('div', { className:'banner-notice' },
+        React.createElement('div', { style:{display:'flex',alignItems:'center',justifyContent:'space-between'} },
+          React.createElement('div', null,
+            React.createElement('h2', { style:{fontSize:20,fontWeight:700,color:'#1a1a2e',marginBottom:4} },
+              React.createElement('i',{className:'ti ti-mood-sad',style:{fontSize:24,marginRight:8,color:'#eb2f96'}}), '吐槽墙'
+            ),
+            React.createElement('p', { style:{fontSize:13,color:'#8c8c8c'} }, '匿名吐槽，畅所欲言。你的每一条声音，管理层都会关注。')
+          ),
+          React.createElement(Button, { type:'primary',icon:React.createElement('i',{className:'ti ti-pencil',style:{fontSize:16}}),style:{borderRadius:10,background:'#eb2f96',borderColor:'#eb2f96'},onClick:function(){setShowNew(true);} }, '我要吐槽')
+        )
+      ),
+      // Tabs
+      React.createElement('div', { style:{marginBottom:20,display:'flex',alignItems:'center',justifyContent:'space-between'} },
+        React.createElement(Segmented, { value:activeTab, onChange:setActiveTab, options:[
+          { label:' 热门吐槽', value:'hot', icon:React.createElement('i',{className:'ti ti-flame'}) },
+          { label:' 最新吐槽', value:'latest', icon:React.createElement('i',{className:'ti ti-clock'}) }
+        ]}),
+        React.createElement('span', { style:{fontSize:12,color:'#bfbfbf'} }, '共 ', MOCK_VENTS.length, ' 条吐槽')
+      ),
+      // Vent Grid
+      React.createElement('div', { className:'vent-grid', style:{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:16} },
+        sorted.map(function(v,i) {
+          var isLiked = !!likedIds[v.id];
+          return React.createElement('div', { key:v.id, className:'vent-card', style:{animationDelay:i*0.08+'s'} },
+            React.createElement('div', { style:{display:'flex',alignItems:'flex-start',gap:14,position:'relative',zIndex:1} },
+              React.createElement('div', { className:'vent-avatar',style:{background:'linear-gradient(135deg,'+v.color+',#ff85c0)'} },
+                React.createElement('span', { style:{fontSize:18} }, v.emoji)
+              ),
+              React.createElement('div', { style:{flex:1} },
+                React.createElement('div', { style:{fontSize:15,fontWeight:600,color:'#1a1a2e',marginBottom:8,lineHeight:1.5} }, v.title),
+                React.createElement('div', { style:{fontSize:13,color:'#595959',marginBottom:14,lineHeight:1.7} }, v.content),
+                React.createElement('div', { style:{display:'flex',alignItems:'center',justifyContent:'space-between'} },
+                  React.createElement('span', { style:{fontSize:12,color:'#bfbfbf'} },
+                    React.createElement('i',{className:'ti ti-ghost',style:{marginRight:4}}), '匿名用户 · ', v.date
+                  ),
+                  React.createElement('button', { className:'like-btn'+(isLiked?' liked':''), onClick:function(){toggleLike(v.id);} },
+                    React.createElement('i', { className:'ti '+(isLiked?'ti-heart-filled':'ti-heart'), style:{fontSize:14} }),
+                    (isLiked ? v.likes+1 : v.likes)
+                  )
+                )
+              )
+            )
+          );
+        })
+      ),
+      React.createElement('div', { style:{textAlign:'center',marginTop:32,color:'#bfbfbf',fontSize:13} },
+        '⚠ 吐槽内容不代表平台立场，请文明发言。管理员会定期查看并反馈至相关部门。'
+      ),
+      // New Vent Modal
+      React.createElement(Modal, { title:React.createElement('span',null,React.createElement('i',{className:'ti ti-pencil',style:{marginRight:8}}),'匿名吐槽'), open:showNew, onCancel:function(){setShowNew(false);}, onOk:submitVent, okText:'匿名发布', cancelText:'取消', okButtonProps:{style:{background:'#eb2f96',borderColor:'#eb2f96'}} },
+        React.createElement('div', { style:{display:'flex',flexDirection:'column',gap:16} },
+          React.createElement('div', { style:{background:'#fff7e6',borderRadius:8,padding:'10px 14px',fontSize:12,color:'#d46b08'} },
+            React.createElement('i',{className:'ti ti-info-circle',style:{marginRight:4}}), '你的身份将完全匿名，不会记录任何个人信息。'
+          ),
+          React.createElement(Input, { placeholder:'一句话描述你的吐槽（必填）', value:newTitle, onChange:function(e){setNewTitle(e.target.value);} }),
+          React.createElement(Input.TextArea, { placeholder:'详细说说...（必填）', rows:4, value:newContent, onChange:function(e){setNewContent(e.target.value);} })
+        )
+      )
+    );
+  }
+
+  if (window.PROTO_SHELL && window.PROTO_SHELL.renderShell) {
+    window.PROTO_SHELL.renderShell('venting');
+    if (window.DataTracker) { window.DataTracker.trackPageView('venting', '吐槽墙'); }
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(VentPage, null));
+})();
+</script>
+</body>
+</html>

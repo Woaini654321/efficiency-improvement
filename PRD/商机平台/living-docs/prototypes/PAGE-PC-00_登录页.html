@@ -1,0 +1,261 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>登录 - Quectel商机互助平台</title>
+  <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="data-tracker.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+  
+  /* 响应式 */
+  @media(max-width:768px){
+    .login-card{width:calc(100vw - 32px)!important;max-width:420px!important;flex-direction:column!important;margin:0 16px!important;border-radius:16px!important;min-height:auto!important;}
+    .login-brand{width:100%!important;padding:32px 28px!important;min-height:auto!important;border-radius:16px 16px 0 0!important;}
+    .login-brand>div:first-child{margin-bottom:16px!important;}
+    .login-form-panel{padding:32px 28px!important;}
+    .login-decoration{display:none!important;}
+    .login-footer{position:static!important;margin-top:20px!important;color:rgba(255,255,255,0.6)!important;}
+  }
+  @media(max-width:480px){
+    .login-card{border-radius:14px!important;width:calc(100vw - 24px)!important;margin:0 12px!important;}
+    .login-brand{padding:24px 24px!important;border-radius:14px 14px 0 0!important;}
+    .login-brand>div:first-child{margin-bottom:12px!important;}
+    .login-form-panel{padding:24px 24px!important;}
+  }</style>
+</head>
+<body>
+  <!-- 活体自检探针 -->
+  <script>
+    window.onerror = function(msg, url, line, col, err) {
+      var d = document.createElement('div');
+      d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#fffbe6;border-bottom:2px solid #faad14;padding:12px 20px;font:14px monospace;color:#d4380d;';
+      d.textContent = '⚠ JS Error: ' + msg + ' (line ' + line + ')';
+      document.body.prepend(d);
+    };
+  </script>
+
+  <div id="root"></div>
+
+  <!-- 登录页无 Shell -->
+  <script type="text/babel">
+  (() => {
+    const { Button, Input, Form, Divider, Typography, Space, message, Checkbox } = antd;
+
+    const { Title, Text, Paragraph } = Typography;
+
+    // 登录失败计数器
+    const MAX_ATTEMPTS = 5;
+
+    function LoginPage() {
+      const [loading, setLoading] = React.useState(false);
+      const [ssoLoading, setSsoLoading] = React.useState(false);
+      const [ssoUnavailable, setSsoUnavailable] = React.useState(false);
+      const [failCount, setFailCount] = React.useState(0);
+      const [locked, setLocked] = React.useState(false);
+      const [form] = Form.useForm();
+
+      const handleSSO = () => {
+        setSsoLoading(true);
+        setTimeout(() => {
+          message.success('SSO认证成功，正在跳转...');
+          setTimeout(() => { window.location.href = 'PAGE-PC-01_找方案.html'; }, 800);
+        }, 1500);
+      };
+
+      const handleLogin = (values) => {
+        if (locked) {
+          message.error('账号已锁定，请30分钟后重试或使用SSO登录');
+          return;
+        }
+        setLoading(true);
+        setTimeout(() => {
+          setLoading(false);
+          if (values.username === 'admin' && values.password === 'admin') {
+            message.success('登录成功！');
+            setTimeout(() => { window.location.href = 'PAGE-PC-01_找方案.html'; }, 600);
+          } else {
+            const next = failCount + 1;
+            setFailCount(next);
+            if (next >= MAX_ATTEMPTS) {
+              setLocked(true);
+              message.error('连续' + MAX_ATTEMPTS + '次密码错误，账号已锁定30分钟');
+            } else {
+              message.error('用户名或密码错误（提示：admin/admin）');
+            }
+          }
+        }, 1000);
+      };
+
+      const handleSSOFail = () => {
+        setSsoUnavailable(true);
+        message.warning('SSO服务暂不可用，请使用账号密码登录');
+      };
+
+      return (
+        <div style={{
+          minHeight: '100vh',
+          background: 'linear-gradient(-45deg, #001529, #003a70, #005b9f, #1890ff)',
+          backgroundSize: '400% 400%',
+          animation: 'gradientShift 15s ease infinite',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {/* 装饰圆 */}
+          <div style={{ position:'absolute', width:400, height:400, borderRadius:'50%', background:'rgba(24,144,255,0.08)', top:'-100px', right:'-80px', animation:'float 6s ease-in-out infinite' }} />
+          <div className="login-decoration" style={{ position:'absolute', width:300, height:300, borderRadius:'50%', background:'rgba(54,207,201,0.06)', bottom:'-60px', left:'-50px', animation:'float 8s ease-in-out infinite 1s' }} />
+
+          {/* 主卡片 */}
+          <div className="login-card" style={{
+            display: 'flex',
+            background: 'rgba(255,255,255,0.95)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: 20,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+            overflow: 'hidden',
+            width: 880,
+            minHeight: 520,
+            animation: 'fadeInUp 0.8s ease'
+          }}>
+            {/* 左侧品牌区 */}
+            <div className="login-brand" style={{
+              width: 400,
+              background: 'linear-gradient(135deg, #001529 0%, #003a70 100%)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              padding: '48px 40px',
+              color: '#fff',
+              position: 'relative'
+            }}>
+              <div style={{ position:'absolute', top:0, right:0, width:200, height:200, background:'radial-gradient(circle, rgba(24,144,255,0.2) 0%, transparent 70%)' }} />
+              <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:32 }}>
+                <div style={{ width:48, height:48, borderRadius:12, background:'linear-gradient(135deg,#1890ff,#36cfc9)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, fontWeight:700 }}>Q</div>
+                <div>
+                  <div style={{ fontSize:20, fontWeight:700 }}>Quectel</div>
+                  <div style={{ fontSize:12, opacity:0.7 }}>商机互助平台</div>
+                </div>
+              </div>
+
+              <div style={{ fontSize:28, fontWeight:700, lineHeight:1.4, marginBottom:24 }}>
+                找方案 · 提需求<br/>互助共赢
+              </div>
+
+              <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
+                {[
+                  { icon: '🎯', text: '内部方案互助与需求匹配平台' },
+                  { icon: '🔔', text: '智能订阅精准通知触达' },
+                  { icon: '🤝', text: '快速找到对口产品方案' }
+                ].map((item, i) => (
+                  <div key={i} style={{ display:'flex', alignItems:'center', gap:12, opacity:0.9 }}>
+                    <div style={{ width:36, height:36, borderRadius:8, background:'rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18 }}>{item.icon}</div>
+                    <span style={{ fontSize:14 }}>{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 右侧登录区 */}
+            <div className="login-form-panel" style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              padding: '48px 48px'
+            }}>
+              <div style={{ marginBottom:32 }}>
+                <div style={{ fontSize:24, fontWeight:700, color:'#1a1a2e', marginBottom:8 }}>欢迎回来</div>
+                <div style={{ fontSize:14, color:'#8c8c8c' }}>登录以访问商机互助平台</div>
+              </div>
+
+              {/* SSO 主按钮 */}
+              <Button
+                type="primary"
+                size="large"
+                block
+                loading={ssoLoading}
+                onClick={handleSSO}
+                disabled={ssoUnavailable}
+                style={{ height:48, borderRadius:10, fontSize:16, fontWeight:600, marginBottom:8, background: ssoUnavailable ? undefined : 'linear-gradient(135deg,#1890ff,#36cfc9)', border:'none', boxShadow: ssoUnavailable ? undefined : '0 4px 15px rgba(24,144,255,0.35)' }}
+              >
+                <i className="ti ti-shield-check" style={{fontSize:18, marginRight:8}} /> SSO 企业统一登录
+              </Button>
+              {!ssoUnavailable && (
+                <div style={{ textAlign:'center', marginBottom:16 }}>
+                  <Text type="secondary" style={{ fontSize:12, cursor:'pointer', textDecoration:'underline' }} onClick={handleSSOFail}>
+                    SSO无法使用？切换到账号密码登录
+                  </Text>
+                </div>
+              )}
+
+              <Divider style={{ margin:'16px 0', color:'#d9d9d9', fontSize:12 }}>
+                <Text type="secondary">或使用账号密码</Text>
+              </Divider>
+
+              <Form form={form} onFinish={handleLogin} size="large" style={{ opacity: ssoUnavailable ? 1 : 0.7, transition:'opacity 0.3s' }}>
+                <Form.Item name="username" rules={[{ required:true, message:'请输入用户名' }]}>
+                  <Input
+                    prefix={<i className="ti ti-user" style={{fontSize:18, color:'#bfbfbf'}} />}
+                    placeholder="请输入用户名"
+                    style={{ borderRadius:10, height:44 }}
+                    disabled={locked}
+                  />
+                </Form.Item>
+                <Form.Item name="password" rules={[{ required:true, message:'请输入密码' }]}>
+                  <Input.Password
+                    prefix={<i className="ti ti-lock" style={{fontSize:18, color:'#bfbfbf'}} />}
+                    placeholder="请输入密码"
+                    style={{ borderRadius:10, height:44 }}
+                    disabled={locked}
+                    onPressEnter={() => form.submit()}
+                  />
+                </Form.Item>
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    block
+                    loading={loading}
+                    disabled={locked}
+                    style={{ height:44, borderRadius:10, fontWeight:600 }}
+                  >
+                    登录
+                  </Button>
+                </Form.Item>
+                {locked && (
+                  <div style={{ background:'#fff2f0', border:'1px solid #ffccc7', borderRadius:8, padding:'8px 12px', textAlign:'center' }}>
+                    <Text type="danger" style={{ fontSize:13 }}>账号已锁定，请30分钟后重试或使用SSO登录</Text>
+                  </div>
+                )}
+              </Form>
+            </div>
+          </div>
+
+          {/* 底部信息 */}
+          <div className="login-footer" style={{ position:'absolute', bottom:24, textAlign:'center', color:'rgba(255,255,255,0.5)', fontSize:12 }}>
+            © 2026 Quectel · 隐私政策 · 使用条款
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<LoginPage />);
+    window.DataTracker.trackPageView('login', '登录页');
+  })();
+  </script>
+</body>
+</html>

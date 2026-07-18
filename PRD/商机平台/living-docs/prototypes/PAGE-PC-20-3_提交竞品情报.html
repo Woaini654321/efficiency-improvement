@@ -1,0 +1,273 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>提交竞品情报 - Quectel商机互助平台</title>
+  <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/quill@1.3.7/dist/quill.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/quill@1.3.7/dist/quill.snow.css" />
+  <script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="prototype-shell.js"></script>
+  <script src="data-tracker.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+    .page-header-bar {
+      background: #fff; padding: 14px 24px; border-bottom: 1px solid #f0f0f0;
+      display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 50;
+    }
+    .page-header-bar .back-btn {
+      display: flex; align-items: center; gap: 4px; font-size: 14px; color: #595959;
+      cursor: pointer; text-decoration: none; padding: 6px 10px; border-radius: 8px; transition: all .2s;
+    }
+    .page-header-bar .back-btn:hover { background: #f5f5f5; color: #1a1a2e; }
+    .page-header-bar h3 { margin: 0; font-size: 18px; font-weight: 600; color: #1a1a2e; }
+
+    .form-container { max-width: 860px; margin: 0 auto; padding: 24px 24px 100px; }
+    .form-card {
+      background: #fff; border-radius: 16px; padding: 28px 32px; margin-bottom: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #f0f0f0;
+      animation: fadeIn 0.5s ease both;
+    }
+    .form-card-title {
+      font-size: 16px; font-weight: 600; color: #1a1a2e;
+      margin-bottom: 20px; padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0; display: flex; align-items: center; gap: 8px;
+    }
+    .form-card-title .dot { width: 6px; height: 6px; border-radius: 50%; background: #722ed1; }
+    .form-row-2col { display: flex; gap: 16px; margin-bottom: 18px; }
+    .form-row-2col > div { flex: 1; }
+    .form-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+    .form-field label { font-size: 13px; font-weight: 500; color: #333; }
+    .form-field label .required { color: #ff4d4f; margin-left: 2px; }
+    .form-field .hint { font-size: 11px; color: #bfbfbf; margin-top: 2px; }
+
+    .ql-container { min-height: 300px; font-size: 14px; border-radius: 0 0 10px 10px; }
+    .ql-toolbar { border-radius: 10px 10px 0 0; border-color: #d9d9d9; }
+    .ql-container { border-color: #d9d9d9; }
+    .ql-editor { min-height: 300px; font-size: 14px; line-height: 1.8; }
+    .ql-editor.ql-blank::before { font-style: normal; color: #bfbfbf; }
+
+    .preview-card {
+      background: linear-gradient(135deg, #f9f0ff, #f5f0ff); border-radius: 12px;
+      padding: 16px 20px; border: 1px solid #efdbff; margin-top: 12px;
+    }
+    .preview-card .label { font-size: 12px; color: #8c8c8c; margin-bottom: 8px; }
+
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; background: #fff;
+      border-top: 1px solid #f0f0f0; padding: 14px 24px;
+      display: flex; justify-content: center; gap: 16px; z-index: 100;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.04);
+    }
+
+    @media(max-width:768px){
+      .page-header-bar { padding: 12px 16px; }
+      .page-header-bar h3 { font-size: 16px; }
+      .form-container { padding: 12px 16px 90px; }
+      .form-card { padding: 20px 16px; margin-bottom: 12px; border-radius: 14px; }
+      .form-card-title { font-size: 14px; }
+      .form-row-2col { flex-direction: column; gap: 0; }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+(function(){
+  var useState = React.useState; var useRef = React.useRef; var useEffect = React.useEffect;
+  var Button = antd.Button; var Select = antd.Select; var Input = antd.Input;
+  var Modal = antd.Modal; var message = antd.message; var Space = antd.Space;
+  var Tag = antd.Tag; var Divider = antd.Divider; var Typography = antd.Typography;
+  var Text = Typography.Text;
+
+  var COMPETITOR_BRANDS = ["Sierra Wireless","Telit","广和通","移远","u-blox","Thales"];
+  var INTEL_TYPES = ["新品发布","价格变动","客户案例","其他"];
+
+  function RichTextEditor(_a) {
+    var value = _a.value; var onChange = _a.onChange; var placeholder = _a.placeholder;
+    var containerRef = useRef(null);
+    var quillRef = useRef(null);
+    var onChangeRef = useRef(onChange);
+    onChangeRef.current = onChange;
+    var isInternalChange = useRef(false);
+
+    useEffect(function() {
+      if (!containerRef.current || quillRef.current) return;
+      var quill = new Quill(containerRef.current, {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'header': [1, 2, 3, false] }],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['link', 'blockquote'],
+            ['clean']
+          ]
+        },
+        placeholder: placeholder || '请输入情报内容，支持富文本格式...'
+      });
+      if (value) { quill.root.innerHTML = value; }
+      quill.on('text-change', function() {
+        var html = quill.root.innerHTML;
+        var text = quill.getText().trim();
+        isInternalChange.current = true;
+        onChangeRef.current && onChangeRef.current(text ? html : '');
+      });
+      quillRef.current = quill;
+      return function() { quillRef.current = null; };
+    }, []);
+
+    useEffect(function() {
+      if (isInternalChange.current) { isInternalChange.current = false; return; }
+      if (quillRef.current && value !== undefined) {
+        var current = quillRef.current.root.innerHTML;
+        if (value !== current) { quillRef.current.root.innerHTML = value || ''; }
+      }
+    }, [value]);
+
+    return React.createElement('div', { ref: containerRef });
+  }
+
+  function SubmitIntelPage() {
+    var brandState = useState(null); var brand = brandState[0]; var setBrand = brandState[1];
+    var prodState = useState(""); var product = prodState[0]; var setProduct = prodState[1];
+    var typeState = useState(null); var intelType = typeState[0]; var setIntelType = typeState[1];
+    var sourceState = useState(""); var source = sourceState[0]; var setSource = sourceState[1];
+    var titleState = useState(""); var title = titleState[0]; var setTitle = titleState[1];
+    var contentState = useState(""); var content = contentState[0]; var setContent = contentState[1];
+    var submittingState = useState(false); var submitting = submittingState[0]; var setSubmitting = submittingState[1];
+    var previewState = useState(false); var showPreview = previewState[0]; var setShowPreview = previewState[1];
+
+    var handleCancel = function() { window.close(); };
+
+    var handleSubmit = function() {
+      if (!brand) { message.warning('请选择竞品品牌'); return; }
+      if (!title.trim()) { message.warning('请输入情报标题'); return; }
+      if (!source.trim()) { message.warning('请填写情报来源'); return; }
+      if (!content || content === '<p><br></p>') { message.warning('请输入情报内容'); return; }
+      setSubmitting(true);
+      setTimeout(function() {
+        message.success('已提交，等待运营审核');
+        setSubmitting(false);
+        window.close();
+      }, 800);
+    };
+
+    var typeColorMap = { "新品发布": "green", "价格变动": "orange", "客户案例": "blue", "其他": "default" };
+
+    return React.createElement('div', null,
+      React.createElement('div', { className: 'page-header-bar' },
+        React.createElement('a', { href: 'PAGE-PC-20_情报中心.html', className: 'back-btn' },
+          React.createElement('i', { className: 'ti ti-arrow-left', style: { fontSize: 16 } }),
+          '返回情报中心'
+        ),
+        React.createElement('div', { style: { width: 1, height: 20, background: '#e8e8e8', margin: '0 4px' } }),
+        React.createElement('h3', null, '提交竞品情报')
+      ),
+
+      React.createElement('div', { className: 'form-container' },
+
+        /* 基本信息卡片 */
+        React.createElement('div', { className: 'form-card' },
+          React.createElement('div', { className: 'form-card-title' },
+            React.createElement('span', { className: 'dot' }), '基本信息'
+          ),
+
+          React.createElement('div', { className: 'form-row-2col' },
+            React.createElement('div', { className: 'form-field' },
+              React.createElement('label', null, '竞品品牌', React.createElement('span', { className: 'required' }, '*')),
+              React.createElement(Select, { placeholder: '选择竞品品牌', style: { width: '100%' }, value: brand, onChange: setBrand,
+                options: COMPETITOR_BRANDS.map(function(b) { return { value: b, label: b }; }),
+                filterOption: function(i, o) { return o.label.toLowerCase().indexOf(i.toLowerCase()) >= 0; },
+                showSearch: true
+              })
+            ),
+            React.createElement('div', { className: 'form-field' },
+              React.createElement('label', null, '产品型号'),
+              React.createElement(Input, { placeholder: '如 EM9293（可选）', value: product, onChange: function(e) { setProduct(e.target.value); } })
+            )
+          ),
+
+          React.createElement('div', { className: 'form-row-2col' },
+            React.createElement('div', { className: 'form-field' },
+              React.createElement('label', null, '情报类型'),
+              React.createElement(Select, { placeholder: '选择情报类型', style: { width: '100%' }, value: intelType, onChange: setIntelType,
+                options: INTEL_TYPES.map(function(t) { return { value: t, label: t }; })
+              })
+            ),
+            React.createElement('div', { className: 'form-field' },
+              React.createElement('label', null, '情报来源', React.createElement('span', { className: 'required' }, '*')),
+              React.createElement(Input, { placeholder: '如 Sierra Wireless官网、渠道商反馈', value: source, onChange: function(e) { setSource(e.target.value); } })
+            )
+          ),
+
+          React.createElement('div', { className: 'form-field' },
+            React.createElement('label', null, '情报标题', React.createElement('span', { className: 'required' }, '*')),
+            React.createElement(Input, { placeholder: '请输入情报标题，简明扼要概括核心动态', value: title, onChange: function(e) { setTitle(e.target.value); } })
+          )
+        ),
+
+        /* 内容编辑卡片 */
+        React.createElement('div', { className: 'form-card' },
+          React.createElement('div', { className: 'form-card-title' },
+            React.createElement('span', { className: 'dot' }), '情报内容',
+            React.createElement('span', { style: { fontSize: 12, fontWeight: 400, color: '#bfbfbf', marginLeft: 8 } }, '支持富文本格式，可插入标题、列表、链接等')
+          ),
+          React.createElement(RichTextEditor, { value: content, onChange: setContent, placeholder: '请输入竞品情报的详细内容...\n\n建议包含：\n• 情报概述\n• 技术参数/关键信息\n• 对Quectel的影响分析\n• 建议应对措施' })
+        ),
+
+        /* 提交预览 */
+        React.createElement('div', { style: { textAlign: 'center', marginBottom: 40 } },
+          React.createElement(Button, { type: 'dashed', icon: React.createElement('i', { className: 'ti ti-eye', style: { fontSize: 14 } }),
+            onClick: function() { setShowPreview(!showPreview); }
+          }, showPreview ? '收起预览' : '预览效果'),
+          showPreview && React.createElement('div', { className: 'preview-card', style: { textAlign: 'left', marginTop: 16 } },
+            React.createElement('div', { className: 'label' }, '发布预览'),
+            React.createElement('div', { style: { background: '#fff', borderRadius: 10, padding: '16px 20px', border: '1px solid #f0f0f0' } },
+              brand ? React.createElement(Tag, { color: 'purple', style: { borderRadius: 6, marginBottom: 8 } }, brand) : null,
+              product ? React.createElement(Tag, { color: 'default', style: { borderRadius: 6, marginBottom: 8, marginLeft: brand ? 4 : 0 } }, product) : null,
+              intelType ? React.createElement(Tag, { color: typeColorMap[intelType] || 'default', style: { borderRadius: 6, marginBottom: 8, marginLeft: (brand || product) ? 4 : 0 } }, intelType) : null,
+              React.createElement('div', { style: { fontSize: 18, fontWeight: 700, color: '#1a1a2e', margin: '12px 0 8px' } }, title || '（未填写标题）'),
+              React.createElement('div', { style: { fontSize: 12, color: '#bfbfbf', marginBottom: 12 } },
+                '来源: ', source || '（未填写）', ' | 提交: ', '当前用户', ' | ', dayjs().format('YYYY-MM-DD')
+              ),
+              React.createElement(Divider, { style: { margin: '12px 0' } }),
+              content ? React.createElement('div', { className: 'ql-editor', style: { padding: 0, minHeight: 'auto' },
+                dangerouslySetInnerHTML: { __html: content }
+              }) : React.createElement('div', { style: { color: '#bfbfbf', fontSize: 14 } }, '（未填写内容）')
+            )
+          )
+        )
+      ),
+
+      /* 底部操作栏 */
+      React.createElement('div', { className: 'bottom-bar' },
+        React.createElement(Button, { size: 'large', icon: React.createElement('i', { className: 'ti ti-x' }), onClick: handleCancel }, '取消'),
+        React.createElement(Button, { type: 'primary', size: 'large',
+          icon: React.createElement('i', { className: 'ti ti-send' }),
+          loading: submitting, onClick: handleSubmit,
+          style: { background: '#722ed1', borderColor: '#722ed1' }
+        }, '提交情报')
+      )
+    );
+  }
+
+  if (window.PROTO_SHELL && window.PROTO_SHELL.renderShell) {
+    window.PROTO_SHELL.renderShell('intel-submit');
+  }
+  if (window.DataTracker) { window.DataTracker.trackPageView('intel-submit', '提交竞品情报'); }
+  var container = document.getElementById('proto-content') || document.getElementById('root');
+  ReactDOM.createRoot(container).render(React.createElement(SubmitIntelPage, null));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PAGE-PC-11 数据字典 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+.page-container { padding: 24px; }
+.toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+.panels { display: flex; gap: 16px; }
+.left-panel { width: 300px; min-width: 300px; display: flex; flex-direction: column; }
+.right-panel { flex: 1; min-width: 0; }
+.tree-wrap { flex: 1; overflow-y: auto; border: 1px solid #f0f0f0; border-radius: 8px; padding: 8px; background: #fff; }
+.detail-item { display: flex; margin-bottom: 12px; }
+.detail-label { width: 90px; color: #666; flex-shrink: 0; }
+.detail-value { flex: 1; }
+.detail-actions { display: flex; gap: 8px; margin-top: 16px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo, useCallback } = React;
+const {
+  Typography, Segmented, Table, Button, Modal, Form, Input, InputNumber,
+  Switch, Tree, TreeSelect, Card, Badge, Tag, Space, message, Popconfirm,
+  Tooltip, Empty
+} = antd;
+const { Title } = Typography;
+
+/* ========== Mock Data ========== */
+function initOppCategory() { return [
+  { key: 'oc1', title: 'IoT模组', sort: 1, status: true, content_count: 12, children: [
+    { key: 'oc1-1', title: '5G模组', sort: 1, status: true, content_count: 8, children: [] },
+    { key: 'oc1-2', title: '4G模组', sort: 2, status: true, content_count: 3, children: [] },
+    { key: 'oc1-3', title: 'WiFi模组', sort: 3, status: true, content_count: 1, children: [] },
+    { key: 'oc1-4', title: 'NB-IoT', sort: 4, status: true, content_count: 0, children: [] },
+  ]},
+  { key: 'oc2', title: '天线产品', sort: 2, status: true, content_count: 9, children: [
+    { key: 'oc2-1', title: 'GNSS天线', sort: 1, status: true, content_count: 5, children: [] },
+    { key: 'oc2-2', title: 'LTE天线', sort: 2, status: true, content_count: 3, children: [] },
+    { key: 'oc2-3', title: 'WiFi天线', sort: 3, status: true, content_count: 1, children: [] },
+  ]},
+  { key: 'oc3', title: '行业方案', sort: 3, status: true, content_count: 15, children: [
+    { key: 'oc3-1', title: '车载方案', sort: 1, status: true, content_count: 6, children: [] },
+    { key: 'oc3-2', title: '智慧表计', sort: 2, status: true, content_count: 5, children: [] },
+    { key: 'oc3-3', title: '支付POS', sort: 3, status: true, content_count: 4, children: [] },
+  ]},
+  { key: 'oc4', title: '成功案例', sort: 4, status: true, content_count: 8, children: [
+    { key: 'oc4-1', title: '运营商', sort: 1, status: true, content_count: 5, children: [] },
+    { key: 'oc4-2', title: '企业客户', sort: 2, status: true, content_count: 3, children: [] },
+  ]},
+];}
+
+function initOppType() { return [
+  { key: 'ot1', title: '产品信息', sort: 1, status: true, content_count: 15 },
+  { key: 'ot2', title: '解决方案', sort: 2, status: true, content_count: 22 },
+  { key: 'ot3', title: '成功案例', sort: 3, status: true, content_count: 8 },
+];}
+
+function initDemandCategory() { return [
+  { key: 'dc1', title: '需求类型', sort: 1, status: true, content_count: 18, children: [
+    { key: 'dc1-1', title: '硬件采购', sort: 1, status: true, content_count: 9, children: [] },
+    { key: 'dc1-2', title: '方案定制', sort: 2, status: true, content_count: 5, children: [] },
+    { key: 'dc1-3', title: '技术支持', sort: 3, status: true, content_count: 3, children: [] },
+    { key: 'dc1-4', title: '样品申请', sort: 4, status: true, content_count: 1, children: [] },
+  ]},
+  { key: 'dc2', title: '应用领域', sort: 2, status: true, content_count: 12, children: [
+    { key: 'dc2-1', title: '智慧城市', sort: 1, status: true, content_count: 5, children: [] },
+    { key: 'dc2-2', title: '车联网', sort: 2, status: true, content_count: 3, children: [] },
+    { key: 'dc2-3', title: '工业物联网', sort: 3, status: true, content_count: 2, children: [] },
+    { key: 'dc2-4', title: '智慧农业', sort: 4, status: true, content_count: 2, children: [] },
+  ]},
+];}
+
+function initAnnouncementType() { return [
+  { key: 'at1', title: '系统公告', sort: 1, status: true, content_count: 6 },
+  { key: 'at2', title: '活动通知', sort: 2, status: true, content_count: 3 },
+  { key: 'at3', title: '版本更新', sort: 3, status: true, content_count: 4 },
+  { key: 'at4', title: '紧急通知', sort: 4, status: true, content_count: 2 },
+];}
+
+/* ========== Helpers ========== */
+const getDepth = (key, tree) => {
+  for (var i = 0; i < tree.length; i++) {
+    if (tree[i].key === key) return 1;
+    if (tree[i].children) { var d = getDepth(key, tree[i].children); if (d > 0) return d + 1; }
+  }
+  return 0;
+};
+const findNode = (key, tree) => {
+  for (var i = 0; i < tree.length; i++) {
+    if (tree[i].key === key) return tree[i];
+    if (tree[i].children) { var f = findNode(key, tree[i].children); if (f) return f; }
+  }
+  return null;
+};
+const findParent = (key, tree, parent) => {
+  for (var i = 0; i < tree.length; i++) {
+    if (tree[i].key === key) return parent || null;
+    if (tree[i].children) { var f = findParent(key, tree[i].children, tree[i]); if (f) return f; }
+  }
+  return null;
+};
+const hasChildren = (n) => n.children && n.children.length > 0;
+const deepClone = (o) => JSON.parse(JSON.stringify(o));
+let keyCounter = 200;
+
+/* ========== Main ========== */
+function DataDictPage() {
+  const [dictType, setDictType] = useState('oppCategory');
+  const [oppCategory, setOppCategory] = useState(initOppCategory);
+  const [oppType, setOppType] = useState(initOppType);
+  const [demandCategory, setDemandCategory] = useState(initDemandCategory);
+  const [announcementType, setAnnouncementType] = useState(initAnnouncementType);
+  const [selectedKey, setSelectedKey] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [parentKeyForNew, setParentKeyForNew] = useState(null);
+  const [form] = Form.useForm();
+
+  const isTree = dictType !== 'oppType' && dictType !== 'announcementType';
+  const isAnnouncement = dictType === 'announcementType';
+  const treeData = dictType === 'oppCategory' ? oppCategory : demandCategory;
+  const updateTree = dictType === 'oppCategory' ? setOppCategory : setDemandCategory;
+  const flatList = dictType === 'oppType' ? oppType : (dictType === 'announcementType' ? announcementType : null);
+  const updateFlatList = dictType === 'oppType' ? setOppType : setAnnouncementType;
+
+  const selectedNode = useMemo(() => {
+    if (!selectedKey) return null;
+    if (!isTree) return flatList.find(d => d.key === selectedKey) || null;
+    return findNode(selectedKey, treeData);
+  }, [selectedKey, isTree, flatList, treeData]);
+  const selectedDepth = useMemo(() => {
+    if (!selectedKey || !isTree) return 0;
+    return getDepth(selectedKey, treeData);
+  }, [selectedKey, isTree, treeData]);
+  const parentNode = useMemo(() => {
+    if (!selectedKey || !isTree) return null;
+    return findParent(selectedKey, treeData, null);
+  }, [selectedKey, isTree, treeData]);
+
+  /* Tree => antd Tree 数据 */
+  const antTreeData = useMemo(() => {
+    if (!isTree) return [];
+    function convert(nodes) { return nodes.map(function(n) { return {
+      key: n.key, title: React.createElement('span', null, n.title,
+        React.createElement('span', { style: { marginLeft: 8, color: '#999', fontSize: 12 } }, '(' + n.content_count + ')'),
+        !n.status && React.createElement(Tag, { color: 'red', style: { marginLeft: 6, fontSize: 11 } }, '停用')
+      ),
+      icon: hasChildren(n)
+        ? function(props) { return props.expanded ? React.createElement('i', { className: 'ti ti-folder-open', style: { fontSize: 18 } }) : React.createElement('i', { className: 'ti ti-folder', style: { fontSize: 18 } }); }
+        : React.createElement('i', { className: 'ti ti-folder', style: { fontSize: 18 } }),
+      children: n.children ? convert(n.children) : []
+    }; }); }
+    return convert(treeData);
+  }, [isTree, treeData]);
+
+  const onSelect = useCallback((keys) => { if (keys.length > 0) setSelectedKey(keys[0]); }, []);
+
+  /* Drag & drop */
+  const onDrop = useCallback((info) => {
+    var data = deepClone(treeData), dragObj;
+    (function loop(arr, key, cb) {
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].key === key) { cb(arr[i], i, arr); return; }
+        if (arr[i].children) loop(arr[i].children, key, cb);
+      }
+    })(data, info.dragNode.key, function(item, index, arr) { arr.splice(index, 1); dragObj = item; });
+    var dropPos = info.node.pos.split('-'), dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1]);
+    (function loop(arr, key, cb) {
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].key === key) { cb(arr[i], i, arr); return; }
+        if (arr[i].children) loop(arr[i].children, key, cb);
+      }
+    })(data, info.node.key, function(item, index, arr) {
+      if (!info.dropToGap) { item.children = item.children || []; item.children.unshift(dragObj); }
+      else if (dropPosition === -1) { arr.splice(index, 0, dragObj); }
+      else { arr.splice(index + 1, 0, dragObj); }
+    });
+    updateTree(data);
+    message.success('排序已更新');
+  }, [treeData]);
+
+  /* Add */
+  const handleAdd = () => {
+    setEditingItem(null); setParentKeyForNew(null);
+    form.resetFields(); form.setFieldsValue({ sort: 1, status: true });
+    setModalOpen(true);
+  };
+
+  const handleAddChild = () => {
+    setEditingItem(null); setParentKeyForNew(selectedKey);
+    form.resetFields(); form.setFieldsValue({ parentKey: selectedKey, sort: 1, status: true });
+    setModalOpen(true);
+  };
+
+  /* Edit */
+  const handleEdit = (record) => {
+    setEditingItem(record); setParentKeyForNew(null);
+    form.resetFields();
+    var fields = { title: record.title, sort: record.sort, status: record.status };
+    if (isTree) fields.parentKey = parentNode ? parentNode.key : undefined;
+    form.setFieldsValue(fields);
+    setModalOpen(true);
+  };
+
+  /* Toggle */
+  const handleToggleStatus = (record) => {
+    if (!isTree) {
+      updateFlatList(prev => prev.map(function(d) { return d.key === record.key ? Object.assign({}, d, { status: !d.status }) : d; }));
+      message.success(record.status ? '已停用' : '已启用');
+      return;
+    }
+    var data = deepClone(treeData);
+    var node = findNode(selectedKey, data);
+    if (node.status) {
+      Modal.confirm({
+        title: '确认停用',
+        icon: React.createElement('i', { className: 'ti ti-alert-circle', style: { fontSize: 18 } }),
+        content: '确认停用「' + node.title + '」？其所有子级也将被停用。',
+        onOk: function() {
+          (function cascade(n) { n.status = false; if (n.children) n.children.forEach(cascade); })(node);
+          updateTree(data); message.success('已停用');
+        }
+      });
+    } else { node.status = true; updateTree(data); message.success('已启用'); }
+  };
+
+  /* Delete */
+  const handleDelete = (record) => {
+    var node = selectedNode;
+    if (node.content_count > 0) { message.error('该字典项有关联内容，无法删除'); return; }
+    if (isTree && hasChildren(node)) { message.error('该分类包含子分类，无法删除'); return; }
+    Modal.confirm({
+      title: '确认删除',
+      icon: React.createElement('i', { className: 'ti ti-alert-circle', style: { fontSize: 18 } }),
+      content: '确认删除「' + node.title + '」？此操作不可撤销。',
+      okText: '确认删除', okType: 'danger',
+      onOk: function() {
+        if (!isTree) { updateFlatList(prev => prev.filter(function(d) { return d.key !== selectedKey; })); }
+        else {
+          var data = deepClone(treeData);
+          (function remove(arr, key) {
+            for (var i = 0; i < arr.length; i++) {
+              if (arr[i].key === key) { arr.splice(i, 1); return true; }
+              if (arr[i].children && remove(arr[i].children, key)) return true;
+            }
+            return false;
+          })(data, selectedKey);
+          updateTree(data);
+        }
+        setSelectedKey(null); message.success('已删除');
+      }
+    });
+  };
+
+  /* Modal save */
+  const handleModalOk = () => {
+    form.validateFields().then(function(values) {
+      if (!isTree) {
+        var list = flatList;
+        var dup = list.find(function(d) { return d.title === values.title && (!editingItem || d.key !== editingItem.key); });
+        if (dup) { message.error('已存在同名字典项'); return; }
+        if (editingItem) {
+          updateFlatList(prev => prev.map(function(d) { return d.key === editingItem.key ? Object.assign({}, d, { title: values.title, sort: values.sort, status: values.status }) : d; }));
+          message.success('编辑成功');
+        } else {
+          updateFlatList(prev => prev.concat([{ key: 'dk-' + (++keyCounter), title: values.title, sort: values.sort, status: values.status, content_count: 0 }]));
+          message.success('新增成功');
+        }
+        setModalOpen(false); setEditingItem(null);
+        return;
+      }
+      /* Tree type */
+      var data = deepClone(treeData);
+      var siblings;
+      if (editingItem) { var p = findParent(editingItem.key, data, null); siblings = p ? p.children : data; }
+      else if (parentKeyForNew) { siblings = findNode(parentKeyForNew, data).children; }
+      else { siblings = data; }
+      var dup = siblings.find(function(n) { return n.title === values.title && (!editingItem || n.key !== editingItem.key); });
+      if (dup) { message.error('同级下已存在同名分类'); return; }
+      if (editingItem) {
+        var en = findNode(editingItem.key, data);
+        en.title = values.title; en.sort = values.sort; en.status = values.status;
+        message.success('编辑成功');
+      } else {
+        var nk = 'new-' + (++keyCounter);
+        var nn = { key: nk, title: values.title, sort: values.sort, status: values.status, content_count: 0, children: [] };
+        if (parentKeyForNew) { findNode(parentKeyForNew, data).children.push(nn); } else { data.push(nn); }
+        setSelectedKey(nk); message.success('新增成功');
+      }
+      updateTree(data); setModalOpen(false); setEditingItem(null);
+    });
+  };
+
+  /* TreeSelect in modal */
+  const treeSelectData = useMemo(() => {
+    if (!isTree) return [];
+    function convert(nodes) { return nodes.map(function(n) { return {
+      key: n.key, value: n.key, title: n.title,
+      disabled: editingItem && n.key === editingItem.key,
+      children: n.children && getDepth(n.key, treeData) < 2 ? convert(n.children) : []
+    }; }); }
+    return convert(treeData);
+  }, [isTree, treeData, editingItem]);
+
+  /* Flat table columns */
+  const flatColumns = [
+    { title: '名称', dataIndex: 'title', key: 'title', width: 200 },
+    { title: '排序号', dataIndex: 'sort', key: 'sort', width: 80, align: 'center' },
+    { title: '状态', dataIndex: 'status', key: 'status', width: 80, align: 'center',
+      render: function(v) { return v ? React.createElement(Badge, { status: 'success', text: '启用' }) : React.createElement(Badge, { status: 'error', text: '停用' }); }
+    },
+    { title: '关联内容数', dataIndex: 'content_count', key: 'content_count', width: 100, align: 'center' },
+    { title: '操作', key: 'action', width: 180,
+      render: function(_, record) { return React.createElement(Space, { size: 'small' },
+        React.createElement(Button, { type: 'link', size: 'small', onClick: function() { setSelectedKey(record.key); handleEdit(record); } }, '编辑'),
+        React.createElement(Button, { type: 'link', size: 'small', onClick: function() { setSelectedKey(record.key); handleToggleStatus(record); },
+          style: { color: record.status ? '#ff4d4f' : '#52c41a' } }, record.status ? '停用' : '启用'),
+        record.content_count > 0
+          ? React.createElement(Tooltip, { title: '有关联内容，无法删除' }, React.createElement(Button, { type: 'link', size: 'small', danger: true, disabled: true }, '删除'))
+          : React.createElement(Button, { type: 'link', size: 'small', danger: true, onClick: function() { setSelectedKey(record.key); handleDelete(record); } }, '删除')
+      ); }
+    }
+  ];
+
+  /* Child table columns */
+  const childColumns = [
+    { title: '名称', dataIndex: 'title', key: 'title' },
+    { title: '排序号', dataIndex: 'sort', key: 'sort', width: 80, align: 'center' },
+    { title: '状态', dataIndex: 'status', key: 'status', width: 80, align: 'center',
+      render: function(v) { return v ? React.createElement(Badge, { status: 'success', text: '启用' }) : React.createElement(Badge, { status: 'error', text: '停用' }); }
+    },
+    { title: '关联内容数', dataIndex: 'content_count', key: 'content_count', width: 100, align: 'center' }
+  ];
+
+  var isEditing = !!editingItem;
+
+  return React.createElement('div', { className: 'page-container' },
+    React.createElement(Title, { level: 4, style: { marginBottom: 16 } }, '数据字典'),
+
+    /* Toolbar */
+    React.createElement('div', { className: 'toolbar' },
+      React.createElement(Segmented, {
+        value: dictType,
+        onChange: function(v) { setDictType(v); setSelectedKey(null); setModalOpen(false); },
+        options: [
+          { label: '方案分类', value: 'oppCategory' },
+          { label: '方案类型', value: 'oppType' },
+          { label: '需求分类', value: 'demandCategory' },
+          { label: '公告类型', value: 'announcementType' }
+        ]
+      }),
+      React.createElement(Button, { type: 'primary',
+        icon: React.createElement('i', { className: 'ti ti-plus', style: { fontSize: 18 } }),
+        onClick: handleAdd
+      }, isTree ? '新增一级分类' : '新增字典项')
+    ),
+
+    /* Flat type: full-width table */
+    !isTree && React.createElement(Table, {
+      dataSource: flatList,
+      columns: flatColumns,
+      rowKey: 'key',
+      pagination: false,
+      size: 'middle',
+      locale: { emptyText: '暂无字典项，点击"新增字典项"添加' }
+    }),
+
+    /* Tree type: left tree + right detail */
+    isTree && React.createElement('div', { className: 'panels' },
+      /* Left: Tree */
+      React.createElement('div', { className: 'left-panel' },
+        React.createElement('div', { style: { marginBottom: 8, fontSize: 13, color: '#888' } },
+          dictType === 'oppCategory' ? '用于找方案/发布方案' : '用于提需求'
+        ),
+        React.createElement('div', { className: 'tree-wrap' },
+          antTreeData.length > 0
+            ? React.createElement(Tree, { showIcon: true, draggable: true, blockNode: true, defaultExpandAll: true,
+                treeData: antTreeData,
+                selectedKeys: selectedKey ? [selectedKey] : [],
+                onSelect: onSelect,
+                onDrop: onDrop
+              })
+            : React.createElement(Empty, { description: '暂无分类，点击"新增一级分类"添加' })
+        )
+      ),
+
+      /* Right: Detail */
+      React.createElement('div', { className: 'right-panel' },
+        selectedNode ? React.createElement(React.Fragment, null,
+          React.createElement(Card, { title: '字典项详情 - ' + selectedNode.title, size: 'small' },
+            React.createElement('div', { className: 'detail-item' },
+              React.createElement('span', { className: 'detail-label' }, '名称'),
+              React.createElement('span', { className: 'detail-value' }, selectedNode.title)
+            ),
+            React.createElement('div', { className: 'detail-item' },
+              React.createElement('span', { className: 'detail-label' }, '上级分类'),
+              React.createElement('span', { className: 'detail-value' }, parentNode ? parentNode.title : '(一级分类)')
+            ),
+            React.createElement('div', { className: 'detail-item' },
+              React.createElement('span', { className: 'detail-label' }, '排序号'),
+              React.createElement('span', { className: 'detail-value' }, selectedNode.sort)
+            ),
+            React.createElement('div', { className: 'detail-item' },
+              React.createElement('span', { className: 'detail-label' }, '状态'),
+              React.createElement('span', { className: 'detail-value' },
+                selectedNode.status
+                  ? React.createElement(Badge, { status: 'success', text: '启用' })
+                  : React.createElement(Badge, { status: 'error', text: '停用' })
+              )
+            ),
+            React.createElement('div', { className: 'detail-item' },
+              React.createElement('span', { className: 'detail-label' }, '关联内容数'),
+              React.createElement('span', { className: 'detail-value' }, selectedNode.content_count)
+            ),
+            React.createElement('div', { className: 'detail-actions' },
+              React.createElement(Button, { icon: React.createElement('i', { className: 'ti ti-edit', style: { fontSize: 18 } }), onClick: function() { handleEdit(selectedNode); } }, '编辑'),
+              selectedDepth < 3 && React.createElement(Button, { icon: React.createElement('i', { className: 'ti ti-plus', style: { fontSize: 18 } }), onClick: handleAddChild }, '新增子级'),
+              React.createElement(Button, {
+                icon: selectedNode.status
+                  ? React.createElement('i', { className: 'ti ti-ban', style: { fontSize: 18 } })
+                  : React.createElement('i', { className: 'ti ti-circle-check', style: { fontSize: 18 } }),
+                onClick: function() { handleToggleStatus(selectedNode); }
+              }, selectedNode.status ? '停用' : '启用'),
+              (selectedNode.content_count > 0 || hasChildren(selectedNode))
+                ? React.createElement(Tooltip, { title: hasChildren(selectedNode) ? '包含子分类，无法删除' : '有关联内容，无法删除' },
+                    React.createElement(Button, { danger: true, icon: React.createElement('i', { className: 'ti ti-trash', style: { fontSize: 18 } }), disabled: true }, '删除'))
+                : React.createElement(Button, { danger: true, icon: React.createElement('i', { className: 'ti ti-trash', style: { fontSize: 18 } }), onClick: function() { handleDelete(selectedNode); } }, '删除')
+            )
+          ),
+          selectedNode.children && selectedNode.children.length > 0 && React.createElement(Card, { title: '子级列表', size: 'small', style: { marginTop: 16 } },
+            React.createElement(Table, { dataSource: selectedNode.children, columns: childColumns, rowKey: 'key', pagination: false, size: 'small' })
+          )
+        ) : React.createElement('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' } },
+          React.createElement(Empty, { description: '请在左侧选择一个字典项' })
+        )
+      )
+    ),
+
+    /* Modal */
+    React.createElement(Modal, {
+      title: isEditing ? '编辑字典项' : '新增字典项',
+      open: modalOpen,
+      onOk: handleModalOk,
+      onCancel: function() { setModalOpen(false); setEditingItem(null); },
+      width: 460,
+      destroyOnClose: true
+    },
+      React.createElement(Form, { form: form, labelCol: { span: 6 }, wrapperCol: { span: 16 }, style: { marginTop: 24 } },
+        React.createElement(Form.Item, { name: 'title', label: '名称', rules: [{ required: true, message: '请输入名称' }] },
+          React.createElement(Input, { placeholder: '请输入名称', maxLength: 30 })
+        ),
+        isTree && React.createElement(Form.Item, { name: 'parentKey', label: '上级分类' },
+          React.createElement(TreeSelect, { treeData: treeSelectData, placeholder: '无（一级分类）', allowClear: true, treeDefaultExpandAll: true, disabled: isEditing })
+        ),
+        React.createElement(Form.Item, { name: 'sort', label: '排序号' },
+          React.createElement(InputNumber, { min: 1, max: 999, style: { width: '100%' } })
+        ),
+        React.createElement(Form.Item, { name: 'status', label: '启用状态', valuePropName: 'checked' },
+          React.createElement(Switch, { checkedChildren: '启用', unCheckedChildren: '停用' })
+        )
+      )
+    )
+  );
+}
+
+var App = function() { return React.createElement(DataDictPage); };
+if (window.PROTO_SHELL) { window.PROTO_SHELL.renderShell('category-mgmt'); }
+if (window.DataTracker) { window.DataTracker.trackPageView('category-mgmt', '数据字典'); }
+var root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
+</script>
+</body>
+</html>

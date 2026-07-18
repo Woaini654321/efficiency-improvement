@@ -1,0 +1,729 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>提需求 - Quectel商机互助平台</title>
+  <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    .req-row {
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      border: 1px solid #f0f0f0;
+      transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+      animation: fadeIn 0.4s ease both;
+    }
+    .req-row:hover {
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      border-color: #1890ff;
+      transform: translateY(-2px);
+    }
+    .req-row:hover .req-title { color: #1890ff; }
+    .filter-bar {
+      background: #fff;
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .stat-card {
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      animation: fadeIn 0.5s ease both;
+    }
+    .urgency-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+    .req-card {
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #f0f0f0;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+      animation: fadeIn 0.5s ease both;
+      position: relative;
+    }
+    .req-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+      border-color: #1890ff;
+    }
+    .req-card .card-cover {
+      height: 120px;
+      position: relative;
+      overflow: hidden;
+    }
+    .req-card .card-cover img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .req-card:hover .card-cover img { transform: scale(1.05); }
+    .quick-tab {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all 0.2s; border: 1px solid #e8e8e8;
+      background: #fff; color: #595959; white-space: nowrap;
+    }
+    .quick-tab:hover { border-color: #1890ff; color: #1890ff; background: #f0f5ff; }
+    .quick-tab.active { background: #1890ff; color: #fff; border-color: #1890ff; }
+    .quick-tab .tab-count { font-size: 11px; opacity: 0.8; }
+    .bookmark-btn {
+      position: absolute; top: 8px; right: 8px; z-index: 2;
+      width: 32px; height: 32px; border-radius: 50%; border: none;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      background: rgba(255,255,255,0.9); box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.2s; font-size: 16px; color: #bfbfbf;
+    }
+    .bookmark-btn:hover { transform: scale(1.1); }
+    .bookmark-btn.active { color: #faad14; }
+    .req-row { position: relative; }
+    .row-bookmark {
+      position: absolute; right: 20px; top: 20px; z-index: 2;
+      background: none; border: none; cursor: pointer; font-size: 18px;
+      color: #d9d9d9; transition: all 0.2s; padding: 4px;
+    }
+    .row-bookmark:hover { transform: scale(1.2); color: #faad14; }
+    .row-bookmark.active { color: #faad14; }
+    .req-stat-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-bottom:20px; }
+    .req-card-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; }
+
+    /* 响应式 */
+    @media(max-width:1024px){
+      .req-card-grid{grid-template-columns:repeat(2,1fr);gap:16px;}
+      .req-stat-grid{grid-template-columns:repeat(2,1fr);gap:12px;}
+    }
+    @media(max-width:768px){
+      .filter-bar{padding:12px 14px!important;gap:8px!important;border-radius:12px!important;}
+      .filter-bar>:first-child{display:none!important;}
+      .req-row{border-radius:12px!important;}
+      .req-row:hover{transform:none!important;box-shadow:0 4px 16px rgba(0,0,0,0.08)!important;}
+      .req-card{border-radius:12px!important;}
+      .req-card:hover{transform:translateY(-3px)!important;box-shadow:0 6px 20px rgba(0,0,0,0.1)!important;}
+    }
+    @media(max-width:600px){
+      .req-card-grid{grid-template-columns:1fr;gap:12px;}
+      .req-stat-grid{grid-template-columns:1fr;gap:10px;}
+      .req-card .card-cover{height:100px!important;}
+      .req-row{padding:14px 14px!important;}
+      .quick-tab{padding:5px 12px!important;font-size:12px!important;}
+      .stat-card{padding:14px 16px!important;gap:10px!important;}
+      .filter-bar{padding:10px 10px!important;gap:6px!important;border-radius:10px!important;}
+      .filter-bar .ant-cascader{flex:1!important;min-width:0!important;width:auto!important;}
+      .filter-bar .ant-input-search{flex:1!important;min-width:0!important;width:auto!important;}
+      .filter-bar>:not(.ant-cascader):not(.ant-input-search):not(.ant-segmented){display:none!important;}
+    }
+    @media(max-width:400px){
+      .quick-tab{font-size:11px!important;padding:4px 10px!important;}
+      .filter-bar{padding:8px!important;gap:6px!important;}
+    }
+  </style>
+</head>
+<body>
+  <script>
+    window.onerror = function(msg, url, line, col, err) {
+      var d = document.createElement('div');
+      d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#fffbe6;border-bottom:2px solid #faad14;padding:12px 20px;font:14px monospace;color:#d4380d;';
+      d.textContent = '⚠ JS Error: ' + msg + ' (line ' + line + ')';
+      document.body.prepend(d);
+    };
+  </script>
+  <div id="root"></div>
+  <script type="text/babel">
+  (() => {
+    const { Button, Select, Tag, Pagination, Cascader, Empty, Spin, Space, Typography, Badge, Tooltip, ConfigProvider, DatePicker, Segmented, Input, Skeleton } = antd;
+    const { RangePicker } = DatePicker;
+    const { Title, Text } = Typography;
+
+    const CATEGORIES = [
+      { value: 'iot', label: 'IoT模组', children: [
+        { value: 'cat1', label: 'Cat.1模组' },
+        { value: 'cat4', label: 'Cat.4模组' },
+        { value: '5g', label: '5G模组' },
+        { value: 'nb', label: 'NB-IoT模组' }
+      ]},
+      { value: 'antenna', label: '天线产品', children: [
+        { value: 'gnss', label: 'GNSS天线' },
+        { value: 'lte', label: 'LTE天线' },
+        { value: 'wifi', label: 'WiFi天线' }
+      ]},
+      { value: 'solution', label: '行业方案', children: [
+        { value: 'vehicle', label: '车载方案' },
+        { value: 'smart-meter', label: '智慧表计' },
+        { value: 'pos', label: '支付POS' }
+      ]}
+    ];
+
+    const URGENCY_OPTIONS = [
+      { value: '', label: '全部紧急程度' },
+      { value: 'critical', label: '特急' },
+      { value: 'urgent', label: '紧急' },
+      { value: 'normal', label: '普通' }
+    ];
+
+    const STATUS_OPTIONS = [
+      { value: '', label: '全部状态' },
+      { value: 'Pending', label: '待响应' },
+      { value: 'Collecting', label: '方案收集中' },
+      { value: 'Adopted', label: '已采纳' },
+      { value: 'Closed', label: '已关闭' }
+    ];
+
+    const SORT_OPTIONS = [
+      { value: 'latest', label: '最新发布' },
+      { value: 'urgency_first', label: '紧急优先' },
+      { value: 'most_responses', label: '最多响应' },
+      { value: 'deadline', label: '即将截止' }
+    ];
+
+    const URGENCY_CONFIG = {
+      critical: { color: '#ff4d4f', label: '特急', bg: '#fff2f0', dotColor: '#ff4d4f' },
+      urgent: { color: '#fa8c16', label: '紧急', bg: '#fff7e6', dotColor: '#fa8c16' },
+      normal: { color: '#52c41a', label: '普通', bg: '#f6ffed', dotColor: '#52c41a' }
+    };
+
+    const STATUS_CONFIG = {
+      Pending: { color: 'orange', label: '待响应' },
+      Collecting: { color: 'processing', label: '方案收集中' },
+      Adopted: { color: 'success', label: '已采纳' },
+      Closed: { color: 'default', label: '已关闭' }
+    };
+
+    const INDUSTRIES = ['IoT', '车载', '智慧城市', '智慧表计', '支付POS', '工业互联网', '智慧农业', '智能穿戴'];
+    const PUBLISHERS = [
+      { name: 'Tony.Zhang 张伟', dept: '华东销售部' },
+      { name: 'Nina.Li 李娜', dept: '华南销售部' },
+      { name: 'Kevin.Wang 王强', dept: '华北销售部' },
+      { name: 'Yan.Chen 陈燕', dept: '海外销售部' },
+      { name: 'Leo.Zhao 赵磊', dept: '西南销售部' },
+      { name: 'Owen.Liu 刘洋', dept: '华中销售部' }
+    ];
+
+    const MOCK_DATA = Array.from({ length: 28 }, (_, i) => {
+      const urgencies = ['critical', 'urgent', 'normal', 'normal', 'normal', 'urgent', 'normal'];
+      const statuses = ['Pending', 'Collecting', 'Adopted', 'Closed', 'Pending', 'Collecting', 'Pending'];
+      const titles = [
+        '客户需要Cat.1模组低功耗方案，功耗要求<2mA',
+        '车载前装项目需5G模组+C-V2X支持',
+        '东南亚智慧表计项目需NB-IoT模组选型',
+        '工业PDA项目需Android智能模组',
+        '共享充电桩项目需Cat.4模组+定位方案',
+        '农业物联网项目需LoRa+4G网关方案',
+        '紧急：某大型车企前装项目需5G模组报价',
+        '智能穿戴项目需BLE+GNSS组合模组'
+      ];
+      const catLabels = [['Cat.1模组', 'IoT模组'], ['5G模组', '车载方案'], ['NB-IoT模组', '智慧表计'], ['智能模组'], ['Cat.4模组', 'IoT模组'], ['行业方案', 'IoT模组'], ['5G模组', '车载方案'], ['智能穿戴']];
+      const pub = PUBLISHERS[i % PUBLISHERS.length];
+      const daysAgo = Math.floor(Math.random() * 20);
+      const urgency = urgencies[i % urgencies.length];
+      const status = statuses[i % statuses.length];
+      return {
+        id: 'REQ-' + String(i + 1).padStart(4, '0'),
+        title: titles[i % titles.length],
+        urgency,
+        status,
+        industry: INDUSTRIES[i % INDUSTRIES.length],
+        categories: catLabels[i % catLabels.length],
+        publisher_name: pub.name,
+        publisher_dept: pub.dept,
+        created_at: dayjs().subtract(daysAgo, 'day').format('YYYY-MM-DD HH:mm'),
+        daysAgo,
+        deadline: (function() {
+          if (i < 3) return dayjs().subtract(i + 2, 'day').hour(18).minute(0).format('YYYY-MM-DD HH:mm');
+          if (i < 5) return dayjs().subtract(1, 'day').hour(23).minute(59).format('YYYY-MM-DD HH:mm');
+          if (i < 7) return dayjs().add(0, 'day').hour(23).minute(59).format('YYYY-MM-DD HH:mm');
+          if (i < 10) return dayjs().add(Math.floor(Math.random() * 3) + 1, 'day').hour(18).minute(0).format('YYYY-MM-DD HH:mm');
+          return dayjs().add(Math.floor(Math.random() * 25) + 4, 'day').hour(18).minute(0).format('YYYY-MM-DD HH:mm');
+        })(),
+        response_count: status === 'Pending' ? 0 : Math.floor(Math.random() * 8) + 1,
+        view_count: Math.floor(Math.random() * 2000) + 50,
+        pinned: i < 2
+      };
+    });
+
+    function formatCount(n) {
+      return n >= 1000 ? (n / 1000).toFixed(1) + 'k' : String(n);
+    }
+
+    function timeAgo(daysAgo) {
+      if (daysAgo === 0) return '今天';
+      if (daysAgo === 1) return '昨天';
+      if (daysAgo <= 7) return daysAgo + '天前';
+      return null;
+    }
+
+    function getDeadlineStatus(deadline) {
+      var now = dayjs();
+      var dl = dayjs(deadline);
+      var diffHours = dl.diff(now, 'hour', true);
+      if (diffHours < 0) return { type: 'expired', label: '已超期', color: '#ff4d4f' };
+      if (diffHours < 24) return { type: 'expiring', label: '即将截止', color: '#fa8c16' };
+      return { type: 'normal', label: null, color: null };
+    }
+
+    // ============ 需求行组件 ============
+    function ReqRow({ item, index, bookmarked, onToggleBookmark }) {
+      const uc = URGENCY_CONFIG[item.urgency];
+      const sc = STATUS_CONFIG[item.status];
+      var ds = getDeadlineStatus(item.deadline);
+      const avatarColor = AVATAR_COLORS[(item.id.charCodeAt(item.id.length-1) + index) % AVATAR_COLORS.length];
+
+      return (
+        <div className="req-row" style={{ animationDelay: index * 0.04 + 's' }}
+          data-feat-id="FEAT-0204" data-pain-source="PAIN-004">
+          <button
+            className={'row-bookmark' + (bookmarked ? ' active' : '')}
+            onClick={(e) => { e.stopPropagation(); onToggleBookmark(item.id); }}
+            title={bookmarked ? '取消收藏' : '收藏需求'}
+          >
+            <i className={'ti ' + (bookmarked ? 'ti-star-filled' : 'ti-star')} />
+          </button>
+          <div style={{ paddingRight: 40 }} onClick={() => window.location.href = 'PAGE-PC-05_需求详情页.html?id=' + item.id}>
+
+          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:10 }}>
+            <Tag color={uc.color} style={{ borderRadius:6, fontSize:12, fontWeight:600, border:'none', margin:0, padding:'2px 10px', lineHeight:'22px', background: uc.bg, color: uc.color }}>
+              {uc.label}
+            </Tag>
+            {item.pinned && <Tag color="#ff4d4f" style={{ borderRadius:6, fontSize:11, fontWeight:600, border:'none', margin:0, padding:'0 8px', lineHeight:'20px', background:'linear-gradient(135deg,#ff4d4f,#ff7875)', color:'#fff' }}>置顶</Tag>}
+            <span className="req-title" style={{ flex:1, fontSize:15, fontWeight:600, color:'#1a1a2e', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', transition:'color 0.2s' }}>
+              {item.title}
+            </span>
+            <Tag color={sc.color} style={{ borderRadius:6, fontSize:12, margin:0, lineHeight:'22px' }}>
+              {sc.label}
+            </Tag>
+          </div>
+
+          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
+            <Text style={{ fontSize:13, color:'#595959' }}>行业：{item.industry}</Text>
+            <span style={{ color:'#e8e8e8' }}>|</span>
+            <div style={{ display:'flex', gap:4, flexWrap:'wrap' }}>
+              {item.categories.slice(0, 3).map((cat, ci) => (
+                <Tag key={ci} style={{ borderRadius:6, fontSize:11, color:'#8c8c8c', background:'#f5f5f5', border:'none', margin:0, padding:'0 6px', lineHeight:'20px' }}>
+                  {cat}
+                </Tag>
+              ))}
+              {item.categories.length > 3 && (
+                <Tag style={{ borderRadius:6, fontSize:11, color:'#bfbfbf', background:'#fafafa', border:'none', margin:0, padding:'0 6px', lineHeight:'20px' }}>
+                  +{item.categories.length - 3}
+                </Tag>
+              )}
+            </div>
+            <span style={{ color:'#e8e8e8' }}>|</span>
+            <span style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, fontWeight: ds.type !== 'normal' ? 600 : 400, color: ds.color || '#8c8c8c' }}>
+              {ds.type === 'expired' && <span className="urgency-dot" style={{background: ds.color, margin: 0, marginRight: 2}} />}
+              <i className={'ti ' + (ds.type === 'expired' ? 'ti-alert-circle' : ds.type === 'expiring' ? 'ti-clock-hour-4' : 'ti-calendar')} style={{fontSize:14}} />
+              {ds.type !== 'normal' ? ds.label : null}
+              <span>截止：{item.deadline}</span>
+            </span>
+          </div>
+
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <div style={{ width:22, height:22, borderRadius:'50%', background:avatarColor, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:10, fontWeight:600 }}>
+                {item.publisher_name.charAt(0)}
+              </div>
+              <Text style={{ fontSize:12, color:'#595959' }}>{item.publisher_name}</Text>
+              <Text style={{ fontSize:12, color:'#bfbfbf' }}>{item.publisher_dept}</Text>
+              <Text style={{ fontSize:12, color:'#bfbfbf' }}>{timeAgo(item.daysAgo) || item.created_at.split(' ')[0]}</Text>
+            </div>
+            <div style={{ display:'flex', alignItems:'center', gap:16, color:'#8c8c8c', fontSize:12 }}>
+              <span style={{ display:'flex', alignItems:'center', gap:4 }}>
+                <i className="ti ti-file-check" style={{fontSize:18}} />
+                <span style={{ color: item.response_count > 0 ? '#1890ff' : '#bfbfbf', fontWeight: item.response_count > 0 ? 600 : 400 }}>
+                  {item.response_count}个方案
+                </span>
+              </span>
+              <span style={{ display:'flex', alignItems:'center', gap:4 }}>
+                <i className="ti ti-eye" style={{fontSize:18}} />
+                <span>{formatCount(item.view_count)}</span>
+              </span>
+            </div>
+          </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ============ 需求卡片组件（卡片视图） ============
+    const COVER_IMAGES = [
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=200&fit=crop',
+      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=200&fit=crop',
+      'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop',
+      'https://images.unsplash.com/photo-1535223289827-42f1e9919769?w=400&h=200&fit=crop',
+      'https://images.unsplash.com/photo-1563770660941-20978e870e26?w=400&h=200&fit=crop',
+      'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=200&fit=crop',
+      'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&h=200&fit=crop',
+      'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=400&h=200&fit=crop'
+    ];
+    const AVATAR_COLORS = ['#1890ff','#52c41a','#fa8c16','#722ed1','#eb2f96','#13c2c2','#faad14','#2f54eb'];
+
+    function ReqCard({ item, index, bookmarked, onToggleBookmark }) {
+      const uc = URGENCY_CONFIG[item.urgency];
+      const sc = STATUS_CONFIG[item.status];
+      const coverUrl = COVER_IMAGES[(item.id.charCodeAt(item.id.length-1) + index) % COVER_IMAGES.length];
+      const avatarColor = AVATAR_COLORS[(item.id.charCodeAt(item.id.length-1) + index) % AVATAR_COLORS.length];
+      var ds = getDeadlineStatus(item.deadline);
+
+      return (
+        <div className="req-card" style={{ animationDelay: index * 0.06 + 's' }}
+          onClick={() => window.location.href = 'PAGE-PC-05_需求详情页.html?id=' + item.id}>
+          <div className="card-cover">
+            <img src={coverUrl} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', transition:'transform 0.5s ease' }}
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+            <button
+              className={'bookmark-btn' + (bookmarked ? ' active' : '')}
+              onClick={(e) => { e.stopPropagation(); onToggleBookmark(item.id); }}
+              title={bookmarked ? '取消收藏' : '收藏需求'}
+            >
+              <i className={'ti ' + (bookmarked ? 'ti-star-filled' : 'ti-star')} />
+            </button>
+          </div>
+          <div style={{ padding: '14px 16px' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:8 }}>
+              <Tag color={uc.color} style={{ borderRadius:6, fontSize:11, fontWeight:600, border:'none', margin:0, padding:'0 8px', lineHeight:'20px', background: uc.bg, color: uc.color }}>
+                {uc.label}
+              </Tag>
+              {item.pinned && <Tag color="#ff4d4f" style={{ borderRadius:6, fontSize:10, fontWeight:600, border:'none', margin:0, padding:'0 6px', lineHeight:'18px', background:'linear-gradient(135deg,#ff4d4f,#ff7875)', color:'#fff' }}>置顶</Tag>}
+              <Tag color={sc.color} style={{ borderRadius:6, fontSize:11, margin:0, lineHeight:'20px' }}>
+                {sc.label}
+              </Tag>
+            </div>
+            <div style={{ fontSize:14, fontWeight:600, color:'#1a1a2e', lineHeight:1.5, marginBottom:10, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
+              {item.title}
+            </div>
+            <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:8 }}>
+              <span style={{ fontSize:12, color:'#8c8c8c', background:'#f5f5f5', borderRadius:6, padding:'2px 8px' }}>{item.industry}</span>
+              {item.categories.slice(0, 2).map((cat, ci) => (
+                <span key={ci} style={{ fontSize:11, color:'#bfbfbf', background:'#fafafa', borderRadius:6, padding:'2px 6px' }}>{cat}</span>
+              ))}
+            </div>
+            <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:10, fontSize:11, fontWeight: ds.type !== 'normal' ? 600 : 400, color: ds.color || '#8c8c8c' }}>
+              <i className={'ti ' + (ds.type === 'expired' ? 'ti-alert-circle' : ds.type === 'expiring' ? 'ti-clock-hour-4' : 'ti-calendar')} style={{fontSize:13}} />
+              {ds.type !== 'normal' ? <span>{ds.label}</span> : null}
+              <span>截止：{item.deadline}</span>
+            </div>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', borderTop:'1px solid #f5f5f5', paddingTop:10 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                <div style={{ width:20, height:20, borderRadius:'50%', background:avatarColor, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:9, fontWeight:600 }}>
+                  {item.publisher_name.charAt(0)}
+                </div>
+                <Text style={{ fontSize:11, color:'#8c8c8c' }}>{item.publisher_name}</Text>
+              </div>
+              <div style={{ display:'flex', alignItems:'center', gap:10, color:'#bfbfbf', fontSize:11 }}>
+                <span style={{ display:'flex', alignItems:'center', gap:2 }}>
+                  <i className="ti ti-file-check" style={{fontSize:14}} />
+                  <span style={{ color: item.response_count > 0 ? '#1890ff' : '#bfbfbf', fontWeight: item.response_count > 0 ? 600 : 400 }}>
+                    {item.response_count}
+                  </span>
+                </span>
+                <span style={{ display:'flex', alignItems:'center', gap:2 }}>
+                  <i className="ti ti-eye" style={{fontSize:14}} />
+                  <span>{formatCount(item.view_count)}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ============ 主页面 ============
+    function ReqSquarePage() {
+      const [categoryFilter, setCategoryFilter] = React.useState([]);
+      const [urgencyFilter, setUrgencyFilter] = React.useState('');
+      const [statusFilter, setStatusFilter] = React.useState('');
+      const [sortBy, setSortBy] = React.useState('latest');
+      const [searchKey, setSearchKey] = React.useState('');
+      const [quickTab, setQuickTab] = React.useState('all');
+      const [industryFilter, setIndustryFilter] = React.useState([]);
+      const [dateRange, setDateRange] = React.useState(null);
+      const [currentPage, setCurrentPage] = React.useState(1);
+      const [pageSize, setPageSize] = React.useState(10);
+      const [loading, setLoading] = React.useState(false);
+      const [viewMode, setViewMode] = React.useState(function() { return localStorage.getItem('req-view') || 'list'; });
+      const [bookmarkedReqs, setBookmarkedReqs] = React.useState(function() {
+        try { return JSON.parse(localStorage.getItem('bookmarked_reqs')) || []; } catch(e) { return []; }
+      });
+
+      React.useEffect(function() {
+        localStorage.setItem('req-view', viewMode);
+      }, [viewMode]);
+
+      React.useEffect(function() {
+        localStorage.setItem('bookmarked_reqs', JSON.stringify(bookmarkedReqs));
+      }, [bookmarkedReqs]);
+
+      var toggleBookmark = function(id) {
+        setBookmarkedReqs(function(prev) {
+          if (prev.indexOf(id) >= 0) return prev.filter(function(x) { return x !== id; });
+          return prev.concat([id]);
+        });
+      };
+
+      var isBookmarked = function(id) { return bookmarkedReqs.indexOf(id) >= 0; };
+
+      const filtered = React.useMemo(function() {
+        var list = MOCK_DATA.slice();
+
+        if (searchKey) list = list.filter(function(d) { return d.title.indexOf(searchKey) >= 0; });
+
+        if (quickTab === 'mine') list = list.filter(function(d) { return d.publisher_name === 'Tony.Zhang 张伟'; });
+        else if (quickTab === 'subscribed') {
+          var raw = localStorage.getItem('pc08_subscriptions');
+          var subs = raw ? JSON.parse(raw) : [];
+          if (subs.length > 0) list = list.filter(function(d) { return d.categories.some(function(c) { return subs.indexOf(c) >= 0; }); });
+          else list = [];
+        }
+        else if (quickTab === 'bookmarked') list = list.filter(function(d) { return bookmarkedReqs.indexOf(d.id) >= 0; });
+
+        if (urgencyFilter) list = list.filter(function(d) { return d.urgency === urgencyFilter; });
+        if (statusFilter) list = list.filter(function(d) { return d.status === statusFilter; });
+        if (industryFilter && industryFilter.length > 0) list = list.filter(function(d) { return industryFilter.indexOf(d.industry) >= 0; });
+
+        if (dateRange && dateRange[0] && dateRange[1]) {
+          var start = dayjs(dateRange[0]).startOf('day');
+          var end = dayjs(dateRange[1]).endOf('day');
+          list = list.filter(function(d) {
+            var created = dayjs(d.created_at);
+            return created.isAfter(start) && created.isBefore(end);
+          });
+        }
+
+        var effectiveSort = sortBy;
+        if (quickTab === 'latest') effectiveSort = 'latest';
+        else if (quickTab === 'deadline') effectiveSort = 'deadline';
+
+        if (effectiveSort === 'deadline') {
+          list.sort(function(a, b) {
+            return dayjs(a.deadline).valueOf() - dayjs(b.deadline).valueOf();
+          });
+        } else if (effectiveSort === 'latest') {
+          list.sort(function(a, b) {
+            if (a.urgency === 'critical' && b.urgency !== 'critical') return -1;
+            if (b.urgency === 'critical' && a.urgency !== 'critical') return 1;
+            return a.daysAgo - b.daysAgo;
+          });
+        } else if (effectiveSort === 'urgency_first') {
+          var order = { critical: 0, urgent: 1, normal: 2 };
+          list.sort(function(a, b) { return order[a.urgency] - order[b.urgency] || a.daysAgo - b.daysAgo; });
+        } else if (effectiveSort === 'most_responses') {
+          list.sort(function(a, b) { return b.response_count - a.response_count; });
+        }
+        // 置顶项在前
+        return list.sort(function(a, b) { return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0); });
+      }, [searchKey, quickTab, urgencyFilter, statusFilter, industryFilter, dateRange, sortBy, bookmarkedReqs]);
+
+      var paged = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+      var handleFilterChange = function() {
+        setCurrentPage(1);
+        setLoading(true);
+        setTimeout(function() { setLoading(false); }, 300);
+      };
+
+      var stats = [
+        { icon: <i className="ti ti-inbox" style={{color:'#1677ff', fontSize:20}} />, label: '全部需求', value: MOCK_DATA.length, bg: '#f0f5ff' },
+        { icon: <i className="ti ti-clock" style={{color:'#d46b08', fontSize:20}} />, label: '待响应', value: MOCK_DATA.filter(function(d){return d.status==='Pending'}).length, bg: '#fff7e6' },
+        { icon: <i className="ti ti-bolt" style={{color:'#2f54eb', fontSize:20}} />, label: '收集中', value: MOCK_DATA.filter(function(d){return d.status==='Collecting'}).length, bg: '#f0f5ff' },
+        { icon: <i className="ti ti-circle-check" style={{color:'#389e0d', fontSize:20}} />, label: '已采纳', value: MOCK_DATA.filter(function(d){return d.status==='Adopted'}).length, bg: '#f6ffed' }
+      ];
+
+      var subRaw = localStorage.getItem('pc08_subscriptions');
+      var userSubs = subRaw ? JSON.parse(subRaw) : [];
+      var subscribedCount = userSubs.length > 0
+        ? MOCK_DATA.filter(function(d){ return d.categories.some(function(c){ return userSubs.indexOf(c) >= 0; }); }).length
+        : 0;
+      var expiringCount = MOCK_DATA.filter(function(d) {
+        var ds = getDeadlineStatus(d.deadline);
+        return ds.type === 'expiring' || ds.type === 'expired';
+      }).length;
+      var quickTabs = [
+        { key: 'all', label: '全部需求', icon: 'ti-inbox', count: MOCK_DATA.length },
+        { key: 'mine', label: '我发布的', icon: 'ti-user', count: MOCK_DATA.filter(function(d){return d.publisher_name==='Tony.Zhang 张伟'}).length },
+        { key: 'subscribed', label: '我订阅的', icon: 'ti-bell-ring', count: subscribedCount },
+        { key: 'bookmarked', label: '我收藏的', icon: 'ti-star', count: bookmarkedReqs.length },
+        { key: 'latest', label: '最新发布', icon: 'ti-clock', count: null },
+        { key: 'deadline', label: '即将截止', icon: 'ti-alarm', count: expiringCount }
+      ];
+
+      var INDUSTRY_OPTIONS = INDUSTRIES.map(function(ind) { return { value: ind, label: ind }; });
+
+      var renderSkeletons = function() {
+        if (viewMode === 'card') {
+          return React.createElement('div', { className:'req-card-grid' },
+            Array.from({length:6}, function(_, i) {
+              return React.createElement('div', { key:i, style:{background:'#fff', borderRadius:16, overflow:'hidden', border:'1px solid #f0f0f0'} },
+                React.createElement(Skeleton.Image, { active:true, style:{width:'100%', height:120} }),
+                React.createElement('div', { style:{padding:'14px 16px'} },
+                  React.createElement(Skeleton, { active:true, title:false, paragraph:{rows:2} })
+                )
+              );
+            })
+          );
+        }
+        return React.createElement('div', null,
+          Array.from({length:5}, function(_, i) {
+            return React.createElement('div', { key:i, style:{background:'#fff', borderRadius:14, padding:'20px 24px', marginBottom:12, border:'1px solid #f0f0f0'} },
+              React.createElement(Skeleton, { active:true, avatar:{size:22, shape:'circle'}, paragraph:{rows:2} })
+            );
+          })
+        );
+      };
+
+      var emptyDesc = '暂无需求';
+      if (searchKey) emptyDesc = '未找到匹配的需求，换个关键词试试';
+      else if (quickTab === 'mine') emptyDesc = '你还没有发布过需求，点击右上角"发布需求"开始';
+      else if (quickTab === 'bookmarked') emptyDesc = '还没有收藏任何需求，点击星标收藏感兴趣的需求';
+      else if (quickTab === 'latest') emptyDesc = '暂无需求';
+      else if (quickTab === 'subscribed') emptyDesc = '还没有订阅任何分类，前往个人中心设置订阅偏好';
+      else if (quickTab === 'deadline') emptyDesc = '暂无即将截止或超期的需求';
+
+      return React.createElement('div', null,
+        React.createElement('div', { className:'req-stat-grid' },
+          stats.map(function(s, i) {
+            return React.createElement('div', { key:i, className:'stat-card', style:{background:s.bg, animationDelay:i*0.1+'s', border:'1px solid #f0f0f0'} },
+              React.createElement('div', { style:{width:40, height:40, borderRadius:10, background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20} }, s.icon),
+              React.createElement('div', null,
+                React.createElement('div', { style:{fontSize:22, fontWeight:700, color:'#1a1a2e'} }, s.value),
+                React.createElement('div', { style:{fontSize:12, color:'#8c8c8c'} }, s.label)
+              )
+            );
+          })
+        ),
+
+        React.createElement('div', { style:{display:'flex', gap:8, marginBottom:20, flexWrap:'wrap', alignItems:'center'} },
+          quickTabs.map(function(tab) {
+            var isActive = quickTab === tab.key;
+            return React.createElement('button', {
+              key: tab.key,
+              className: 'quick-tab' + (isActive ? ' active' : ''),
+              onClick: function() { setQuickTab(tab.key); handleFilterChange(); }
+            },
+              React.createElement('i', { className:'ti ' + tab.icon, style:{fontSize:14} }),
+              tab.label,
+              tab.count != null && React.createElement('span', { className:'tab-count' }, '(' + tab.count + ')')
+            );
+          })
+        ),
+
+        React.createElement('div', { className:'filter-bar' },
+          React.createElement('i', { className:'ti ti-filter', style:{color:'#bfbfbf', fontSize:16} }),
+          React.createElement(Cascader, {
+            options: CATEGORIES, placeholder: '全部分类', changeOnSelect: true, allowClear: true,
+            style: { width:180 },
+            onChange: function(val) { setCategoryFilter(val || []); handleFilterChange(); }
+          }),
+          React.createElement(Select, {
+            value: urgencyFilter, options: URGENCY_OPTIONS, style: { width:140 },
+            onChange: function(val) { setUrgencyFilter(val); handleFilterChange(); }
+          }),
+          React.createElement(Select, {
+            value: statusFilter, options: STATUS_OPTIONS, style: { width:140 },
+            onChange: function(val) { setStatusFilter(val); handleFilterChange(); }
+          }),
+          React.createElement(Select, {
+            mode: 'multiple', value: industryFilter, placeholder: '选择行业',
+            options: INDUSTRY_OPTIONS, style: { width:160, maxWidth:160 },
+            allowClear: true, maxTagCount: 1,
+            onChange: function(val) { setIndustryFilter(val || []); handleFilterChange(); }
+          }),
+          React.createElement(RangePicker, {
+            value: dateRange, placeholder: ['开始日期', '结束日期'],
+            style: { borderRadius:6 },
+            allowClear: true,
+            onChange: function(dates) { setDateRange(dates || null); handleFilterChange(); }
+          }),
+          React.createElement(Select, {
+            value: sortBy, options: SORT_OPTIONS, style: { width:130 },
+            onChange: function(val) { setSortBy(val); handleFilterChange(); }
+          }),
+          React.createElement('div', { style:{flex:1} }),
+          React.createElement(Input.Search, {
+            placeholder: '搜索需求标题...', allowClear: true, style: { width:200 },
+            onSearch: function(val) { setSearchKey(val); handleFilterChange(); },
+            onChange: function(e) { if(!e.target.value) { setSearchKey(''); handleFilterChange(); } }
+          }),
+          React.createElement(Segmented, {
+            value: viewMode, onChange: setViewMode,
+            options: [
+              { value: 'list', icon: React.createElement('i', { className:'ti ti-list', style:{fontSize:18} }) },
+              { value: 'card', icon: React.createElement('i', { className:'ti ti-layout-grid', style:{fontSize:18} }) }
+            ]
+          }),
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 6 } },
+            React.createElement('span', { style: { fontSize: 11, color: '#8c8c8c', whiteSpace: 'nowrap' } }, '销售和产品均可发布需求'),
+            React.createElement(Button, {
+              type: 'primary',
+              icon: React.createElement('i', { className:'ti ti-plus', style:{fontSize:18} }),
+              style: { borderRadius:10, fontWeight:600, height:36 },
+              onClick: function() { window.location.href = 'PAGE-PC-06_发布编辑需求.html'; }
+            }, '发布需求')
+          )
+        ),
+
+        loading
+          ? renderSkeletons()
+          : paged.length === 0
+            ? React.createElement('div', { style:{background:'#fff', borderRadius:16, padding:'80px 0', textAlign:'center'} },
+                React.createElement(Empty, { image: Empty.PRESENTED_IMAGE_SIMPLE, description: emptyDesc })
+              )
+            : viewMode === 'card'
+              ? React.createElement('div', { className:'req-card-grid' },
+                  paged.map(function(item, i) {
+                    return React.createElement(ReqCard, { key:item.id, item:item, index:i, bookmarked:isBookmarked(item.id), onToggleBookmark:toggleBookmark });
+                  })
+                )
+              : React.createElement('div', null,
+                  paged.map(function(item, i) {
+                    return React.createElement(ReqRow, { key:item.id, item:item, index:i, bookmarked:isBookmarked(item.id), onToggleBookmark:toggleBookmark });
+                  })
+                ),
+
+        filtered.length > 0 && React.createElement('div', { style:{display:'flex', justifyContent:'flex-end', alignItems:'center', marginTop:20, background:'#fff', borderRadius:12, padding:'12px 20px'} },
+          React.createElement(Pagination, {
+            current: currentPage, total: filtered.length, pageSize: pageSize,
+            showSizeChanger: true, pageSizeOptions: [10, 20, 50],
+            showTotal: function(total) { return '共 ' + total + ' 条'; },
+            onChange: function(page, size) { setCurrentPage(page); setPageSize(size); setLoading(true); setTimeout(function() { setLoading(false); }, 300); }
+          })
+        )
+      );
+    }
+
+    if (window.PROTO_SHELL && window.PROTO_SHELL.renderShell) {
+      window.PROTO_SHELL.renderShell('req-square');
+  // 埋点：页面浏览
+  if (window.DataTracker) { window.DataTracker.trackPageView('req-square', '提需求'); }
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<ReqSquarePage />);
+  })();
+  </script>
+</body>
+</html>

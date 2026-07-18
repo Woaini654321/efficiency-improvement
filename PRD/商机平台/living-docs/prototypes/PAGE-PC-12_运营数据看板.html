@@ -1,0 +1,510 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>运营看板 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+  .dashboard-wrap { padding: 24px; background: #f0f2f5; min-height: calc(100vh - 64px); }
+  .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+  .stat-card { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); border: 1px solid #f0f0f0; transition: box-shadow 0.2s; }
+  .stat-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+  .stat-card .stat-title { font-size: 13px; color: #8c8c8c; margin-bottom: 8px; }
+  .stat-card .stat-value { font-size: 32px; font-weight: 700; color: #1a1a2e; line-height: 1.2; }
+  .stat-card .stat-sub { font-size: 12px; color: #8c8c8c; margin-top: 6px; }
+  .stat-up { color: #52c41a; font-weight: 600; }
+  .stat-down { color: #ff4d4f; font-weight: 600; }
+
+  /* UV/PV highlight cards */
+  .highlight-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
+  .highlight-card { background: #fff; border-radius: 14px; padding: 24px 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #f0f0f0; display: flex; align-items: center; gap: 20px; transition: all 0.2s; }
+  .highlight-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.1); transform: translateY(-2px); }
+  .hl-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; color: #fff; flex-shrink: 0; }
+  .hl-info { flex: 1; min-width: 0; }
+  .hl-label { font-size: 14px; color: #8c8c8c; margin-bottom: 2px; }
+  .hl-value { font-size: 36px; font-weight: 700; color: #1a1a2e; line-height: 1.2; }
+  .hl-sub { font-size: 12px; color: #8c8c8c; margin-top: 4px; display: flex; align-items: center; gap: 8px; }
+  .hl-sub .bar-wrap { flex: 1; height: 4px; background: #f0f0f0; border-radius: 2px; overflow: hidden; max-width: 120px; }
+  .hl-sub .bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s; }
+
+  .chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
+  .chart-card { background: #fff; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); border: 1px solid #f0f0f0; }
+  .chart-card h4 { font-size: 15px; font-weight: 600; color: #1a1a2e; margin: 0 0 16px 0; display: flex; align-items: center; gap: 8px; }
+
+  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+  /* Pie */
+  .css-pie { width: 180px; height: 180px; border-radius: 50%; margin: 0 auto; position: relative; }
+  .pie-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 20px; margin-top: 16px; }
+  .pie-legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #555; }
+  .pie-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+  /* Dept bar */
+  .h-bar-row { display: flex; align-items: center; margin-bottom: 10px; }
+  .h-bar-label { width: 72px; font-size: 12px; color: #555; text-align: right; padding-right: 10px; flex-shrink: 0; }
+  .h-bar-bg { flex: 1; height: 22px; background: #f5f5f5; border-radius: 4px; overflow: hidden; }
+  .h-bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; font-size: 11px; color: #fff; font-weight: 500; transition: width 0.5s; }
+
+  .refresh-info { font-size: 12px; color: #999; }
+  .time-switch { margin-bottom: 20px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+const { Card, Table, Tag, Button, Radio, message, Space, Tooltip, Typography, DatePicker } = antd;
+const { RangePicker } = DatePicker;
+
+const weeklyPublish12 = [18,22,19,25,17,21,16,23,20,15,18,15];
+const weeklyPublish4  = weeklyPublish12.slice(-4);
+const weeklyPublish26 = [12,15,18,20,22,19,25,17,21,16,23,20,15,18,15,22,19,14,20,17,23,18,21,16,19,15];
+const weeklyPublish1  = [weeklyPublish12[weeklyPublish12.length - 1]];
+
+const responseRate12 = [65,68,70,72,69,73,71,74,76,73,75,78];
+const responseRate4  = responseRate12.slice(-4);
+const responseRate26 = [55,58,60,62,65,63,68,70,72,69,73,71,74,76,73,75,78,72,74,70,76,73,77,75,78,78];
+const responseRate1  = [responseRate12[responseRate12.length - 1]];
+
+const oppPieData = [
+  { name: '5G模组', pct: 32, color: '#1677ff' },
+  { name: '4G模组', pct: 22, color: '#52c41a' },
+  { name: 'WiFi模组', pct: 18, color: '#faad14' },
+  { name: 'NB-IoT', pct: 15, color: '#722ed1' },
+  { name: '其他', pct: 13, color: '#d9d9d9' },
+];
+const demandPieData = [
+  { name: '硬件采购', pct: 38, color: '#1677ff' },
+  { name: '方案定制', pct: 26, color: '#52c41a' },
+  { name: '技术支持', pct: 20, color: '#faad14' },
+  { name: '样品申请', pct: 10, color: '#722ed1' },
+  { name: '其他', pct: 6, color: '#d9d9d9' },
+];
+
+const deptData = [
+  { name: '研发部', value: 92, color: '#1677ff' },
+  { name: '市场部', value: 78, color: '#52c41a' },
+  { name: '销售部', value: 85, color: '#faad14' },
+  { name: '产品部', value: 70, color: '#722ed1' },
+  { name: '运维部', value: 65, color: '#13c2c2' },
+];
+
+function getWeekLabels(count) {
+  var today = dayjs();
+  var dow = today.day();
+  var mondayOffset = dow === 0 ? 6 : dow - 1;
+  var thisMonday = today.subtract(mondayOffset, 'day');
+  var labels = [];
+  for (var i = count - 1; i >= 0; i--) {
+    var ws = thisMonday.subtract(i * 7, 'day');
+    var we = ws.add(6, 'day');
+    if (count > 12) { labels.push(i % 3 === 0 ? ws.format('M/D') + '-' + we.format('M/D') : ''); }
+    else { labels.push(ws.format('M/D') + '-' + we.format('M/D')); }
+  }
+  return labels;
+}
+
+function SVGLineChart({ data, labels }) {
+  const w = 600, h = 200, px = 44, py = 20;
+  const max = Math.max.apply(null, data) * 1.15;
+  const min = Math.min.apply(null, data) * 0.85;
+  var pts = '';
+  data.forEach(function(v, i) {
+    var x = px + (i / (data.length - 1)) * (w - px * 2);
+    var y = py + (1 - (v - min) / (max - min)) * (h - py * 2);
+    if (i > 0) pts += ' ';
+    pts += x + ',' + y;
+  });
+  var points = pts.split(' ');
+  var pathD = 'M' + pts;
+  var areaBottom = py + (1 - (0 - min) / (max - min)) * (h - py * 2);
+  var firstX = px, lastX = px + ((data.length - 1) / (data.length - 1)) * (w - px * 2);
+  return React.createElement('svg', { viewBox: '0 0 ' + w + ' ' + (h + 30), style: { width: '100%', height: 'auto' } },
+    [0, 25, 50, 75, 100].map(function(pct) {
+      var val = Math.round(min + (pct / 100) * (max - min));
+      var y = py + (1 - pct / 100) * (h - py * 2);
+      return React.createElement('g', { key: 'y' + pct },
+        React.createElement('text', { x: 6, y: y + 4, fontSize: 11, fill: '#999' }, val + '%'),
+        React.createElement('line', { x1: px, y1: y, x2: w - px, y2: y, stroke: '#f0f0f0', strokeWidth: 1 })
+      );
+    }),
+    data.map(function(_, i) {
+      var x = px + (i / (data.length - 1)) * (w - px * 2);
+      var label = labels ? labels[i] : '';
+      if (data.length > 8 && i % 2 !== 0) label = '';
+      return React.createElement('text', { key: 'x' + i, x: x, y: h + 10, fontSize: 10, fill: '#999', textAnchor: 'middle' }, label);
+    }),
+    React.createElement('linearGradient', { id: 'areaGrad', x1: '0', y1: '0', x2: '0', y2: '1' },
+      React.createElement('stop', { offset: '0%', stopColor: '#1677ff', stopOpacity: 0.15 }),
+      React.createElement('stop', { offset: '100%', stopColor: '#1677ff', stopOpacity: 0 })
+    ),
+    React.createElement('polygon', { fill: 'url(#areaGrad)', points: firstX + ',' + (h - py) + ' ' + pts + ' ' + lastX + ',' + (h - py) }),
+    React.createElement('path', { d: pathD, fill: 'none', stroke: '#1677ff', strokeWidth: 2.5, strokeLinejoin: 'round', strokeLinecap: 'round' }),
+    data.map(function(v, i) {
+      var xy = points[i].split(','), cx = Number(xy[0]), cy = Number(xy[1]);
+      return React.createElement('circle', { key: 'd' + i, cx: cx, cy: cy, r: 4, fill: '#1677ff', stroke: '#fff', strokeWidth: 2 });
+    })
+  );
+}
+
+function DashboardPage() {
+  const [timeRange, setTimeRange] = useState('12w');
+  const [pieType, setPieType] = useState('opp');
+  const [customDateRange, setCustomDateRange] = useState(null);
+  const [timeMode, setTimeMode] = useState('preset'); // 'preset' | 'custom'
+  const [lastRefresh, setLastRefresh] = useState(dayjs().format('HH:mm:ss'));
+  const [analyticsStats, setAnalyticsStats] = useState(null);
+
+  useEffect(function() {
+    var load = function() { if (window.DataTracker) { setAnalyticsStats(window.DataTracker.getStats(30)); } };
+    load();
+    var t = setInterval(function() { setLastRefresh(dayjs().format('HH:mm:ss')); load(); }, 5 * 60000);
+    return function() { clearInterval(t); };
+  }, []);
+
+  var pubD, rateD;
+  var isCustom = timeMode === 'custom' && customDateRange && customDateRange[0] && customDateRange[1];
+  if (isCustom) {
+    var days = customDateRange[1].diff(customDateRange[0], 'day') + 1;
+    var weeks = Math.max(2, Math.ceil(days / 7));
+    var mockLen = Math.min(weeks, 26);
+    var seed = customDateRange[0].valueOf() % 1000;
+    var mockPub = [], mockRate = [];
+    for (var mi = 0; mi < mockLen; mi++) {
+      seed = (seed * 16807) % 2147483647;
+      mockPub.push((seed % 18) + 10);
+      seed = (seed * 16807) % 2147483647;
+      mockRate.push((seed % 20) + 60);
+    }
+    pubD = { data: mockPub, labels: [] };
+    for (var li = mockLen - 1; li >= 0; li--) {
+      pubD.labels.push(customDateRange[1].subtract(li * 7, 'day').format('M/D'));
+    }
+    rateD = { data: mockRate, labels: pubD.labels };
+  } else if (timeRange === '4w') { pubD = { data: weeklyPublish4, labels: getWeekLabels(4) }; rateD = { data: responseRate4, labels: getWeekLabels(4) }; }
+  else if (timeRange === '26w') { pubD = { data: weeklyPublish26, labels: getWeekLabels(26) }; rateD = { data: responseRate26, labels: getWeekLabels(26) }; }
+  else if (timeRange === '7d') { pubD = { data: weeklyPublish1, labels: getWeekLabels(1) }; rateD = { data: responseRate1, labels: getWeekLabels(1) }; }
+  else { pubD = { data: weeklyPublish12, labels: getWeekLabels(12) }; rateD = { data: responseRate12, labels: getWeekLabels(12) }; }
+
+  var conicOpp = oppPieData.reduce(function(acc, item, i) {
+    var start = oppPieData.slice(0, i).reduce(function(s, d) { return s + d.pct; }, 0);
+    return acc + item.color + ' ' + (start * 3.6) + 'deg ' + ((start + item.pct) * 3.6) + 'deg, ';
+  }, '').slice(0, -2);
+  var conicDemand = demandPieData.reduce(function(acc, item, i) {
+    var start = demandPieData.slice(0, i).reduce(function(s, d) { return s + d.pct; }, 0);
+    return acc + item.color + ' ' + (start * 3.6) + 'deg ' + ((start + item.pct) * 3.6) + 'deg, ';
+  }, '').slice(0, -2);
+
+  /* Page heat */
+  var pageNames = { 'opp-hall':'首页','opp-detail':'方案详情','req-square':'提需求','req-detail':'需求详情','notify-center':'通知中心','profile':'个人中心','create-opp':'发布方案','create-req':'发布需求','login':'登录页','dashboard':'数据看板','content-audit':'内容审核','category-mgmt':'数据字典','sla-monitor':'SLA监控','audit-log':'操作日志','search-solution':'查方案','discussion':'讨论区','venting':'讨论区','tools':'工具助手' };
+  var colors = { 'opp-hall':'#1677ff','opp-detail':'#52c41a','req-square':'#faad14','req-detail':'#722ed1','notify-center':'#13c2c2','profile':'#eb2f96','create-opp':'#1677ff','create-req':'#faad14','login':'#999','search-solution':'#eb2f96','discussion':'#1677ff','venting':'#eb2f96','tools':'#13c2c2' };
+  var breakdown = (analyticsStats && analyticsStats.page_breakdown) || {};
+  if (Object.keys(breakdown).length === 0) { breakdown = { 'opp-hall': 42, 'opp-detail': 35, 'req-square': 28, 'req-detail': 22, 'notify-center': 18, 'profile': 15 }; }
+  var pageEntries = Object.entries(breakdown).sort(function(a,b){ return b[1] - a[1]; }).slice(0, 10);
+  var pageMax = pageEntries.length > 0 ? pageEntries[0][1] : 1;
+
+  /* Content top N */
+  var contentBreakdown = (analyticsStats && analyticsStats.content_breakdown) || {};
+  var contentEntries = Object.entries(contentBreakdown).sort(function(a,b){ return b[1].count - a[1].count; }).slice(0, 10);
+  /* fallback: 补齐 10 条 */
+  if (contentEntries.length === 0) {
+    contentEntries = [
+      ['biz-1', { title: '5G模组NB-IoT解决方案合作', type: 'opportunity', count: 248 }],
+      ['biz-2', { title: '智慧农业传感器模组需求', type: 'demand', count: 215 }],
+      ['biz-3', { title: 'Cat.1模组批量采购方案', type: 'opportunity', count: 203 }],
+      ['biz-4', { title: '车载T-Box通信模组定制需求', type: 'demand', count: 187 }],
+      ['biz-5', { title: 'GNSS高精度定位模组合作', type: 'opportunity', count: 175 }],
+      ['biz-6', { title: '工业DTU远程监控方案需求', type: 'demand', count: 162 }],
+      ['biz-7', { title: 'Wi-Fi 6模组海外市场拓展', type: 'opportunity', count: 148 }],
+      ['biz-8', { title: '智能表计NB-IoT模组集采需求', type: 'demand', count: 135 }],
+      ['biz-9', { title: 'Quectel 5G模组RG500Q技术方案', type: 'opportunity', count: 122 }],
+      ['biz-10', { title: '智慧园区WiFi6覆盖方案需求', type: 'demand', count: 108 }],
+    ];
+  }
+  var typeColors = { opportunity: 'blue', demand: 'purple' };
+  var typeLabels = { opportunity: '方案', demand: '需求' };
+
+  /* Hourly - always 24 hours */
+  var hourly = (analyticsStats && analyticsStats.hourly_breakdown) || {};
+  var hourlyEntries_all = Object.entries(hourly);
+  /* fallback: 24 小时全量 mock */
+  if (hourlyEntries_all.length === 0) {
+    hourly = {0:1, 1:0, 2:0, 3:0, 4:1, 5:2, 6:5, 7:12, 8:28, 9:42, 10:48, 11:45, 12:30, 13:32, 14:38, 15:44, 16:50, 17:40, 18:28, 19:22, 20:18, 21:12, 22:8, 23:3};
+  }
+  // Ensure all 24 hours exist
+  for (var h2 = 0; h2 < 24; h2++) { if (!(h2 in hourly)) hourly[h2] = 0; }
+  var hourlyEntries = Object.entries(hourly).sort(function(a,b){ return parseInt(a[0]) - parseInt(b[0]); });
+  var hourlyMax = Math.max.apply(null, hourlyEntries.map(function(e){ return e[1]; })) || 1;
+
+  /* UV/PV mock */
+  var uv = 2850, pv = 12480;
+  var uvPct = 82, pvPct = 76;
+
+  return React.createElement('div', { className: 'dashboard-wrap' },
+    /* Header */
+    React.createElement('div', { className: 'dash-header' },
+      React.createElement(Typography.Title, { level: 4, style: { margin: 0 } },
+        React.createElement('i', { className: 'ti ti-dashboard', style: { fontSize: 20, marginRight: 8, color: '#1677ff' } }),
+        '运营数据看板'
+      ),
+      React.createElement(Space, null,
+        React.createElement('span', { className: 'refresh-info' },
+          React.createElement('i', { className: 'ti ti-clock', style: { fontSize: 14, marginRight: 4 } }),
+          '上次刷新: ' + lastRefresh
+        ),
+        React.createElement(Tooltip, { title: '手动刷新' },
+          React.createElement(Button, { icon: React.createElement('i', { className: 'ti ti-refresh', style: { fontSize: 16 } }), size: 'small',
+            onClick: function() { setLastRefresh(dayjs().format('HH:mm:ss')); message.success('已刷新'); } })
+        )
+      )
+    ),
+
+    /* Z1: Time range */
+    React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 } },
+      React.createElement(Radio.Group, {
+        value: timeMode === 'custom' ? null : timeRange,
+        onChange: function(e) { setTimeMode('preset'); setTimeRange(e.target.value); setCustomDateRange(null); },
+        buttonStyle: 'solid', size: 'small'
+      },
+        React.createElement(Radio.Button, { value: '7d' }, '近7天'),
+        React.createElement(Radio.Button, { value: '4w' }, '近4周'),
+        React.createElement(Radio.Button, { value: '12w' }, '近12周'),
+        React.createElement(Radio.Button, { value: '26w' }, '近半年')
+      ),
+      React.createElement(Space, { size: 8 },
+        React.createElement('span', { style: { fontSize: 12, color: '#999' } }, '自定义：'),
+        React.createElement(RangePicker, {
+          value: customDateRange,
+          onChange: function(dates) {
+            setCustomDateRange(dates);
+            if (dates && dates[0] && dates[1]) { setTimeMode('custom'); }
+            else { setTimeMode('preset'); }
+          },
+          size: 'small',
+          style: { width: 240 },
+          placeholder: ['开始日期', '结束日期'],
+          allowClear: true,
+          disabledDate: function(current) { return current && current.isAfter(dayjs()); }
+        })
+      )
+    ),
+
+    /* Z2: UV/PV highlight cards */
+    React.createElement('div', { className: 'highlight-grid' },
+      React.createElement('div', { className: 'highlight-card' },
+        React.createElement('div', { className: 'hl-icon', style: { background: 'linear-gradient(135deg, #1890ff, #36cfc9)' } },
+          React.createElement('i', { className: 'ti ti-users' })
+        ),
+        React.createElement('div', { className: 'hl-info' },
+          React.createElement('div', { className: 'hl-label' }, 'UV · 独立访客（近30天）'),
+          React.createElement('div', { className: 'hl-value' }, uv.toLocaleString()),
+          React.createElement('div', { className: 'hl-sub' },
+            React.createElement('span', null, '较上期'),
+            React.createElement('span', { className: 'stat-up' }, '+' + uvPct + '%'),
+            React.createElement('div', { className: 'bar-wrap' },
+              React.createElement('div', { className: 'bar-fill', style: { width: uvPct + '%', background: 'linear-gradient(90deg, #1890ff, #36cfc9)' } })
+            )
+          )
+        )
+      ),
+      React.createElement('div', { className: 'highlight-card' },
+        React.createElement('div', { className: 'hl-icon', style: { background: 'linear-gradient(135deg, #722ed1, #eb2f96)' } },
+          React.createElement('i', { className: 'ti ti-eye' })
+        ),
+        React.createElement('div', { className: 'hl-info' },
+          React.createElement('div', { className: 'hl-label' }, 'PV · 页面浏览量（近30天）'),
+          React.createElement('div', { className: 'hl-value' }, pv.toLocaleString()),
+          React.createElement('div', { className: 'hl-sub' },
+            React.createElement('span', null, '较上期'),
+            React.createElement('span', { className: 'stat-up' }, '+' + pvPct + '%'),
+            React.createElement('div', { className: 'bar-wrap' },
+              React.createElement('div', { className: 'bar-fill', style: { width: pvPct + '%', background: 'linear-gradient(90deg, #722ed1, #eb2f96)' } })
+            )
+          )
+        )
+      )
+    ),
+
+    /* Z3: 4 stat cards */
+    React.createElement('div', { className: 'stat-grid' },
+      [
+        { title: '活跃用户数', value: 328, sub: React.createElement('span', { className: 'stat-up' }, React.createElement('i', { className: 'ti ti-arrow-up' }), ' 12% 较上期'), icon: 'ti-user-check', color: '#1677ff' },
+        { title: '本周发布量', value: 15, sub: React.createElement('span', { className: 'stat-down' }, React.createElement('i', { className: 'ti ti-arrow-down' }), ' 3% 较上周'), icon: 'ti-send', color: '#52c41a' },
+        { title: '需求响应率', value: '78%', sub: React.createElement('span', { className: 'stat-up' }, React.createElement('i', { className: 'ti ti-arrow-up' }), ' 5% 较上期'), icon: 'ti-target', color: '#faad14' },
+        { title: '方案采纳率', value: '62%', sub: React.createElement('span', { className: 'stat-down' }, React.createElement('i', { className: 'ti ti-arrow-down' }), ' 3% 较上期'), icon: 'ti-circle-check', color: '#722ed1' },
+      ].map(function(item) {
+        return React.createElement('div', { className: 'stat-card', key: item.title },
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 } },
+            React.createElement('i', { className: 'ti ' + item.icon, style: { fontSize: 18, color: item.color } }),
+            React.createElement('span', { className: 'stat-title', style: { marginBottom: 0 } }, item.title)
+          ),
+          React.createElement('div', { className: 'stat-value' }, item.value),
+          React.createElement('div', { className: 'stat-sub' }, item.sub)
+        );
+      })
+    ),
+
+    /* Z3b: 新增指标卡片行（热门内容Top5 / 用户活跃时段 / 页面点击量排行） */
+    React.createElement('div', { className: 'stat-grid', style: { gridTemplateColumns: 'repeat(3, 1fr)' } },
+      /* 热门内容Top5 */
+      React.createElement('div', { className: 'chart-card', key: 'top5' },
+        React.createElement('h4', null, React.createElement('i', { className: 'ti ti-star', style: { color: '#faad14' } }), '热门内容Top5（本周）'),
+        React.createElement(Table, {
+          dataSource: contentEntries.slice(0, 5).map(function(e, i) { return { key: i + 1, rank: i + 1, title: e[1].title, count: e[1].count }; }),
+          columns: [
+            { title: '#', dataIndex: 'rank', key: 'rank', width: 32, render: function(v) { return v <= 3 ? React.createElement(Tag, { color: v === 1 ? 'red' : v === 2 ? 'orange' : 'gold' }, v) : React.createElement('span', { style: { color: '#999' } }, v); } },
+            { title: '标题', dataIndex: 'title', key: 'title', ellipsis: true },
+            { title: '浏览', dataIndex: 'count', key: 'count', width: 48 }
+          ],
+          pagination: false, size: 'small', rowKey: 'key', showHeader: false
+        })
+      ),
+      /* 用户活跃时段（8-18点） */
+      React.createElement('div', { className: 'chart-card', key: 'active-hours' },
+        React.createElement('h4', null, React.createElement('i', { className: 'ti ti-clock', style: { color: '#13c2c2' } }), '用户活跃时段（8-18点）'),
+        React.createElement('div', { style: { padding: '4px 0' } },
+          hourlyEntries.filter(function(e) { var h = parseInt(e[0]); return h >= 8 && h <= 18; }).map(function(entry) {
+            var hour = parseInt(entry[0]), count = entry[1];
+            var pct = Math.round(count / Math.max.apply(null, hourlyEntries.filter(function(e) { var h = parseInt(e[0]); return h >= 8 && h <= 18; }).map(function(e) { return e[1]; })) * 100);
+            var barColor = pct > 60 ? '#1677ff' : pct > 30 ? '#52c41a' : '#d9d9d9';
+            return React.createElement('div', { className: 'h-bar-row', key: hour, style: { marginBottom: 4 } },
+              React.createElement('span', { className: 'h-bar-label', style: { width: 46, fontSize: 11 } }, hour + ':00'),
+              React.createElement('div', { className: 'h-bar-bg', style: { height: 20 } },
+                React.createElement('div', { className: 'h-bar-fill', style: { width: pct + '%', background: barColor, height: 20, fontSize: 10 } }, count)
+              )
+            );
+          })
+        )
+      ),
+      /* 页面点击量排行 */
+      React.createElement('div', { className: 'chart-card', key: 'page-pv' },
+        React.createElement('h4', null, React.createElement('i', { className: 'ti ti-chart-bar', style: { color: '#722ed1' } }), '页面点击量排行'),
+        React.createElement('div', { style: { padding: '4px 0' } },
+          pageEntries.map(function(entry) {
+            var key = entry[0], count = entry[1];
+            var name = pageNames[key] || key;
+            var pct = Math.round(count / pageMax * 100);
+            var color = colors[key] || '#bfbfbf';
+            return React.createElement('div', { className: 'h-bar-row', key: key, style: { marginBottom: 6 } },
+              React.createElement('span', { className: 'h-bar-label', style: { width: 64, fontSize: 12 } }, name),
+              React.createElement('div', { className: 'h-bar-bg', style: { height: 22 } },
+                React.createElement('div', { className: 'h-bar-fill', style: { width: pct + '%', background: color, height: 22, fontSize: 11 } },
+                  React.createElement('span', null, count, ' PV')
+                )
+              )
+            );
+          })
+        )
+      )
+    ),
+
+    /* Z4: Trend charts */
+    React.createElement('div', { className: 'chart-grid' },
+      React.createElement('div', { className: 'chart-card' },
+        React.createElement('h4', null, React.createElement('i', { className: 'ti ti-chart-bar', style: { color: '#1677ff' } }), '周发布量趋势'),
+        React.createElement('div', { style: { padding: '8px 0' } },
+          React.createElement(SVGLineChart, { data: pubD.data, labels: pubD.labels })
+        )
+      ),
+      React.createElement('div', { className: 'chart-card' },
+        React.createElement('h4', null, React.createElement('i', { className: 'ti ti-chart-line', style: { color: '#52c41a' } }), '需求响应率趋势'),
+        React.createElement('div', { style: { padding: '8px 0' } },
+          React.createElement(SVGLineChart, { data: rateD.data, labels: rateD.labels })
+        )
+      )
+    ),
+
+    /* Z5: Pie + Page heat */
+    React.createElement('div', { className: 'bottom-grid' },
+      React.createElement('div', { className: 'chart-card' },
+        React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 0 } },
+          React.createElement('h4', { style: { margin: 0 } }, React.createElement('i', { className: 'ti ti-chart-pie', style: { color: '#faad14' } }), '内容分类分布'),
+          React.createElement(Radio.Group, { value: pieType, onChange: function(e) { setPieType(e.target.value); }, buttonStyle: 'solid', size: 'small' },
+            React.createElement(Radio.Button, { value: 'opp' }, '方案'),
+            React.createElement(Radio.Button, { value: 'demand' }, '需求')
+          )
+        ),
+        React.createElement('div', { style: { display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 8 } },
+          React.createElement('div', { className: 'css-pie', style: { background: 'conic-gradient(' + (pieType === 'opp' ? conicOpp : conicDemand) + ')' } }),
+          React.createElement('div', { className: 'pie-legend' },
+            (pieType === 'opp' ? oppPieData : demandPieData).map(function(item) {
+              return React.createElement('div', { className: 'pie-legend-item', key: item.name },
+                React.createElement('span', { className: 'pie-legend-dot', style: { background: item.color } }),
+                item.name + ' ' + item.pct + '%'
+              );
+            })
+          )
+        )
+      ),
+      React.createElement('div', { className: 'chart-card' },
+        React.createElement('h4', null, React.createElement('i', { className: 'ti ti-chart-bar', style: { color: '#722ed1' } }), '页面热度排行（30天）'),
+        React.createElement('div', { style: { padding: '8px 0' } },
+          pageEntries.map(function(entry) {
+            var key = entry[0], count = entry[1];
+            var name = pageNames[key] || key;
+            var pct = Math.round(count / pageMax * 100);
+            var color = colors[key] || '#bfbfbf';
+            return React.createElement('div', { className: 'h-bar-row', key: key },
+              React.createElement('span', { className: 'h-bar-label' }, name),
+              React.createElement('div', { className: 'h-bar-bg' },
+                React.createElement('div', { className: 'h-bar-fill', style: { width: pct + '%', background: color } }, count)
+              )
+            );
+          })
+        )
+      )
+    ),
+
+    /* Z6: Hot content + active hours */
+    React.createElement('div', { className: 'bottom-grid' },
+      React.createElement('div', { className: 'chart-card' },
+        React.createElement('h4', null, React.createElement('i', { className: 'ti ti-star', style: { color: '#faad14' } }), '热门内容 TOP 10'),
+        React.createElement(Table, {
+          dataSource: contentEntries.map(function(e, i) { return { key: i + 1, rank: i + 1, id: e[0], title: e[1].title, type: e[1].type, count: e[1].count }; }),
+          columns: [
+            { title: '#', dataIndex: 'rank', key: 'rank', width: 36, render: function(v) { return v <= 3 ? React.createElement(Tag, { color: v === 1 ? 'red' : v === 2 ? 'orange' : 'gold' }, v) : React.createElement('span', { style: { color: '#999' } }, v); } },
+            { title: '标题', dataIndex: 'title', key: 'title', ellipsis: true },
+            { title: '类型', dataIndex: 'type', key: 'type', width: 64, render: function(t) { return React.createElement(Tag, { color: typeColors[t] || 'default', style: { fontSize: 11 } }, typeLabels[t] || t); } },
+            { title: '浏览', dataIndex: 'count', key: 'count', width: 56 }
+          ],
+          pagination: false, size: 'small', rowKey: 'key'
+        })
+      ),
+      React.createElement('div', { className: 'chart-card' },
+        React.createElement('h4', null, React.createElement('i', { className: 'ti ti-clock', style: { color: '#13c2c2' } }), '活跃时段分布'),
+        React.createElement('div', { style: { padding: '4px 0' } },
+          hourlyEntries.map(function(entry) {
+            var hour = parseInt(entry[0]), count = entry[1];
+            var pct = Math.round(count / hourlyMax * 100);
+            var barColor = pct > 60 ? '#1677ff' : pct > 30 ? '#52c41a' : '#d9d9d9';
+            return React.createElement('div', { className: 'h-bar-row', key: hour, style: { marginBottom: 4 } },
+              React.createElement('span', { className: 'h-bar-label', style: { width: 46, fontSize: 11 } }, hour + ':00'),
+              React.createElement('div', { className: 'h-bar-bg', style: { height: 16 } },
+                React.createElement('div', { className: 'h-bar-fill', style: { width: pct + '%', background: barColor, height: 16, fontSize: 10 } }, count)
+              )
+            );
+          })
+        )
+      )
+    )
+  );
+}
+
+var App = function() { return React.createElement(DashboardPage); };
+if (window.PROTO_SHELL) { window.PROTO_SHELL.renderShell('dashboard');
+  if (window.DataTracker) { window.DataTracker.trackPageView('dashboard', '运营数据看板'); } }
+var root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
+</script>
+</body>
+</html>

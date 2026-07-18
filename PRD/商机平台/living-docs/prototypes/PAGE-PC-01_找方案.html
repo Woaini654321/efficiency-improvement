@@ -1,0 +1,782 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>首页 - Quectel商机互助平台</title>
+  <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="prototype-shell.js"></script>
+  <script src="data-tracker.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #f0f2f5; -webkit-font-smoothing: antialiased; }
+
+    /* ===== Animations ===== */
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes shimmer { 0% { background-position:-200% 0; } 100% { background-position:200% 0; } }
+    @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+    @keyframes pulse-ring { 0% { transform:scale(0.8); opacity:1; } 100% { transform:scale(2.2); opacity:0; } }
+    @keyframes gridMove { 0% { background-position:0 0, 0 0; } 100% { background-position:40px 40px, -40px -40px; } }
+
+    /* ===== Page Container ===== */
+    .page-container { padding: 0 0 48px; }
+
+    /* ===== Hero Section ===== */
+    .hero-wrapper {
+      position: relative; margin: 0 0 28px; border-radius: 24px;
+      background: linear-gradient(160deg, #0a1628 0%, #0d2137 30%, #0f3460 60%, #0a2540 100%);
+      padding: 64px 56px 52px; overflow: hidden; isolation: isolate;
+    }
+    .hero-wrapper::before {
+      content: ''; position: absolute; inset: 0; z-index: 0; opacity: 0.08;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridMove 20s linear infinite;
+    }
+    .hero-wrapper::after {
+      content: ''; position: absolute; top: -200px; right: -120px; width: 600px; height: 600px;
+      border-radius: 50%; z-index: 0;
+      background: radial-gradient(circle, rgba(24,144,255,0.15) 0%, transparent 70%);
+    }
+    .hero-glow-bottom {
+      position: absolute; bottom: -80px; left: 10%; width: 500px; height: 300px;
+      border-radius: 50%; z-index: 0;
+      background: radial-gradient(ellipse, rgba(114,46,209,0.12) 0%, transparent 70%);
+    }
+    .hero-glow-right {
+      position: absolute; top: -100px; right: 15%; width: 400px; height: 400px;
+      border-radius: 50%; z-index: 0;
+      background: radial-gradient(circle, rgba(19,194,194,0.1) 0%, transparent 70%);
+    }
+    .hero-content { position: relative; z-index: 2; text-align: center; max-width: 800px; margin: 0 auto; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 16px; border-radius: 20px; margin-bottom: 20px;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+      font-size: 13px; color: rgba(255,255,255,0.7);
+      backdrop-filter: blur(10px);
+    }
+    .hero-badge .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #52c41a; position: relative; }
+    .hero-badge .live-dot::after { content: ''; position: absolute; inset: -3px; border-radius: 50%; background: #52c41a; animation: pulse-ring 2s ease-out infinite; }
+    .hero-title { font-size: 38px; font-weight: 800; color: #fff; margin-bottom: 12px; letter-spacing: -0.5px; line-height: 1.25; }
+    .hero-title .brand { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-subtitle { font-size: 16px; color: rgba(255,255,255,0.55); margin-bottom: 36px; line-height: 1.6; max-width: 580px; margin-left: auto; margin-right: auto; }
+    .hero-search-wrap { max-width: 640px; margin: 0 auto; }
+    .hero-stats-row { display: flex; justify-content: center; gap: 40px; margin-top: 36px; padding-top: 28px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .hero-stat-item { text-align: center; }
+    .hero-stat-num { font-size: 28px; font-weight: 700; color: #fff; line-height: 1.1; }
+    .hero-stat-label { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 4px; }
+
+    /* ===== Hot Tags ===== */
+    .hot-tags-row { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:16px; flex-wrap:wrap; }
+    .hot-tag {
+      padding:4px 14px; border-radius:20px; font-size:12px; color:rgba(255,255,255,0.7);
+      background:rgba(255,255,255,0.08); cursor:pointer; border:1px solid rgba(255,255,255,0.06);
+      transition:all 0.25s; backdrop-filter:blur(4px);
+    }
+    .hot-tag:hover { background:rgba(255,255,255,0.18); color:#fff; border-color:rgba(255,255,255,0.2); transform:translateY(-1px); }
+
+    /* ===== Content Sections ===== */
+    .content-section { margin-bottom: 24px; }
+
+    .section-header-row {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;
+    }
+    .section-title-group { display: flex; align-items: center; gap: 10px; }
+    .section-title-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .section-title-text { font-size: 18px; font-weight: 700; color: #1a1a2e; }
+    .section-title-sub { font-size: 13px; color: #bfbfbf; font-weight: 400; }
+    .section-more-link { font-size: 13px; color: #1890ff; text-decoration: none; font-weight: 500; transition: all 0.2s; display:flex; align-items:center; gap:4px; }
+    .section-more-link:hover { color: #1677ff; gap: 8px; }
+
+    /* ===== Quick Actions - Larger ===== */
+    .quick-actions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .quick-action-item {
+      background: #fff; border-radius: 18px; padding: 28px 20px; text-align: center;
+      cursor: pointer; border: 1px solid #f0f0f0; transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+      text-decoration: none; display: block; position: relative; overflow: hidden;
+    }
+    .quick-action-item::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      opacity: 0; transition: opacity 0.35s;
+    }
+    .quick-action-item:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.1); border-color: transparent; }
+    .quick-action-item:hover::after { opacity: 1; }
+    .quick-icon-circle {
+      width: 60px; height: 60px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px; font-size: 26px; transition: transform 0.35s;
+    }
+    .quick-action-item:hover .quick-icon-circle { transform: scale(1.1); }
+    .quick-item-title { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .quick-item-desc { font-size: 12px; color: #bfbfbf; }
+
+    /* ===== My Tasks Dashboard ===== */
+    .my-tasks-dashboard {
+      background: #fff; border-radius: 18px; overflow: hidden;
+      border: 1px solid #f0f0f0; transition: box-shadow 0.3s;
+    }
+    .my-tasks-dashboard:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    .my-tasks-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px; border-bottom: 1px solid #f5f5f5;
+    }
+    .my-tasks-header-left { display: flex; align-items: center; gap: 12px; }
+    .my-tasks-header-icon {
+      width: 42px; height: 42px; border-radius: 12px; background: #e6f7ff;
+      display: flex; align-items: center; justify-content: center; font-size: 20px; color: #1890ff;
+    }
+    .my-tasks-header-title { font-size: 17px; font-weight: 700; color: #1a1a2e; }
+    .my-tasks-count-badges { display: flex; gap: 8px; margin-left: 12px; }
+    .my-tasks-count-badge {
+      padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 500;
+      white-space: nowrap;
+    }
+    .my-tasks-header-right { display: flex; align-items: center; gap: 12px; }
+    .my-tasks-more-link { font-size: 13px; color: #1890ff; text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 4px; transition: gap 0.2s; }
+    .my-tasks-more-link:hover { gap: 8px; }
+    .my-tasks-list { padding: 8px 24px; }
+    .my-task-item {
+      display: flex; align-items: center; gap: 14px; padding: 14px 0;
+      border-bottom: 1px solid #fafafa; transition: all 0.2s;
+    }
+    .my-task-item:last-child { border-bottom: none; }
+    .my-task-item:hover { padding-left: 6px; }
+    .my-task-priority-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .my-task-info { flex: 1; min-width: 0; }
+    .my-task-desc {
+      font-size: 14px; color: #1a1a2e; font-weight: 500;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      margin-bottom: 4px;
+    }
+    .my-task-meta { font-size: 12px; color: #8c8c8c; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .my-task-meta i { font-size: 13px; margin-right: 2px; }
+    .my-task-deadline-overdue { color: #ff4d4f; font-weight: 600; }
+    .my-task-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .my-tasks-empty { text-align: center; padding: 36px 0; }
+    @keyframes overdueBlink { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .overdue-blink { animation: overdueBlink 1s ease-in-out infinite; }
+
+    /* ===== Solution Grid ===== */
+    .solution-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .solution-item {
+      background: #fff; border-radius: 18px; overflow: hidden; cursor: pointer;
+      border: 1px solid #f0f0f0; transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+      position: relative;
+    }
+    .solution-item:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(0,0,0,0.1); border-color: #91d5ff; }
+    .solution-cover {
+      height: 140px; position: relative; overflow: hidden;
+    }
+    .solution-cover-img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .solution-item:hover .solution-cover-img { transform: scale(1.06); }
+    .solution-cover::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.25) 100%);
+      pointer-events: none;
+    }
+    .solution-rank-badge {
+      position: absolute; top: 12px; left: 12px;
+      background: linear-gradient(135deg, #ff7a45, #ff4d4f);
+      color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(255,77,79,0.3);
+    }
+    .solution-sub-badge {
+      position: absolute; top: 12px; left: 12px;
+      background: rgba(255,255,255,0.9); color: #1890ff; font-size: 10px; padding: 3px 10px; border-radius: 6px;
+      display: inline-flex; align-items: center; gap: 4px; font-weight: 600;
+      backdrop-filter: blur(4px);
+    }
+    .solution-body { padding: 16px 18px 18px; }
+    .solution-item-title { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .solution-item-meta { display:flex; align-items:center; justify-content:space-between; font-size:12px; color:#8c8c8c; }
+    .solution-item-author { font-size:11px; color:#bfbfbf; margin-top:6px; }
+
+    /* ===== Layout: Tools + Discussion ===== */
+    .layout-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    /* ===== Tools Panel ===== */
+    .tools-panel {
+      background: #fff; border-radius: 18px; overflow: hidden;
+      border: 1px solid #f0f0f0; transition: box-shadow 0.3s;
+    }
+    .tools-panel:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+    .tools-header {
+      background: linear-gradient(135deg, #0a1628 0%, #102240 50%, #0d1f3c 100%);
+      padding: 22px 24px; display: flex; align-items: center; justify-content: space-between;
+      position: relative; overflow: hidden;
+    }
+    .tools-header::before {
+      content: ''; position: absolute; top: -60px; right: -40px; width: 160px; height: 160px;
+      border-radius: 50%; background: rgba(19,194,194,0.06); pointer-events: none;
+    }
+    .tools-header-info { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+    .tools-header-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(19,194,194,0.15); display: flex; align-items: center; justify-content: center;
+    }
+    .tools-header-title { font-size: 16px; font-weight: 700; color: #fff; }
+    .tools-header-desc { font-size: 11px; color: rgba(255,255,255,0.45); }
+    .tools-enter-btn {
+      display: inline-flex; align-items: center; gap: 4px; padding: 7px 16px;
+      border-radius: 20px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8);
+      font-size: 12px; text-decoration: none; font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.1); transition: all 0.25s; position: relative; z-index: 1;
+    }
+    .tools-enter-btn:hover { background: rgba(255,255,255,0.16); color: #fff; }
+    .tools-intel-item {
+      display: flex; align-items: center; gap: 14px; padding: 16px 24px;
+      text-decoration: none; cursor: pointer; transition: background 0.2s;
+      border-bottom: 1px solid #fafafa;
+    }
+    .tools-intel-item:last-of-type { border-bottom: none; }
+    .tools-intel-item:hover { background: #fafbfd; }
+    .tools-intel-brand {
+      width: 46px; height: 46px; border-radius: 12px; display: flex;
+      align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+    .tools-bottom-links { display: flex; border-top: 1px solid #f5f5f5; }
+    .tools-bottom-link {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 13px 0; text-decoration: none; font-size: 12px; color: #595959;
+      font-weight: 500; transition: all 0.2s; border-right: 1px solid #f5f5f5;
+    }
+    .tools-bottom-link:last-child { border-right: none; }
+    .tools-bottom-link:hover { background: #fafafa; }
+
+    /* ===== Discussion Panel ===== */
+    .discuss-panel {
+      background: #fff; border-radius: 18px; padding: 24px;
+      border: 1px solid #f0f0f0; transition: box-shadow 0.3s;
+    }
+    .discuss-panel:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+    .discuss-list-item {
+      display: flex; align-items: flex-start; gap: 14px; padding: 15px 0;
+      border-bottom: 1px solid #fafafa; cursor: pointer; transition: all 0.25s;
+    }
+    .discuss-list-item:last-child { border-bottom: none; }
+    .discuss-list-item:hover { padding-left: 8px; }
+    .discuss-topic-tag {
+      display: inline-flex; padding: 2px 8px; border-radius: 4px;
+      font-size: 11px; font-weight: 500; flex-shrink: 0; margin-top: 2px;
+    }
+
+    /* ===== Activity Feed ===== */
+    .activity-panel { background: #fff; border-radius: 18px; padding: 24px; border: 1px solid #f0f0f0; }
+    .activity-timeline-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid #fafafa; align-items: flex-start; }
+    .activity-timeline-item:last-child { border-bottom: none; }
+    .activity-avatar-dot {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: #fff; font-weight: 600;
+    }
+
+    /* ===== Announcement Banner ===== */
+    .ann-banner {
+      margin-bottom: 24px; background: #fff; border-radius: 16px;
+      border: 1px solid #f0f0f0; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: box-shadow 0.3s;
+    }
+    .ann-banner:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .ann-banner-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; border-bottom: 1px solid #f5f5f5;
+      background: linear-gradient(90deg, #fafbff, #fff);
+    }
+    .ann-banner-title {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 15px; font-weight: 700; color: #1a1a2e;
+    }
+    .ann-banner-title i { color: #1890ff; font-size: 20px; }
+    .ann-banner-more {
+      font-size: 13px; color: #1890ff; text-decoration: none;
+      display: flex; align-items: center; gap: 4px; font-weight: 500; transition: gap 0.2s;
+    }
+    .ann-banner-more:hover { gap: 8px; }
+    .ann-banner-list { padding: 0; }
+    .ann-banner-item {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 24px; cursor: pointer; transition: background 0.2s;
+      border-bottom: 1px solid #fafafa; text-decoration: none;
+    }
+    .ann-banner-item:last-child { border-bottom: none; }
+    .ann-banner-item:hover { background: #fafbfd; }
+    .ann-banner-item .ann-banner-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 18px;
+    }
+    .ann-banner-item .ann-banner-body { flex: 1; min-width: 0; }
+    .ann-banner-item .ann-banner-item-title {
+      font-size: 14px; font-weight: 600; color: #1a1a2e;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+    }
+    .ann-banner-item .ann-banner-item-meta {
+      font-size: 12px; color: #8c8c8c; display: flex; align-items: center; gap: 12px;
+    }
+    .ann-banner-item .ann-banner-item-meta i { font-size: 13px; margin-right: 2px; }
+    .ann-banner-empty {
+      padding: 20px 24px; text-align: center; color: #bfbfbf; font-size: 13px;
+    }
+    @media (max-width: 768px) {
+      .ann-banner { margin-bottom: 16px; }
+      .ann-banner-item { padding: 12px 16px; }
+      .ann-banner-header { padding: 12px 16px; }
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1200px) {
+      .solution-grid-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 1024px) {
+      .quick-actions-grid { grid-template-columns: repeat(2, 1fr); }
+      .layout-2col { grid-template-columns: 1fr; }
+      .hero-wrapper { padding: 44px 28px 36px; }
+      .hero-title { font-size: 28px; }
+    }
+    @media (max-width: 768px) {
+      .quick-actions-grid { grid-template-columns: repeat(2, 1fr); }
+      .solution-grid-4 { grid-template-columns: 1fr; }
+      .my-tasks-header { flex-wrap: wrap; gap: 12px; }
+      .my-tasks-count-badges { margin-left: 0; }
+      .my-task-item { flex-wrap: wrap; }
+      .hero-title { font-size: 24px; }
+      .hero-stats-row { gap: 20px; flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+(function(){
+  const { useState, useEffect, useMemo } = React;
+  const { Button, Tag, Input, Spin, Empty, Badge, Avatar, Cascader, Select, Pagination, Tooltip } = antd;
+
+  const TYPE_LABELS = { product_info: '产品信息', solution: '解决方案', success_case: '成功案例' };
+  const TYPE_COLORS = { product_info: 'blue', solution: 'green', success_case: 'orange' };
+  const TYPE_HEX = { product_info: '#1890ff', solution: '#52c41a', success_case: '#fa8c16' };
+
+  // Mock：36条方案
+  const MOCK_OPPS = (function() {
+    var types = ['product_info','solution','success_case'];
+    var titles = ['EC200A Cat.1模组低功耗方案','RG500Q 5G模组车载集成方案','BC260Y NB-IoT智慧表计案例','AG525R 车载前装解决方案','EC800M Cat.1 DTU行业应用','SC66 智能模组Android方案','RG200U Cat.1bis模组产品手册','FC41D Wi-Fi&BLE双模方案','EG912Y Cat.4模组海外部署案例','BG95-M3 多模LPWA全球方案','LC29H GNSS双频定位方案','SG865W-WF 5G+WiFi6方案'];
+    var pubs = ['Tony.Zhang 张伟','Nina.Li 李娜','Kevin.Wang 王强','Yan.Chen 陈燕','Leo.Zhao 赵磊','Owen.Liu 刘洋'];
+    var cats = [['Cat.1模组','IoT模组'],['5G模组','车载方案'],['NB-IoT模组','智慧表计'],['车载方案'],['Cat.1模组','IoT模组','行业方案'],['智能模组']];
+    var arr = [];
+    for (var i=0; i<36; i++) {
+      var tp = types[i%3]; var d = new Date(); d.setDate(d.getDate()-Math.floor(Math.random()*30));
+      arr.push({ id:'OPP-'+String(i+1).padStart(4,'0'), title:titles[i%titles.length], summary:'本方案详细介绍了'+titles[i%titles.length]+'的技术特性、应用场景及客户收益。', type:tp, categories:cats[i%cats.length], publisher:pubs[i%pubs.length], date:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'), view_count:Math.floor(Math.random()*3000)+100, like_count:Math.floor(Math.random()*200)+10, collect_count:Math.floor(Math.random()*80)+5, comment_count:Math.floor(Math.random()*30)+2, coverImage:'https://picsum.photos/seed/'+String(i+1)+'/400/200', pinned:i<2, daysAgo:Math.floor(Math.random()*30) });
+    }
+    return arr;
+  })();
+
+  // Mock：讨论帖
+  const MOCK_POSTS = [
+    { id:'P1', title:'5G专网在智慧工厂的落地机会探讨', topic:'商机讨论', author:'Tony.Zhang 张伟', replyCount:28, viewCount:342, date:'2026-07-05', tags:['5G','智慧工厂'], hot:true },
+    { id:'P2', title:'客户说价格太高，这个话术亲测有效', topic:'经验分享', author:'Leo.Zhao 赵磊', replyCount:45, viewCount:891, date:'2026-07-04', tags:['销售技巧','话术'], hot:true },
+    { id:'P3', title:'求推荐车载前装过车规的5G模组', topic:'方案互助', author:'Owen.Liu 刘洋', replyCount:12, viewCount:167, date:'2026-07-03', tags:['车载','5G模组'], hot:true },
+    { id:'P4', title:'2026年物联网模组市场趋势分析', topic:'行业动态', author:'Nina.Li 李娜', replyCount:33, viewCount:520, date:'2026-07-02', tags:['行业趋势','5G'], hot:true },
+    { id:'P5', title:'海外智慧城市项目的商机识别技巧', topic:'商机讨论', author:'Kevin.Wang 王强', replyCount:19, viewCount:256, date:'2026-06-30', tags:['海外','智慧城市'] },
+    { id:'P6', title:'如何高效准备客户技术交流presentation', topic:'经验分享', author:'Yan.Chen 陈燕', replyCount:22, viewCount:310, date:'2026-06-29', tags:['技术交流'] },
+    { id:'P7', title:'Cat.1模组在多省市智能电表项目的适配经验', topic:'方案互助', author:'Liu.Zhao 赵六', replyCount:15, viewCount:203, date:'2026-06-28', tags:['Cat.1','智能电表'] },
+    { id:'P8', title:'车载通信模组国产替代的最新进展', topic:'行业动态', author:'Jing.Chen 陈静', replyCount:26, viewCount:445, date:'2026-06-27', tags:['车载','国产替代'] }
+  ];
+
+  // Mock：最新动态
+  const MOCK_ACTIVITIES = [
+    { type:'publish', user:'Nina.Li', userName:'李娜', action:'发布了新方案', target:'RG500Q 5G模组车载集成方案', time:'10分钟前', color:'#1890ff', initial:'李' },
+    { type:'adopt', user:'Tony.Zhang', userName:'张伟', action:'采纳了', target:'EC200A Cat.1模组低功耗方案', time:'25分钟前', color:'#52c41a', initial:'张' },
+    { type:'reply', user:'Leo.Zhao', userName:'赵磊', action:'回复了讨论', target:'客户说价格太高，这个话术亲测有效', time:'40分钟前', color:'#fa8c16', initial:'赵' },
+    { type:'like', user:'Kevin.Wang', userName:'王强', action:'点赞了', target:'每次产品更新都要翻300条群消息', time:'1小时前', color:'#eb2f96', initial:'王' },
+    { type:'post', user:'Owen.Liu', userName:'刘洋', action:'发起了新讨论', target:'5G专网在智慧工厂的落地机会探讨', time:'2小时前', color:'#722ed1', initial:'刘' },
+    { type:'demand', user:'Liu.Zhao', userName:'赵六', action:'发布了新需求', target:'Cat.1模组批量采购方案需求', time:'3小时前', color:'#13c2c2', initial:'赵' },
+    { type:'publish', user:'Alice.Wang', userName:'王芳', action:'发布了新方案', target:'LC29H GNSS双频定位方案', time:'4小时前', color:'#1890ff', initial:'王' }
+  ];
+
+  const HOT_TAGS = ['5G模组', 'Cat.1', '车载方案', 'NB-IoT', '智慧城市', '天线设计'];
+
+  // 公告类型配置（与运营端对齐）
+  var ANN_TYPE_LABEL = { notice: '通知', policy: '政策', activity: '活动', other: '其他' };
+  var ANN_TYPE_COLOR = { notice: 'blue', policy: 'purple', activity: 'green', other: 'default' };
+  var ANN_TYPE_BG = { notice: 'linear-gradient(135deg,#e6f7ff,#bae7ff)', policy: 'linear-gradient(135deg,#f9f0ff,#efdbff)', activity: 'linear-gradient(135deg,#f6ffed,#d9f7be)', other: 'linear-gradient(135deg,#f5f5f5,#e8e8e8)' };
+  var ANN_TYPE_ICON = { notice: 'ti-info-circle', policy: 'ti-file-text', activity: 'ti-calendar-event', other: 'ti-dots' };
+  var ANN_TYPE_ICON_COLOR = { notice: '#1890ff', policy: '#722ed1', activity: '#52c41a', other: '#8c8c8c' };
+
+  // Mock 公告数据（与运营端一致，仅展示已发布）
+  var MOCK_ANNOUNCEMENTS = [
+    { id: 'ANN-001', title: 'Quectel商机互助平台正式上线公告', type: 'notice', status: 'published', priority: 'high', pinned: true, pushBanner: true, publisher: '管理员', publishTime: '2026-06-01 09:30', readCount: 328 },
+    { id: 'ANN-002', title: '关于6月份方案质量考核的通知', type: 'policy', status: 'published', priority: 'high', pinned: true, pushBanner: false, publisher: '管理员', publishTime: '2026-06-05 14:30', readCount: 512 },
+    { id: 'ANN-003', title: '5G模组新产品资料库更新', type: 'notice', status: 'published', priority: 'normal', pinned: false, pushBanner: false, publisher: 'Li.E 李工', publishTime: '2026-06-08 11:00', readCount: 186 },
+    { id: 'ANN-004', title: '6月18日方案对接线上交流会', type: 'activity', status: 'published', priority: 'normal', pinned: false, pushBanner: true, publisher: 'Chen.M 陈经理', publishTime: '2026-06-10 16:20', readCount: 265 },
+    { id: 'ANN-005', title: '平台功能更新：新增需求热度分析', type: 'notice', status: 'published', priority: 'normal', pinned: false, pushBanner: false, publisher: '管理员', publishTime: '2026-06-12 10:00', readCount: 143 },
+    { id: 'ANN-007', title: '关于规范方案分类标签的通知', type: 'policy', status: 'published', priority: 'high', pinned: false, pushBanner: false, publisher: '管理员', publishTime: '2026-06-02 08:15', readCount: 401 }
+  ];
+
+  function formatCount(n) { return n >= 10000 ? (n/10000).toFixed(1)+'w' : n >= 1000 ? (n/1000).toFixed(1)+'k' : String(n); }
+
+  // ============= Components =============
+
+  function AnnouncementBanner() {
+    var bannerItems = MOCK_ANNOUNCEMENTS.filter(function(a) {
+      return a.status === 'published' && (a.pushBanner || a.pinned);
+    }).slice(0, 3);
+
+    if (bannerItems.length === 0) return null;
+
+    return React.createElement('div', { className: 'ann-banner' },
+      React.createElement('div', { className: 'ann-banner-header' },
+        React.createElement('div', { className: 'ann-banner-title' },
+          React.createElement('i', { className: 'ti ti-speakerphone' }),
+          '平台公告'
+        ),
+        React.createElement('a', { href: 'PAGE-PC-16_公告详情页.html', className: 'ann-banner-more' },
+          '全部公告', React.createElement('i', { className: 'ti ti-arrow-right', style: { fontSize: 14 } })
+        )
+      ),
+      React.createElement('div', { className: 'ann-banner-list' },
+        bannerItems.map(function(ann) {
+          return React.createElement('a', {
+            key: ann.id,
+            href: 'PAGE-PC-16_公告详情页.html?id=' + ann.id,
+            className: 'ann-banner-item'
+          },
+            React.createElement('div', {
+              className: 'ann-banner-icon',
+              style: { background: ANN_TYPE_BG[ann.type], color: ANN_TYPE_ICON_COLOR[ann.type] }
+            }, React.createElement('i', { className: 'ti ' + ANN_TYPE_ICON[ann.type] })),
+            React.createElement('div', { className: 'ann-banner-body' },
+              React.createElement('div', { className: 'ann-banner-item-title' },
+                ann.pinned && React.createElement(Tag, { color: 'red', style: { fontSize: 10, margin: 0, lineHeight: '16px', padding: '0 4px', borderRadius: 4, flexShrink: 0 } }, '置顶'),
+                React.createElement('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, ann.title)
+              ),
+              React.createElement('div', { className: 'ann-banner-item-meta' },
+                React.createElement(Tag, { color: ANN_TYPE_COLOR[ann.type], style: { fontSize: 10, margin: 0, lineHeight: '18px', padding: '0 6px' } }, ANN_TYPE_LABEL[ann.type]),
+                React.createElement('span', null, React.createElement('i', { className: 'ti ti-user' }), ann.publisher),
+                React.createElement('span', null, React.createElement('i', { className: 'ti ti-clock' }), ann.publishTime),
+                React.createElement('span', null, React.createElement('i', { className: 'ti ti-eye' }), formatCount(ann.readCount), ' 阅读')
+              )
+            ),
+            React.createElement('i', { className: 'ti ti-chevron-right', style: { color: '#d9d9d9', fontSize: 14, flexShrink: 0 } })
+          );
+        })
+      )
+    );
+  }
+
+  function HeroSection() {
+    var valState = useState(''); var val = valState[0]; var setVal = valState[1];
+    var doSearch = function(v) {
+      if (!v.trim()) return;
+      if (window.__openGlobalSearch) {
+        window.__openGlobalSearch();
+        setTimeout(function() { if (window.__handleSearchInput) window.__handleSearchInput(v); }, 150);
+      }
+    };
+
+    return React.createElement('div', { className: 'hero-wrapper' },
+      React.createElement('div', { className: 'hero-glow-bottom' }),
+      React.createElement('div', { className: 'hero-glow-right' }),
+      React.createElement('div', { className: 'hero-content' },
+        React.createElement('div', { className: 'hero-badge' },
+          React.createElement('span', { className: 'live-dot' }),
+          '商机互助 · 销售赋能工作台'
+        ),
+        React.createElement('h1', { className: 'hero-title' },
+          'Quectel', React.createElement('span', { className: 'brand' }, '商机互助平台')
+        ),
+        React.createElement('p', { className: 'hero-subtitle' },
+          '找方案 · 提需求 · 讨论互动 · 互助共赢 —— 一站式销售日常赋能工具，助力每一位销售快速找到最佳方案'
+        ),
+        React.createElement('div', { className: 'hero-search-wrap' },
+          React.createElement(Input.Search, {
+            value: val, onChange: function(e) { setVal(e.target.value); },
+            placeholder: '搜索方案、需求、讨论话题...',
+            size: 'large',
+            onSearch: doSearch,
+            style: { '--ant-input-border-radius': '12px' },
+            prefix: React.createElement('i', { className: 'ti ti-search', style: { fontSize: 20, color: '#bfbfbf' } })
+          }),
+          React.createElement('div', { className: 'hot-tags-row' },
+            React.createElement('span', { style: { fontSize: 12, color: 'rgba(255,255,255,0.4)', marginRight: 4 } }, '热门搜索：'),
+            HOT_TAGS.map(function(t) {
+              return React.createElement('button', { key: t, className: 'hot-tag', onClick: function() { setVal(t); doSearch(t); } }, t);
+            })
+          )
+        ),
+        React.createElement('div', { className: 'hero-stats-row' },
+          [
+            { num: MOCK_OPPS.length, label: '方案总数' },
+            { num: 8, label: '待响应需求' },
+            { num: 32, label: '本周讨论' },
+            { num: 486, label: '活跃用户' }
+          ].map(function(s) {
+            return React.createElement('div', { key: s.label, className: 'hero-stat-item' },
+              React.createElement('div', { className: 'hero-stat-num' }, s.num),
+              React.createElement('div', { className: 'hero-stat-label' }, s.label)
+            );
+          })
+        )
+      )
+    );
+  }
+
+  function QuickActions() {
+    var acts = [
+      { icon:'ti-search', label:'查方案', desc:'浏览搜索全部方案', color:'#1890ff', bg:'#e6f7ff', href:'PAGE-PC-17_查方案.html' },
+      { icon:'ti-target', label:'提需求', desc:'发布方案需求求助', color:'#fa8c16', bg:'#fff7e6', href:'PAGE-PC-04_提需求.html' },
+      { icon:'ti-file-plus', label:'发布方案', desc:'发布产品/解决方案', color:'#52c41a', bg:'#f6ffed', href:'PAGE-PC-03_创建编辑商机.html' },
+      { icon:'ti-messages', label:'发起讨论', desc:'参与商机话题讨论', color:'#722ed1', bg:'#f9f0ff', href:'PAGE-PC-18_讨论区.html' }
+    ];
+    return React.createElement('div', { className: 'content-section' },
+      React.createElement('div', { className: 'section-header-row' },
+        React.createElement('div', { className: 'section-title-group' },
+          React.createElement('div', { className: 'section-title-icon', style: { background: '#e6f7ff', color: '#1890ff' } },
+            React.createElement('i', { className: 'ti ti-zap' })
+          ),
+          React.createElement('div', null,
+            React.createElement('div', { className: 'section-title-text' }, '快捷操作'),
+            React.createElement('div', { className: 'section-title-sub' }, '一键进入常用功能')
+          )
+        )
+      ),
+      React.createElement('div', { className: 'quick-actions-grid' },
+        acts.map(function(a) {
+          return React.createElement('a', { key: a.label, href: a.href, className: 'quick-action-item', style: { '--hover-color': a.color } },
+            React.createElement('div', { className: 'quick-icon-circle', style: { background: a.bg, color: a.color } },
+              React.createElement('i', { className: 'ti ' + a.icon })
+            ),
+            React.createElement('div', { className: 'quick-item-title' }, a.label),
+            React.createElement('div', { className: 'quick-item-desc' }, a.desc)
+          );
+        })
+      )
+    );
+  }
+
+  function MyTasksDashboard() {
+    var PRIORITY_CFG = { critical: { label: '特急', color: '#ff4d4f' }, urgent: { label: '紧急', color: '#fa8c16' }, normal: { label: '普通', color: '#8c8c8c' } };
+    var STATUS_CFG = { pending: { label: '待处理', color: 'blue' }, processing: { label: '处理中', color: 'orange' }, completed: { label: '已完成', color: 'green' }, transferred: { label: '已转交', color: 'purple' } };
+    var TASKS_MOCK = [
+      { id: 'TASK-001', desc: '跟进华东区5G模组批量采购项目，完成方案报价并发送给客户', priority: 'critical', deadline: '2026-07-10', status: 'pending', meeting: '2026Q3华东区QBR复盘会' },
+      { id: 'TASK-011', desc: '推进客户满意度调查方案落地，协调各区域收集客户反馈信息', priority: 'critical', deadline: '2026-07-01', status: 'pending', meeting: '2026Q2全员复盘大会' },
+      { id: 'TASK-013', desc: '分析东南亚市场5G模组竞争格局，输出竞品动态周报', priority: 'normal', deadline: '2026-07-18', status: 'pending', meeting: '2026Q3海外业务季度复盘' },
+      { id: 'TASK-014', desc: '调研华北区智能电网行业下半年技术路线和采购需求', priority: 'urgent', deadline: '2026-07-30', status: 'completed', meeting: '2026Q3华北区QBR复盘会' }
+    ];
+    var display = TASKS_MOCK.slice(0, 4);
+    var active = TASKS_MOCK.filter(function(t) { return t.status !== 'completed' && t.status !== 'cancelled'; });
+    var counts = {
+      pending: TASKS_MOCK.filter(function(t) { return t.status === 'pending'; }).length,
+      overdue: active.filter(function(t) { return dayjs().isAfter(dayjs(t.deadline), 'day'); }).length
+    };
+    function isOverdue(t) {
+      if (t.status === 'completed' || t.status === 'cancelled') return false;
+      return dayjs().isAfter(dayjs(t.deadline), 'day');
+    }
+    return React.createElement('div', { className: 'content-section' },
+      React.createElement('div', { className: 'my-tasks-dashboard' },
+        React.createElement('div', { className: 'my-tasks-header' },
+          React.createElement('div', { className: 'my-tasks-header-left' },
+            React.createElement('div', { className: 'my-tasks-header-icon' },
+              React.createElement('i', { className: 'ti ti-checklist' })
+            ),
+            React.createElement('span', { className: 'my-tasks-header-title' }, '我的任务'),
+            React.createElement('div', { className: 'my-tasks-count-badges' },
+              React.createElement('span', { className: 'my-tasks-count-badge', style: { background: '#e6f7ff', color: '#1890ff' } }, '待处理 ', counts.pending),
+              counts.overdue > 0 ? React.createElement('span', { className: 'my-tasks-count-badge', style: { background: '#fff1f0', color: '#ff4d4f' } }, '已逾期 ', counts.overdue) : null
+            )
+          ),
+          React.createElement('div', { className: 'my-tasks-header-right' },
+            React.createElement('a', { href: 'PAGE-PC-22_我的任务.html', className: 'my-tasks-more-link' }, '查看全部', React.createElement('i', { className: 'ti ti-arrow-right', style: { fontSize: 14 } }))
+          )
+        ),
+        React.createElement('div', { className: 'my-tasks-list' },
+          display.map(function(t) {
+          var overdue = isOverdue(t);
+            return React.createElement('div', { key: t.id, className: 'my-task-item', onClick: function() { window.location.href = 'PAGE-PC-22_我的任务.html'; } },
+              React.createElement('div', { className: 'my-task-priority-dot', style: { background: PRIORITY_CFG[t.priority].color } }),
+              React.createElement('div', { className: 'my-task-info' },
+                React.createElement('div', { className: 'my-task-desc', style: t.status === 'completed' ? { color: '#bfbfbf', textDecoration: 'line-through' } : undefined }, t.desc),
+                React.createElement('div', { className: 'my-task-meta' },
+                  React.createElement('span', null, React.createElement('i', { className: 'ti ti-calendar-event' }), t.meeting),
+                  React.createElement('span', { className: overdue ? 'my-task-deadline-overdue overdue-blink' : '', style: t.status === 'completed' ? { color: '#bfbfbf' } : undefined },
+                    React.createElement('i', { className: 'ti ti-clock' }), '截止: ', t.deadline, overdue ? ' (已超期)' : ''
+                  )
+                )
+              ),
+              React.createElement('div', { className: 'my-task-right' },
+                React.createElement(Tag, { color: PRIORITY_CFG[t.priority].color === '#ff4d4f' ? 'red' : PRIORITY_CFG[t.priority].color === '#fa8c16' ? 'orange' : 'default', style: { margin: 0, borderRadius: 6, fontSize: 11 } }, PRIORITY_CFG[t.priority].label),
+                React.createElement(Tag, { color: STATUS_CFG[t.status].color, style: { margin: 0, borderRadius: 6, fontSize: 11 } }, STATUS_CFG[t.status].label)
+              )
+            );
+          })
+        )
+      )
+    );
+  }
+
+  function SolutionHubSection() {
+    var subs = [];
+    try { var raw = localStorage.getItem('pc08_subscriptions'); if (raw) subs = JSON.parse(raw); if (!Array.isArray(subs)) subs = []; } catch(e) { subs = []; }
+    var sorted = MOCK_OPPS.slice().sort(function(a,b){ return b.view_count - a.view_count; });
+    var hot = sorted.slice(0, 4);
+    var recs = [];
+    if (subs.length > 0) {
+      var matched = [], rest = [];
+      sorted.forEach(function(d) { if (d.categories.some(function(c) { return subs.indexOf(c) >= 0; })) matched.push(d); else rest.push(d); });
+      recs = matched.slice(0, 3).concat(rest.slice(0, 2));
+    } else { recs = sorted.slice(4, 9); }
+    var seen = {}; hot.forEach(function(d) { seen[d.id] = true; });
+    recs = recs.filter(function(d) { if (seen[d.id]) return false; seen[d.id] = true; return true; });
+    var items = hot.concat(recs).slice(0, 8);
+    return React.createElement('div', { className: 'content-section' },
+      React.createElement('div', { className: 'section-header-row' },
+        React.createElement('div', { className: 'section-title-group' },
+          React.createElement('div', { className: 'section-title-icon', style: { background: '#fff1f0', color: '#ff4d4f' } },
+            React.createElement('i', { className: 'ti ti-flame' })
+          ),
+          React.createElement('div', null,
+            React.createElement('div', { className: 'section-title-text' }, '方案推荐'),
+            React.createElement('div', { className: 'section-title-sub' }, '热门方案 + 为你推荐' + (subs.length > 0 ? ' · 已订阅 ' + subs.length + ' 个分类' : ''))
+          )
+        ),
+        React.createElement('a', { href: 'PAGE-PC-17_查方案.html', className: 'section-more-link' }, '浏览全部方案', React.createElement('i', { className: 'ti ti-arrow-right', style: { fontSize: 14 } }))
+      ),
+      React.createElement('div', { className: 'solution-grid-4' },
+        items.map(function(item, i) {
+          var isHot = i < 4;
+          var isSub = !isHot && subs.length > 0 && subs.some(function(s) { return item.categories.indexOf(s) >= 0; });
+          return React.createElement('div', { key: item.id, className: 'solution-item', onClick: function() { window.location.href = 'PAGE-PC-02_商机详情页.html?id='+item.id; } },
+            React.createElement('div', { className: 'solution-cover' },
+              React.createElement('img', { className: 'solution-cover-img', src: item.coverImage, alt: item.title, loading: 'lazy' }),
+              isHot ? React.createElement('div', { className: 'solution-rank-badge' }, '#' + (i + 1)) : null,
+              !isHot && isSub ? React.createElement('div', { className: 'solution-sub-badge' }, React.createElement('i', { className: 'ti ti-tag', style: { fontSize: 10 } }), '订阅') : null
+            ),
+            React.createElement('div', { className: 'solution-body' },
+              React.createElement('div', { className: 'solution-item-title' }, item.title),
+              React.createElement('div', { className: 'solution-item-meta' },
+                React.createElement(Tag, { color: TYPE_COLORS[item.type], style: { margin: 0, borderRadius: 6, fontSize: 10, border: 'none', padding: '0 7px', lineHeight: '20px' } }, TYPE_LABELS[item.type]),
+                React.createElement('span', null, React.createElement('i', { className: 'ti ti-eye', style: { fontSize: 12, marginRight: 3 } }), formatCount(item.view_count))
+              ),
+              React.createElement('div', { className: 'solution-item-author' }, React.createElement('i', { className: 'ti ti-user', style: { fontSize: 11, marginRight: 3 } }), item.publisher)
+            )
+          );
+        })
+      )
+    );
+  }
+
+  function ToolsSection() {
+    return React.createElement('div', { className: 'tools-panel' },
+      React.createElement('div', { className: 'tools-header' },
+        React.createElement('div', { className: 'tools-header-info' },
+          React.createElement('div', { className: 'tools-header-icon' },
+            React.createElement('i', { className: 'ti ti-radar-2', style: { fontSize: 22, color: '#13c2c2' } })
+          ),
+          React.createElement('div', null,
+            React.createElement('div', { className: 'tools-header-title' }, '情报中心'),
+            React.createElement('div', { className: 'tools-header-desc' }, '竞品动态 · 行业洞察 · 一手情报')
+          )
+        ),
+        React.createElement('a', { href: 'PAGE-PC-20_情报中心.html', className: 'tools-enter-btn' }, '进入情报中心', React.createElement('i', { className: 'ti ti-arrow-right', style: { fontSize: 14 } }))
+      ),
+      [
+        { brand:'Sierra', title:'Sierra推出EM9293 5G NR模组，对标RG500Q', type:'新品发布', time:'2天前', typeColor:'#52c41a', bg:'linear-gradient(135deg,#f9f0ff,#efdbff)', color:'#722ed1' },
+        { brand:'Telit', title:'Telit ME910G1全球降价，冲击NB-IoT市场', type:'价格变动', time:'4天前', typeColor:'#fa8c16', bg:'linear-gradient(135deg,#fff7e6,#ffd591)', color:'#fa8c16' },
+        { brand:'行业', title:'2026年全球蜂窝IoT模组市场：5G占比将突破25%', type:'行业趋势', time:'3天前', typeColor:'#1890ff', bg:'linear-gradient(135deg,#e6f7ff,#bae7ff)', color:'#1890ff' }
+      ].map(function(item, i) {
+        return React.createElement('a', { key: i, href: 'PAGE-PC-20_情报中心.html', className: 'tools-intel-item' },
+          React.createElement('div', { className: 'tools-intel-brand', style: { background: item.bg, color: item.color } }, item.brand),
+          React.createElement('div', { style: { flex: 1, minWidth: 0 } },
+            React.createElement('div', { style: { fontSize: 13, fontWeight: 600, color: '#1a1a2e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 4 } }, item.title),
+            React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+              React.createElement('span', { style: { display: 'inline-block', padding: '1px 7px', borderRadius: 4, fontSize: 10, fontWeight: 500, background: item.typeColor + '18', color: item.typeColor } }, item.type),
+              React.createElement('span', { style: { fontSize: 11, color: '#bfbfbf' } }, item.time)
+            )
+          ),
+          React.createElement('i', { className: 'ti ti-chevron-right', style: { color: '#d9d9d9', fontSize: 14, flexShrink: 0 } })
+        );
+      }),
+      React.createElement('div', { className: 'tools-bottom-links' },
+        React.createElement('a', { href: 'PAGE-PC-20_情报中心.html', className: 'tools-bottom-link', onMouseEnter: function(e) { e.currentTarget.style.color = '#722ed1'; }, onMouseLeave: function(e) { e.currentTarget.style.color = '#595959'; } }, React.createElement('i', { className: 'ti ti-chart-candle', style: { fontSize: 14 } }), '竞品情报'),
+        React.createElement('a', { href: 'PAGE-PC-20_情报中心.html', className: 'tools-bottom-link', onMouseEnter: function(e) { e.currentTarget.style.color = '#1890ff'; }, onMouseLeave: function(e) { e.currentTarget.style.color = '#595959'; } }, React.createElement('i', { className: 'ti ti-trending-up', style: { fontSize: 14 } }), '行业情报'),
+        React.createElement('a', { href: 'PAGE-PC-20-3_提交竞品情报.html', className: 'tools-bottom-link', onMouseEnter: function(e) { e.currentTarget.style.color = '#13c2c2'; }, onMouseLeave: function(e) { e.currentTarget.style.color = '#595959'; } }, React.createElement('i', { className: 'ti ti-writing', style: { fontSize: 14 } }), '提交情报')
+      )
+    );
+  }
+
+  function DiscussionSection() {
+    var topPosts = MOCK_POSTS.filter(function(p) { return p.hot; });
+    var topicColors = { '商机讨论': '#1677ff', '方案互助': '#fa8c16', '经验分享': '#52c41a', '行业动态': '#722ed1', '吐槽': '#eb2f96' };
+    return React.createElement('div', { className: 'discuss-panel' },
+      React.createElement('div', { className: 'section-header-row' },
+        React.createElement('div', { className: 'section-title-group' },
+          React.createElement('div', { className: 'section-title-icon', style: { background: '#f0f5ff', color: '#1677ff' } },
+            React.createElement('i', { className: 'ti ti-messages' })
+          ),
+          React.createElement('div', null,
+            React.createElement('div', { className: 'section-title-text' }, '讨论热帖'),
+            React.createElement('div', { className: 'section-title-sub' }, '商机讨论 · 经验分享 · 方案互助')
+          )
+        ),
+        React.createElement('a', { href: 'PAGE-PC-18_讨论区.html', className: 'section-more-link' }, '查看全部', React.createElement('i', { className: 'ti ti-arrow-right', style: { fontSize: 14 } }))
+      ),
+      topPosts.map(function(p) {
+        return React.createElement('div', { key: p.id, className: 'discuss-list-item', onClick: function() { window.location.href = 'PAGE-PC-18_讨论区.html'; } },
+          React.createElement('span', { className: 'discuss-topic-tag', style: { color: topicColors[p.topic], background: topicColors[p.topic] + '14' } }, p.topic),
+          React.createElement('div', { style: { flex: 1, minWidth: 0 } },
+            React.createElement('div', { style: { fontSize: 14, fontWeight: 600, color: '#1a1a2e', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: 6 } }, p.title),
+            React.createElement('div', { style: { fontSize: 12, color: '#bfbfbf', display: 'flex', gap: 16 } },
+              React.createElement('span', null, p.author),
+              React.createElement('span', null, React.createElement('i', { className: 'ti ti-message-circle', style: { marginRight: 2 } }), p.replyCount, ' 回复'),
+              React.createElement('span', null, React.createElement('i', { className: 'ti ti-eye', style: { marginRight: 2 } }), p.viewCount, ' 浏览'),
+              React.createElement('span', null, p.date)
+            )
+          )
+        );
+      })
+    );
+  }
+
+
+  // ============= Main Page =============
+  function OppHallPage() {
+    return React.createElement('div', { className: 'page-container' },
+      React.createElement(HeroSection, null),
+      React.createElement(AnnouncementBanner, null),
+      React.createElement(QuickActions, null),
+      React.createElement(MyTasksDashboard, null),
+      React.createElement(SolutionHubSection, null),
+      React.createElement('div', { className: 'layout-2col' },
+        React.createElement(ToolsSection, null),
+        React.createElement(DiscussionSection, null)
+      )
+    );
+  }
+
+  if (window.PROTO_SHELL && window.PROTO_SHELL.renderShell) {
+    window.PROTO_SHELL.renderShell('opp-hall');
+    if (window.DataTracker) { window.DataTracker.trackPageView('opp-hall', '首页'); }
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(OppHallPage, null));
+})();
+</script>
+</body>
+</html>

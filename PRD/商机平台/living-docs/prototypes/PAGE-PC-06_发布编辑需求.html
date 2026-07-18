@@ -1,0 +1,876 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>发布需求 - Quectel商机互助平台</title>
+  <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/quill@1.3.7/dist/quill.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/quill@1.3.7/dist/quill.snow.css" />
+  <script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+    .page-header {
+      background: #fff;
+      padding: 16px 24px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .page-header h3 { margin: 0; font-size: 18px; font-weight: 600; }
+    .form-container {
+      max-width: 800px;
+      margin: 24px auto;
+      padding: 0 24px 100px;
+    }
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 1px solid #f0f0f0;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: center;
+      z-index: 100;
+    }
+    /* 附件上传 */
+    .ant-upload-drag { border-radius: 8px; border: 2px dashed #d9d9d9 !important; background: #fafafa; transition: all 0.2s; }
+    .ant-upload-drag:hover { border-color: #1890ff !important; background: #f0f5ff; }
+    .ant-upload-list { margin-top: 12px; }
+    .ant-upload-list-item { border-radius: 6px; }
+    /* Quill 编辑器适配 */
+    .ql-container { min-height: 220px; font-size: 14px; border-radius: 0 0 8px 8px; }
+    .ql-toolbar { border-radius: 8px 8px 0 0; }
+    .ql-editor { min-height: 220px; }
+    .ql-editor.ql-blank::before { font-style: normal; color: #bfbfbf; }
+    /* 相似需求检测 */
+    .similar-card { margin-bottom: 16px; border-radius: 8px; }
+    .similar-card .ant-card-head { min-height: 42px; }
+    .similar-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+    .similar-item:last-child { border-bottom: none; }
+    .similar-score { font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .similar-empty { background: #fafafa; border: 1px dashed #d9d9d9; border-radius: 8px; padding: 28px 24px; text-align: center; color: #bfbfbf; font-size: 14px; margin-bottom: 16px; }
+    .similar-ok { background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 8px; padding: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  
+  /* 响应式 */
+  @media(max-width:768px){
+    .page-header{position:sticky!important;top:0!important;z-index:10!important;padding:12px 16px!important;background:#fff!important;box-shadow:0 1px 4px rgba(0,0,0,0.06)!important;}
+    .page-header h3{font-size:16px!important;}
+    .form-container{padding:12px 16px 90px!important;}
+    .similar-item{flex-wrap:wrap!important;gap:8px!important;}
+    .similar-item>:first-child{flex:1!important;min-width:200px!important;}
+    .bottom-bar{padding:12px 16px!important;gap:10px!important;}
+    .ant-card>.ant-card-body{padding:20px 16px!important;}
+    .ant-card{border-radius:14px!important;}
+  }
+  @media(max-width:480px){
+    .page-header{padding:10px 14px!important;}
+    .page-header h3{font-size:15px!important;}
+    .form-container{padding:8px 12px 80px!important;}
+    .bottom-bar{padding:10px 12px!important;flex-wrap:wrap!important;}
+    .bottom-bar button{flex:1!important;min-width:100px!important;}
+    .similar-item{flex-direction:column!important;align-items:flex-start!important;gap:6px!important;}
+    .similar-item>:first-child{min-width:auto!important;width:100%!important;}
+    .similar-empty,.similar-ok{padding:20px 16px!important;font-size:13px!important;}
+    .ant-card>.ant-card-body{padding:16px 14px!important;}
+    .ant-card{border-radius:12px!important;}
+  }</style>
+</head>
+<body>
+  <script>window.onerror = function(msg,url,line){var d=document.createElement('div');d.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:#fffbe6;border-bottom:2px solid #faad14;padding:12px 20px;font:14px monospace;color:#d4380d;';d.textContent='⚠ JS Error: '+msg+' (line '+line+')';document.body.prepend(d);};</script>
+  <div id="root"></div>
+  <script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+  <script>window.PROTO_SHELL.renderShell('req-square');
+  // 埋点：页面浏览
+  if (window.DataTracker) { window.DataTracker.trackPageView('create-req', '发布需求'); }</script>
+  <script type="text/babel">
+  (() => {
+    const { Card, Form, Input, Select, Cascader, TreeSelect, Button, Modal, message, Typography, Space, Tag, Upload, DatePicker, Checkbox, Alert, Radio } = antd;
+    const { Dragger } = Upload;
+    const { Text, Title } = Typography;
+    const { useState, useEffect, useRef, useMemo } = React;
+
+    /* ---- 枚举 & Mock ---- */
+    const URGENCY_OPTIONS = [
+      { value: 'normal', label: '普通' },
+      { value: 'urgent', label: '紧急' },
+      { value: 'critical', label: '特急' }
+    ];
+
+    const CATEGORY_TREE = [
+      {
+        value: 'product-line',
+        label: '产品线',
+        children: [
+          { value: '5g-module', label: '5G模组' },
+          { value: '4g-module', label: '4G模组' },
+          { value: 'wifi-module', label: 'WiFi模组' },
+          { value: 'nbiot', label: 'NB-IoT' }
+        ]
+      },
+      {
+        value: 'solution',
+        label: '解决方案',
+        children: [
+          { value: 'smart-city', label: '智慧城市' },
+          { value: 'vehicle', label: '车联网' },
+          { value: 'iiot', label: '工业物联网' }
+        ]
+      },
+      {
+        value: 'case',
+        label: '成功案例',
+        children: [
+          { value: 'carrier', label: '运营商' },
+          { value: 'enterprise', label: '企业客户' }
+        ]
+      }
+    ];
+
+    /* 编辑模式Mock回填数据 */
+    const MOCK_EDIT_DATA = {
+      title: '急需5G模组在智慧城市场景下的技术方案',
+      urgency: 'urgent',
+      industry: 'IoT、智慧城市',
+      tags: ['5G', '智慧城市', '技术方案'],
+      category_ids: [['product-line', '5g-module'], ['solution', 'smart-city']],
+      description: '我们正在推进某市智慧城市项目，客户对5G模组有明确需求，需要支持SA/NSA双模，要求模组功耗低于500mW待机状态。\n\n希望能提供：\n1. 对应产品选型建议\n2. 技术规格对比表\n3. 参考案例和报价方案\n\n项目预计Q3启动招标，时间较紧。',
+      deadline: dayjs().add(3, 'day').hour(18).minute(0).second(0),
+      visibility_type: 'dept',
+      visible_depts: ['sales-east', 'sales-north'],
+      invited_product_lines: [['bu-solution', 'pl-smartcity'], ['bu-cellular', 'pl-5g']]
+    };
+
+    /* ---- Mock 已有需求池 ---- */
+    const MOCK_EXISTING_REQUIREMENTS = [
+      { id: 'REQ-001', title: '5G模组在智慧城市中的应用方案咨询', status: 'resolved', category: '5G模组 / 智慧城市', date: '2026-05-20' },
+      { id: 'REQ-002', title: 'NB-IoT模组低功耗方案需求', status: 'pending', category: 'NB-IoT', date: '2026-06-01' },
+      { id: 'REQ-003', title: '智慧城市5G网络覆盖技术选型', status: 'processing', category: '5G模组 / 智慧城市', date: '2026-05-15' },
+      { id: 'REQ-004', title: '车联网4G模组稳定性方案', status: 'resolved', category: '4G模组 / 车联网', date: '2026-04-28' },
+      { id: 'REQ-005', title: '工业物联网WiFi模组需求', status: 'pending', category: 'WiFi模组 / 工业物联网', date: '2026-06-05' },
+      { id: 'REQ-006', title: '5G SA/NSA双模模组选型对比', status: 'resolved', category: '5G模组', date: '2026-05-10' },
+      { id: 'REQ-007', title: '智慧城市IoT平台对接方案咨询', status: 'processing', category: '智慧城市', date: '2026-05-25' },
+      { id: 'REQ-008', title: '车载通信模组低功耗设计需求', status: 'resolved', category: '车联网', date: '2026-04-15' },
+      { id: 'REQ-009', title: '5G RedCap模组在工业场景的适配评估', status: 'processing', category: '5G模组 / 工业物联网', date: '2026-06-03' },
+      { id: 'REQ-010', title: '智慧园区WiFi6覆盖方案需求', status: 'pending', category: 'WiFi模组 / 智慧城市', date: '2026-06-08' }
+    ];
+
+    /* ---- Mock 部门树 ---- */
+    const DEPARTMENT_TREE = [
+      { value: 'sales-east', label: '华东大区', children: [{ value: 'sales-east-1', label: '上海销售组' }, { value: 'sales-east-2', label: '杭州销售组' }] },
+      { value: 'sales-south', label: '华南大区', children: [{ value: 'sales-south-1', label: '深圳销售组' }, { value: 'sales-south-2', label: '广州销售组' }] },
+      { value: 'sales-north', label: '华北大区', children: [{ value: 'sales-north-1', label: '北京销售组' }] },
+      { value: 'sales-west', label: '西部大区', children: [{ value: 'sales-west-1', label: '成都销售组' }] },
+      { value: 'rd-5g', label: '5G产品研发部' },
+      { value: 'rd-4g', label: '4G产品研发部' },
+      { value: 'rd-wifi', label: 'WiFi产品研发部' },
+      { value: 'rd-iot', label: 'IoT平台部' },
+      { value: 'pm-marketing', label: '产品市场部' }
+    ];
+
+    /* ---- Mock 人员列表 ---- */
+    const MOCK_PERSONNEL_LIST = [
+      { value: 'user-001', label: '张三 (销售-华东大区·上海销售组)' },
+      { value: 'user-002', label: '李四 (销售-华南大区·深圳销售组)' },
+      { value: 'user-003', label: '王五 (销售-华北大区·北京销售组)' },
+      { value: 'user-004', label: '赵六 (销售-西部大区·成都销售组)' },
+      { value: 'user-005', label: '陈七 (产品经理-5G产品研发部)' },
+      { value: 'user-006', label: '刘八 (产品经理-WiFi产品研发部)' },
+      { value: 'user-007', label: '孙九 (产品经理-IoT平台部)' },
+      { value: 'user-008', label: '周十 (产品经理-4G产品研发部)' },
+      { value: 'user-009', label: '吴十一 (销售-华南大区·广州销售组)' },
+      { value: 'user-010', label: '郑十二 (产品经理-产品市场部)' }
+    ];
+
+    /* ---- Mock 产品线树（用于邀请回答）---- */
+    const PRODUCT_LINE_TREE = [
+      {
+        value: 'bu-cellular',
+        label: '蜂窝通信BU',
+        children: [
+          { value: 'pl-5g', label: '5G模组产品线', children: [{ value: 'pl-5g-sub6', label: 'Sub-6GHz系列' }, { value: 'pl-5g-mmw', label: '毫米波系列' }] },
+          { value: 'pl-4g', label: '4G模组产品线', children: [{ value: 'pl-4g-lte-a', label: 'LTE-A系列' }, { value: 'pl-4g-cat1', label: 'Cat 1系列' }] },
+          { value: 'pl-nbiot', label: 'NB-IoT产品线' }
+        ]
+      },
+      {
+        value: 'bu-shortrange',
+        label: '短距通信BU',
+        children: [
+          { value: 'pl-wifi', label: 'WiFi模组产品线', children: [{ value: 'pl-wifi6', label: 'WiFi 6系列' }, { value: 'pl-wifi6e', label: 'WiFi 6E系列' }] },
+          { value: 'pl-bt', label: '蓝牙模组产品线' }
+        ]
+      },
+      {
+        value: 'bu-solution',
+        label: '解决方案BU',
+        children: [
+          { value: 'pl-smartcity', label: '智慧城市方案' },
+          { value: 'pl-vehicle', label: '车联网方案' },
+          { value: 'pl-iiot', label: '工业物联网方案' }
+        ]
+      }
+    ];
+
+    /* ---- 相似度检测工具 ---- */
+    function extractKeywords(text) {
+      if (!text) return [];
+      var tokens = text.split(/[\s,，、。．.；;：:！!？?()（）【】\[\]《》<>／/\\|—\-]+/);
+      var stopWords = ['的','了','在','是','我','有','和','就','不','人','都','一','上','也','很','到','说','要','去','你','会','着','没有','看','好','自己','这','需求','方案','我们','一个'];
+      var seen = {};
+      var result = [];
+      tokens.forEach(function(t) {
+        t = t.toLowerCase().trim();
+        if (t.length >= 2 && stopWords.indexOf(t) === -1 && !seen[t]) {
+          seen[t] = true;
+          result.push(t);
+        }
+      });
+      return result;
+    }
+
+    function calculateSimilarity(inputTitle, inputCategories, existingReq) {
+      var inputKw = extractKeywords(inputTitle);
+      var existKw = extractKeywords(existingReq.title);
+      if (inputKw.length === 0) return 0;
+
+      // 关键词命中率
+      var hit = 0;
+      inputKw.forEach(function(k) {
+        if (existKw.indexOf(k) !== -1) hit++;
+      });
+      var score = (hit / inputKw.length) * 100;
+
+      // 分类标签加成
+      if (inputCategories && inputCategories.length > 0) {
+        var catStr = inputCategories.map(function(c) { return Array.isArray(c) ? c.join('/') : c; }).join(' ');
+        var catTokens = extractKeywords(catStr);
+        catTokens.forEach(function(ct) {
+          if (existingReq.category.indexOf(ct) !== -1) {
+            score = Math.min(score + 15, 100);
+          }
+        });
+      }
+      return Math.round(score);
+    }
+
+    /* ---- 富文本编辑器组件 ---- */
+    function RichTextEditor({ value, onChange }) {
+      const containerRef = React.useRef(null);
+      const quillRef = React.useRef(null);
+      const onChangeRef = React.useRef(onChange);
+      onChangeRef.current = onChange;
+      const isInternalChange = React.useRef(false);
+
+      React.useEffect(function() {
+        if (!containerRef.current || quillRef.current) return;
+
+        var quill = new Quill(containerRef.current, {
+          theme: 'snow',
+          modules: {
+            toolbar: [
+              ['bold', 'italic', 'underline', 'strike'],
+              [{ 'header': [1, 2, 3, false] }],
+              [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+              ['link', 'blockquote'],
+              ['clean']
+            ]
+          },
+          placeholder: '请详细描述你的需求，包括客户背景、应用场景、技术要求等，以便产品线精准匹配方案'
+        });
+
+        // 初始值
+        if (value) {
+          quill.root.innerHTML = value;
+        }
+
+        quill.on('text-change', function() {
+          var html = quill.root.innerHTML;
+          var text = quill.getText().trim();
+          isInternalChange.current = true;
+          onChangeRef.current && onChangeRef.current(text ? html : '');
+        });
+
+        quillRef.current = quill;
+
+        return function() {
+          quillRef.current = null;
+        };
+      }, []);
+
+      // 外部 value 变化时同步到编辑器（用户输入引起的变更跳过）
+      React.useEffect(function() {
+        if (isInternalChange.current) {
+          isInternalChange.current = false;
+          return;
+        }
+        if (quillRef.current && value !== undefined) {
+          var current = quillRef.current.root.innerHTML;
+          if (value !== current) {
+            quillRef.current.root.innerHTML = value || '';
+          }
+        }
+      }, [value]);
+
+      return React.createElement('div', { ref: containerRef });
+    }
+
+    function App() {
+      const [form] = Form.useForm();
+      const params = new URLSearchParams(window.location.search);
+      const isEdit = params.get('mode') === 'edit';
+      const [urgency, setUrgency] = useState('normal');
+      const [visibilityType, setVisibilityType] = useState('all'); // 'all' | 'dept' | 'personnel'
+      const [invitedProductLines, setInvitedProductLines] = useState([]);
+      const [formDirty, setFormDirty] = useState(false);
+      const initialValuesSet = useRef(false);
+
+      /* 附件上传 */
+      const [fileList, setFileList] = useState([]);
+
+      const uploadProps = {
+        fileList: fileList,
+        multiple: true,
+        maxCount: 10,
+        beforeUpload: function(file) {
+          // 文件大小限制 50MB
+          var isLt50M = file.size / 1024 / 1024 < 50;
+          if (!isLt50M) {
+            message.error('文件大小不能超过 50MB');
+            return Upload.LIST_IGNORE;
+          }
+          // 文件类型限制
+          var allowedTypes = ['.pdf','.doc','.docx','.xls','.xlsx','.ppt','.pptx','.txt','.csv','.zip','.rar','.jpg','.jpeg','.png','.gif','.bmp'];
+          var ext = '.' + file.name.split('.').pop().toLowerCase();
+          if (allowedTypes.indexOf(ext) === -1) {
+            message.error('不支持的文件格式：' + ext + '，支持 PDF/Word/Excel/PPT/TXT/CSV/ZIP/RAR/图片');
+            return Upload.LIST_IGNORE;
+          }
+          return false; // 阻止自动上传，仅加入列表
+        },
+        onChange: function(info) {
+          setFileList(info.fileList);
+          setFormDirty(true);
+        },
+        onRemove: function(file) {
+          var newList = fileList.filter(function(f) { return f.uid !== file.uid; });
+          setFileList(newList);
+          setFormDirty(true);
+        },
+        customRequest: function() {
+          // Mock：不做真实上传
+        },
+        showUploadList: {
+          showDownloadIcon: false,
+          showRemoveIcon: true,
+          showPreviewIcon: true
+        }
+      };
+
+      /* 相似需求检测 */
+      const watchedTitle = Form.useWatch('title', form);
+      const watchedCategories = Form.useWatch('category_ids', form);
+      const [similarResults, setSimilarResults] = useState([]);
+      const [similarDone, setSimilarDone] = useState(false);
+      const detectTimerRef = useRef(null);
+      const notifyEmailRef = useRef(true);
+
+      useEffect(function() {
+        var title = watchedTitle || '';
+        if (title.length < 2) {
+          setSimilarResults([]);
+          setSimilarDone(false);
+          return;
+        }
+        // 防抖 600ms
+        if (detectTimerRef.current) clearTimeout(detectTimerRef.current);
+        detectTimerRef.current = setTimeout(function() {
+          var results = MOCK_EXISTING_REQUIREMENTS.map(function(req) {
+            var score = calculateSimilarity(title, watchedCategories, req);
+            return Object.assign({}, req, { similarity: score });
+          }).filter(function(r) { return r.similarity >= 30; })
+          .sort(function(a, b) { return b.similarity - a.similarity; });
+          setSimilarResults(results);
+          setSimilarDone(true);
+        }, 600);
+        return function() { if (detectTimerRef.current) clearTimeout(detectTimerRef.current); };
+      }, [watchedTitle, watchedCategories]);
+
+      useEffect(() => {
+        if (isEdit && !initialValuesSet.current) {
+          form.setFieldsValue(MOCK_EDIT_DATA);
+          setUrgency(MOCK_EDIT_DATA.urgency);
+          setVisibilityType(MOCK_EDIT_DATA.visibility_type || 'all');
+          setInvitedProductLines(MOCK_EDIT_DATA.invited_product_lines || []);
+          initialValuesSet.current = true;
+        }
+      }, [isEdit]);
+
+      const handleBack = () => {
+        if (formDirty) {
+          Modal.confirm({
+            title: '确认离开',
+            icon: React.createElement('i', { className: 'ti ti-alert-circle', style: { fontSize: 18 } }),
+            content: '离开将丢失已填写的内容，确定要离开吗？',
+            okText: '确认离开',
+            cancelText: '继续编辑',
+            onOk: () => { window.location.href = 'PAGE-PC-04_提需求.html'; }
+          });
+        } else {
+          window.location.href = 'PAGE-PC-04_提需求.html';
+        }
+      };
+
+      const handlePublish = () => {
+        form.validateFields().then((values) => {
+          var hasHighSimilarity = similarResults.length > 0 && similarResults[0].similarity >= 60;
+          var criticalWarning = values.urgency === 'critical';
+          var visType = visibilityType;
+          var visLabel = visType === 'all' ? '全部可见' : visType === 'dept' ? '指定部门可见' : '指定人员可见';
+          var hasInvited = invitedProductLines.length > 0;
+          Modal.confirm({
+            title: '确认发布需求',
+            icon: React.createElement('i', { className: 'ti ti-alert-circle', style: { fontSize: 18 } }),
+            content: React.createElement('div', null,
+              React.createElement('p', null, '发布后将通知相关产品线，并启动SLA响应计时。'),
+              React.createElement('div', { style: { marginTop: 10, padding: '8px 12px', background: '#fafafa', borderRadius: 6, fontSize: 13 } },
+                React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 6, color: '#333' } },
+                  React.createElement('i', { className: 'ti ti-eye', style: { fontSize: 14 } }),
+                  React.createElement('span', { style: { fontWeight: 500 } }, '可见范围：'),
+                  React.createElement('span', null, visLabel)
+                ),
+                hasInvited && React.createElement('div', { style: { display: 'flex', alignItems: 'flex-start', gap: 6, color: '#1890ff', marginTop: 6 } },
+                  React.createElement('i', { className: 'ti ti-users-plus', style: { fontSize: 14, marginTop: 1 } }),
+                  React.createElement('span', { style: { fontWeight: 500 } }, '已邀请产品线：'),
+                  React.createElement('span', null, invitedProductLines.map(function(ids) { return ids[ids.length - 1]; }).join(', '))
+                ),
+                !hasInvited && React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 6, color: '#8c8c8c', marginTop: 6 } },
+                  React.createElement('i', { className: 'ti ti-sparkles', style: { fontSize: 14 } }),
+                  React.createElement('span', null, '未指定邀请产品线，将由系统自动匹配')
+                )
+              ),
+              hasHighSimilarity && React.createElement('p', {
+                style: { color: '#faad14', marginTop: 8, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }
+              }, React.createElement('i', { className: 'ti ti-alert-triangle', style: { fontSize: 16 } }),
+                '⚠️ 检测到高度相似需求（' + similarResults[0].similarity + '%），建议先查看已有需求避免重复提交。'),
+              criticalWarning && React.createElement('p', {
+                style: { color: '#ff4d4f', marginTop: 8, fontWeight: 500 }
+              }, '⚠️ 特急需求将触发加急通知并置顶展示。'),
+              React.createElement('div', { style: { marginTop: 12 } },
+                React.createElement(Checkbox, {
+                  defaultChecked: true,
+                  onChange: function(e) { notifyEmailRef.current = e.target.checked; }
+                }, '同步发送邮件通知相关产品线'),
+                React.createElement('div', { style: { fontSize: 12, color: '#8c8c8c', marginTop: 4, paddingLeft: 24 } },
+                  '选中后将通过邮件同步通知'
+                )
+              )
+            ),
+            okText: hasHighSimilarity ? '仍要发布' : '确认发布',
+            cancelText: '取消',
+            onOk: () => {
+              message.success('需求已发布');
+              setTimeout(() => {
+                window.location.href = 'PAGE-PC-05_需求详情页.html';
+              }, 800);
+            }
+          });
+        }).catch(() => {
+          message.warning('请完善必填信息');
+        });
+      };
+
+      const handleValuesChange = () => {
+        setFormDirty(true);
+      };
+
+      const handleUrgencyChange = (val) => {
+        setUrgency(val);
+      };
+
+      /* ---- Z4 渲染函数 ---- */
+      function renderSimilarSection() {
+        var title = watchedTitle || '';
+
+        // 状态1: 还没输入足够内容
+        if (title.length < 2) {
+          return React.createElement('div', { className: 'similar-empty' },
+            React.createElement('i', { className: 'ti ti-search', style: { fontSize: 20, marginBottom: 8, display: 'block' } }),
+            '输入标题后将自动检测相似需求'
+          );
+        }
+
+        // 状态2: 已检测到相似需求
+        if (similarResults.length > 0) {
+          var maxScore = similarResults[0].similarity;
+          var borderColor = maxScore >= 70 ? '#ff4d4f' : maxScore >= 50 ? '#faad14' : '#1890ff';
+
+          return React.createElement(Card, {
+            className: 'similar-card',
+            style: { borderColor: borderColor, borderWidth: maxScore >= 50 ? 2 : 1 },
+            title: React.createElement('span', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+              React.createElement('i', { className: 'ti ti-clipboard-list', style: { fontSize: 18, color: borderColor } }),
+              React.createElement('span', null, '相似需求检测'),
+              React.createElement(Tag, { color: maxScore >= 70 ? 'red' : maxScore >= 50 ? 'warning' : 'processing' },
+                '匹配 ' + similarResults.length + ' 条'
+              )
+            )
+          },
+            React.createElement('div', { style: { marginBottom: 12, fontSize: 13, color: '#8c8c8c' } },
+              React.createElement('i', { className: 'ti ti-info-circle', style: { marginRight: 6 } }),
+              maxScore >= 50
+                ? '检测到与您输入高度相似的需求，建议先查看已有方案，避免重复提交'
+                : '以下需求可能与您的输入相关，可参考已有方案'
+            ),
+            similarResults.map(function(item) {
+              var scoreColor = item.similarity >= 70 ? '#ff4d4f' : item.similarity >= 50 ? '#faad14' : '#52c41a';
+              var statusMap = { resolved: ['已解决', 'green'], processing: ['处理中', 'blue'], pending: ['待处理', 'orange'] };
+              var st = statusMap[item.status] || ['未知', 'default'];
+
+              return React.createElement('div', { key: item.id, className: 'similar-item' },
+                React.createElement('div', { style: { flex: 1, minWidth: 0 } },
+                  React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } },
+                    React.createElement('span', { style: { fontWeight: 500, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, item.title),
+                    React.createElement(Tag, { color: st[1], style: { flexShrink: 0 } }, st[0])
+                  ),
+                  React.createElement('div', { style: { fontSize: 12, color: '#8c8c8c' } },
+                    item.category + ' · ' + item.date
+                  )
+                ),
+                React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 12, marginLeft: 16, flexShrink: 0 } },
+                  React.createElement('span', { className: 'similar-score', style: { color: scoreColor } },
+                    item.similarity + '%'
+                  ),
+                  React.createElement(Button, {
+                    size: 'small',
+                    type: 'link',
+                    onClick: function() { window.open('PAGE-PC-05_需求详情页.html?id=' + item.id, '_blank'); }
+                  }, '查看')
+                )
+              );
+            })
+          );
+        }
+
+        // 状态3: 已检测但无匹配
+        if (similarDone) {
+          return React.createElement('div', { className: 'similar-ok' },
+            React.createElement('i', { className: 'ti ti-circle-check', style: { fontSize: 20, color: '#52c41a' } }),
+            React.createElement('span', { style: { color: '#52c41a' } }, '未检测到相似需求，可以放心发布')
+          );
+        }
+
+        // 状态4: 正在检测中（防抖期间）
+        return React.createElement('div', { className: 'similar-empty' },
+          React.createElement('i', { className: 'ti ti-loader', style: { fontSize: 20, marginBottom: 8, display: 'block', animation: 'spin 1s linear infinite' } }),
+          '正在检测相似需求...'
+        );
+      }
+
+      return React.createElement('div', null,
+        /* Z1 页面标题栏 */
+        React.createElement('div', { className: 'page-header' },
+          React.createElement(Button, {
+            type: 'text',
+            icon: React.createElement('i', { className: 'ti ti-arrow-left', style: { fontSize: 18 } }),
+            onClick: handleBack
+          }, '返回'),
+          React.createElement('h3', null, isEdit ? '编辑方案需求' : '发布方案需求')
+        ),
+
+        /* 表单主体 */
+        React.createElement('div', { className: 'form-container' },
+
+          /* 角色权限提示 */
+          React.createElement(Alert, {
+            message: '销售和产品经理均可发布需求，发布后将通知相关产品线',
+            type: 'info',
+            showIcon: true,
+            style: { marginBottom: 16, borderRadius: 8 }
+          }),
+
+          /* Z2 基础信息区 */
+          React.createElement(Card, {
+            title: '基础信息',
+            style: { marginBottom: 16, borderRadius: 8 }
+          },
+            React.createElement(Form, {
+              form: form,
+              layout: 'vertical',
+              initialValues: { urgency: 'normal' },
+              onValuesChange: handleValuesChange
+            },
+              React.createElement(Form.Item, {
+                label: '标题',
+                name: 'title',
+                rules: [
+                  { required: true, message: '请输入需求标题' },
+                  { max: 100, message: '标题不超过100字' }
+                ]
+              },
+                React.createElement(Input, {
+                  placeholder: '请简要描述你的需求',
+                  maxLength: 100,
+                  showCount: true
+                })
+              ),
+              React.createElement(Form.Item, {
+                label: '紧急程度',
+                name: 'urgency',
+                rules: [{ required: true, message: '请选择紧急程度' }]
+              },
+                React.createElement(Select, {
+                  options: URGENCY_OPTIONS,
+                  onChange: handleUrgencyChange,
+                  style: { width: 200 }
+                })
+              ),
+              urgency === 'critical' && React.createElement('div', {
+                style: {
+                  color: '#ff4d4f',
+                  fontSize: 13,
+                  marginTop: -16,
+                  marginBottom: 16,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6
+                }
+              },
+                React.createElement('i', { className: 'ti ti-alert-circle', style: { fontSize: 18 } }),
+                '特急需求将触发加急通知流程，请确认紧急程度'
+              ),
+              React.createElement(Form.Item, {
+                label: '期望响应截止时间',
+                name: 'deadline',
+                extra: '希望在此时间前收到方案，到期后需求将标记为已过期'
+              },
+                React.createElement(DatePicker, {
+                  showTime: true,
+                  placeholder: '选择截止日期和时间',
+                  style: { width: '100%' },
+                  disabledDate: function(current) { return current && current.isBefore(dayjs(), 'day'); }
+                })
+              ),
+              React.createElement(Form.Item, {
+                label: '行业场景',
+                name: 'industry'
+              },
+                React.createElement(Input, {
+                  placeholder: '如：IoT、车载、智慧城市',
+                  maxLength: 50,
+                  showCount: true
+                })
+              ),
+              React.createElement(Form.Item, {
+                label: '关键词标签',
+                name: 'tags'
+              },
+                React.createElement(Select, {
+                  mode: 'tags',
+                  placeholder: '输入关键词后回车添加',
+                  style: { width: '100%' }
+                })
+              ),
+              React.createElement(Form.Item, {
+                label: '分类标签',
+                name: 'category_ids',
+                rules: [{ required: true, message: '请选择分类标签' }],
+                extra: '请选择1~5个分类标签'
+              },
+                React.createElement(Cascader, {
+                  options: CATEGORY_TREE,
+                  multiple: true,
+                  maxTagCount: 'responsive',
+                  placeholder: '请选择分类标签',
+                  style: { width: '100%' }
+                })
+              )
+            )
+          ),
+
+          /* Z2.5 可见范围设置区 */
+          React.createElement(Card, {
+            title: React.createElement('span', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+              React.createElement('i', { className: 'ti ti-eye', style: { fontSize: 18 } }),
+              '可见范围'
+            ),
+            style: { marginBottom: 16, borderRadius: 8 },
+            extra: React.createElement('span', { style: { fontSize: 12, color: '#8c8c8c' } }, '控制谁能看到此需求')
+          },
+            React.createElement('div', null,
+              React.createElement(Radio.Group, {
+                value: visibilityType,
+                onChange: function(e) {
+                  setVisibilityType(e.target.value);
+                  setFormDirty(true);
+                },
+                style: { marginBottom: 16 }
+              },
+                React.createElement(Radio.Button, { value: 'all' }, '全部可见'),
+                React.createElement(Radio.Button, { value: 'dept' }, '按部门可见'),
+                React.createElement(Radio.Button, { value: 'personnel' }, '指定人员可见')
+              ),
+              visibilityType === 'dept' && React.createElement(Form.Item, {
+                name: 'visible_depts',
+                rules: [{ required: true, message: '请选择可见部门' }],
+                style: { marginBottom: 0 }
+              },
+                React.createElement(TreeSelect, {
+                  treeData: DEPARTMENT_TREE,
+                  treeCheckable: true,
+                  showCheckedStrategy: TreeSelect.SHOW_PARENT,
+                  placeholder: '选择可见的部门',
+                  maxTagCount: 'responsive',
+                  style: { width: '100%' },
+                  allowClear: true,
+                  onChange: function() { setFormDirty(true); }
+                })
+              ),
+              visibilityType === 'personnel' && React.createElement(Form.Item, {
+                name: 'visible_personnel',
+                rules: [{ required: true, message: '请选择可见人员' }],
+                style: { marginBottom: 0 }
+              },
+                React.createElement(Select, {
+                  mode: 'multiple',
+                  options: MOCK_PERSONNEL_LIST,
+                  placeholder: '搜索并选择可见人员（按姓名/工号搜索）',
+                  maxTagCount: 'responsive',
+                  filterOption: function(input, option) {
+                    return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                  },
+                  style: { width: '100%' },
+                  allowClear: true,
+                  onChange: function() { setFormDirty(true); }
+                })
+              ),
+              visibilityType === 'all' && React.createElement('div', {
+                style: { padding: '12px 16px', background: '#f6ffed', borderRadius: 8, border: '1px solid #b7eb8f', fontSize: 13, color: '#52c41a', display: 'flex', alignItems: 'center', gap: 8 }
+              },
+                React.createElement('i', { className: 'ti ti-circle-check', style: { fontSize: 16 } }),
+                '所有用户均可查看此需求'
+              )
+            )
+          ),
+
+          /* Z2.6 邀请产品线回答 */
+          React.createElement(Card, {
+            title: React.createElement('span', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+              React.createElement('i', { className: 'ti ti-users-plus', style: { fontSize: 18 } }),
+              '邀请产品线回答'
+            ),
+            style: { marginBottom: 16, borderRadius: 8 }
+          },
+            React.createElement('div', null,
+              React.createElement(Form.Item, {
+                name: 'invited_product_lines',
+                style: { marginBottom: 0 }
+              },
+                React.createElement(Cascader, {
+                  options: PRODUCT_LINE_TREE,
+                  multiple: true,
+                  maxTagCount: 'responsive',
+                  placeholder: '选择希望参与回答的产品线，不选则自动匹配',
+                  style: { width: '100%' },
+                  allowClear: true,
+                  onChange: function(val) {
+                    setInvitedProductLines(val || []);
+                    setFormDirty(true);
+                  }
+                })
+              ),
+              invitedProductLines.length > 0 && React.createElement('div', {
+                style: { marginTop: 12, padding: '10px 14px', background: '#f0f5ff', borderRadius: 8, border: '1px solid #b3d4ff', fontSize: 13, color: '#1890ff', display: 'flex', alignItems: 'flex-start', gap: 8 }
+              },
+                React.createElement('i', { className: 'ti ti-info-circle', style: { fontSize: 16, marginTop: 1, flexShrink: 0 } }),
+                React.createElement('span', null, '已选择 ' + invitedProductLines.length + ' 个产品线，发布后将定向通知对应产品线的产品经理')
+              ),
+              invitedProductLines.length === 0 && React.createElement('div', {
+                style: { marginTop: 12, padding: '10px 14px', background: '#fafafa', borderRadius: 8, border: '1px dashed #d9d9d9', fontSize: 13, color: '#8c8c8c', display: 'flex', alignItems: 'center', gap: 8 }
+              },
+                React.createElement('i', { className: 'ti ti-sparkles', style: { fontSize: 16 } }),
+                '留空则由系统根据分类标签自动匹配相关产品线的专家'
+              )
+            )
+          ),
+
+          /* Z3 富文本编辑区 */
+          React.createElement(Card, {
+            title: '需求详情',
+            style: { marginBottom: 16, borderRadius: 8 }
+          },
+            React.createElement(Form, {
+              form: form,
+              layout: 'vertical',
+              onValuesChange: handleValuesChange
+            },
+              React.createElement(Form.Item, {
+                name: 'description',
+                rules: [{ required: true, message: '请输入需求详情' }]
+              },
+                React.createElement(RichTextEditor, null)
+              )
+            )
+          ),
+
+          /* Z3.5 附件上传 */
+          React.createElement(Card, {
+            title: '附件上传',
+            style: { marginBottom: 16, borderRadius: 8 },
+            extra: React.createElement('span', { style: { fontSize: 12, color: '#8c8c8c' } }, fileList.length + '/10')
+          },
+            React.createElement('div', null,
+              React.createElement(Dragger, Object.assign({}, uploadProps, {
+                style: { padding: '20px 0' }
+              }),
+                React.createElement('p', { className: 'ant-upload-drag-icon' },
+                  React.createElement('i', { className: 'ti ti-cloud-upload', style: { fontSize: 36, color: '#1890ff' } })
+                ),
+                React.createElement('p', { className: 'ant-upload-text', style: { fontSize: 14, color: '#333', margin: '8px 0' } },
+                  '点击或拖拽文件到此区域上传'
+                ),
+                React.createElement('p', { className: 'ant-upload-hint', style: { fontSize: 12, color: '#8c8c8c' } },
+                  '支持 PDF、Word、Excel、PPT、TXT、CSV、压缩包、图片格式，单文件最大 50MB，最多 10 个文件'
+                )
+              )
+            )
+          ),
+
+          /* Z4 相似需求检测区 */
+          renderSimilarSection(),
+          React.createElement('div', {
+            style: { fontSize: 13, color: '#8c8c8c', marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }
+          },
+            React.createElement('i', { className: 'ti ti-info-circle', style: { fontSize: 14 } }),
+            invitedProductLines.length > 0 ? '发布后将定向通知已邀请的产品线专家' : '发布后将根据分类标签自动匹配相关产品线的专家'
+          )
+        ),
+
+        /* Z5 底部操作栏 */
+        React.createElement('div', { className: 'bottom-bar' },
+          React.createElement(Button, {
+            type: 'primary',
+            size: 'large',
+            icon: React.createElement('i', { className: 'ti ti-send', style: { fontSize: 18 } }),
+            onClick: handlePublish,
+            style: { minWidth: 160 }
+          }, isEdit ? '保存修改' : '发布需求')
+        )
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+  })();
+  </script>
+</body>
+</html>

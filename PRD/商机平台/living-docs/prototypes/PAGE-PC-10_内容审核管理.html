@@ -1,0 +1,1005 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>内容审核 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+.page-container { padding: 24px; }
+.filter-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+.batch-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #e6f4ff; border-radius: 6px; margin-top: 12px; }
+.batch-bar .count { font-weight: 600; color: #1677ff; }
+.sort-bar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; margin-bottom: 12px; font-size: 13px; }
+.drag-row.dragging { opacity: 0.4; background: #f0f5ff; }
+.drag-row.drag-over { border-top: 2px solid #1890ff; }
+.drag-handle { cursor: grab; color: #bfbfbf; padding: 6px 4px; border-radius: 4px; transition: all 0.2s; display: inline-flex; align-items: center; user-select: none; }
+.drag-handle:hover { color: #1890ff; background: #f0f5ff; }
+.drag-handle:active { cursor: grabbing; color: #1890ff; }
+.pinned-row { background: #e6f7ff !important; }
+.pinned-row td { background: #e6f7ff !important; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useMemo, useCallback, useRef } = React;
+const {
+  Typography, Segmented, Input, Select, DatePicker, Table, Tag, Space, Button,
+  Dropdown, Modal, message, Checkbox, Drawer, Switch, Cascader, Upload
+} = antd;
+const { Title } = Typography;
+const { RangePicker } = DatePicker;
+
+
+const opportunityStatuses = ['已发布', '已下架'];
+const demandStatuses = ['待响应', '收集中', '已采纳', '已关闭'];
+
+const statusColorMap = {
+  '已发布': 'green', '已下架': 'red',
+  '待响应': 'orange', '收集中': 'blue', '已采纳': 'green', '已关闭': 'default'
+};
+
+const publishers = ['San.Zhang 张三', 'Si.Li 李四', 'Wu.Wang 王五', 'Liu.Zhao 赵六'];
+
+const urgencyOptions = [
+  { label: '普通', value: 'normal' },
+  { label: '紧急', value: 'urgent' },
+  { label: '特急', value: 'critical' }
+];
+const urgencyMap = { normal: '普通', urgent: '紧急', critical: '特急' };
+
+const categoryTree = [
+  { value: 'product-line', label: '产品线', children: [
+    { value: '5g-module', label: '5G模组' },
+    { value: '4g-module', label: '4G模组' },
+    { value: 'wifi-module', label: 'WiFi模组' },
+    { value: 'nbiot', label: 'NB-IoT' }
+  ]},
+  { value: 'solution', label: '解决方案', children: [
+    { value: 'smart-city', label: '智慧城市' },
+    { value: 'vehicle', label: '车联网' },
+    { value: 'iiot', label: '工业物联网' }
+  ]},
+  { value: 'case', label: '成功案例', children: [
+    { value: 'carrier', label: '运营商' },
+    { value: 'enterprise', label: '企业客户' }
+  ]}
+];
+
+const mockData = [
+  { id: 1, sort: 1, title: '5G模组NB-IoT解决方案合作', type: '方案信息', publisher: 'San.Zhang 张三', status: '已发布', time: '2026-05-20 10:30', pinned: true, description: '提供5G模组NB-IoT端到端解决方案，支持SA/NSA双模，覆盖智慧城市、工业物联网等场景。方案包含硬件选型、网络架构设计和平台对接。', category: [['product-line','5g-module'],['solution','smart-city']], industry: 'IoT、智慧城市', tags: ['5G','NB-IoT','双模'], urgency: 'normal' },
+  { id: 2, sort: 2, title: '智慧农业传感器模组需求', type: '方案需求', publisher: 'Si.Li 李四', status: '收集中', time: '2026-05-19 14:20', pinned: false, description: '需要低功耗传感器模组用于智慧农业场景，要求支持LoRa/WiFi双通道，待机功耗<100μA，工作温度-40~85℃。', category: [['product-line','wifi-module']], industry: '智慧农业', tags: ['低功耗','传感器','LoRa'], urgency: 'urgent' },
+  { id: 3, sort: 3, title: 'Cat.1模组批量采购方案', type: '方案信息', publisher: 'Wu.Wang 王五', status: '已发布', time: '2026-05-18 09:15', pinned: false, description: 'Cat.1模组批量采购需求，预计年用量50万片，用于智能电表、POS机等终端设备。要求模组通过国内运营商认证。', category: [['product-line','4g-module']], industry: '智能表计、金融POS', tags: ['Cat.1','批量采购','智能电表'], urgency: 'normal' },
+  { id: 4, sort: 4, title: '车载T-Box通信模组定制需求', type: '方案需求', publisher: 'Liu.Zhao 赵六', status: '已采纳', time: '2026-05-17 16:45', pinned: true, description: '车载前装T-Box需要定制通信模组，要求车规级AEC-Q100认证，支持5G+C-V2X，工作温度-40~105℃。', category: [['product-line','5g-module'],['solution','vehicle']], industry: '车联网', tags: ['T-Box','车规级','C-V2X'], urgency: 'critical' },
+  { id: 5, sort: 5, title: 'Wi-Fi 6模组海外市场拓展', type: '方案信息', publisher: 'San.Zhang 张三', status: '已下架', time: '2026-05-16 11:00', pinned: false, description: 'Wi-Fi 6模组海外市场合作机会，目标市场为欧洲和北美，需要支持CE/FCC认证，提供完整SDK和参考设计。', category: [['product-line','wifi-module']], industry: '海外市场', tags: ['Wi-Fi6','海外','CE/FCC'], urgency: 'normal' },
+  { id: 6, sort: 6, title: '工业DTU远程监控方案需求', type: '方案需求', publisher: 'Si.Li 李四', status: '待响应', time: '2026-05-15 08:30', pinned: false, description: '工业DTU远程监控需要4G模组方案，要求支持Modbus RTU/TCP协议转换，集成MQTT协议栈，支持断网续传。', category: [['solution','iiot']], industry: '工业物联网', tags: ['DTU','Modbus','MQTT'], urgency: 'urgent' },
+  { id: 7, sort: 7, title: 'GNSS高精度定位模组合作', type: '方案信息', publisher: 'Wu.Wang 王五', status: '已发布', time: '2026-05-14 13:50', pinned: false, description: 'GNSS高精度定位模组合作方案，支持GPS/BDS/GLONASS多星座，定位精度亚米级，适用于自动驾驶和精准农业。', category: [['product-line','5g-module']], industry: '自动驾驶、精准农业', tags: ['GNSS','高精度定位','多星座'], urgency: 'normal' },
+  { id: 8, sort: 8, title: '智能表计NB-IoT模组集采需求', type: '方案需求', publisher: 'Liu.Zhao 赵六', status: '已关闭', time: '2026-05-13 17:10', pinned: false, description: '智能表计集中采购NB-IoT模组，预计总量200万片/年，要求支持3GPP R14，PSM/eDRX低功耗模式，需通过燃气表防爆认证。', category: [['product-line','nbiot']], industry: '智能表计', tags: ['NB-IoT','集采','低功耗'], urgency: 'normal' },
+];
+
+function ContentAuditPage() {
+  const [segType, setSegType] = useState('方案信息');
+  const [keyword, setKeyword] = useState('');
+  const [statusFilter, setStatusFilter] = useState(undefined);
+  const [publisherFilter, setPublisherFilter] = useState(undefined);
+  const [dateRange, setDateRange] = useState(null);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [offlineModalOpen, setOfflineModalOpen] = useState(false);
+  const [offlineRecord, setOfflineRecord] = useState(null);
+  const [offlineReason, setOfflineReason] = useState('');
+  const [dataSource, setDataSource] = useState(mockData);
+  const [sortField, setSortField] = useState('time');
+  const [sortOrder, setSortOrder] = useState('descend');
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editRecord, setEditRecord] = useState(null);
+  const [editSortOpen, setEditSortOpen] = useState(false);
+  const [sortList, setSortList] = useState([]);
+  // ---- 行内上下箭头手动排序状态 ----
+  const [sortDirty, setSortDirty] = useState(false);
+  // ---- 替发方案 Modal 状态 ----
+  const [proxyModalOpen, setProxyModalOpen] = useState(false);
+  const [proxyForm, setProxyForm] = useState({ title: '', description: '', publisher: 'Tony.Zhang 张伟', category: [], industry: '', tags: [], urgency: 'normal', type: '方案信息' });
+  const [proxyNotify, setProxyNotify] = useState(true);
+
+  // ---- 拖拽排序状态 ----
+  const dragRowRef = useRef(null);
+  const dragOverRowRef = useRef(null);
+
+  const currentStatuses = segType === '方案信息' ? opportunityStatuses : demandStatuses;
+
+  // 当前类型下的全量列表（用于排序弹窗）
+  const segFilteredList = useMemo(() => {
+    return dataSource.filter(r => r.type === segType);
+  }, [dataSource, segType]);
+
+  // 排序弹窗打开时，复制当前列表到 sortList
+  var openSortModal = useCallback(function() {
+    setSortList(segFilteredList.slice().sort(function(a, b) { return a.sort - b.sort; }));
+    setEditSortOpen(true);
+  }, [segFilteredList]);
+
+  // 排序弹窗内上移
+  var handleSortUp = useCallback(function(index) {
+    if (index <= 0) return;
+    setSortList(function(prev) {
+      var arr = prev.slice();
+      var tmp = arr[index - 1];
+      arr[index - 1] = arr[index];
+      arr[index] = tmp;
+      return arr;
+    });
+  }, []);
+
+  // 排序弹窗内下移
+  var handleSortDown = useCallback(function(index) {
+    setSortList(function(prev) {
+      if (index >= prev.length - 1) return prev;
+      var arr = prev.slice();
+      var tmp = arr[index + 1];
+      arr[index + 1] = arr[index];
+      arr[index] = tmp;
+      return arr;
+    });
+  }, []);
+
+  // 保存排序
+  var handleSaveSort = useCallback(function() {
+    var newOrder = {};
+    sortList.forEach(function(item, i) {
+      newOrder[item.id] = i + 1;
+    });
+    setDataSource(function(prev) {
+      return prev.map(function(r) {
+        if (newOrder[r.id] !== undefined) {
+          return Object.assign({}, r, { sort: newOrder[r.id] });
+        }
+        return r;
+      });
+    });
+    setEditSortOpen(false);
+    message.success('排序已保存，列表已按新顺序展示');
+  }, [sortList]);
+
+  // ---- 行内手动排序：点击上下箭头交换 sort 值 ----
+  var handleRowSortUp = useCallback(function(record) {
+    setDataSource(function(prev) {
+      // 在符合条件的排序列表中找到上一条
+      var sameType = prev.filter(function(r) { return r.type === segType; });
+      sameType.sort(function(a, b) { return a.sort - b.sort; });
+      var idx = sameType.findIndex(function(r) { return r.id === record.id; });
+      if (idx <= 0) return prev;
+      var above = sameType[idx - 1];
+      var newSortA = above.sort;
+      var newSortB = record.sort;
+      return prev.map(function(r) {
+        if (r.id === above.id) return Object.assign({}, r, { sort: newSortB });
+        if (r.id === record.id) return Object.assign({}, r, { sort: newSortA });
+        return r;
+      });
+    });
+    setSortDirty(true);
+  }, [segType]);
+
+  var handleRowSortDown = useCallback(function(record) {
+    setDataSource(function(prev) {
+      var sameType = prev.filter(function(r) { return r.type === segType; });
+      sameType.sort(function(a, b) { return a.sort - b.sort; });
+      var idx = sameType.findIndex(function(r) { return r.id === record.id; });
+      if (idx < 0 || idx >= sameType.length - 1) return prev;
+      var below = sameType[idx + 1];
+      var newSortA = below.sort;
+      var newSortB = record.sort;
+      return prev.map(function(r) {
+        if (r.id === below.id) return Object.assign({}, r, { sort: newSortB });
+        if (r.id === record.id) return Object.assign({}, r, { sort: newSortA });
+        return r;
+      });
+    });
+    setSortDirty(true);
+  }, [segType]);
+
+  var handleSaveInlineSort = useCallback(function() {
+    setSortDirty(false);
+    message.success('排序已保存');
+  }, []);
+
+  // ---- 替发方案 ----
+  var resetProxyForm = function() {
+    setProxyForm({ title: '', description: '', publisher: 'Tony.Zhang 张伟', category: [], industry: '', tags: [], urgency: 'normal', type: '方案信息' });
+    setProxyNotify(true);
+  };
+
+  var handleProxySubmit = useCallback(function() {
+    var f = proxyForm;
+    if (!f.title || !f.title.trim()) { message.warning('标题不能为空'); return; }
+    if (!f.description || !f.description.trim()) { message.warning('内容描述不能为空'); return; }
+    setDataSource(function(prev) {
+      var maxSort = prev.reduce(function(m, r) { return Math.max(m, r.sort || 0); }, 0);
+      var newItem = {
+        id: Date.now(),
+        sort: maxSort + 1,
+        title: f.title,
+        type: f.type,
+        publisher: f.publisher,
+        status: '已发布',
+        time: dayjs().format('YYYY-MM-DD HH:mm'),
+        pinned: false,
+        description: f.description,
+        category: f.category,
+        industry: f.industry,
+        tags: f.tags,
+        urgency: f.urgency
+      };
+      return [newItem].concat(prev);
+    });
+    message.success('已替 ' + f.publisher + ' 发布方案');
+    if (proxyNotify) {
+      message.info('已同步发送邮件通知订阅用户');
+    }
+    setProxyModalOpen(false);
+    resetProxyForm();
+  }, [proxyForm, proxyNotify]);
+
+  const filteredData = useMemo(() => {
+    var filtered = dataSource.filter(r => {
+      if (r.status === '草稿') return false;
+      if (r.type !== segType) return false;
+      if (keyword && !r.title.includes(keyword)) return false;
+      if (statusFilter && r.status !== statusFilter) return false;
+      if (publisherFilter && r.publisher !== publisherFilter) return false;
+      if (dateRange && dateRange[0] && dateRange[1]) {
+        const t = dayjs(r.time);
+        if (t.isBefore(dateRange[0], 'day') || t.isAfter(dateRange[1], 'day')) return false;
+      }
+      return true;
+    });
+    /* 按 sort 字段排序（手动排序） */
+    filtered.sort(function(a, b) { return a.sort - b.sort; });
+    /* 置顶分组：置顶项在前，非置顶项在后 */
+    var pinned = filtered.filter(function(r) { return r.pinned; });
+    var unpinned = filtered.filter(function(r) { return !r.pinned; });
+    /* 如果有列排序，再应用列排序 */
+    var compareFn;
+    if (sortField === 'time') {
+      compareFn = function(a, b) {
+        var ta = dayjs(a.time).valueOf(), tb = dayjs(b.time).valueOf();
+        return sortOrder === 'descend' ? tb - ta : ta - tb;
+      };
+    } else if (sortField === 'title') {
+      compareFn = function(a, b) {
+        var cmp = a.title.localeCompare(b.title, 'zh');
+        return sortOrder === 'descend' ? -cmp : cmp;
+      };
+    }
+    if (compareFn) {
+      pinned.sort(compareFn);
+      unpinned.sort(compareFn);
+    }
+    return pinned.concat(unpinned);
+  }, [dataSource, segType, keyword, statusFilter, publisherFilter, dateRange, sortField, sortOrder]);
+
+  const handleView = (record) => {
+    const url = record.type === '方案信息'
+      ? 'PAGE-PC-02_商机详情页.html'
+      : 'PAGE-PC-05_需求详情页.html';
+    window.open(url, '_blank');
+  };
+
+  const handleOffline = (record) => {
+    setOfflineRecord(record);
+    setOfflineReason('');
+    setOfflineModalOpen(true);
+  };
+
+  const confirmOffline = () => {
+    if (!offlineReason.trim()) {
+      message.warning('请填写下架原因');
+      return;
+    }
+    setDataSource(prev => prev.map(r => r.id === offlineRecord.id ? { ...r, status: '已下架' } : r));
+    message.success('已下架，已通知发布者 (BR-042)');
+    setOfflineModalOpen(false);
+    setSelectedRowKeys(prev => prev.filter(k => k !== offlineRecord.id));
+  };
+
+  const handleDelete = (record) => {
+    Modal.confirm({
+      title: '确认删除',
+      icon: React.createElement('i', {className:"ti ti-alert-circle", style:{fontSize:18}}),
+      content: '确认删除？数据保留180天 (BR-043软删除)',
+      okText: '确认删除',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk() {
+        setDataSource(prev => prev.filter(r => r.id !== record.id));
+        setSelectedRowKeys(prev => prev.filter(k => k !== record.id));
+        message.success('已删除');
+      }
+    });
+  };
+
+  const handleBatchOffline = () => {
+    if (selectedRowKeys.length > 50) {
+      message.warning('单次批量操作不超过50条 (BR-044)');
+      return;
+    }
+    const canOffline = filteredData.filter(r => selectedRowKeys.includes(r.id) && r.status === '已发布');
+    if (canOffline.length === 0) {
+      message.warning('所选项中没有可下架的内容（仅"已发布"状态可下架）');
+      return;
+    }
+    setOfflineRecord({ id: '__batch__', ids: canOffline.map(r => r.id) });
+    setOfflineReason('');
+    setOfflineModalOpen(true);
+  };
+
+  const confirmBatchOffline = () => {
+    if (!offlineReason.trim()) {
+      message.warning('请填写下架原因');
+      return;
+    }
+    const ids = offlineRecord.ids;
+    setDataSource(prev => prev.map(r => ids.includes(r.id) ? { ...r, status: '已下架' } : r));
+    message.success(`已批量下架 ${ids.length} 条，已通知发布者 (BR-042)`);
+    setOfflineModalOpen(false);
+    setSelectedRowKeys([]);
+  };
+
+  const handleBatchDelete = () => {
+    if (selectedRowKeys.length > 50) {
+      message.warning('单次批量操作不超过50条 (BR-044)');
+      return;
+    }
+    Modal.confirm({
+      title: '批量删除确认',
+      icon: React.createElement('i', {className:"ti ti-alert-circle", style:{fontSize:18}}),
+      content: `确认删除 ${selectedRowKeys.length} 条内容？数据保留180天 (BR-043软删除)`,
+      okText: '确认删除',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk() {
+        setDataSource(prev => prev.filter(r => !selectedRowKeys.includes(r.id)));
+        setSelectedRowKeys([]);
+        message.success('已批量删除');
+      }
+    });
+  };
+
+  const handlePin = (record) => {
+    var willPin = !record.pinned;
+    setDataSource(prev => prev.map(r => r.id === record.id ? { ...r, pinned: willPin } : r));
+    if (willPin) {
+      message.success('已置顶，置顶项始终显示在列表最上方');
+    } else {
+      message.success('已取消置顶');
+    }
+  };
+
+  const handleEdit = (record) => {
+    setEditRecord({ ...record });
+    setEditModalOpen(true);
+  };
+
+  const handleSaveEdit = () => {
+    var r = editRecord;
+    if (!r.title || !r.title.trim()) {
+      message.warning('标题不能为空');
+      return;
+    }
+    setDataSource(prev => prev.map(d => d.id === r.id ? { ...d,
+      title: r.title, type: r.type, publisher: r.publisher, status: r.status,
+      time: r.time, pinned: r.pinned, description: r.description,
+      category: r.category, industry: r.industry, tags: r.tags, urgency: r.urgency
+    } : d));
+    message.success('编辑已保存');
+    setEditModalOpen(false);
+    setEditRecord(null);
+  };
+
+  const getMenuItems = (record) => {
+    const items = [
+      { key: 'view', label: '查看', icon: React.createElement('i', {className:"ti ti-eye", style:{fontSize:18}}) },
+      { key: 'edit', label: '编辑', icon: React.createElement('i', {className:"ti ti-edit", style:{fontSize:18}}) },
+      { key: 'pin', label: record.pinned ? '取消置顶' : '置顶', icon: React.createElement('i', {className:"ti ti-pinned", style:{fontSize:18}}) },
+      { key: 'offline', label: '下架', icon: React.createElement('i', {className:"ti ti-ban", style:{fontSize:18}}), disabled: record.status !== '已发布' },
+      { key: 'delete', label: '删除', icon: React.createElement('i', {className:"ti ti-trash", style:{fontSize:18}}), danger: true },
+    ];
+    return items;
+  };
+
+  const onMenuClick = (key, record) => {
+    if (key === 'view') handleView(record);
+    else if (key === 'edit') handleEdit(record);
+    else if (key === 'pin') handlePin(record);
+    else if (key === 'offline') handleOffline(record);
+    else if (key === 'delete') handleDelete(record);
+  };
+
+  const columns = [
+    {
+      title: '排序', dataIndex: 'sort', key: 'sort', width: 100, align: 'center',
+      render: function(val, record) {
+        // 找出当前 filteredData 中同类项按 sort 排序后的位置
+        var sameType = filteredData.filter(function(r) { return r.type === segType; });
+        sameType.sort(function(a, b) { return a.sort - b.sort; });
+        var pinnedGroup = sameType.filter(function(r) { return r.pinned; });
+        var unpinnedGroup = sameType.filter(function(r) { return !r.pinned; });
+        var allSorted = pinnedGroup.concat(unpinnedGroup);
+        var idx = allSorted.findIndex(function(r) { return r.id === record.id; });
+        var isFirst = idx <= 0;
+        var isLast = idx >= allSorted.length - 1;
+        return React.createElement('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 } },
+          React.createElement('span', { style: { fontSize: 12, color: '#8c8c8c', minWidth: 20, textAlign: 'center' } }, val),
+          React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: 0 } },
+            React.createElement(Button, {
+              size: 'small', type: 'text',
+              disabled: isFirst,
+              icon: React.createElement('i', { className: 'ti ti-chevron-up', style: { fontSize: 12 } }),
+              onClick: function() { handleRowSortUp(record); },
+              style: { padding: 0, height: 16, lineHeight: '16px' },
+              title: '上移'
+            }),
+            React.createElement(Button, {
+              size: 'small', type: 'text',
+              disabled: isLast,
+              icon: React.createElement('i', { className: 'ti ti-chevron-down', style: { fontSize: 12 } }),
+              onClick: function() { handleRowSortDown(record); },
+              style: { padding: 0, height: 16, lineHeight: '16px' },
+              title: '下移'
+            })
+          )
+        );
+      }
+    },
+    {
+      title: '标题', dataIndex: 'title', key: 'title', sorter: function(a, b) { return a.title.localeCompare(b.title, 'zh'); },
+      render: (text, record) => React.createElement('a', {
+        onClick: () => handleView(record), style: { cursor: 'pointer' }
+      }, React.createElement('span', null,
+        record.pinned && React.createElement('span', { style: { marginRight: 4, fontSize: 14 } }, '\u{1F4CC}'),
+        text
+      ))
+    },
+    {
+      title: '类型', dataIndex: 'type', key: 'type', sorter: function(a, b) { return a.type.localeCompare(b.type, 'zh'); },
+      render: (t) => React.createElement(Tag, { color: t === '方案信息' ? 'blue' : 'purple' }, t)
+    },
+    { title: '发布人', dataIndex: 'publisher', key: 'publisher', sorter: function(a, b) { return a.publisher.localeCompare(b.publisher, 'zh'); } },
+    {
+      title: '状态', dataIndex: 'status', key: 'status', sorter: function(a, b) { return a.status.localeCompare(b.status, 'zh'); },
+      render: (s) => React.createElement(Tag, { color: statusColorMap[s] || 'default' }, s)
+    },
+    { title: '发布时间', dataIndex: 'time', key: 'time', width: 170, sorter: function(a, b) { return dayjs(a.time).valueOf() - dayjs(b.time).valueOf(); }, defaultSortOrder: 'descend' },
+    {
+      title: '操作', key: 'action', width: 160,
+      render: (_, record) => React.createElement(Space, { size: 0 },
+        React.createElement(Button, {
+          type: 'link', size: 'small',
+          icon: React.createElement('i', { className: 'ti ti-pinned', style: { fontSize: 16, color: record.pinned ? '#1677ff' : undefined } }),
+          onClick: function() { handlePin(record); },
+          title: record.pinned ? '取消置顶' : '置顶'
+        }, record.pinned ? '取消置顶' : '置顶'),
+        React.createElement(Dropdown, {
+          menu: {
+            items: getMenuItems(record),
+            onClick: ({ key }) => onMenuClick(key, record)
+          },
+          trigger: ['click']
+        }, React.createElement(Button, { type: 'link', size: 'small' },
+          React.createElement(Space, null, '操作', React.createElement('i', {className:"ti ti-chevron-down", style:{fontSize:18}}))
+        ))
+      )
+    },
+  ];
+
+  // 排序弹窗内容
+  function renderSortModal() {
+    return React.createElement(Modal, {
+      title: React.createElement('span', null,
+        React.createElement('i', { className: 'ti ti-arrows-sort', style: { marginRight: 8, fontSize: 18 } }),
+        '手动排序 - ' + segType
+      ),
+      open: editSortOpen,
+      onCancel: function() { setEditSortOpen(false); },
+      onOk: handleSaveSort,
+      okText: '保存排序',
+      cancelText: '取消',
+      width: 640,
+      bodyStyle: { padding: '12px 0', maxHeight: '60vh', overflowY: 'auto' }
+    },
+      React.createElement('div', { style: { fontSize: 13, color: '#8c8c8c', marginBottom: 12, padding: '0 24px' } },
+        '点击上移/下移按钮调整顺序，或拖拽行前的拖拽手柄。保存后列表将按新顺序展示。'
+      ),
+      sortList.map(function(item, index) {
+        var isFirst = index === 0;
+        var isLast = index === sortList.length - 1;
+        return React.createElement('div', {
+          key: item.id,
+          className: 'drag-row',
+          draggable: true,
+          'data-index': index,
+          onDragStart: function(e) {
+            dragRowRef.current = index;
+            e.currentTarget.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', String(index));
+          },
+          onDragEnd: function(e) {
+            e.currentTarget.classList.remove('dragging');
+            dragRowRef.current = null;
+            dragOverRowRef.current = null;
+            // 清除所有 drag-over
+            var rows = document.querySelectorAll('.drag-row');
+            rows.forEach(function(r) { r.classList.remove('drag-over'); });
+          },
+          onDragOver: function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            var targetIndex = Number(e.currentTarget.dataset.index);
+            if (dragRowRef.current !== null && targetIndex !== dragRowRef.current) {
+              dragOverRowRef.current = targetIndex;
+              var rows = document.querySelectorAll('.drag-row');
+              rows.forEach(function(r) { r.classList.remove('drag-over'); });
+              e.currentTarget.classList.add('drag-over');
+            }
+          },
+          onDragLeave: function(e) {
+            e.currentTarget.classList.remove('drag-over');
+          },
+          onDrop: function(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            var fromIndex = Number(e.dataTransfer.getData('text/plain'));
+            var toIndex = Number(e.currentTarget.dataset.index);
+            if (fromIndex === toIndex) return;
+            setSortList(function(prev) {
+              var arr = prev.slice();
+              var item = arr.splice(fromIndex, 1)[0];
+              arr.splice(toIndex, 0, item);
+              return arr;
+            });
+          },
+          style: {
+            display: 'flex', alignItems: 'center', gap: 12,
+            padding: '10px 24px', borderBottom: '1px solid #f5f5f5',
+            transition: 'all 0.15s', background: '#fff'
+          }
+        },
+          React.createElement('span', {
+            className: 'drag-handle',
+            'data-index': index,
+            title: '拖拽排序',
+            onMouseDown: function(e) {
+              // 让父级 draggable 生效
+            }
+          }, React.createElement('i', { className: 'ti ti-grip-vertical', style: { fontSize: 18 } })),
+          React.createElement('span', { style: { width: 32, textAlign: 'center', color: '#bfbfbf', fontSize: 12, flexShrink: 0 } }, index + 1),
+          React.createElement(Tag, { color: item.type === '方案信息' ? 'blue' : 'purple', style: { flexShrink: 0 } }, item.type),
+          React.createElement('span', { style: { flex: 1, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } },
+            item.pinned && React.createElement(Tag, { color: '#ff4d4f', style: { fontSize: 10, marginRight: 6, lineHeight: '16px', padding: '0 4px', borderRadius: 3 } }, '置顶'),
+            item.title
+          ),
+          React.createElement('div', { style: { display: 'flex', gap: 4, flexShrink: 0 } },
+            React.createElement(Button, {
+              size: 'small', type: 'text', disabled: isFirst,
+              icon: React.createElement('i', { className: 'ti ti-chevron-up', style: { fontSize: 16 } }),
+              onClick: function() { handleSortUp(index); },
+              title: '上移'
+            }),
+            React.createElement(Button, {
+              size: 'small', type: 'text', disabled: isLast,
+              icon: React.createElement('i', { className: 'ti ti-chevron-down', style: { fontSize: 16 } }),
+              onClick: function() { handleSortDown(index); },
+              title: '下移'
+            })
+          )
+        );
+      }),
+      sortList.length === 0 && React.createElement('div', { style: { textAlign: 'center', padding: 40, color: '#bfbfbf' } }, '暂无内容')
+    );
+  }
+
+  return React.createElement('div', { className: 'page-container' },
+    React.createElement(Title, { level: 4, style: { marginBottom: 16 } }, '内容审核管理'),
+
+    React.createElement('div', { className: 'filter-bar' },
+      React.createElement(Segmented, {
+        options: ['方案信息', '方案需求'],
+        value: segType,
+        onChange: (v) => { setSegType(v); setStatusFilter(undefined); setSelectedRowKeys([]); }
+      }),
+      React.createElement(Input, {
+        placeholder: '关键词搜索',
+        prefix: React.createElement('i', {className:"ti ti-search", style:{fontSize:18}}),
+        allowClear: true,
+        style: { width: 200 },
+        value: keyword,
+        onChange: (e) => setKeyword(e.target.value)
+      }),
+      React.createElement(Select, {
+        placeholder: '状态筛选',
+        allowClear: true,
+        style: { width: 140 },
+        value: statusFilter,
+        onChange: setStatusFilter,
+        options: currentStatuses.map(s => ({ label: s, value: s }))
+      }),
+      React.createElement(Select, {
+        placeholder: '发布人',
+        allowClear: true,
+        style: { width: 120 },
+        value: publisherFilter,
+        onChange: setPublisherFilter,
+        options: publishers.map(p => ({ label: p, value: p }))
+      }),
+      React.createElement(RangePicker, {
+        value: dateRange,
+        onChange: setDateRange,
+        style: { width: 260 }
+      }),
+      React.createElement(Select, {
+        value: sortField,
+        onChange: setSortField,
+        style: { width: 100 },
+        options: [
+          { label: '按时间', value: 'time' },
+          { label: '按标题', value: 'title' }
+        ]
+      }),
+      React.createElement(Button, {
+        icon: React.createElement('i', { className: sortOrder === 'descend' ? 'ti ti-sort-descending' : 'ti ti-sort-ascending', style: { fontSize: 16 } }),
+        onClick: () => setSortOrder(prev => prev === 'descend' ? 'ascend' : 'descend'),
+        title: sortOrder === 'descend' ? '降序' : '升序'
+      }),
+      React.createElement('div', { style: { flex: 1 } }),
+      sortDirty && React.createElement(Button, {
+        type: 'primary',
+        size: 'small',
+        icon: React.createElement('i', { className: 'ti ti-device-floppy', style: { fontSize: 16 } }),
+        onClick: handleSaveInlineSort
+      }, '保存排序'),
+      React.createElement(Button, {
+        icon: React.createElement('i', { className: 'ti ti-arrows-sort', style: { fontSize: 18 } }),
+        onClick: openSortModal,
+        type: 'default'
+      }, '手动排序'),
+      React.createElement(Button, {
+        type: 'primary',
+        icon: React.createElement('i', { className: 'ti ti-user-plus', style: { fontSize: 18 } }),
+        onClick: function() { setProxyModalOpen(true); }
+      }, '替发方案')
+    ),
+
+    React.createElement(Table, {
+      rowKey: 'id',
+      dataSource: filteredData,
+      columns: columns,
+      rowClassName: function(record) { return record.pinned ? 'pinned-row' : ''; },
+      rowSelection: {
+        selectedRowKeys,
+        onChange: setSelectedRowKeys
+      },
+      pagination: { pageSize: 10, showSizeChanger: true, showQuickJumper: true, showTotal: (t) => `共 ${t} 条` },
+      size: 'middle'
+    }),
+
+    selectedRowKeys.length > 0 && React.createElement('div', { className: 'batch-bar' },
+      React.createElement('span', null, '已选 ', React.createElement('span', { className: 'count' }, selectedRowKeys.length), ' 项'),
+      React.createElement(Button, { onClick: handleBatchOffline }, '批量下架'),
+      React.createElement(Button, { danger: true, onClick: handleBatchDelete }, '批量删除'),
+      selectedRowKeys.length === 1 && React.createElement(Button, {
+        onClick: () => {
+          var rec = dataSource.find(r => r.id === selectedRowKeys[0]);
+          if (rec) handleEdit(rec);
+        }
+      }, '编辑')
+    ),
+
+    React.createElement(Modal, {
+      title: '下架确认',
+      open: offlineModalOpen,
+      onCancel: () => setOfflineModalOpen(false),
+      onOk: offlineRecord && offlineRecord.id === '__batch__' ? confirmBatchOffline : confirmOffline,
+      okText: '确认下架',
+      cancelText: '取消'
+    },
+      React.createElement('p', null, '请填写下架原因（必填）：'),
+      React.createElement(antd.Input.TextArea, {
+        rows: 4,
+        placeholder: '请输入下架原因...',
+        value: offlineReason,
+        onChange: (e) => setOfflineReason(e.target.value)
+      }),
+      React.createElement('p', { style: { marginTop: 8, color: '#999', fontSize: 12 } }, 'BR-042：下架后将通知发布者')
+    ),
+
+    editRecord && React.createElement(Drawer, {
+      title: '编辑内容',
+      open: editModalOpen,
+      onClose: () => { setEditModalOpen(false); setEditRecord(null); },
+      width: 680,
+      extra: React.createElement(Space, null,
+        React.createElement(Button, { onClick: () => { setEditModalOpen(false); setEditRecord(null); } }, '取消'),
+        React.createElement(Button, { type: 'primary', onClick: handleSaveEdit }, '保存')
+      ),
+      footer: null
+    },
+      React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: 18 } },
+        React.createElement('div', null,
+          React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '标题 *'),
+          React.createElement(Input, {
+            value: editRecord.title,
+            onChange: (e) => setEditRecord(prev => ({ ...prev, title: e.target.value })),
+            placeholder: '请输入标题',
+            maxLength: 100,
+            showCount: true
+          })
+        ),
+        React.createElement('div', { style: { display: 'flex', gap: 12 } },
+          React.createElement('div', { style: { flex: 1 } },
+            React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '类型'),
+            React.createElement(Select, {
+              value: editRecord.type,
+              onChange: (v) => setEditRecord(prev => ({ ...prev, type: v })),
+              style: { width: '100%' },
+              options: [
+                { label: '方案信息', value: '方案信息' },
+                { label: '方案需求', value: '方案需求' }
+              ]
+            })
+          ),
+          React.createElement('div', { style: { flex: 1 } },
+            React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '发布人'),
+            React.createElement(Select, {
+              value: editRecord.publisher,
+              onChange: (v) => setEditRecord(prev => ({ ...prev, publisher: v })),
+              style: { width: '100%' },
+              options: publishers.map(p => ({ label: p, value: p }))
+            })
+          )
+        ),
+        React.createElement('div', { style: { display: 'flex', gap: 12 } },
+          React.createElement('div', { style: { flex: 1 } },
+            React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '状态'),
+            React.createElement(Select, {
+              value: editRecord.status,
+              onChange: (v) => setEditRecord(prev => ({ ...prev, status: v })),
+              style: { width: '100%' },
+              options: (editRecord.type === '方案信息' ? opportunityStatuses : demandStatuses).map(s => ({ label: s, value: s }))
+            })
+          ),
+          React.createElement('div', { style: { flex: 1 } },
+            React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '紧急程度'),
+            React.createElement(Select, {
+              value: editRecord.urgency || 'normal',
+              onChange: (v) => setEditRecord(prev => ({ ...prev, urgency: v })),
+              style: { width: '100%' },
+              options: urgencyOptions
+            })
+          )
+        ),
+        React.createElement('div', { style: { display: 'flex', gap: 12 } },
+          React.createElement('div', { style: { flex: 1 } },
+            React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '发布时间'),
+            React.createElement(DatePicker, {
+              showTime: true,
+              value: dayjs(editRecord.time),
+              onChange: (v) => { if (v) setEditRecord(prev => ({ ...prev, time: v.format('YYYY-MM-DD HH:mm') })); },
+              style: { width: '100%' }
+            })
+          ),
+          React.createElement('div', { style: { flex: 1, display: 'flex', alignItems: 'flex-end', paddingBottom: 4 } },
+            React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+              React.createElement('label', { style: { fontWeight: 500 } }, '置顶'),
+              React.createElement(Switch, {
+                checked: editRecord.pinned,
+                onChange: (v) => setEditRecord(prev => ({ ...prev, pinned: v }))
+              })
+            )
+          )
+        ),
+        React.createElement('div', null,
+          React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '行业场景'),
+          React.createElement(Input, {
+            value: editRecord.industry || '',
+            onChange: (e) => setEditRecord(prev => ({ ...prev, industry: e.target.value })),
+            placeholder: '如：IoT、车载、智慧城市',
+            maxLength: 50,
+            showCount: true
+          })
+        ),
+        React.createElement('div', null,
+          React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '分类标签'),
+          React.createElement(Cascader, {
+            value: editRecord.category || [],
+            onChange: (v) => setEditRecord(prev => ({ ...prev, category: v })),
+            options: categoryTree,
+            multiple: true,
+            placeholder: '请选择分类标签',
+            style: { width: '100%' }
+          })
+        ),
+        React.createElement('div', null,
+          React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '关键词标签'),
+          React.createElement(Select, {
+            mode: 'tags',
+            value: editRecord.tags || [],
+            onChange: (v) => setEditRecord(prev => ({ ...prev, tags: v })),
+            placeholder: '输入关键词后回车添加',
+            style: { width: '100%' }
+          })
+        ),
+        React.createElement('div', null,
+          React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '内容详情'),
+          React.createElement(antd.Input.TextArea, {
+            value: editRecord.description || '',
+            onChange: (e) => setEditRecord(prev => ({ ...prev, description: e.target.value })),
+            placeholder: '请输入详细内容描述...',
+            rows: 8,
+            autoSize: { minRows: 6, maxRows: 16 },
+            showCount: true,
+            maxLength: 5000
+          })
+        )
+      )
+    ),
+
+    renderSortModal(),
+
+    /* ---- 替发方案 Modal ---- */
+    React.createElement(Modal, {
+      title: React.createElement('span', null,
+        React.createElement('i', { className: 'ti ti-user-plus', style: { marginRight: 8, fontSize: 18 } }),
+        '替发方案'
+      ),
+      open: proxyModalOpen,
+      onCancel: function() { setProxyModalOpen(false); resetProxyForm(); },
+      onOk: handleProxySubmit,
+      okText: '发布方案',
+      cancelText: '取消',
+      width: 680,
+      bodyStyle: { maxHeight: '65vh', overflowY: 'auto' }
+    },
+      React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: 18 } },
+        /* 选择发布人 */
+        React.createElement('div', null,
+          React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '选择发布人 *'),
+          React.createElement(Select, {
+            value: proxyForm.publisher,
+            onChange: function(v) { setProxyForm(function(prev) { return Object.assign({}, prev, { publisher: v }); }); },
+            style: { width: '100%' },
+            options: [
+              { label: 'Tony.Zhang 张伟 - 产品经理', value: 'Tony.Zhang 张伟' },
+              { label: 'Nina.Li 李娜 - 产品经理', value: 'Nina.Li 李娜' },
+              { label: 'Kevin.Wang 王强 - 产品经理', value: 'Kevin.Wang 王强' },
+              { label: 'Yan.Chen 陈燕 - 产品经理', value: 'Yan.Chen 陈燕' },
+              { label: 'Leo.Zhao 赵磊 - 产品经理', value: 'Leo.Zhao 赵磊' }
+            ]
+          })
+        ),
+        /* 标题 */
+        React.createElement('div', null,
+          React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '方案标题 *'),
+          React.createElement(Input, {
+            value: proxyForm.title,
+            onChange: function(e) { setProxyForm(function(prev) { return Object.assign({}, prev, { title: e.target.value }); }); },
+            placeholder: '请输入方案标题',
+            maxLength: 100,
+            showCount: true
+          })
+        ),
+        /* 类型 */
+        React.createElement('div', null,
+          React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '内容类型'),
+          React.createElement(Select, {
+            value: proxyForm.type,
+            onChange: function(v) { setProxyForm(function(prev) { return Object.assign({}, prev, { type: v }); }); },
+            style: { width: '100%' },
+            options: [
+              { label: '方案信息', value: '方案信息' },
+              { label: '方案需求', value: '方案需求' }
+            ]
+          })
+        ),
+        /* 行业场景 */
+        React.createElement('div', null,
+          React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '行业场景'),
+          React.createElement(Input, {
+            value: proxyForm.industry,
+            onChange: function(e) { setProxyForm(function(prev) { return Object.assign({}, prev, { industry: e.target.value }); }); },
+            placeholder: '如：IoT、车载、智慧城市',
+            maxLength: 50,
+            showCount: true
+          })
+        ),
+        /* 分类标签 */
+        React.createElement('div', null,
+          React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '分类标签'),
+          React.createElement(Cascader, {
+            value: proxyForm.category,
+            onChange: function(v) { setProxyForm(function(prev) { return Object.assign({}, prev, { category: v }); }); },
+            options: categoryTree,
+            multiple: true,
+            placeholder: '请选择分类标签',
+            style: { width: '100%' }
+          })
+        ),
+        /* 关键词标签 */
+        React.createElement('div', null,
+          React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '关键词标签'),
+          React.createElement(Select, {
+            mode: 'tags',
+            value: proxyForm.tags,
+            onChange: function(v) { setProxyForm(function(prev) { return Object.assign({}, prev, { tags: v }); }); },
+            placeholder: '输入关键词后回车添加',
+            style: { width: '100%' }
+          })
+        ),
+        /* 紧急程度 */
+        React.createElement('div', null,
+          React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '紧急程度'),
+          React.createElement(Select, {
+            value: proxyForm.urgency,
+            onChange: function(v) { setProxyForm(function(prev) { return Object.assign({}, prev, { urgency: v }); }); },
+            style: { width: '100%' },
+            options: urgencyOptions
+          })
+        ),
+        /* 富文本编辑器 - 内容详情 */
+        React.createElement('div', null,
+          React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '方案内容 *'),
+          React.createElement(antd.Input.TextArea, {
+            value: proxyForm.description,
+            onChange: function(e) { setProxyForm(function(prev) { return Object.assign({}, prev, { description: e.target.value }); }); },
+            placeholder: '请输入方案详细内容（支持Markdown格式）...',
+            rows: 10,
+            autoSize: { minRows: 8, maxRows: 20 },
+            showCount: true,
+            maxLength: 5000
+          })
+        ),
+        /* 附件上传 */
+        React.createElement('div', null,
+          React.createElement('label', { style: { display: 'block', marginBottom: 4, fontWeight: 500 } }, '附件上传'),
+          React.createElement(Upload, {
+            multiple: true,
+            beforeUpload: function() { return false; },
+            maxCount: 5,
+            listType: 'text'
+          },
+            React.createElement(Button, { icon: React.createElement('i', { className: 'ti ti-upload', style: { fontSize: 16 } }) }, '选择文件')
+          ),
+          React.createElement('div', { style: { fontSize: 11, color: '#8c8c8c', marginTop: 4 } }, '支持 PDF、Word、Excel、PPT，单文件不超过 50MB')
+        ),
+        /* 同步通知 Checkbox */
+        React.createElement('div', { style: { padding: '10px 14px', background: '#f6ffed', border: '1px solid #b7eb8f', borderRadius: 6 } },
+          React.createElement(Checkbox, {
+            checked: proxyNotify,
+            onChange: function(e) { setProxyNotify(e.target.checked); }
+          },
+            React.createElement('span', { style: { fontWeight: 500 } }, '同步发送邮件通知订阅用户')
+          ),
+          React.createElement('div', { style: { fontSize: 11, color: '#8c8c8c', marginLeft: 24, marginTop: 4 } }, '勾选后，方案发布时将自动向所有订阅该类目的用户发送邮件通知')
+        )
+      )
+    )
+  );
+}
+
+window.PROTO_SHELL.renderShell('content-audit');
+  // 埋点：页面浏览
+  if (window.DataTracker) { window.DataTracker.trackPageView('content-audit', '内容审核管理'); }
+const container = document.getElementById('proto-content') || document.getElementById('root');
+ReactDOM.createRoot(container).render(React.createElement(ContentAuditPage));
+</script>
+</body>
+</html>

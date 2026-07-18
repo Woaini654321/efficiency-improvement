@@ -1,0 +1,870 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>需求详情 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+body { margin: 0; background: #f0f2f5; }
+#root { min-height: 100vh; }
+.page-container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+.best-badge { position: absolute; top: -1px; right: -1px; background: linear-gradient(135deg, #faad14, #fa8c16); color: #fff; padding: 2px 12px; border-radius: 0 8px 0 8px; font-size: 12px; font-weight: 600; }
+.solution-card { position: relative; }
+.mention-dropdown { position:absolute; z-index:1050; background:#fff; border:1px solid #e8e8e8; border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,0.12); min-width:180px; max-height:200px; overflow-y:auto; padding:4px 0; animation:fadeIn .15s ease; }
+.mention-item { display:flex; align-items:center; gap:8px; padding:8px 14px; cursor:pointer; font-size:13px; color:#333; transition:background .15s; }
+.mention-item:hover { background:#f0f5ff; }
+.mention-item .ment-avatar { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:600; flex-shrink:0; }
+.mention-highlight { color:#1890ff; font-weight:500; background:rgba(24,144,255,0.06); border-radius:2px; padding:0 2px; }
+
+		/* 公众号风格评论区 */
+		@keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+		.comment-card { padding:18px 0; border-bottom:1px solid #f0f0f0; position:relative; }
+		.comment-card:last-child { border-bottom:none; }
+		.cmt-avatar { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; font-weight:600; flex-shrink:0; }
+		.cmt-action { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:6px; cursor:pointer; transition:all 0.2s; color:#8c8c8c; font-size:13px; border:none; background:transparent; }
+		.cmt-action:hover { color:#1890ff; background:rgba(24,144,255,0.06); }
+		.cmt-action.liked { color:#1890ff; }
+		.cmt-action.danger { color:#999; }
+		.cmt-action.danger:hover { color:#ff4d4f; background:rgba(255,77,79,0.06); }
+		.comment-replies { margin-top:8px; padding-left:0; }
+		.comment-reply-item { padding:10px 14px; margin-bottom:4px; background:#f9fafb; border-radius:8px; border-left:3px solid #e8e8e8; font-size:13px; line-height:1.7; }
+		.comment-reply-item:last-child { margin-bottom:0; }
+		.comment-reply-item.mine { background:#f6ffed; border-left-color:#b7eb8f; }
+		.comment-deleted { color:#bfbfbf; font-size:13px; padding:8px 0; }
+
+	/* 响应式 */
+	@media(max-width:768px){
+	  .page-container{padding:16px!important;}
+	  .ant-drawer-content-wrapper{width:100%!important;max-width:100vw!important;}
+	  .comment-replies{padding:8px 10px!important;}
+	  .ant-card{border-radius:12px!important;}
+	  .ant-card .ant-card-body{padding:20px 16px!important;}
+	  .comment-card{padding:12px 0!important;}
+	  .best-badge{font-size:11px!important;padding:2px 8px!important;}
+	}
+	@media(max-width:600px){
+	  .page-container{padding:12px!important;}
+	  .comment-reply-item{padding:8px 8px!important;font-size:12px!important;}
+	  .ant-card .ant-card-body{padding:16px 14px!important;}
+	  .solution-card{padding:12px!important;}
+	}</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {
+  Breadcrumb, Card, Tag, Button, Space, Typography, Divider, Drawer,
+  Input, Upload, Modal, Avatar, Tooltip, message, Badge, Checkbox, Switch, Select
+} = antd;
+const { Title, Text, Paragraph } = Typography;
+const { TextArea } = Input;
+const TablerIcon = ({icon, style, ...rest}) => React.createElement('i', {className: `ti ti-${icon}`, style: {fontSize:18, ...style}, ...rest});
+
+// Mock 用户列表（@提及用）
+const MENTION_USERS = [
+  { name:'Tony.Zhang 张伟', dept:'华东大区' },
+  { name:'Nina.Li 李娜', dept:'产品管理部' },
+  { name:'Kevin.Wang 王强', dept:'华南大区' },
+  { name:'Yan.Chen 陈燕', dept:'华北大区' },
+  { name:'Leo.Zhao 赵磊', dept:'西南大区' },
+  { name:'Owen.Liu 刘洋', dept:'技术支持部' },
+  { name:'Ben.Sun 孙八', dept:'海外事业部' },
+  { name:'Joe.Zhou 周九', dept:'研发部' },
+];
+const MENTION_COLORS = ['#f56a00','#7265e6','#ffbf00','#00a2ae','#87d068','#1890ff','#eb2f96','#722ed1'];
+const AVATAR_COLORS = ['#1890ff','#52c41a','#fa8c16','#722ed1','#eb2f96','#13c2c2','#faad14','#2f54eb'];
+const PERSONNEL_EMAIL_OPTIONS = [
+  { label: '李明 Ming.Li — ming.li@company.com', value: 'ming.li@company.com' },
+  { label: '周涛 Tao.Zhou — tao.zhou@company.com', value: 'tao.zhou@company.com' },
+  { label: '赵伟 David.Zhao — david.zhao@company.com', value: 'david.zhao@company.com' },
+  { label: '张红 Hong.Zhang — hong.zhang@company.com', value: 'hong.zhang@company.com' },
+  { label: '王芳 Fang.Wang — fang.wang@company.com', value: 'fang.wang@company.com' },
+  { label: '陈刚 Gang.Chen — gang.chen@company.com', value: 'gang.chen@company.com' },
+  { label: '刘洋 Yang.Liu — yang.liu@company.com', value: 'yang.liu@company.com' },
+  { label: '孙丽 Li.Sun — li.sun@company.com', value: 'li.sun@company.com' },
+];
+
+// 高亮文本中的 @mention
+function highlightMentions(text) {
+  if (!text) return text;
+  var parts = text.split(/(@\S+)/g);
+  return parts.map(function(part, i) {
+    if (part.charAt(0) === '@' && MENTION_USERS.some(function(u) { return '@'+u.name === part; })) {
+      return React.createElement('span', { key: i, className: 'mention-highlight' }, part);
+    }
+    return part;
+  });
+}
+
+// @提及输入框组件（含下拉建议）
+function MentionTextArea(props) {
+  var textareaProps = Object.assign({}, props);
+  delete textareaProps.onMentionUsers; // internal, not for TextArea
+
+  var [showDropdown, setShowDropdown] = React.useState(false);
+  var [mentionQuery, setMentionQuery] = React.useState('');
+  var [dropdownPos, setDropdownPos] = React.useState({ top:0, left:0 });
+  var textareaRef = React.useRef(null);
+  var containerRef = React.useRef(null);
+
+  var handleChange = function(e) {
+    var value = e.target.value;
+    var cursorPos = e.target.selectionStart || 0;
+    if (props.onChange) props.onChange(e);
+
+    // 检测 @ 符号：找到光标前最近的 @
+    var textBeforeCursor = value.substring(0, cursorPos);
+    var lastAtIndex = textBeforeCursor.lastIndexOf('@');
+    if (lastAtIndex >= 0 && (lastAtIndex === 0 || textBeforeCursor.charAt(lastAtIndex - 1) === ' ' || textBeforeCursor.charAt(lastAtIndex - 1) === '\n')) {
+      var query = textBeforeCursor.substring(lastAtIndex + 1);
+      // query 不能包含空格
+      if (query.indexOf(' ') < 0 && query.indexOf('\n') < 0) {
+        setMentionQuery(query);
+        setShowDropdown(true);
+        // 计算下拉位置
+        if (containerRef.current) {
+          var rect = containerRef.current.getBoundingClientRect();
+          setDropdownPos({ top: rect.bottom + window.scrollY + 4, left: rect.left + 12 });
+        }
+        return;
+      }
+    }
+    setShowDropdown(false);
+    setMentionQuery('');
+  };
+
+  var handleSelectUser = function(user) {
+    var value = props.value || '';
+    var cursorPos = (textareaRef.current && textareaRef.current.resizableTextArea && textareaRef.current.resizableTextArea.textArea)
+      ? (textareaRef.current.resizableTextArea.textArea.selectionStart || value.length)
+      : value.length;
+    var textBeforeCursor = value.substring(0, cursorPos);
+    var lastAtIndex = textBeforeCursor.lastIndexOf('@');
+    var beforeAt = textBeforeCursor.substring(0, lastAtIndex);
+    var afterCursor = value.substring(cursorPos);
+    var newValue = beforeAt + '@' + user.name + ' ' + afterCursor;
+
+    // Trigger synthetic change
+    if (props.onChange) {
+      props.onChange({ target: { value: newValue } });
+    }
+    setShowDropdown(false);
+    setMentionQuery('');
+    // Refocus
+    setTimeout(function() {
+      if (textareaRef.current && textareaRef.current.resizableTextArea && textareaRef.current.resizableTextArea.textArea) {
+        var ta = textareaRef.current.resizableTextArea.textArea;
+        var newPos = beforeAt.length + user.name.length + 2; // after '@name '
+        ta.focus();
+        ta.setSelectionRange(newPos, newPos);
+      }
+    }, 50);
+  };
+
+  var filteredUsers = MENTION_USERS.filter(function(u) {
+    return !mentionQuery || u.name.toLowerCase().indexOf(mentionQuery.toLowerCase()) >= 0;
+  });
+
+  return React.createElement('div', { ref: containerRef, style: { position:'relative', flex: props.style && props.style.flex ? props.style.flex : 'auto' } },
+    React.createElement(TextArea, Object.assign({}, textareaProps, {
+      ref: function(el) { textareaRef.current = el; if (typeof props.ref === 'function') props.ref(el); },
+      onChange: handleChange
+    })),
+    showDropdown && filteredUsers.length > 0 && React.createElement('div', {
+      className: 'mention-dropdown',
+      style: { position:'fixed', top: dropdownPos.top, left: dropdownPos.left }
+    },
+      filteredUsers.map(function(user, i) {
+        return React.createElement('div', {
+          key: user.name,
+          className: 'mention-item',
+          onClick: function() { handleSelectUser(user); }
+        },
+          React.createElement('div', { className: 'ment-avatar', style: { background: MENTION_COLORS[i % MENTION_COLORS.length] } }, user.name.charAt(0)),
+          React.createElement('div', null,
+            React.createElement('div', { style: { fontWeight:500 } }, user.name),
+            React.createElement('div', { style: { fontSize:11, color:'#bfbfbf' } }, user.dept)
+          )
+        );
+      })
+    )
+  );
+}
+
+// 递归辅助：在评论树中查找并添加回复
+// 在评论列表中查找并添加回复（仅2级扁平）
+function addReplyToComment(comments, parentId, newReply) {
+  return comments.map(c => {
+    if (c.id === parentId) {
+      return { ...c, replies: [...(c.replies || []), newReply] };
+    }
+    return c;
+  });
+}
+
+// 从评论或回复列表中删除指定项
+function removeById(comments, targetId) {
+  return comments
+    .filter(c => c.id !== targetId)
+    .map(c => {
+      if (c.replies && c.replies.length > 0) {
+        return { ...c, replies: c.replies.filter(r => r.id !== targetId) };
+      }
+      return c;
+    });
+}
+
+// 统计评论总数（顶级+回复）
+function countAll(comments) {
+  let n = comments.length;
+  comments.forEach(c => { if (c.replies) n += c.replies.length; });
+  return n;
+}
+
+// 截止日期倒计时
+const DeadlineCountdown = ({ deadline }) => {
+  var diff = dayjs(deadline).diff(dayjs(), 'hour');
+  if (diff <= 0) return React.createElement(Tag, { color: 'red' }, '已超期');
+  if (diff <= 24) return React.createElement(Tag, { color: 'red' }, '剩余 ' + diff + ' 小时');
+  return React.createElement(Tag, { color: 'orange' }, '剩余 ' + Math.ceil(diff/24) + ' 天');
+};
+
+// 微信公众号风格评论卡片 - 仅两级：顶级评论 + 扁平回复列表
+const CommentCard = ({ comment, index, currentUser, onReply, onDelete }) => {
+  const [replyOpen, setReplyOpen] = React.useState(false);
+  const [replyText, setReplyText] = React.useState('');
+  const replies = comment.replies || [];
+  const isMine = comment.isMine || false;
+
+  const handleReply = () => {
+    if (!replyText.trim()) return;
+    var newReply = {
+      id: Date.now(),
+      author: currentUser.name,
+      dept: currentUser.dept,
+      time: dayjs().format('YYYY-MM-DD HH:mm'),
+      content: replyText,
+      isMine: true
+    };
+    onReply(comment.id, newReply);
+    setReplyText('');
+    setReplyOpen(false);
+    message.success('回复成功');
+  };
+
+  const handleDel = () => {
+    Modal.confirm({
+      title: '删除评论',
+      content: '确认删除此评论？',
+      okText: '确认删除',
+      cancelText: '取消',
+      okButtonProps: { danger: true },
+      onOk: function() {
+        onDelete(comment.id);
+        message.success('评论已删除');
+      }
+    });
+  };
+
+  const handleDelReply = function(rid) {
+    Modal.confirm({
+      title: '删除回复',
+      content: '确认删除此回复？',
+      okText: '确认删除',
+      cancelText: '取消',
+      okButtonProps: { danger: true },
+      onOk: function() {
+        onDelete(rid);
+        message.success('回复已删除');
+      }
+    });
+  };
+
+  return (
+    <div className="comment-card" style={{ animationDelay: (index*0.03)+'s', animation:'slideUp 0.3s ease both' }}>
+      <div style={{ display:'flex', gap:12 }}>
+        <div className="cmt-avatar" style={{ background: AVATAR_COLORS[index % AVATAR_COLORS.length] }}>
+          {comment.author.charAt(0)}
+        </div>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4, flexWrap:'wrap' }}>
+            <span style={{ fontSize:14, fontWeight:600, color:'#333' }}>{comment.author}</span>
+            <Tag style={{ borderRadius:6, fontSize:10, color:'#8c8c8c', background:'#f5f5f5', border:'none', margin:0, padding:'0 6px', lineHeight:'18px' }}>{comment.dept}</Tag>
+            <span style={{ fontSize:12, color:'#bfbfbf', marginLeft:'auto' }}>{comment.time}</span>
+          </div>
+          <div style={{ fontSize:14, color:'#444', lineHeight:1.75, marginBottom:8 }}>{highlightMentions(comment.content)}</div>
+          <div style={{ display:'flex', alignItems:'center', gap:16 }}>
+            <button className="cmt-action" onClick={() => setReplyOpen(!replyOpen)}>
+              {TablerIcon({icon:'message'})} 回复
+            </button>
+            {isMine && <button className='cmt-action danger' onClick={handleDel}>
+              {TablerIcon({icon:'trash'})} 删除
+            </button>}
+          </div>
+        </div>
+      </div>
+      {replyOpen && (
+        <div style={{ marginTop:10, marginLeft:48, display:'flex', gap:8 }}>
+          <MentionTextArea
+            rows={2} value={replyText}
+            onChange={function(e) { setReplyText(e.target.value); }}
+            placeholder={'回复 ' + comment.author + '...'}
+            maxLength={500}
+            style={{ borderRadius:8, resize:'none', flex:1, fontSize:13 }}
+          />
+          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+            <Button type="primary" size="small" onClick={handleReply} style={{ borderRadius:8 }}>发送</Button>
+            <Button size="small" onClick={function() { setReplyOpen(false); setReplyText(''); }} style={{ borderRadius:8 }}>取消</Button>
+          </div>
+        </div>
+      )}
+      {replies.length > 0 && (
+        <div style={{ marginLeft:48, marginTop:8 }}>
+          {replies.map(function(r, ri) {
+            return (
+              <div key={r.id} className="comment-reply-item" style={{ borderLeftColor: r.isMine ? '#b7eb8f' : '#e8e8e8' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:3 }}>
+                  <span style={{ fontSize:13, fontWeight:600, color:'#555' }}>{r.author}</span>
+                  <Tag style={{ borderRadius:6, fontSize:10, color:'#8c8c8c', background:'#f5f5f5', border:'none', margin:0, padding:'0 5px', lineHeight:'16px' }}>{r.dept}</Tag>
+                  <span style={{ fontSize:11, color:'#bfbfbf', marginLeft:'auto' }}>{r.time}</span>
+                </div>
+                <div style={{ fontSize:13, color:'#555', lineHeight:1.65 }}>{highlightMentions(r.content)}</div>
+                <div style={{ display:'flex', gap:12, marginTop:4 }}>
+                  <button className="cmt-action" onClick={() => setReplyOpen(!replyOpen)}>
+                    {TablerIcon({icon:'message', style:{fontSize:13}})} 回复
+                  </button>
+                  {r.isMine && <button className='cmt-action danger' onClick={() => handleDelReply(r.id)}>
+                    {TablerIcon({icon:'trash', style:{fontSize:13}})} 删除
+                  </button>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const REQ = {
+  id: 'REQ-0001',
+  title: '5G模组选型方案征集 - 华东智慧城市项目',
+  urgency: 'critical',
+  status: 'Collecting',
+  deadline: dayjs().add(2, 'day').format('YYYY-MM-DD HH:mm'),
+  publisher: 'Ming.Li 李明',
+  publisherDept: '华东大区销售部',
+  createdAt: '2026-05-27 10:00',
+  industry: '智慧城市',
+  viewCount: 156,
+  likeCount: 23,
+  collectCount: 8,
+  visibilityScope: { type: 'dept', values: ['华东大区', '华北大区'] },
+  invitedProductLines: [
+    { name: '智慧城市方案', responded: true, responderCount: 1 },
+    { name: '5G模组产品线', responded: true, responderCount: 2 },
+    { name: '车联网方案', responded: false, responderCount: 0 }
+  ]
+};
+
+const App = () => {
+  const [liked, setLiked] = React.useState(false);
+  const [likeCount, setLikeCount] = React.useState(23);
+  const [collected, setCollected] = React.useState(false);
+  const [followed, setFollowed] = React.useState(false);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [shareOpen, setShareOpen] = React.useState(false);
+  const [solutionContent, setSolutionContent] = React.useState('');
+  const [emailRecipients, setEmailRecipients] = React.useState(['publisher']);
+  const [customEmailRecipients, setCustomEmailRecipients] = React.useState([]);
+  const [feishuSync, setFeishuSync] = React.useState(true);
+  const [solutionFiles, setSolutionFiles] = React.useState([]);
+  const [commentText, setCommentText] = React.useState('');
+    const [comments, setComments] = React.useState([
+    { id: 1, author: 'David.Zhao 赵伟', dept: '华南大区', content: '这个需求很紧急，我们区域也有类似场景，建议优先处理。', time: '2026-05-27 11:30', isMine: false,
+      replies: [
+        { id: 11, author: 'Tao.Zhou 周涛', dept: '华东大区', content: '@David.Zhao 赵伟 同意，智慧城市的5G需求越来越多了。', time: '2026-05-27 12:00', isMine: false },
+        { id: 111, author: 'David.Zhao 赵伟', dept: '华南大区', content: '@Tao.Zhou 周涛 是的，我们这边也有几个类似的项目在跟进。', time: '2026-05-27 12:30', isMine: false }
+      ]
+    },
+    { id: 2, author: 'Owen.Liu 刘洋', dept: '技术支持部', content: '5G模组选型建议考虑RG500Q系列，支持NSA/SA双模，适合智慧城市场景。', time: '2026-05-27 12:15', isMine: false },
+    { id: 3, author: 'Lily.Sun 孙丽', dept: '产品管理部', content: '已通知产品团队跟进，预计今天下午给出初步方案。', time: '2026-05-27 13:00', isMine: false, replies: [
+      { id: 31, author: 'Ming.Li 李明', dept: '华东大区销售部', content: '@Lily.Sun 孙丽 感谢快速响应，客户比较着急。', time: '2026-05-27 13:30', isMine: true }
+    ]},
+    { id: 4, author: 'Tao.Zhou 周涛', dept: '华东大区', content: '我们之前有个类似项目，可以参考一下方案一的思路。', time: '2026-05-27 14:20', isMine: false },
+    { id: 5, author: 'Min.Wu 吴敏', dept: '研发部', content: '补充一下：如果对功耗有要求，可以考虑RG200U系列Cat.1模组作为备选。', time: '2026-05-27 15:45', isMine: false },
+  ]);
+const [solutions, setSolutions] = React.useState([
+    {
+      id: 1, author: 'Alice.Wang 王芳', dept: '产品一部', best: true, productLine: '智慧城市方案',
+      content: '推荐使用RG500Q-EA 5G模组，支持Sub-6GHz全频段，集成GNSS定位，适合智慧城市多场景部署。建议搭配QuecOpen开发平台，可缩短客户开发周期30%以上。供货周期2周，价格区间可面议。',
+      files: ['RG500Q-EA产品规格书.pdf', '智慧城市解决方案.pptx'],
+      time: '2026-05-27 14:00',
+    },
+    {
+      id: 2, author: 'Mark.Zhang 张强', dept: '产品二部', best: false, productLine: '5G模组产品线',
+      content: '建议考虑RM500Q-GL模组，全球频段覆盖，支持5G NR NSA/SA双模。针对智慧城市场景已有成熟的参考设计，可提供EVB快速验证。同时推荐搭配EC200A作为4G备份方案。',
+      files: ['RM500Q-GL选型指南.pdf'],
+      time: '2026-05-27 15:30',
+    },
+    {
+      id: 3, author: 'Jing.Chen 陈静', dept: '产品三部', best: false, productLine: '5G模组产品线',
+      content: '从成本和性能平衡角度，推荐RG520N-EU模组。该模组基于最新平台，功耗更低，尺寸更小，适合智慧城市终端设备的紧凑设计需求。已有3个智慧城市项目成功落地案例。',
+      files: ['RG520N技术白皮书.pdf', '案例集锦.pdf'],
+      time: '2026-05-27 16:45',
+    },
+  ]);
+
+  const currentUser = { name: 'Current.User 当前用户', dept: '我的部门' };
+
+  const handleLike = () => {
+    setLiked(v => !v);
+    setLikeCount(c => liked ? c - 1 : c + 1);
+    message.success(liked ? '已取消点赞' : '点赞成功');
+  };
+
+  const handleCollect = () => {
+    setCollected(v => !v);
+    message.success(collected ? '已取消收藏' : '收藏成功');
+  };
+
+  const handleNudge = (productLineName) => {
+    Modal.confirm({
+      title: '催促回答',
+      icon: TablerIcon({icon:'bell-ring'}),
+      content: '将向「' + productLineName + '」的产品经理发送催促通知，确认发送？',
+      okText: '发送催促',
+      cancelText: '取消',
+      onOk() { message.success('已向「' + productLineName + '」发送催促通知'); }
+    });
+  };
+
+  const handleFollow = () => {
+    setFollowed(v => !v);
+    message.success(followed ? '已取消关注' : '已关注');
+  };
+
+  const handleAdopt = (id) => {
+    Modal.confirm({
+      title: '采纳为最佳方案',
+      icon: TablerIcon({icon:'alert-circle'}),
+      content: '确认选择此方案？采纳后将标记为最佳方案并通知方案提供者。',
+      okText: '确认采纳',
+      cancelText: '取消',
+      onOk() {
+        setSolutions(prev => prev.map(s => ({ ...s, best: s.id === id })));
+
+        var adoptedSol = solutions.find(function(s) { return s.id === id; });
+        if (adoptedSol) {
+          // 1. 写入 localStorage → 个人中心"我的方案"
+          var adoptedSolutions = JSON.parse(localStorage.getItem('adopted_solutions') || '[]');
+          adoptedSolutions.unshift({
+            id: Date.now(),
+            solutionId: adoptedSol.id,
+            author: adoptedSol.author,
+            authorDept: adoptedSol.dept,
+            demandTitle: REQ.title,
+            demandId: REQ.id,
+            adoptedBy: REQ.publisher,
+            adoptedByDept: REQ.publisherDept,
+            adoptedTime: dayjs().format('YYYY-MM-DD HH:mm'),
+            solutionContent: adoptedSol.content,
+            solutionFiles: adoptedSol.files
+          });
+          localStorage.setItem('adopted_solutions', JSON.stringify(adoptedSolutions));
+
+          // 2. 写入 localStorage → 通知中心
+          var notifications = JSON.parse(localStorage.getItem('pc07_notifications') || '[]');
+          notifications.unshift({
+            id: Date.now() + 1,
+            type: 'adopt',
+            title: REQ.publisher + ' 将你的方案标记为"最佳方案"',
+            author: REQ.publisher,
+            authorDept: REQ.publisherDept,
+            time: dayjs().toISOString(),
+            read: false,
+            forced: false,
+            targetType: 'Request',
+            targetId: REQ.id,
+            detail: '你在需求《' + REQ.title + '》中提交的方案被 ' + REQ.publisher + '（' + REQ.publisherDept + '）采纳为最佳方案。'
+          });
+          localStorage.setItem('pc07_notifications', JSON.stringify(notifications));
+
+          // 更新 shell 通知徽标
+          try { window.__updateNotifyBadge && window.__updateNotifyBadge(notifications.filter(function(n) { return !n.read; }).length); } catch(e) {}
+        }
+
+        message.success('已采纳为最佳方案，已通知方案提供者');
+      },
+    });
+  };
+
+  const handleCloseReq = () => {
+    Modal.confirm({
+      title: '关闭需求',
+      icon: TablerIcon({icon:'alert-circle'}),
+      content: '关闭后将无法重新打开，确定要关闭此需求吗？',
+      okText: '确认关闭',
+      okButtonProps: { danger: true },
+      cancelText: '取消',
+      onOk() { message.success('需求已关闭'); },
+    });
+  };
+
+  const handleSubmitSolution = () => {
+    if (!solutionContent.trim()) { message.warning('请输入方案内容'); return; }
+    if (solutionFiles.length === 0) { message.warning('请上传至少一个附件'); return; }
+
+    // 构建通知文案
+    var notifyParts = ['方案提交成功'];
+    var emailTargets = [];
+    if (emailRecipients.length > 0) {
+      var recipientLabels = { publisher: '需求发布者', responders: '已响应产品线人员', followers: '关注该需求的人' };
+      var names = emailRecipients.map(function(k) { return recipientLabels[k] || k; });
+      emailTargets = emailTargets.concat(names);
+    }
+    if (customEmailRecipients.length > 0) {
+      emailTargets = emailTargets.concat(customEmailRecipients);
+    }
+    if (emailTargets.length > 0) {
+      notifyParts.push('已发送邮件通知：' + emailTargets.join('、'));
+    }
+    if (feishuSync) {
+      notifyParts.push('已同步至飞书机器人');
+    }
+
+    message.success(notifyParts.join('；'));
+    setDrawerOpen(false);
+    setSolutionContent('');
+    setSolutionFiles([]);
+  };
+
+  const handleComment = () => {
+    if (!commentText.trim()) { message.warning('请输入评论内容'); return; }
+    setComments(prev => [...prev, {
+      id: Date.now(), author: currentUser.name, dept: currentUser.dept,
+      content: commentText, time: dayjs().format('YYYY-MM-DD HH:mm'),
+      isMine: true, 
+    }]);
+    setCommentText('');
+    message.success('评论发表成功');
+  };
+
+  const handleReply = (parentId, newReply) => {
+    setComments(prev => addReplyToComment(prev, parentId, newReply));
+  };
+
+  const handleDelete = (targetId) => {
+    setComments(prev => removeById(prev, targetId));
+  };
+
+  const totalCommentCount = countAll(comments);
+
+  return (
+    <div className="page-container">
+      {/* Z1 面包屑 */}
+      <div style={{ marginBottom: 16, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <Breadcrumb items={[
+          { title: React.createElement('a', { onClick: function() { window.location.href = 'PAGE-PC-04_提需求.html'; } }, '提需求') },
+          { title: REQ.title.length > 20 ? REQ.title.slice(0,20)+'...' : REQ.title },
+        ]} />
+        <Button icon={TablerIcon({icon:'arrow-left'})} onClick={function() { window.location.href = 'PAGE-PC-04_提需求.html'; }}>返回列表</Button>
+      </div>
+
+      {/* Z2 需求基本信息 */}
+      <Card style={{ marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div style={{ flex: 1 }}>
+            <Space align="center" style={{ marginBottom: 12 }} wrap>
+              <Title level={4} style={{ margin: 0 }}>{REQ.title}</Title>
+              <Tag color="red">{REQ.urgency === 'critical' ? '特急' : REQ.urgency === 'urgent' ? '紧急' : '普通'}</Tag>
+              <Tag color="orange">{REQ.status === 'Collecting' ? '方案收集中' : REQ.status}</Tag>
+              {React.createElement(DeadlineCountdown, { deadline: REQ.deadline })}
+            </Space>
+            <Space size={24} wrap style={{ color: '#666', fontSize: 13 }}>
+              <span>{TablerIcon({icon:'user'})} {REQ.publisher} · {REQ.publisherDept}</span>
+              <span>{TablerIcon({icon:'clock'})} {REQ.createdAt}</span>
+              <span>{TablerIcon({icon:'building-bank'})} {REQ.industry}</span>
+              <span>{TablerIcon({icon:'eye'})} {REQ.viewCount}</span>
+              <span>{TablerIcon({icon:'thumb-up'})} {REQ.likeCount}</span>
+              <span>{TablerIcon({icon:'star'})} {REQ.collectCount}</span>
+            </Space>
+            <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid #f0f0f0', display: 'flex', gap: 24, flexWrap: 'wrap', fontSize: 13, color: '#666' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                {TablerIcon({icon:'eye', style: {fontSize: 14}})}
+                <span style={{ fontWeight: 500 }}>可见范围：</span>
+                {REQ.visibilityScope.type === 'all' ? React.createElement(Tag, { color: 'green', style: { margin: 0 } }, '全部可见')
+                  : REQ.visibilityScope.type === 'dept' ? React.createElement(Tag, { color: 'blue', style: { margin: 0 } }, REQ.visibilityScope.values.join('、'))
+                  : React.createElement(Tag, { color: 'purple', style: { margin: 0 } }, REQ.visibilityScope.values.join('、'))
+                }
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                {TablerIcon({icon:'users-plus', style: {fontSize: 14}})}
+                <span style={{ fontWeight: 500 }}>已邀请产品线：</span>
+                {REQ.invitedProductLines.length > 0
+                  ? REQ.invitedProductLines.map(function(pl, i) { var responded = pl.responded; return React.createElement(Tag, { key: i, color: responded ? 'green' : 'default', style: { margin: '0 4px 0 0' } }, responded ? React.createElement('span', null, React.createElement('i', { className: 'ti ti-circle-check', style: { fontSize: 11 } }), ' ', pl.name) : React.createElement('span', null, React.createElement('i', { className: 'ti ti-clock', style: { fontSize: 11 } }), ' ', pl.name, ' ', React.createElement('span', { style: { color: '#faad14', fontSize: 11 } }, '待响应'))); })
+                  : React.createElement('span', { style: { color: '#8c8c8c' } }, '系统自动匹配')
+                }
+              </span>
+            </div>
+          </div>
+          <Button danger icon={TablerIcon({icon:'x-circle'})} onClick={handleCloseReq}>关闭需求</Button>
+        </div>
+      </Card>
+
+      {/* Z3 需求描述 */}
+      <Card title="需求描述" style={{ marginBottom: 16 }}>
+        <div style={{ lineHeight: 1.8, fontSize: 14 }}>
+          <p><strong>项目背景：</strong></p>
+          <p>华东大区智慧城市项目客户（某地级市住建局）计划在2026年Q3启动城市级IoT基础设施升级，涉及智能路灯、环境监测、交通感知等多个子系统。客户明确要求采用5G通信模组，以满足大带宽、低时延的业务需求。</p>
+          <p><strong>核心需求：</strong></p>
+          <ul>
+            <li>支持5G NR SA/NSA双模，覆盖国内主流运营商频段</li>
+            <li>模组需具备GNSS定位能力，精度优于米级</li>
+            <li>工作温度范围：-30°C ~ +70°C（户外部署场景）</li>
+            <li>需提供Linux/Android SDK及参考设计</li>
+            <li>预计首批采购量：500~1000片，后续年采购量5000+</li>
+          </ul>
+          <p><strong>时间要求：</strong></p>
+          <p>客户要求在<strong>6月15日前</strong>完成选型评估并提供样品。请各产品部门尽快提交推荐方案，包含产品规格、价格区间、供货周期等关键信息。</p>
+        </div>
+      </Card>
+
+      
+      {/* Z3.5 邀请回答进度 */}
+      {REQ.invitedProductLines.length > 0 && (function() {
+        var responded = REQ.invitedProductLines.filter(function(pl) { return pl.responded; }).length;
+        var total = REQ.invitedProductLines.length;
+        var pendingLines = REQ.invitedProductLines.filter(function(pl) { return !pl.responded; });
+        return React.createElement(Card, {
+          style: { marginBottom: 16, borderRadius: 8, border: responded === total ? '1px solid #b7eb8f' : '1px solid #ffe58f' },
+          title: React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+            React.createElement('i', { className: 'ti ti-users-plus', style: { fontSize: 18, color: responded === total ? '#52c41a' : '#faad14' } }),
+            React.createElement('span', null, '邀请回答进度'),
+            React.createElement(Tag, { color: responded === total ? 'success' : 'processing' }, responded + '/' + total + ' 已响应')
+          )
+        },
+          React.createElement('div', null,
+            REQ.invitedProductLines.map(function(pl, i) {
+              return React.createElement('div', {
+                key: i,
+                style: {
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '10px 0', borderBottom: i < REQ.invitedProductLines.length - 1 ? '1px solid #f5f5f5' : 'none'
+                }
+              },
+                React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 10 } },
+                  React.createElement('i', {
+                    className: 'ti ' + (pl.responded ? 'ti-circle-check' : 'ti-clock'),
+                    style: { fontSize: 16, color: pl.responded ? '#52c41a' : '#d9d9d9' }
+                  }),
+                  React.createElement('span', { style: { fontSize: 14, fontWeight: 500 } }, pl.name),
+                  pl.responded
+                    ? React.createElement(Tag, { color: 'success', style: { margin: 0 } }, '已响应 · ' + pl.responderCount + '个方案')
+                    : React.createElement(Tag, { color: 'default', style: { margin: 0 } }, '待响应')
+                ),
+                !pl.responded && React.createElement(Button, {
+                  size: 'small',
+                  type: 'link',
+                  icon: React.createElement('i', { className: 'ti ti-bell-ring', style: { fontSize: 14 } }),
+                  onClick: function() { handleNudge(pl.name); }
+                }, '催促回答')
+              );
+            })
+          )
+        );
+      })()}
+
+      <Card title={
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>方案响应（共 {solutions.length} 个）</span>
+          <Button type="primary" icon={TablerIcon({icon:'file-text'})} onClick={() => setDrawerOpen(true)}>提交方案</Button>
+        </div>
+      } style={{ marginBottom: 16 }}>
+        {solutions.map((sol, idx) => (
+          <Card key={sol.id} className="solution-card" size="small"
+            style={{ marginBottom: idx < solutions.length - 1 ? 12 : 0, border: sol.best ? '1px solid #faad14' : undefined, background: sol.best ? '#fffbe6' : undefined }}>
+            {sol.best && <div className="best-badge">{TablerIcon({icon:'crown'})} 最佳方案</div>}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ flex: 1 }}>
+                <Space style={{ marginBottom: 8 }}>
+                  <Avatar style={{ background: sol.best ? '#faad14' : '#1677ff' }} icon={TablerIcon({icon:'user'})} />
+                  <Text strong>{sol.author}</Text>
+                  <Text type="secondary">{sol.dept}</Text>
+                  {sol.productLine && REQ.invitedProductLines.some(function(pl) { return pl.name === sol.productLine; }) && React.createElement(Tag, { color: "purple", icon: React.createElement("i", { className: "ti ti-users-plus", style: { fontSize: 11 } }), style: { margin: 0, fontSize: 11 } }, "受邀回答")}
+                  <Text type="secondary">{sol.time}</Text>
+                </Space>
+                <Paragraph style={{ margin: '8px 0' }}>{highlightMentions(sol.content)}</Paragraph>
+                <Space>
+                  {sol.files.map(f => (
+                    <Tag key={f} icon={TablerIcon({icon:'paperclip'})} color="processing">{f}</Tag>
+                  ))}
+                </Space>
+              </div>
+              {!sol.best && (
+                <Button type="primary" ghost size="small" icon={TablerIcon({icon:'circle-check-filled'})} onClick={() => handleAdopt(sol.id)}>
+                  采纳为最佳
+                </Button>
+              )}
+            </div>
+          </Card>
+        ))}
+      </Card>
+
+      {/* Z5 互动栏 */}
+      <Card style={{ marginBottom: 16 }}>
+        <Space size={16}>
+          <Button type={liked ? 'primary' : 'default'} icon={liked ? TablerIcon({icon:'thumb-up-filled'}) : TablerIcon({icon:'thumb-up'})} onClick={handleLike}>
+            {likeCount}
+          </Button>
+          <Button type={collected ? 'primary' : 'default'} icon={collected ? TablerIcon({icon:'star-filled'}) : TablerIcon({icon:'star'})} onClick={handleCollect}>
+            {collected ? '已收藏' : '收藏'}
+          </Button>
+          <Button type={followed ? 'primary' : 'default'} icon={followed ? TablerIcon({icon:'bell-filled'}) : TablerIcon({icon:'bell'})} onClick={handleFollow}>
+            {followed ? '已关注' : '关注'}
+          </Button>
+          <Button icon={TablerIcon({icon:'share'})} onClick={() => setShareOpen(true)}>
+            分享
+          </Button>
+        </Space>
+      </Card>
+
+      {/* Z6 评论区 */}
+      <Card title={`评论（${totalCommentCount}）`}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          <MentionTextArea rows={2} placeholder="支持 @提及用户，输入评论..." value={commentText} onChange={function(e){setCommentText(e.target.value)}} style={{ flex: 1 }} />
+          <Button type="primary" icon={TablerIcon({icon:'send'})} onClick={handleComment} style={{ alignSelf: 'flex-end' }}>发表</Button>
+        </div>
+        <Divider style={{ margin: '12px 0' }} />
+        {comments.map((c, i) =>
+          React.createElement(CommentCard, {
+            key: c.id,
+            comment: c,
+            index: i,
+            currentUser: currentUser,
+            onReply: handleReply,
+            onDelete: handleDelete
+          })
+        )}
+      </Card>
+
+      {/* DRAWER-01 提交方案 */}
+      <Drawer title="提交方案" width={720} open={drawerOpen} onClose={() => setDrawerOpen(false)}
+        extra={<Space><Button onClick={() => setDrawerOpen(false)}>取消</Button><Button type="primary" onClick={handleSubmitSolution}>提交</Button></Space>}>
+        <div style={{ marginBottom: 16 }}>
+          <Text strong style={{ display: 'block', marginBottom: 8 }}>方案内容</Text>
+          <MentionTextArea rows={8} placeholder="请输入方案内容，包括推荐产品、技术优势、价格区间、供货周期等信息... 输入 @ 可提及其他用户" value={solutionContent} onChange={function(e){setSolutionContent(e.target.value)}} />
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <Text strong style={{ display: 'block', marginBottom: 8 }}>附件 <Text type="secondary" style={{ fontWeight: 400, fontSize: 12 }}>（至少上传一个）</Text></Text>
+          <Upload.Dragger multiple beforeUpload={function(file, fileList) { setSolutionFiles(function(prev) { return prev.concat(file); }); return false; }} onRemove={function(file) { setSolutionFiles(function(prev) { return prev.filter(function(f) { return f.uid !== file.uid; }); }); }} fileList={solutionFiles}>
+            <p className="ant-upload-drag-icon">{TablerIcon({icon:'upload', style:{fontSize:32, color:'#1677ff'}})}</p>
+            <p>点击或拖拽文件上传</p>
+            <p className="ant-upload-hint">支持 PDF、Word、PPT、Excel 等格式</p>
+          </Upload.Dragger>
+        </div>
+        {/* Z4.1 通知设置 */}
+        <Card size="small" title={React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 6 } }, TablerIcon({icon:'bell', style:{fontSize:16}}), '通知设置')} style={{ borderRadius: 8 }}>
+          {/* 邮件通知 */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+              <i className="ti ti-mail" style={{ fontSize: 16, color: '#1677ff', marginRight: 6 }}></i>
+              <Text strong style={{ fontSize: 13 }}>邮件通知</Text>
+              <Text type="secondary" style={{ fontSize: 12, marginLeft: 8 }}>方案提交后将自动发送邮件通知</Text>
+            </div>
+            <Checkbox.Group
+              options={[
+                { label: '需求发布者（' + REQ.publisher + '）', value: 'publisher' },
+                { label: '已响应产品线人员', value: 'responders' },
+                { label: '关注该需求的人', value: 'followers' },
+              ]}
+              value={emailRecipients}
+              onChange={function(checkedValues) { setEmailRecipients(checkedValues); }}
+            />
+            <div style={{ marginTop: 12 }}>
+              <Select
+                mode="tags"
+                style={{ width: '100%' }}
+                placeholder="输入邮箱地址或搜索人员..."
+                value={customEmailRecipients}
+                onChange={function(vals) { setCustomEmailRecipients(vals); }}
+                options={PERSONNEL_EMAIL_OPTIONS}
+                tokenSeparators={[',', ';', ' ']}
+                filterOption={function(input, option) {
+                  return (option.label || '').toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                }}
+              />
+            </div>
+          </div>
+          <Divider style={{ margin: '12px 0' }} />
+          {/* 飞书机器人同步 */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <i className="ti ti-brand-feishu" style={{ fontSize: 16, color: '#3370ff' }}></i>
+              <div>
+                <Text strong style={{ fontSize: 13 }}>同步至飞书机器人</Text>
+                <br/>
+                <Text type="secondary" style={{ fontSize: 12 }}>将方案摘要推送至指定飞书群机器人</Text>
+              </div>
+            </div>
+            <Switch checked={feishuSync} onChange={function(v) { setFeishuSync(v); }} />
+          </div>
+          {feishuSync && React.createElement('div', { style: { marginTop: 12, padding: '8px 12px', background: '#f6f8fa', borderRadius: 6, fontSize: 12, color: '#666' } },
+            React.createElement('i', { className: 'ti ti-info-circle', style: { marginRight: 4, color: '#3370ff' } }),
+            '将推送至默认飞书群机器人（方案互助通知群），包含方案摘要、提交人与需求链接'
+          )}
+        </Card>
+      </Drawer>
+
+      {/* Share Overlay */}
+      {shareOpen && React.createElement('div', { style: { position:'fixed', inset:0, background:'rgba(0,0,0,0.45)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 } },
+        React.createElement('div', { style: { background:'#fff', borderRadius:16, padding:32, width:'100%', maxWidth:440, boxShadow:'0 12px 48px rgba(0,0,0,0.2)', position:'relative' } },
+          React.createElement('button', { onClick: function() { setShareOpen(false); }, style: { position:'absolute', top:16, right:16, border:'none', background:'transparent', cursor:'pointer', color:'#bfbfbf', fontSize:20 } }, React.createElement('i', { className:'ti ti-x' })),
+          React.createElement('div', { style: { textAlign:'center', marginBottom:24 } },
+            React.createElement('div', { style: { fontSize:18, fontWeight:600, color:'#1a1a2e', marginBottom:4 } }, '分享需求'),
+            React.createElement('div', { style: { fontSize:13, color:'#8c8c8c', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' } }, REQ.title)
+          ),
+          React.createElement('div', { style: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 } },
+            React.createElement('div', { onClick: function() { window.open('https://www.feishu.cn/share?url=' + encodeURIComponent(window.location.href), '_blank'); setShareOpen(false); }, style: { cursor:'pointer', padding:'24px 16px', borderRadius:12, border:'1px solid #e8e8e8', textAlign:'center', transition:'all .2s', background:'#fff' },
+              onMouseEnter: function(e) { e.currentTarget.style.borderColor='#3370ff'; e.currentTarget.style.background='#f0f5ff'; },
+              onMouseLeave: function(e) { e.currentTarget.style.borderColor='#e8e8e8'; e.currentTarget.style.background='#fff'; }
+            },
+              React.createElement('i', { className:'ti ti-brand-feishu', style: { fontSize:32, color:'#3370ff', display:'block', marginBottom:8 } }),
+              React.createElement('div', { style: { fontSize:14, fontWeight:600, color:'#1a1a2e', marginBottom:2 } }, '分享至飞书'),
+              React.createElement('div', { style: { fontSize:11, color:'#8c8c8c' } }, '发送到飞书对话或群组')
+            ),
+            React.createElement('div', { onClick: function() { navigator.clipboard.writeText(window.location.href).then(function() { message.success('链接已复制'); setShareOpen(false); }); }, style: { cursor:'pointer', padding:'24px 16px', borderRadius:12, border:'1px solid #e8e8e8', textAlign:'center', transition:'all .2s', background:'#fff' },
+              onMouseEnter: function(e) { e.currentTarget.style.borderColor='#1890ff'; e.currentTarget.style.background='#f0f5ff'; },
+              onMouseLeave: function(e) { e.currentTarget.style.borderColor='#e8e8e8'; e.currentTarget.style.background='#fff'; }
+            },
+              React.createElement('i', { className:'ti ti-link', style: { fontSize:32, color:'#1890ff', display:'block', marginBottom:8 } }),
+              React.createElement('div', { style: { fontSize:14, fontWeight:600, color:'#1a1a2e', marginBottom:2 } }, '复制链接'),
+              React.createElement('div', { style: { fontSize:11, color:'#8c8c8c' } }, '复制页面链接分享给他人')
+            )
+          )
+        )
+      )}
+    </div>
+  );
+};
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
+</script>
+<script>
+  window.PROTO_SHELL && window.PROTO_SHELL.renderShell('req-square');
+  if (window.DataTracker) {
+    window.DataTracker.trackPageView('req-detail', '需求详情');
+  }
+</script>
+</body>
+</html>

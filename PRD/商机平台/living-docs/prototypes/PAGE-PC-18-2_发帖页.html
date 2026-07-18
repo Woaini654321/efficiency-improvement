@@ -1,0 +1,311 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>发布新讨论 - Quectel商机互助平台</title>
+  <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/quill@1.3.7/dist/quill.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/quill@1.3.7/dist/quill.snow.css" />
+  <script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="prototype-shell.js"></script>
+  <script src="data-tracker.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+    .page-header-bar {
+      background: #fff; padding: 14px 24px; border-bottom: 1px solid #f0f0f0;
+      display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 50;
+    }
+    .page-header-bar .back-btn {
+      display: flex; align-items: center; gap: 4px; font-size: 14px; color: #595959;
+      cursor: pointer; text-decoration: none; padding: 6px 10px; border-radius: 8px; transition: all .2s;
+    }
+    .page-header-bar .back-btn:hover { background: #f5f5f5; color: #1a1a2e; }
+    .page-header-bar h3 { margin: 0; font-size: 18px; font-weight: 600; color: #1a1a2e; }
+
+    .form-container { max-width: 860px; margin: 0 auto; padding: 24px 24px 100px; }
+    .form-card {
+      background: #fff; border-radius: 16px; padding: 28px 32px; margin-bottom: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #f0f0f0;
+      animation: fadeIn 0.5s ease both;
+    }
+    .form-card-title {
+      font-size: 16px; font-weight: 600; color: #1a1a2e;
+      margin-bottom: 20px; padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0; display: flex; align-items: center; gap: 8px;
+    }
+    .form-card-title .dot { width: 6px; height: 6px; border-radius: 50%; background: #1890ff; }
+    .form-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+    .form-field label { font-size: 13px; font-weight: 500; color: #333; }
+    .form-field label .required { color: #ff4d4f; margin-left: 2px; }
+    .form-field .hint { font-size: 11px; color: #bfbfbf; margin-top: 2px; }
+
+    .ql-container { min-height: 300px; font-size: 14px; border-radius: 0 0 10px 10px; }
+    .ql-toolbar { border-radius: 10px 10px 0 0; border-color: #d9d9d9; }
+    .ql-container { border-color: #d9d9d9; }
+    .ql-editor { min-height: 300px; font-size: 14px; line-height: 1.8; }
+    .ql-editor.ql-blank::before { font-style: normal; color: #bfbfbf; }
+
+    .preview-card {
+      background: linear-gradient(135deg, #e6f7ff, #f0f5ff); border-radius: 12px;
+      padding: 16px 20px; border: 1px solid #bae7ff; margin-top: 12px;
+    }
+    .preview-card .label { font-size: 12px; color: #8c8c8c; margin-bottom: 8px; }
+
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; background: #fff;
+      border-top: 1px solid #f0f0f0; padding: 14px 24px;
+      display: flex; justify-content: center; gap: 16px; z-index: 100;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.04);
+    }
+
+    @media(max-width:768px){
+      .page-header-bar { padding: 12px 16px; }
+      .page-header-bar h3 { font-size: 16px; }
+      .form-container { padding: 12px 16px 90px; }
+      .form-card { padding: 20px 16px; margin-bottom: 12px; border-radius: 14px; }
+      .form-card-title { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+(function(){
+  var useState = React.useState; var useRef = React.useRef; var useEffect = React.useEffect;
+  var Button = antd.Button; var Input = antd.Input; var Segmented = antd.Segmented;
+  var message = antd.message; var Tag = antd.Tag; var Divider = antd.Divider;
+
+  var TOPICS = ['商机讨论','方案互助','经验分享','行业动态','吐槽'];
+  var TOPIC_COLORS = { '商机讨论':'blue','方案互助':'orange','经验分享':'green','行业动态':'purple','吐槽':'magenta' };
+  var TOPIC_HEX = { '商机讨论':'#1677ff','方案互助':'#fa8c16','经验分享':'#52c41a','行业动态':'#722ed1','吐槽':'#eb2f96' };
+
+  // ====== RichTextEditor ======
+  function RichTextEditor(props) {
+    var value = props.value;
+    var onChange = props.onChange;
+    var placeholder = props.placeholder;
+    var containerRef = useRef(null);
+    var quillRef = useRef(null);
+    var onChangeRef = useRef(onChange);
+    onChangeRef.current = onChange;
+    var isInternalChange = useRef(false);
+
+    useEffect(function() {
+      if (!containerRef.current || quillRef.current) return;
+      var quill = new Quill(containerRef.current, {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'header': [1, 2, 3, false] }],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['link', 'blockquote'],
+            ['clean']
+          ]
+        },
+        placeholder: placeholder || '请输入讨论内容，支持富文本格式...'
+      });
+      if (value) { quill.root.innerHTML = value; }
+      quill.on('text-change', function() {
+        var html = quill.root.innerHTML;
+        var text = quill.getText().trim();
+        isInternalChange.current = true;
+        onChangeRef.current && onChangeRef.current(text ? html : '');
+      });
+      quillRef.current = quill;
+      return function() { quillRef.current = null; };
+    }, []);
+
+    useEffect(function() {
+      if (isInternalChange.current) { isInternalChange.current = false; return; }
+      if (quillRef.current && value !== undefined) {
+        var current = quillRef.current.root.innerHTML;
+        if (value !== current) { quillRef.current.root.innerHTML = value || ''; }
+      }
+    }, [value]);
+
+    return React.createElement('div', { ref: containerRef });
+  }
+
+  // ====== Main Page ======
+  function NewPostPage() {
+    var titleState = useState('');
+    var title = titleState[0];
+    var setTitle = titleState[1];
+
+    var topicState = useState('商机讨论');
+    var topic = topicState[0];
+    var setTopic = topicState[1];
+
+    var contentState = useState('');
+    var content = contentState[0];
+    var setContent = contentState[1];
+
+    var previewState = useState(false);
+    var showPreview = previewState[0];
+    var setShowPreview = previewState[1];
+
+    var submittingState = useState(false);
+    var submitting = submittingState[0];
+    var setSubmitting = submittingState[1];
+
+    var handleCancel = function() { window.close(); };
+
+    var handleSubmit = function() {
+      if (!title.trim()) { message.warning('请输入标题'); return; }
+      if (!content || content === '<p><br></p>') { message.warning('请输入讨论内容'); return; }
+      setSubmitting(true);
+      setTimeout(function() {
+        var newPost = {
+          id: 'P' + Date.now(),
+          title: title,
+          topic: topic,
+          author: '当前用户',
+          content: content,
+          replyCount: 0,
+          viewCount: 0,
+          date: dayjs().format('YYYY-MM-DD'),
+          tags: [],
+          hot: false
+        };
+        // Store new post and signal parent list page
+        localStorage.setItem('newDiscussionPost', JSON.stringify(newPost));
+        message.success('发布成功！');
+        setSubmitting(false);
+        setTimeout(function() { window.close(); }, 600);
+      }, 800);
+    };
+
+    var plainText = content ? (function(){
+      var tmp = document.createElement('div');
+      tmp.innerHTML = content;
+      return tmp.textContent || tmp.innerText || '';
+    })() : '';
+
+    return React.createElement('div', null,
+      // Header bar
+      React.createElement('div', { className: 'page-header-bar' },
+        React.createElement('a', { href: 'PAGE-PC-18_讨论区.html', className: 'back-btn',
+          onClick: function(e) { e.preventDefault(); window.close(); } },
+          React.createElement('i', { className: 'ti ti-arrow-left', style: { fontSize: 16 } }),
+          '返回讨论区'
+        ),
+        React.createElement('div', { style: { width: 1, height: 20, background: '#e8e8e8', margin: '0 4px' } }),
+        React.createElement('h3', null, '发布新讨论')
+      ),
+
+      // Form
+      React.createElement('div', { className: 'form-container' },
+
+        // Basic info card
+        React.createElement('div', { className: 'form-card', style: { animationDelay: '0.1s' } },
+          React.createElement('div', { className: 'form-card-title' },
+            React.createElement('span', { className: 'dot' }), '基本信息'
+          ),
+          React.createElement('div', { className: 'form-field' },
+            React.createElement('label', null, '标题', React.createElement('span', { className: 'required' }, '*')),
+            React.createElement(Input, {
+              placeholder: '请输入讨论标题，简明扼要概括话题',
+              value: title,
+              onChange: function(e) { setTitle(e.target.value); },
+              maxLength: 100,
+              showCount: true,
+              size: 'large',
+              style: { borderRadius: 10 }
+            }),
+            React.createElement('span', { className: 'hint' }, '好的标题能吸引更多人参与讨论，建议不超过100字')
+          ),
+          React.createElement('div', { className: 'form-field' },
+            React.createElement('label', null, '话题分类', React.createElement('span', { className: 'required' }, '*')),
+            React.createElement('div', null,
+              React.createElement(Segmented, {
+                options: TOPICS,
+                value: topic,
+                onChange: setTopic,
+                style: { fontSize: 13 }
+              })
+            )
+          )
+        ),
+
+        // Content editor card
+        React.createElement('div', { className: 'form-card', style: { animationDelay: '0.2s' } },
+          React.createElement('div', { className: 'form-card-title' },
+            React.createElement('span', { className: 'dot' }), '讨论内容',
+            React.createElement('span', { style: { fontSize: 12, fontWeight: 400, color: '#bfbfbf', marginLeft: 8 } },
+              '支持富文本格式，可插入标题、列表、链接等'
+            )
+          ),
+          React.createElement(RichTextEditor, {
+            value: content,
+            onChange: setContent,
+            placeholder: '请输入讨论内容...\n\n建议包含：\n• 背景描述\n• 核心观点或问题\n• 期望的讨论方向'
+          })
+        ),
+
+        // Preview toggle
+        React.createElement('div', { style: { textAlign: 'center', marginBottom: 40 } },
+          React.createElement(Button, {
+            type: 'dashed',
+            icon: React.createElement('i', { className: 'ti ti-eye', style: { fontSize: 14 } }),
+            onClick: function() { setShowPreview(!showPreview); }
+          }, showPreview ? '收起预览' : '预览效果'),
+          showPreview && React.createElement('div', { className: 'preview-card', style: { textAlign: 'left', marginTop: 16 } },
+            React.createElement('div', { className: 'label' }, '发布预览'),
+            React.createElement('div', { style: { background: '#fff', borderRadius: 10, padding: '16px 20px', border: '1px solid #f0f0f0' } },
+              React.createElement(Tag, { color: TOPIC_COLORS[topic] || 'default', style: { borderRadius: 6, border: 'none', marginBottom: 8 } }, topic),
+              React.createElement('div', { style: { fontSize: 18, fontWeight: 700, color: '#1a1a2e', margin: '12px 0 8px' } },
+                title || '（未填写标题）'
+              ),
+              React.createElement('div', { style: { fontSize: 12, color: '#bfbfbf', marginBottom: 12 } },
+                '作者: 当前用户 | ', dayjs().format('YYYY-MM-DD'), ' | 0 回复 | 0 浏览'
+              ),
+              React.createElement(Divider, { style: { margin: '12px 0' } }),
+              content ? React.createElement('div', {
+                className: 'ql-editor',
+                style: { padding: 0, minHeight: 'auto' },
+                dangerouslySetInnerHTML: { __html: content }
+              }) : React.createElement('div', { style: { color: '#bfbfbf', fontSize: 14 } }, '（未填写内容）')
+            )
+          )
+        )
+      ),
+
+      // Bottom bar
+      React.createElement('div', { className: 'bottom-bar' },
+        React.createElement(Button, {
+          size: 'large',
+          icon: React.createElement('i', { className: 'ti ti-x' }),
+          onClick: handleCancel,
+          style: { borderRadius: 10, height: 44, paddingInline: 28 }
+        }, '取消'),
+        React.createElement(Button, {
+          type: 'primary',
+          size: 'large',
+          icon: React.createElement('i', { className: 'ti ti-send', style: { fontSize: 18 } }),
+          loading: submitting,
+          onClick: handleSubmit,
+          style: { borderRadius: 10, height: 44, paddingInline: 28, background: 'linear-gradient(135deg,#1890ff,#36cfc9)', border: 'none', boxShadow: '0 4px 15px rgba(24,144,255,0.35)' }
+        }, '发布讨论')
+      )
+    );
+  }
+
+  if (window.PROTO_SHELL && window.PROTO_SHELL.renderShell) {
+    window.PROTO_SHELL.renderShell('new-post');
+  }
+  if (window.DataTracker) { window.DataTracker.trackPageView('new-post', '发帖页'); }
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(NewPostPage, null));
+})();
+</script>
+</body>
+</html>

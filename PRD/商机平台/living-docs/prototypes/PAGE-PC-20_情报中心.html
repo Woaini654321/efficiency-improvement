@@ -1,0 +1,171 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>情报中心 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;background:#f5f7fa}
+.page-container{padding:4px 0 40px}
+.page-header{margin-bottom:20px}
+.page-header-title{font-size:20px;font-weight:700;color:#1a1a2e;display:flex;align-items:center;gap:8px}
+.filter-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:18px}
+.filter-row-right{margin-left:auto;display:flex;gap:8px}
+.product-card{background:#fff;border-radius:14px;border:1px solid #f0f0f0;transition:all .25s;overflow:hidden}
+.product-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.08);border-color:#1890ff}
+.product-card-header{background:linear-gradient(135deg,#f0f5ff,#e6f7ff);padding:16px 20px;border-bottom:1px solid #e8f4ff;display:flex;align-items:center;justify-content:space-between}
+.product-card-body{padding:16px 20px}
+.product-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px}
+.product-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.intel-card{background:#fff;border-radius:12px;padding:18px 20px;border:1px solid #f0f0f0;margin-bottom:12px;transition:all .2s;cursor:pointer}
+.intel-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.06);border-color:#d9d9d9}
+.intel-card-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.intel-card-title{font-size:15px;font-weight:600;color:#1a1a2e;flex:1;min-width:200px}
+.intel-card-summary{font-size:13px;color:#595959;line-height:1.6;margin-bottom:10px}
+.intel-card-footer{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#bfbfbf;flex-wrap:wrap;gap:8px}
+.industry-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.industry-card{background:#fff;border-radius:14px;padding:20px;border:1px solid #f0f0f0;cursor:pointer;transition:all .25s}
+.industry-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.industry-card-img{width:100%;height:120px;border-radius:10px;background:linear-gradient(135deg,#e6f7ff,#d6e4ff);display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:36px;color:#1890ff}
+.industry-card h4{font-size:15px;font-weight:600;color:#1a1a2e;margin-bottom:6px;line-height:1.4}
+.industry-card p{font-size:13px;color:#8c8c8c;line-height:1.5;margin-bottom:10px}
+.industry-card-footer{display:flex;align-items:center;justify-content:space-between}
+.drawer-field{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.drawer-field label{font-size:13px;font-weight:500;color:#333}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.ani-card{animation:fadeIn .35s ease both}
+@media(max-width:1024px){.product-grid,.industry-grid{grid-template-columns:1fr}}
+@media(max-width:768px){.page-container{padding:12px}.filter-row{flex-direction:column;align-items:stretch}.filter-row-right{margin-left:0}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+(function(){
+var useState=React.useState;var useMemo=React.useMemo;
+var Text=antd.Typography.Text;
+var Button=antd.Button;var Tag=antd.Tag;var Segmented=antd.Segmented;var Select=antd.Select;
+var message=antd.message;
+var Input=antd.Input;var DatePicker=antd.DatePicker;
+var Empty=antd.Empty;
+var RangePicker=DatePicker.RangePicker;
+var COMPETITIVE_DATA=[
+{id:"C1",brand:"Sierra Wireless",product:"EM9293",type:"新品发布",title:"Sierra推出EM9293 5G NR模组，对标RG500Q",summary:"Sierra Wireless近期发布了其新一代5G Sub-6GHz模组EM9293，支持SA/NSA双模，宣称功耗较上代降低20%。目标市场为车载前装和工业路由，与Quectel RG500Q直接竞争。值得关注的是其基带采用了高通SDX62平台。",source:"Sierra Wireless官网",submitter:"Tony.Zhang 张伟",date:"2026-07-06"},
+{id:"C2",brand:"Telit",product:"ME910G1",type:"价格变动",title:"Telit ME910G1全球降价，冲击NB-IoT市场",summary:"Telit宣布其NB-IoT模组ME910G1全球统一降价15%-20%，重点争夺中国市场智慧表计和智慧路灯项目。此举可能影响Quectel BC260Y在部分政企项目中的报价优势。",source:"Telit官方通知",submitter:"Nina.Li 李娜",date:"2026-07-04"},
+{id:"C3",brand:"广和通",product:"FG360",type:"客户案例",title:"广和通FG360中标某新能源车企T-Box项目",summary:"广和通宣布其5G模组FG360已获得某头部新能源车企的T-Box定点，预计2027年Q1量产。该客户此前与Quectel有过技术交流，需关注客户关系维护。",source:"广和通官方公众号",submitter:"Kevin.Wang 王强",date:"2026-07-03"},
+{id:"C4",brand:"Sierra Wireless",product:"HL78系列",type:"其他",title:"Sierra Wireless与AWS深化IoT平台合作",summary:"Sierra Wireless宣布其HL78系列LPWA模组将深度集成AWS IoT Core相关服务，提供开箱即用的云连接方案。这对其在海外市场的IoT平台生态竞争力有增强作用。",source:"Sierra Wireless Blog",submitter:"Owen.Liu 刘洋",date:"2026-07-01"},
+{id:"C5",brand:"Telit",product:"FN980",type:"新品发布",title:"Telit FN980 5G毫米波模组通过FCC认证",summary:"Telit的5G毫米波模组FN980近期通过了FCC认证，支持n258/n260/n261频段，面向北美市场FWA和CPE场景。目前在毫米波模组领域Quectel尚未有直接竞品。",source:"FCC OET",submitter:"Yan.Chen 陈燕",date:"2026-06-28"},
+{id:"C6",brand:"广和通",product:"全系列",type:"价格变动",title:"广和通4G/Cat.1模组渠道价格下调",summary:"据渠道反馈，广和通近期下调了4G和Cat.1模组的渠道出货价，降幅在8%-12%之间，主要针对二三级市场的中小客户。对Quectel EC200A和EC800M在价格敏感型项目上构成压力。",source:"渠道商反馈",submitter:"Leo.Zhao 赵磊",date:"2026-06-25"},
+{id:"C7",brand:"Sierra Wireless",product:"RC76系列",type:"客户案例",title:"Sierra RC76赢得欧洲智慧农业项目",summary:"Sierra Wireless的RC76系列LPWA模组赢得了一个覆盖15个国家的欧洲智慧农业物联网项目，预计首批部署量超过50万片。该项目此前Quectel也有跟进。",source:"IoTNow News",submitter:"Liu.Zhao 赵六",date:"2026-06-20"},
+{id:"C8",brand:"移远",product:"RG520N",type:"新品发布",title:"移远发布RG520N 5G RedCap模组",summary:"移远通信发布了RG520N 5G RedCap模组，采用高通SDX53平台，主打低成本5G场景。RedCap（轻量化5G）是目前行业热点，预计将对Cat.4和Cat.1高端市场产生替代效应。Quectel需关注RedCap产品线的布局节奏。",source:"移远官方",submitter:"Sean.Sun 孙七",date:"2026-06-18"}
+];
+var INDUSTRY_DATA=[
+{id:"I1",title:"2026年全球蜂窝物联网模组市场：5G占比将突破25%",summary:"Counterpoint最新报告预测，2026年全球蜂窝物联网模组出货量将达6.5亿片，其中5G模组出货量将首次超过1.5亿片，占比突破25%。车载和工业互联网是5G模组增长的主要驱动力。",industry:"行业趋势",source:"Counterpoint Research",date:"2026-07-07",icon:"ti-chart-line"},
+{id:"I2",title:"中国智能网联汽车标准体系2026版正式发布",summary:"工信部正式发布了《智能网联汽车标准体系（2026版）》，新增了V2X通信模组技术规范、车载5G通信模块安全要求等标准。这将推动车载前装通信模组的标准化和规模化应用。",industry:"车载",source:"工信部",date:"2026-07-05",icon:"ti-car"},
+{id:"I3",title:"欧盟《网络弹性法案》正式实施，IoT设备须满足新要求",summary:"欧盟Cyber Resilience Act于7月1日正式实施，要求所有在欧盟市场销售的IoT设备必须满足新的网络安全标准，包括安全启动、固件更新机制等。对中国厂商的模组和终端产品出口带来新的合规挑战。",industry:"法规政策",source:"EU Commission",date:"2026-07-03",icon:"ti-shield"},
+{id:"I4",title:"国家电网2026年第二批智能电表招标启动，Cat.1和NB-IoT模组需求旺盛",summary:"国家电网发布了2026年第二批智能电表集中招标公告，总量约3800万台。从招标文件看，通信模块中Cat.1占比已超过60%，NB-IoT主要用于水表和燃气表。",industry:"能源",source:"国家电网电子商务平台",date:"2026-07-02",icon:"ti-bolt"},
+{id:"I5",title:"5G专网在制造业落地的三大趋势",summary:"IDC指出2026年5G专网在制造业落地呈现三大趋势：1)从试点走向规模部署，2)与工业以太网融合加深，3)边缘AI与5G专网深度耦合。这对Quectel的5G模组在工业场景的推广具有参考意义。",industry:"工业IoT",source:"IDC",date:"2026-06-30",icon:"ti-building-factory"},
+{id:"I6",title:"东南亚智慧城市建设加速，IoT模组需求增长40%",summary:"据东盟ICT报告，2026年上半年东南亚智慧城市建设投资同比增长40%，新加坡、泰国、印尼三国领跑。重点应用场景包括：智能路灯、智慧停车、环境监测和公共交通。对中国厂商来说是重要的出海机遇。",industry:"智慧城市",source:"ASEAN ICT Report",date:"2026-06-28",icon:"ti-building-skyscraper"},
+{id:"I7",title:"全球芯片供应格局变化：车规级芯片产能向中国转移",summary:"受地缘政治和供应链多元化策略影响，多家大型IDM厂商正在将车规级芯片产能转移至中国。台积电南京厂和SMIC深圳厂均已启动车规认证流程。这将改善车载模组的芯片供应保障。",industry:"供应链",source:"IC Insights",date:"2026-06-25",icon:"ti-cpu"},
+{id:"I8",title:"2026年下半年中国5G RedCap商用进程加速",summary:"三大运营商联合宣布2026年下半年将在全国50个重点城市完成5G RedCap网络升级。RedCap作为轻量化5G技术，将在工业传感器、可穿戴设备和视频监控等领域率先规模商用。",industry:"5G/通信",source:"工信部",date:"2026-06-22",icon:"ti-broadcast"}
+];
+var COMPETITOR_BRANDS=["Sierra Wireless","Telit","广和通","移远","u-blox","Thales"];
+var INTEL_TYPES=["新品发布","价格变动","客户案例","其他"];
+var INDUSTRY_TYPES=["行业趋势","车载","法规政策","能源","工业IoT","智慧城市","供应链","5G/通信"];
+
+function IntelCenterPage(){
+var tabState=useState("competitive");var activeTab=tabState[0];var setActiveTab=tabState[1];
+var compBrandState=useState(null);var compBrand=compBrandState[0];var setCompBrand=compBrandState[1];
+var compTypeState=useState(null);var compType=compTypeState[0];var setCompType=compTypeState[1];
+var compDateState=useState(null);var compDate=compDateState[0];var setCompDate=compDateState[1];
+var industryFilterState=useState(null);var industryFilter=industryFilterState[0];var setIndustryFilter=industryFilterState[1];
+var industryDateState=useState(null);var industryDate=industryDateState[0];var setIndustryDate=industryDateState[1];
+var industrySearchState=useState("");var industrySearch=industrySearchState[0];var setIndustrySearch=industrySearchState[1];
+var filteredCompetitive=useMemo(function(){
+return COMPETITIVE_DATA.filter(function(c){
+if(compBrand&&c.brand!==compBrand)return false;if(compType&&c.type!==compType)return false;
+if(compDate&&compDate[0]&&compDate[1]){var d=dayjs(c.date);if(d.isBefore(dayjs(compDate[0]),"day")||d.isAfter(dayjs(compDate[1]),"day"))return false}
+return true
+})},[compBrand,compType,compDate]);
+var filteredIndustry=useMemo(function(){
+return INDUSTRY_DATA.filter(function(item){
+if(industryFilter&&item.industry!==industryFilter)return false;
+if(industryDate&&industryDate[0]&&industryDate[1]){var d=dayjs(item.date);if(d.isBefore(dayjs(industryDate[0]),"day")||d.isAfter(dayjs(industryDate[1]),"day"))return false}
+if(industrySearch){var kw=industrySearch.toLowerCase();if(item.title.toLowerCase().indexOf(kw)===-1&&item.summary.toLowerCase().indexOf(kw)===-1)return false}
+return true
+})},[industryFilter,industryDate,industrySearch]);
+var openIndustryDetail=function(item){
+try{localStorage.setItem("industryDetail",JSON.stringify(item))}catch(e){}
+window.open("PAGE-PC-20-2_行业情报详情页.html")
+};
+var openIntelDetail=function(c){
+try{localStorage.setItem("intelDetail",JSON.stringify(c))}catch(e){}
+window.open("PAGE-PC-20-1_竞品情报详情页.html")
+};
+return (
+<div className="page-container">
+<div className="page-header"><div className="page-header-title"><i className="ti ti-radar" style={{fontSize:22,color:"#1677ff"}} />情报中心</div></div>
+<Segmented value={activeTab} onChange={setActiveTab} style={{marginBottom:20}} options={[{label:"竞品情报",value:"competitive"},{label:"行业情报",value:"industry"}]} />
+{activeTab==="competitive" && (
+<div>
+<div className="filter-row">
+<Select placeholder="竞品品牌" allowClear style={{width:160}} value={compBrand} onChange={function(v){setCompBrand(v||null)}} options={COMPETITOR_BRANDS.map(function(b){return{value:b,label:b}})} />
+<Select placeholder="情报类型" allowClear style={{width:140}} value={compType} onChange={function(v){setCompType(v||null)}} options={INTEL_TYPES.map(function(t){return{value:t,label:t}})} />
+<RangePicker placeholder={["开始日期","结束日期"]} style={{width:240}} value={compDate} onChange={function(d){setCompDate(d)}} />
+<div className="filter-row-right"><Button type="primary" icon={<i className="ti ti-plus" style={{fontSize:16}} />} onClick={function(){window.open("PAGE-PC-20-3_提交竞品情报.html")}}>提交情报</Button></div>
+</div>
+{filteredCompetitive.length===0 ? <Empty description="暂无匹配情报" image={Empty.PRESENTED_IMAGE_SIMPLE} style={{padding:60}} /> :
+filteredCompetitive.map(function(c,i){var typeColors={"新品发布":"green","价格变动":"orange","客户案例":"blue","其他":"default"};return (
+<div key={c.id} className="intel-card ani-card" style={{animationDelay:(i*0.06)+"s"}} onClick={function(){openIntelDetail(c)}}>
+<div className="intel-card-header">
+<Tag color="purple" style={{borderRadius:6}}>{c.brand}</Tag>
+{c.product && <Tag color="default" style={{borderRadius:6}}>{c.product}</Tag>}
+<Tag color={typeColors[c.type]||"default"} style={{borderRadius:6}}>{c.type}</Tag>
+<span className="intel-card-title">{c.title}</span>
+</div>
+<div className="intel-card-summary">{c.summary}</div>
+<div className="intel-card-footer"><span>来源: {c.source} | 提交: {c.submitter}</span><span>{c.date}</span></div>
+</div>
+);})}
+</div>
+)}
+{activeTab==="industry" && (
+<div>
+<div className="filter-row">
+<Select placeholder="行业分类" allowClear style={{width:160}} value={industryFilter} onChange={function(v){setIndustryFilter(v||null)}} options={INDUSTRY_TYPES.map(function(t){return{value:t,label:t}})} />
+<RangePicker placeholder={["开始日期","结束日期"]} style={{width:240}} value={industryDate} onChange={function(d){setIndustryDate(d)}} />
+<Input.Search placeholder="搜索行业资讯..." allowClear style={{width:240}} value={industrySearch} onChange={function(e){setIndustrySearch(e.target.value)}} onSearch={function(v){setIndustrySearch(v)}} />
+</div>
+{filteredIndustry.length===0 ? <Empty description="暂无匹配资讯" image={Empty.PRESENTED_IMAGE_SIMPLE} style={{padding:60}} /> :
+<div className="industry-grid">{filteredIndustry.map(function(item,i){return (
+<div key={item.id} className="industry-card ani-card" style={{animationDelay:(i*0.08)+"s"}} onClick={function(){openIndustryDetail(item)}}>
+<div className="industry-card-img"><i className={"ti "+item.icon} /></div>
+<Tag color="blue" style={{borderRadius:6,marginBottom:8}}>{item.industry}</Tag>
+<h4>{item.title}</h4>
+<p>{item.summary}</p>
+<div className="industry-card-footer"><Text type="secondary" style={{fontSize:12}}>来源: {item.source}</Text><Text type="secondary" style={{fontSize:12}}>{item.date}</Text></div>
+</div>
+);})}</div>
+}
+</div>
+)}
+</div>
+);}
+window.PROTO_SHELL&&window.PROTO_SHELL.renderShell("intel-center");
+if(window.DataTracker){window.DataTracker.trackPageView("intel-center","情报中心")}
+var container=document.getElementById("proto-content")||document.getElementById("root");
+ReactDOM.createRoot(container).render(React.createElement(IntelCenterPage));
+})();
+</script>
+</body>
+</html>

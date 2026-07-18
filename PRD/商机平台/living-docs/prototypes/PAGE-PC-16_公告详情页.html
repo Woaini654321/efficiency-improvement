@@ -1,0 +1,355 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>公告详情 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+  @keyframes fadeInUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  @keyframes slideInRight { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }
+  .page-wrap { max-width: 1100px; margin: 0 auto; animation: fadeInUp 0.4s ease; }
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+  .page-header-left { display: flex; align-items: center; gap: 12px; }
+  .page-title { font-size: 22px; font-weight: 700; color: #1a1a2e; display: flex; align-items: center; gap: 8px; }
+  .page-title i { color: #1890ff; font-size: 24px; }
+  .type-tabs { display: flex; gap: 0; background: #fff; border-radius: 10px; padding: 3px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .type-tab {
+    padding: 8px 18px; border: none; background: transparent; cursor: pointer;
+    font-size: 13px; color: #595959; border-radius: 8px; transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .type-tab:hover { color: #1890ff; background: #f0f5ff; }
+  .type-tab.active { color: #fff; background: #1890ff; font-weight: 600; }
+  .type-tab .count { font-size: 11px; opacity: 0.7; }
+  /* List */
+  .ann-list { display: flex; flex-direction: column; gap: 0; }
+  .ann-card {
+    background: #fff; padding: 20px 24px; cursor: pointer;
+    transition: all 0.2s; border-bottom: 1px solid #f0f0f0;
+    display: flex; align-items: flex-start; gap: 16px;
+    position: relative;
+  }
+  .ann-card:first-child { border-radius: 12px 12px 0 0; }
+  .ann-card:last-child { border-radius: 0 0 12px 12px; border-bottom: none; }
+  .ann-card:only-child { border-radius: 12px; border-bottom: none; }
+  .ann-card:hover { background: #fafbfd; }
+  .ann-card.selected { background: #e6f7ff; border-left: 3px solid #1890ff; padding-left: 21px; }
+  .ann-card .icon-wrap {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 20px;
+  }
+  .ann-card .card-body { flex: 1; min-width: 0; }
+  .ann-card .card-title { font-size: 15px; font-weight: 600; color: #1a1a2e; margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ann-card .card-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #8c8c8c; }
+  .ann-card .card-arrow { color: #bfbfbf; font-size: 16px; flex-shrink: 0; align-self: center; transition: color 0.2s; }
+  .ann-card:hover .card-arrow { color: #1890ff; }
+  /* Detail Panel */
+  .detail-panel {
+    background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    animation: slideInRight 0.35s ease;
+  }
+  .detail-header {
+    padding: 24px 28px; border-bottom: 1px solid #f0f0f0;
+    display: flex; align-items: flex-start; justify-content: space-between;
+  }
+  .detail-header-left { flex: 1; min-width: 0; padding-right: 16px; }
+  .detail-title { font-size: 20px; font-weight: 700; color: #1a1a2e; line-height: 1.4; margin-bottom: 12px; }
+  .detail-meta-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; font-size: 13px; color: #8c8c8c; }
+  .detail-meta-row span { display: inline-flex; align-items: center; gap: 4px; }
+  .detail-content {
+    padding: 28px 28px 32px;
+    font-size: 14px; color: #333; line-height: 1.9;
+  }
+  .detail-content h2 { font-size: 18px; font-weight: 700; color: #1a1a2e; margin: 24px 0 10px; padding-bottom: 6px; border-bottom: 2px solid #f0f0f0; }
+  .detail-content h3 { font-size: 16px; font-weight: 600; color: #1a1a2e; margin: 20px 0 8px; }
+  .detail-content p { margin-bottom: 12px; }
+  .detail-content ul, .detail-content ol { padding-left: 20px; margin-bottom: 12px; }
+  .detail-content li { margin-bottom: 4px; }
+  .detail-content blockquote {
+    border-left: 3px solid #1890ff; padding: 10px 16px; margin: 12px 0;
+    background: #f0f5ff; border-radius: 0 8px 8px 0; color: #595959;
+  }
+  .detail-footer {
+    padding: 16px 28px; border-top: 1px solid #f0f0f0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .empty-state { text-align: center; padding: 80px 0; color: #bfbfbf; }
+  .empty-state i { font-size: 56px; display: block; margin-bottom: 16px; opacity: 0.4; }
+  .empty-state .msg { font-size: 15px; }
+  @media (max-width: 768px) {
+    .page-header { flex-direction: column; align-items: stretch; }
+    .ann-card { padding: 16px 18px; }
+    .detail-content { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+(() => {
+  const { useState, useMemo, useCallback, useEffect } = React;
+  const { Typography, Tag, Button, Modal, message, Spin, Empty, Input, Breadcrumb } = antd;
+  const { Title, Text } = Typography;
+
+  // ----- 公告类型配置（与运营端对齐）-----
+  const ANN_TYPES = [
+    { value: 'all', label: '全部' },
+    { value: 'notice', label: '通知', icon: 'ti-info-circle' },
+    { value: 'policy', label: '政策', icon: 'ti-file-text' },
+    { value: 'activity', label: '活动', icon: 'ti-calendar-event' },
+    { value: 'other', label: '其他', icon: 'ti-dots' }
+  ];
+  const TYPE_LABEL = { notice: '通知', policy: '政策', activity: '活动', other: '其他' };
+  const TYPE_COLOR = { notice: 'blue', policy: 'purple', activity: 'green', other: 'default' };
+  const TYPE_ICON = {
+    notice: 'ti-info-circle',
+    policy: 'ti-file-text',
+    activity: 'ti-calendar-event',
+    other: 'ti-dots'
+  };
+  const TYPE_BG = {
+    notice: 'linear-gradient(135deg, #e6f7ff, #bae7ff)',
+    policy: 'linear-gradient(135deg, #f9f0ff, #efdbff)',
+    activity: 'linear-gradient(135deg, #f6ffed, #d9f7be)',
+    other: 'linear-gradient(135deg, #f5f5f5, #e8e8e8)'
+  };
+  const TYPE_ICON_COLOR = {
+    notice: '#1890ff',
+    policy: '#722ed1',
+    activity: '#52c41a',
+    other: '#8c8c8c'
+  };
+
+  // ----- Mock 数据（与运营端公告发布共用数据源）-----
+  const MOCK_ANNOUNCEMENTS = [
+    { id: 'ANN-001', title: 'Quectel商机互助平台正式上线公告', type: 'notice', status: 'published', priority: 'high', pinned: true, pushBanner: true,
+      content: '<p>各位同事：</p><p>Quectel商机互助平台已于今日正式上线运行。平台汇集了公司最新的产品信息、解决方案和成功案例，同时支持方案需求的提交与对接。</p><p>请各部门积极使用平台进行方案发布与协作。</p>',
+      publisher: '管理员', createTime: '2026-06-01 09:00', publishTime: '2026-06-01 09:30', readCount: 328 },
+    { id: 'ANN-002', title: '关于6月份方案质量考核的通知', type: 'policy', status: 'published', priority: 'high', pinned: true, pushBanner: false,
+      content: '<p>各销售团队负责人：</p><p>根据公司安排，6月份将进行方案质量专项考核。考核维度包括：方案数量、方案完整度、需求响应及时率、客户反馈评分。</p><p>请各位在6月25日前完成自评，考核结果将纳入季度绩效。</p>',
+      publisher: '管理员', createTime: '2026-06-05 14:00', publishTime: '2026-06-05 14:30', readCount: 512 },
+    { id: 'ANN-003', title: '5G模组新产品资料库更新', type: 'notice', status: 'published', priority: 'normal', pinned: false, pushBanner: false,
+      content: '<p>产品线同事已更新以下5G模组产品的技术资料：</p><ul><li>RG500Q 技术规格书 v3.2</li><li>RG650x 选型对比表</li><li>5G模组天线设计指南</li></ul><p>请在"方案发布"模块中查阅最新资料。</p>',
+      publisher: 'Li.E 李工', createTime: '2026-06-08 11:00', publishTime: '2026-06-08 11:00', readCount: 186 },
+    { id: 'ANN-004', title: '6月18日方案对接线上交流会', type: 'activity', status: 'published', priority: 'normal', pinned: false, pushBanner: true,
+      content: '<p>定于6月18日（周四）下午2:00-4:00举办方案对接线上交流会。</p><p>会议主题：</p><ol><li>智慧城市项目方案发布与对接</li><li>车联网模组需求集中收集</li><li>海外市场拓展策略讨论</li></ol><p>请通过企业微信会议链接加入，会议号：980-123-456。</p>',
+      publisher: 'Chen.M 陈经理', createTime: '2026-06-10 16:00', publishTime: '2026-06-10 16:20', readCount: 265 },
+    { id: 'ANN-005', title: '平台功能更新：新增需求热度分析', type: 'notice', status: 'published', priority: 'normal', pinned: false, pushBanner: false,
+      content: '<p>平台近期上线了需求热度分析功能：</p><ul><li>需求广场增加热度排序</li><li>运营看板增加需求响应率趋势图</li><li>支持按行业、分类维度分析需求分布</li></ul>',
+      publisher: '管理员', createTime: '2026-06-12 10:00', publishTime: '2026-06-12 10:00', readCount: 143 },
+    { id: 'ANN-007', title: '关于规范方案分类标签的通知', type: 'policy', status: 'published', priority: 'high', pinned: false, pushBanner: false,
+      content: '<p>为提高方案检索效率，现对方案分类标签进行规范化管理：</p><p>1. 产品线分类统一使用最新的产品树结构</p><p>2. 行业标签建议使用标准行业分类词</p><p>3. 关键词标签不超过5个</p>',
+      publisher: '管理员', createTime: '2026-06-02 08:00', publishTime: '2026-06-02 08:15', readCount: 401 }
+  ];
+
+  // ----- 主组件 -----
+  function AnnouncementPage() {
+    const [activeType, setActiveType] = useState('all');
+    const [selectedId, setSelectedId] = useState(null);
+    const [readIds, setReadIds] = useState(new Set());
+
+    // 只展示已发布的公告
+    const publishedList = useMemo(() => {
+      return MOCK_ANNOUNCEMENTS.filter(a => a.status === 'published');
+    }, []);
+
+    // 按类型筛选
+    const filteredList = useMemo(() => {
+      if (activeType === 'all') return publishedList;
+      return publishedList.filter(a => a.type === activeType);
+    }, [activeType, publishedList]);
+
+    // 各类型数量统计
+    const typeCounts = useMemo(() => {
+      var counts = { all: publishedList.length };
+      publishedList.forEach(function(a) {
+        counts[a.type] = (counts[a.type] || 0) + 1;
+      });
+      return counts;
+    }, [publishedList]);
+
+    const selectedAnn = useMemo(() => {
+      return publishedList.find(function(a) { return a.id === selectedId; }) || null;
+    }, [selectedId, publishedList]);
+
+    // URL 参数：支持 ?id=ANN-001 直接打开某条公告
+    useEffect(() => {
+      var params = new URLSearchParams(window.location.search);
+      var idFromUrl = params.get('id');
+      if (idFromUrl) {
+        var found = publishedList.find(function(a) { return a.id === idFromUrl; });
+        if (found) { setSelectedId(idFromUrl); }
+      }
+    }, []);
+
+    // 标记已读
+    var handleSelect = useCallback(function(id) {
+      setSelectedId(id);
+      setReadIds(function(prev) {
+        var next = new Set(prev);
+        next.add(id);
+        return next;
+      });
+    }, []);
+
+    var handleBackToList = useCallback(function() {
+      setSelectedId(null);
+    }, []);
+
+    // 列表视图
+    function renderList() {
+      if (filteredList.length === 0) {
+        return React.createElement('div', { className: 'empty-state' },
+          React.createElement('i', { className: 'ti ti-speakerphone' }),
+          React.createElement('div', { className: 'msg' }, '暂无公告')
+        );
+      }
+
+      return React.createElement('div', { className: 'ann-list' },
+        filteredList.map(function(ann) {
+          var isSelected = ann.id === selectedId;
+          var isRead = readIds.has(ann.id);
+          return React.createElement('div', {
+            key: ann.id,
+            className: 'ann-card' + (isSelected ? ' selected' : ''),
+            onClick: function() { handleSelect(ann.id); },
+            style: { borderLeft: isSelected ? '3px solid #1890ff' : '3px solid transparent', paddingLeft: isSelected ? '21px' : '24px' }
+          },
+            React.createElement('div', {
+              className: 'icon-wrap',
+              style: { background: TYPE_BG[ann.type], color: TYPE_ICON_COLOR[ann.type] }
+            }, React.createElement('i', { className: 'ti ' + TYPE_ICON[ann.type] })),
+            React.createElement('div', { className: 'card-body' },
+              React.createElement('div', { className: 'card-title', style: { fontWeight: isRead ? 600 : 700, color: isRead ? '#1a1a2e' : '#0d0d0d' } },
+                !isRead && React.createElement('span', {
+                  style: { display:'inline-block',width:'6px',height:'6px',borderRadius:'50%',background:'#ff4d4f',marginRight:'8px',verticalAlign:'middle',marginTop:'-2px' }
+                }),
+                ann.title
+              ),
+              React.createElement('div', { className: 'card-meta' },
+                React.createElement(Tag, { color: TYPE_COLOR[ann.type] }, TYPE_LABEL[ann.type]),
+                ann.priority === 'high' && React.createElement(Tag, { color: 'red', style: { fontSize: '11px' } }, '重要'),
+                React.createElement('span', null, React.createElement('i', { className: 'ti ti-user', style: { fontSize:'12px',marginRight:'2px' } }), ann.publisher),
+                React.createElement('span', null, React.createElement('i', { className: 'ti ti-clock', style: { fontSize:'12px',marginRight:'2px' } }), ann.publishTime),
+                React.createElement('span', null, React.createElement('i', { className: 'ti ti-eye', style: { fontSize:'12px',marginRight:'2px' } }), ann.readCount, ' 次阅读')
+              )
+            ),
+            React.createElement('i', { className: 'ti ti-chevron-right card-arrow' })
+          );
+        })
+      );
+    }
+
+    // 详情视图
+    function renderDetail() {
+      if (!selectedAnn) return null;
+
+      return React.createElement('div', { className: 'detail-panel' },
+        // Header
+        React.createElement('div', { className: 'detail-header' },
+          React.createElement('div', { className: 'detail-header-left' },
+            React.createElement('div', { className: 'detail-title' }, selectedAnn.title),
+            React.createElement('div', { className: 'detail-meta-row' },
+              React.createElement(Tag, { color: TYPE_COLOR[selectedAnn.type] }, TYPE_LABEL[selectedAnn.type]),
+              selectedAnn.priority === 'high' && React.createElement(Tag, { color: 'red' }, '重要'),
+              React.createElement('span', null,
+                React.createElement('i', { className: 'ti ti-user', style: { fontSize:'13px',marginRight:'3px' } }),
+                '发布人：' + selectedAnn.publisher
+              ),
+              React.createElement('span', null,
+                React.createElement('i', { className: 'ti ti-calendar', style: { fontSize:'13px',marginRight:'3px' } }),
+                '发布时间：' + selectedAnn.publishTime
+              ),
+              React.createElement('span', null,
+                React.createElement('i', { className: 'ti ti-eye', style: { fontSize:'13px',marginRight:'3px' } }),
+                selectedAnn.readCount + ' 次阅读'
+              )
+            )
+          ),
+          React.createElement(Button, {
+            type: 'text',
+            icon: React.createElement('i', { className: 'ti ti-x', style: { fontSize:'18px' } }),
+            onClick: handleBackToList,
+            style: { flexShrink: 0 }
+          })
+        ),
+        // Content
+        React.createElement('div', {
+          className: 'detail-content rich-body',
+          dangerouslySetInnerHTML: { __html: selectedAnn.content }
+        }),
+        // Footer
+        React.createElement('div', { className: 'detail-footer' },
+          React.createElement(Button, {
+            type: 'text',
+            icon: React.createElement('i', { className: 'ti ti-arrow-left' }),
+            onClick: handleBackToList,
+            style: { color: '#595959' }
+          }, '返回公告列表'),
+          React.createElement('div', { style: { display:'flex',alignItems:'center',gap:'12px',fontSize:'13px',color:'#8c8c8c' } },
+            React.createElement('span', null, '公告编号：' + selectedAnn.id),
+            React.createElement('span', null, '创建时间：' + selectedAnn.createTime)
+          )
+        )
+      );
+    }
+
+    return React.createElement('div', { className: 'page-wrap' },
+      React.createElement('div', { className: 'page-header' },
+        React.createElement('div', { className: 'page-header-left' },
+          React.createElement(Breadcrumb, {
+            items: [
+              { title: React.createElement('span', null, React.createElement('i', { className: 'ti ti-home', style: { fontSize: 12, marginRight: 4 } }), '首页'), href: '#' },
+              { title: selectedAnn ? React.createElement('span', { style: { cursor: 'pointer' }, onClick: handleBackToList }, '公告中心') : '公告中心' },
+              selectedAnn ? { title: '公告详情' } : null
+            ].filter(Boolean)
+          }),
+          !selectedAnn && React.createElement('div', { className: 'page-title' },
+            React.createElement('i', { className: 'ti ti-speakerphone' }),
+            '公告中心'
+          ),
+          selectedAnn && React.createElement(Button, { type: 'text', icon: React.createElement('i', { className: 'ti ti-arrow-left' }), onClick: handleBackToList, style: { marginLeft: 8 } }, '返回')
+        ),
+        React.createElement('div', { className: 'type-tabs' },
+          ANN_TYPES.map(function(t) {
+            var isActive = t.value === activeType;
+            var count = typeCounts[t.value] || 0;
+            return React.createElement('button', {
+              key: t.value,
+              className: 'type-tab' + (isActive ? ' active' : ''),
+              onClick: function() { setActiveType(t.value); setSelectedId(null); }
+            },
+              t.icon && React.createElement('i', { className: 'ti ' + t.icon, style: { fontSize:'14px' } }),
+              t.label,
+              React.createElement('span', { className: 'count' }, '(' + count + ')')
+            );
+          })
+        )
+      ),
+      selectedAnn
+        ? renderDetail()
+        : renderList()
+    );
+  }
+
+  // ----- 挂载与外壳 -----
+  window.PROTO_SHELL.renderShell('announcement-center');
+  if (window.DataTracker) { window.DataTracker.trackPageView('announcement-center', '公告中心'); }
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(AnnouncementPage));
+})();
+</script>
+</body>
+</html>

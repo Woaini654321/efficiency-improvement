@@ -1,0 +1,290 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>通知偏好 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+  body { margin: 0; background: #f5f5f5; }
+  .prefs-page { max-width: 800px; margin: 0 auto; padding: 24px; }
+  .prefs-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  .prefs-header i { font-size: 22px; color: #1890ff; }
+  .prefs-card { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 20px; overflow: hidden; }
+  .prefs-card-header { display: flex; align-items: center; gap: 8px; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; font-size: 14px; font-weight: 600; color: #1a1a2e; }
+  .prefs-card-header i { font-size: 18px; }
+  .prefs-table { width: 100%; border-collapse: collapse; }
+  .prefs-table th, .prefs-table td { padding: 14px 20px; text-align: center; }
+  .prefs-table thead th { background: #fafafa; font-size: 12px; font-weight: 600; color: #8c8c8c; border-bottom: 1px solid #f0f0f0; text-transform: none; letter-spacing: 0; }
+  .prefs-table thead th:first-child { text-align: left; }
+  .prefs-table tbody td { border-bottom: 1px solid #fafafa; }
+  .prefs-table tbody td:first-child { text-align: left; }
+  .prefs-table tbody tr:hover td { background: #fafbfd; }
+  .prefs-table tbody tr:last-child td { border-bottom: none; }
+  .prefs-type-cell { display: flex; align-items: center; gap: 10px; }
+  .prefs-type-icon { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .prefs-type-icon.publish { background: #e6f7ff; color: #1890ff; }
+  .prefs-type-icon.response { background: #f6ffed; color: #52c41a; }
+  .prefs-type-icon.adopt { background: #fff7e6; color: #fa8c16; }
+  .prefs-type-icon.system { background: #f5f5f5; color: #8c8c8c; }
+  .prefs-type-icon.mention { background: #f9f0ff; color: #722ed1; }
+  .prefs-type-icon.subscribe { background: #e6fffb; color: #13c2c2; }
+  .prefs-type-label { font-size: 13px; font-weight: 500; color: #262626; }
+  .prefs-type-desc { font-size: 11px; color: #bfbfbf; }
+  .channel-header { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .channel-header i { font-size: 20px; }
+  .channel-header span { font-size: 11px; color: #8c8c8c; }
+  .prefs-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 8px; }
+  .prefs-tip { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 8px; padding: 12px 16px; font-size: 12px; color: #8c6d00; display: flex; align-items: flex-start; gap: 8px; margin-bottom: 20px; }
+  .prefs-tip i { flex-shrink: 0; margin-top: 1px; }
+  .ant-switch.ant-switch-checked { background: #1890ff; }
+  .ant-switch { background: #d9d9d9; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+const { Switch, Button, Typography, message, Space, Spin } = antd;
+
+/* ===== 通知类型定义 ===== */
+const NOTIFY_TYPES = [
+  { key: 'publish',   label: '方案发布',   desc: '新方案上线通知',                   icon: 'ti-file-text',    iconClass: 'publish' },
+  { key: 'response',  label: '需求响应',   desc: '你的需求收到新方案响应',          icon: 'ti-messages',   iconClass: 'response' },
+  { key: 'adopt',     label: '方案采纳',   desc: '你的方案被标记为最佳或采纳',      icon: 'ti-award',       iconClass: 'adopt' },
+  { key: 'mention',   label: '@提及',     desc: '评论或讨论中被 @ 提及',           icon: 'ti-at',          iconClass: 'mention' },
+  { key: 'subscribe', label: '订阅更新',   desc: '你订阅的分类/方案有新内容',         icon: 'ti-bell-ringing',iconClass: 'subscribe' },
+  { key: 'system',    label: '系统通知',   desc: 'SLA告警、平台维护、运营报告',     icon: 'ti-info-circle', iconClass: 'system' },
+];
+
+/* ===== 渠道定义 ===== */
+const CHANNELS = [
+  { key: 'site',  label: '站内信', icon: 'ti-bell',            locked: true,  tooltip: '站内信为默认通知渠道，不可关闭' },
+  { key: 'feishu',label: '飞书',   icon: 'ti-brand-feishu',   locked: false, tooltip: '飞书机器人推送通知' },
+  { key: 'email', label: '邮箱',   icon: 'ti-mail',           locked: false, tooltip: '邮件通知' },
+];
+
+/* ===== 默认配置 ===== */
+function getDefaultPrefs() {
+  var prefs = {};
+  NOTIFY_TYPES.forEach(function(t) {
+    prefs[t.key] = { site: true, feishu: t.key === 'publish' || t.key === 'adopt', email: t.key === 'system' };
+  });
+  return prefs;
+}
+
+/* ===== 主组件 ===== */
+function NotifyPrefsPage() {
+  const [prefs, setPrefs] = useState(getDefaultPrefs());
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // 从 localStorage 加载
+  useEffect(function() {
+    var timer = setTimeout(function() {
+      try {
+        var raw = localStorage.getItem('notify_prefs');
+        if (raw) {
+          setPrefs(JSON.parse(raw));
+        }
+      } catch(e) {}
+      setLoading(false);
+    }, 400);
+    return function() { clearTimeout(timer); };
+  }, []);
+
+  // 切换开关
+  var toggleChannel = function(typeKey, channelKey) {
+    if (channelKey === 'site') return; // 站内信不可关闭
+    setPrefs(function(prev) {
+      var next = {};
+      Object.keys(prev).forEach(function(k) {
+        next[k] = Object.assign({}, prev[k]);
+      });
+      next[typeKey][channelKey] = !next[typeKey][channelKey];
+      return next;
+    });
+    setHasChanges(true);
+  };
+
+  // 保存
+  var handleSave = function() {
+    setSaving(true);
+    setTimeout(function() {
+      try {
+        localStorage.setItem('notify_prefs', JSON.stringify(prefs));
+        message.success('通知偏好已保存');
+        setHasChanges(false);
+      } catch(e) {
+        message.error('保存失败，请重试');
+      }
+      setSaving(false);
+    }, 500);
+  };
+
+  // 重置
+  var handleReset = function() {
+    setPrefs(getDefaultPrefs());
+    setHasChanges(true);
+    message.info('已恢复默认设置，点击保存生效');
+  };
+
+  // 全部开启
+  var handleAllOn = function() {
+    setPrefs(function(prev) {
+      var next = {};
+      Object.keys(prev).forEach(function(k) {
+        next[k] = { site: true, feishu: true, email: true };
+      });
+      return next;
+    });
+    setHasChanges(true);
+  };
+
+  // 全部关闭（站内信除外，因其不可关闭）
+  var handleAllOff = function() {
+    setPrefs(function(prev) {
+      var next = {};
+      Object.keys(prev).forEach(function(k) {
+        next[k] = { site: true, feishu: false, email: false };
+      });
+      return next;
+    });
+    setHasChanges(true);
+  };
+
+  if (loading) {
+    return React.createElement(
+      'div', { className: 'prefs-page', style: { display: 'flex', justifyContent: 'center', paddingTop: 120 } },
+      React.createElement(Spin, { size: 'large', tip: '加载偏好设置...' })
+    );
+  }
+
+  return React.createElement('div', { className: 'prefs-page' },
+    /* 页面头部 */
+    React.createElement('div', { className: 'prefs-header' },
+      React.createElement('i', { className: 'ti ti-settings' }),
+      React.createElement(Typography.Title, { level: 4, style: { margin: 0 } }, '通知偏好设置'),
+      React.createElement('span', {
+        style: { fontSize: 12, color: '#8c8c8c', marginLeft: 8, paddingTop: 2 }
+      }, '配置各类型通知的接收渠道')
+    ),
+
+    /* 提示条 */
+    React.createElement('div', { className: 'prefs-tip' },
+      React.createElement('i', { className: 'ti ti-bulb', style: { fontSize: 18 } }),
+      React.createElement('span', null,
+        React.createElement('strong', null, '站内信'), ' 为默认通知渠道，不可关闭。',
+        ' 飞书和邮箱为可选渠道，请确保已在对应平台绑定账号。'
+      )
+    ),
+
+    /* 通知类型 - 渠道矩阵 */
+    React.createElement('div', { className: 'prefs-card' },
+      React.createElement('div', { className: 'prefs-card-header' },
+        React.createElement('i', { className: 'ti ti-bell-ringing', style: { color: '#fa8c16' } }),
+        '通知类型与渠道'
+      ),
+      React.createElement('table', { className: 'prefs-table' },
+        React.createElement('thead', null,
+          React.createElement('tr', null,
+            React.createElement('th', { style: { width: '40%' } }, '通知类型'),
+            CHANNELS.map(function(ch) {
+              return React.createElement('th', { key: ch.key },
+                React.createElement('div', { className: 'channel-header' },
+                  React.createElement('i', { className: 'ti ' + ch.icon }),
+                  React.createElement('span', null, ch.label)
+                )
+              );
+            })
+          )
+        ),
+        React.createElement('tbody', null,
+          NOTIFY_TYPES.map(function(nt) {
+            return React.createElement('tr', { key: nt.key },
+              React.createElement('td', null,
+                React.createElement('div', { className: 'prefs-type-cell' },
+                  React.createElement('div', { className: 'prefs-type-icon ' + nt.iconClass },
+                    React.createElement('i', { className: 'ti ' + nt.icon })
+                  ),
+                  React.createElement('div', null,
+                    React.createElement('div', { className: 'prefs-type-label' }, nt.label),
+                    React.createElement('div', { className: 'prefs-type-desc' }, nt.desc)
+                  )
+                )
+              ),
+              CHANNELS.map(function(ch) {
+                var checked = prefs[nt.key] && prefs[nt.key][ch.key];
+                var disabled = ch.locked;
+                return React.createElement('td', { key: ch.key },
+                  React.createElement(Switch, {
+                    checked: checked,
+                    disabled: disabled,
+                    size: 'small',
+                    onChange: function() { toggleChannel(nt.key, ch.key); }
+                  })
+                );
+              })
+            );
+          })
+        )
+      )
+    ),
+
+    /* 快捷操作 */
+    React.createElement('div', { style: { display: 'flex', gap: 8, marginBottom: 0 } },
+      React.createElement(Button, {
+        size: 'small',
+        type: 'primary',
+        ghost: true,
+        icon: React.createElement('i', { className: 'ti ti-check' }),
+        onClick: handleAllOn
+      }, '一键开启全部通知'),
+      React.createElement(Button, {
+        size: 'small',
+        danger: true,
+        ghost: true,
+        icon: React.createElement('i', { className: 'ti ti-x' }),
+        onClick: handleAllOff
+      }, '一键关闭全部通知'),
+      React.createElement(Button, {
+        size: 'small',
+        icon: React.createElement('i', { className: 'ti ti-rotate' }),
+        onClick: handleReset
+      }, '恢复默认')
+    ),
+
+    /* 底部操作 */
+    React.createElement('div', { className: 'prefs-footer' },
+      React.createElement(Button, {
+        onClick: function() { window.history.back(); }
+      }, '取消'),
+      React.createElement(Button, {
+        type: 'primary',
+        icon: React.createElement('i', { className: 'ti ti-device-floppy' }),
+        loading: saving,
+        disabled: !hasChanges,
+        onClick: handleSave
+      }, '保存设置')
+    )
+  );
+}
+
+window.PROTO_SHELL && window.PROTO_SHELL.renderShell('notify-prefs');
+  // 埋点：页面浏览
+  if (window.DataTracker) { window.DataTracker.trackPageView('notify-prefs', '通知偏好'); }
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(NotifyPrefsPage));
+</script>
+</body>
+</html>

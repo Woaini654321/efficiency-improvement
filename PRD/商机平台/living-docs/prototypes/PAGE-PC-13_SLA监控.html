@@ -1,0 +1,763 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>需求时效监控 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+.sla-card { cursor: pointer; transition: box-shadow .2s; }
+.sla-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.sla-card.active { box-shadow: 0 0 0 2px #1677ff; }
+.countdown-warning { color: #faad14; font-weight: 600; }
+.countdown-danger { color: #ff4d4f; font-weight: 600; animation: slaBlink 1s ease-in-out infinite; }
+.countdown-normal { color: #52c41a; }
+@keyframes slaBlink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+/* 响应式 */
+@media(max-width:768px){
+  .sla-row .ant-col{flex:0 0 50%!important;max-width:50%!important;margin-bottom:12px;}
+}
+@media(max-width:600px){
+  .sla-row .ant-col{flex:0 0 100%!important;max-width:100%!important;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+(function() {
+  var React$1 = React;
+  var useState = React$1.useState;
+  var useEffect = React$1.useEffect;
+  var useRef = React$1.useRef;
+  var useCallback = React$1.useCallback;
+  var useMemo = React$1.useMemo;
+
+  var Card = antd.Card;
+  var Table = antd.Table;
+  var Tag = antd.Tag;
+  var Select = antd.Select;
+  var DatePicker = antd.DatePicker;
+  var Button = antd.Button;
+  var Space = antd.Space;
+  var Row = antd.Row;
+  var Col = antd.Col;
+  var Drawer = antd.Drawer;
+  var Timeline = antd.Timeline;
+  var Typography = antd.Typography;
+  var Statistic = antd.Statistic;
+  var message = antd.message;
+  var Empty = antd.Empty;
+  var RangePicker = DatePicker.RangePicker;
+  var Text = Typography.Text;
+  var Title = Typography.Title;
+
+  var urgencyColor = { critical: 'red', urgent: 'orange', normal: 'default' };
+  var urgencyLabel = { critical: '特急', urgent: '紧急', normal: '普通' };
+  var statusMap = { normal: { color: 'green', text: '正常' }, warning: { color: 'gold', text: '临近截止' }, overdue: { color: 'red', text: '已截止' }, responded: { color: 'blue', text: '已响应' } };
+
+  function calcRemainMin(deadline) {
+    return dayjs(deadline).diff(dayjs(), 'minute', true);
+  }
+  function formatRemain(min) {
+    if (min == null) return '--';
+    if (min <= 0) {
+      var abs = Math.abs(Math.floor(min));
+      var ah = Math.floor(abs/60);
+      var am = abs%60;
+      return ah > 0 ? '超时 ' + ah + '时' + am + '分' : '超时 ' + am + '分';
+    }
+    var total = Math.floor(min);
+    var d = Math.floor(total/1440);
+    var h = Math.floor((total%1440)/60);
+    var m = total%60;
+    if (d > 0) return d + '天' + h + '时' + m + '分';
+    if (h > 0) return h + '时' + m + '分';
+    return m + '分';
+  }
+  function remainClass(min) {
+    if (min == null || min > 480) return 'countdown-normal';
+    if (min <= 0) return 'countdown-danger';
+    if (min <= 120) return 'countdown-danger';
+    if (min <= 480) return 'countdown-warning';
+    return 'countdown-normal';
+  }
+
+  // 初始 Mock 数据（带预计算的 remainMin）
+  var MOCK_DATA = [
+    { id: 1, title: '5G模组批量采购需求-华东区域', urgency: 'critical', publishTime: '2026-06-15 08:00', deadline: '2026-06-15 14:00', slaStatus: 'overdue', publisher: 'San.Zhang 张三', responseCount: 0, escalationTimeline: [
+      { time: '08:00', desc: '需求发布，计时开始', notifyTo: '销售经理A' },
+    ]},
+    { id: 2, title: 'Cat.1模组小批量测试需求', urgency: 'urgent', publishTime: '2026-06-15 10:00', deadline: '2026-06-15 18:00', slaStatus: 'overdue', publisher: 'Si.Li 李四', responseCount: 0, escalationTimeline: [
+      { time: '10:00', desc: '需求发布，计时开始', notifyTo: '销售经理D' },
+    ]},
+    { id: 3, title: 'NB-IoT水表方案整体报价', urgency: 'urgent', publishTime: '2026-06-15 07:00', deadline: '2026-06-15 12:00', slaStatus: 'overdue', publisher: 'Wu.Wang 王五', responseCount: 0, escalationTimeline: [
+      { time: '07:00', desc: '需求发布，计时开始', notifyTo: '销售经理E' },
+      { time: '12:00', desc: '已超过截止时间，系统自动提醒', notifyTo: '销售经理E、区域主管F' },
+    ]},
+    { id: 4, title: 'Wi-Fi模组智能家居集成需求', urgency: 'normal', publishTime: '2026-06-15 09:00', deadline: '2026-06-18 18:00', slaStatus: 'normal', publisher: 'Liu.Zhao 赵六', responseCount: 0, escalationTimeline: [
+      { time: '09:00', desc: '需求发布，计时开始', notifyTo: '销售经理I' },
+    ]},
+    { id: 5, title: '车载T-Box模组紧急备货', urgency: 'critical', publishTime: '2026-06-15 06:00', deadline: '2026-06-15 10:00', slaStatus: 'responded', publisher: 'Sean.Sun 孙七', responseCount: 2, escalationTimeline: [
+      { time: '06:00', desc: '需求发布，计时开始', notifyTo: '销售经理J' },
+      { time: '09:30', desc: '已有方案响应，计时终止', notifyTo: '-' },
+    ]},
+    { id: 6, title: 'LoRa网关模组长期合作询价', urgency: 'normal', publishTime: '2026-06-15 11:00', deadline: '2026-06-20 18:00', slaStatus: 'normal', publisher: 'Ben.Zhou 周八', responseCount: 0, escalationTimeline: [
+      { time: '11:00', desc: '需求发布，计时开始', notifyTo: '销售经理L' },
+    ]},
+    { id: 7, title: 'GNSS定位模组样品申请', urgency: 'urgent', publishTime: '2026-06-15 08:30', deadline: '2026-06-15 16:00', slaStatus: 'overdue', publisher: 'Jack.Wu 吴九', responseCount: 0, escalationTimeline: [
+      { time: '08:30', desc: '需求发布，计时开始', notifyTo: '销售经理M' },
+    ]},
+    { id: 8, title: '安卓智能模组定制开发', urgency: 'normal', publishTime: '2026-06-14 14:00', deadline: '2026-06-17 18:00', slaStatus: 'responded', publisher: 'Sam.Zheng 郑十', responseCount: 3, escalationTimeline: [
+      { time: '06-14 14:00', desc: '需求发布，计时开始', notifyTo: '销售经理N' },
+      { time: '06-15 10:30', desc: '已有方案响应，计时终止', notifyTo: '-' },
+    ]}
+  ];
+
+  // 预计算 remainMin
+  MOCK_DATA.forEach(function(item) {
+    item.remainMin = item.slaStatus === 'responded' ? null : calcRemainMin(item.deadline);
+  });
+
+  var DeadlineMonitorPage = function() {
+    var _urgencyState = useState(null);
+    var urgency = _urgencyState[0];
+    var setUrgency = _urgencyState[1];
+
+    var _statusState = useState(null);
+    var slaStatus = _statusState[0];
+    var setSlaStatus = _statusState[1];
+
+    var _dateRangeState = useState(null);
+    var dateRange = _dateRangeState[0];
+    var setDateRange = _dateRangeState[1];
+
+    var _activeCardState = useState(null);
+    var activeCard = _activeCardState[0];
+    var setActiveCard = _activeCardState[1];
+
+    var _drawerOpenState = useState(false);
+    var drawerOpen = _drawerOpenState[0];
+    var setDrawerOpen = _drawerOpenState[1];
+
+    var _drawerRecordState = useState(null);
+    var drawerRecord = _drawerRecordState[0];
+    var setDrawerRecord = _drawerRecordState[1];
+
+    var _pageState = useState(1);
+    var currentPage = _pageState[0];
+    var setCurrentPage = _pageState[1];
+
+    var _selectedState = useState([]);
+    var selectedRowKeys = _selectedState[0];
+    var setSelectedRowKeys = _selectedState[1];
+
+    var _slaDataState = useState(MOCK_DATA);
+    var slaData = _slaDataState[0];
+    var setSlaData = _slaDataState[1];
+
+    var _urgeHistoryState = useState({});
+    var urgeHistory = _urgeHistoryState[0];
+    var setUrgeHistory = _urgeHistoryState[1];
+
+    var lastUrgeRef = useRef(0);
+
+    // 每30秒重新计算剩余时间
+    useEffect(function() {
+      function recalc() {
+        setSlaData(function(prev) {
+          return prev.map(function(item) {
+            if (item.slaStatus === 'responded') return item;
+            var newRemain = calcRemainMin(item.deadline);
+            var newStatus;
+            if (newRemain <= 0) { newStatus = 'overdue'; }
+            else if (newRemain <= 480) { newStatus = 'warning'; }
+            else { newStatus = 'normal'; }
+            return Object.assign({}, item, { remainMin: newRemain, slaStatus: newStatus });
+          });
+        });
+      }
+      var timer = setInterval(recalc, 30000);
+      return function() { clearInterval(timer); };
+    }, []);
+
+    var handleCardClick = useCallback(function(statusKey) {
+      if (activeCard === statusKey) { setActiveCard(null); setSlaStatus(null); }
+      else { setActiveCard(statusKey); setSlaStatus(statusKey); }
+      setCurrentPage(1);
+    }, [activeCard]);
+
+    // ---- 催办 Modal 状态 ----
+    var _urgeModalOpen = useState(false);
+    var urgeModalOpen = _urgeModalOpen[0];
+    var setUrgeModalOpen = _urgeModalOpen[1];
+
+    var _urgeTargetIds = useState([]);
+    var urgeTargetIds = _urgeTargetIds[0];
+    var setUrgeTargetIds = _urgeTargetIds[1];
+
+    var _urgeConfigState = useState({ recipients: ['publisher'], methods: ['inapp', 'feishu'], message: '', productLeadIds: [] });
+    var urgeConfig = _urgeConfigState[0];
+    var setUrgeConfig = _urgeConfigState[1];
+
+    var _urgeEmailRecipientsState = useState([]);
+    var urgeEmailRecipients = _urgeEmailRecipientsState[0];
+    var setUrgeEmailRecipients = _urgeEmailRecipientsState[1];
+
+    // ---- 单个催办 Modal 状态 ----
+    var _singleUrgeOpenState = useState(false);
+    var singleUrgeOpen = _singleUrgeOpenState[0];
+    var setSingleUrgeOpen = _singleUrgeOpenState[1];
+
+    var _singleUrgeRecordState = useState(null);
+    var singleUrgeRecord = _singleUrgeRecordState[0];
+    var setSingleUrgeRecord = _singleUrgeRecordState[1];
+
+    var _singleUrgeRecipientsState = useState(['publisher']);
+    var singleUrgeRecipients = _singleUrgeRecipientsState[0];
+    var setSingleUrgeRecipients = _singleUrgeRecipientsState[1];
+
+    var _singleUrgeMethodsState = useState(['inapp', 'feishu']);
+    var singleUrgeMethods = _singleUrgeMethodsState[0];
+    var setSingleUrgeMethods = _singleUrgeMethodsState[1];
+
+    var _singleUrgeMsgState = useState('');
+    var singleUrgeMsg = _singleUrgeMsgState[0];
+    var setSingleUrgeMsg = _singleUrgeMsgState[1];
+
+    var _singleUrgeCustomState = useState('');
+    var singleUrgeCustom = _singleUrgeCustomState[0];
+    var setSingleUrgeCustom = _singleUrgeCustomState[1];
+
+    var _singleUrgeEmailRecipientsState = useState([]);
+    var singleUrgeEmailRecipients = _singleUrgeEmailRecipientsState[0];
+    var setSingleUrgeEmailRecipients = _singleUrgeEmailRecipientsState[1];
+
+    var PERSONNEL_EMAIL_OPTIONS = [
+      { label: '李明 Ming.Li — ming.li@company.com', value: 'ming.li@company.com' },
+      { label: '周涛 Tao.Zhou — tao.zhou@company.com', value: 'tao.zhou@company.com' },
+      { label: '赵伟 David.Zhao — david.zhao@company.com', value: 'david.zhao@company.com' },
+      { label: '张红 Hong.Zhang — hong.zhang@company.com', value: 'hong.zhang@company.com' },
+      { label: '王芳 Fang.Wang — fang.wang@company.com', value: 'fang.wang@company.com' },
+      { label: '陈刚 Gang.Chen — gang.chen@company.com', value: 'gang.chen@company.com' },
+      { label: '刘洋 Yang.Liu — yang.liu@company.com', value: 'yang.liu@company.com' },
+      { label: '孙丽 Li.Sun — li.sun@company.com', value: 'li.sun@company.com' },
+    ];
+
+    // Mock 产品线负责人列表
+    var PRODUCT_LEADS = [
+      { id: 'pl1', name: 'Alice.Wang 王芳', product: '5G模组', dept: '产品一部' },
+      { id: 'pl2', name: 'Mark.Zhang 张强', product: '4G/Cat.1模组', dept: '产品二部' },
+      { id: 'pl3', name: 'Jing.Chen 陈静', product: 'NB-IoT模组', dept: '产品三部' },
+      { id: 'pl4', name: 'Mike.Zhao 赵明', product: 'WiFi模组', dept: '产品四部' },
+      { id: 'pl5', name: 'Owen.Liu 刘洋', product: '智能模组', dept: '产品五部' },
+      { id: 'pl6', name: 'Ivy.Sun 孙芳', product: '天线产品', dept: '产品六部' },
+      { id: 'pl7', name: 'Xu.Zhou 周旭', product: '车载方案', dept: '解决方案部' },
+      { id: 'pl8', name: 'Min.Wu 吴敏', product: '智慧城市方案', dept: '解决方案部' }
+    ];
+
+    // 打开发送催办 Modal
+    var openUrgeModal = useCallback(function(recordId) {
+      var ids = recordId ? [recordId] : selectedRowKeys;
+      if (!ids || ids.length === 0) return;
+      setUrgeTargetIds(ids.slice());
+      setUrgeConfig({ recipients: ['publisher'], methods: ['inapp', 'feishu'], message: '', productLeadIds: [] });
+      setUrgeEmailRecipients([]);
+      setUrgeModalOpen(true);
+    }, [selectedRowKeys]);
+
+    // 确认发送催办
+    var confirmSendUrge = useCallback(function() {
+      var now = Date.now();
+      if (now - lastUrgeRef.current < 10000) { message.warning('提醒过于频繁，请稍后再试'); return; }
+      lastUrgeRef.current = now;
+
+      var methodLabels = { inapp: '站内信', feishu: '飞书', email: '邮件' };
+      var recipientLabels = { publisher: '需求发布人', supervisor: '直属主管', product_lead: '产品线负责人' };
+      var methodDesc = urgeConfig.methods.map(function(m) { return methodLabels[m] || m; }).join('+');
+      var recipientDesc = urgeConfig.recipients.map(function(r) {
+        var base = recipientLabels[r] || r;
+        if (r === 'product_lead' && urgeConfig.productLeadIds && urgeConfig.productLeadIds.length > 0) {
+          var names = urgeConfig.productLeadIds.map(function(pid) {
+            var lead = PRODUCT_LEADS.find(function(l) { return l.id === pid; });
+            return lead ? lead.name : pid;
+          });
+          return base + '(' + names.join('、') + ')';
+        }
+        return base;
+      }).join('、');
+
+      var hasMsg = urgeConfig.message && urgeConfig.message.trim();
+      var label = methodDesc + ' → ' + recipientDesc + (hasMsg ? '（附留言）' : '');
+
+      // 邮件通知人
+      var emailNotifyDesc = '';
+      if (urgeConfig.methods.indexOf('email') >= 0 && urgeEmailRecipients.length > 0) {
+        emailNotifyDesc = '，邮件将发送至：' + urgeEmailRecipients.join('、');
+      }
+
+      var count = urgeTargetIds.length;
+      if (count === 1) {
+        message.success('提醒通知已发送（发送至' + recipientDesc + '）' + emailNotifyDesc);
+      } else {
+        message.success('已批量提醒 ' + count + ' 条需求，通知已发送' + emailNotifyDesc);
+      }
+
+      setUrgeHistory(function(prev) {
+        var copy = {};
+        Object.keys(prev).forEach(function(k) { copy[k] = (prev[k] || []).slice(); });
+        urgeTargetIds.forEach(function(kid) {
+          var hist = (copy[kid] || []);
+          hist.unshift({ time: dayjs().format('HH:mm:ss'), method: label });
+          copy[kid] = hist;
+        });
+        return copy;
+      });
+      setUrgeModalOpen(false);
+      setSelectedRowKeys([]);
+    }, [urgeTargetIds, urgeConfig, urgeEmailRecipients]);
+
+    // ---- 单个催办 ----
+    var openSingleUrgeModal = useCallback(function(record) {
+      setSingleUrgeRecord(record);
+      setSingleUrgeRecipients(['publisher']);
+      setSingleUrgeMethods(['inapp', 'feishu']);
+      setSingleUrgeMsg('您的需求「' + record.title + '」即将超过响应时限，请尽快处理。');
+      setSingleUrgeCustom('');
+      setSingleUrgeEmailRecipients([]);
+      setSingleUrgeOpen(true);
+    }, []);
+
+    var confirmSendSingleUrge = useCallback(function() {
+      var now = Date.now();
+      if (now - lastUrgeRef.current < 10000) { message.warning('操作过于频繁，请稍后再试'); return; }
+      lastUrgeRef.current = now;
+
+      var methodLabels = { inapp: '站内信', feishu: '飞书', email: '邮件' };
+      var methodDesc = singleUrgeMethods.map(function(m) { return methodLabels[m] || m; }).join('+');
+      var recipientParts = [];
+      if (singleUrgeRecipients.indexOf('publisher') >= 0) recipientParts.push('发布者');
+      if (singleUrgeRecipients.indexOf('product_lead') >= 0) recipientParts.push('相关产品线负责人');
+      if (singleUrgeRecipients.indexOf('custom') >= 0 && singleUrgeCustom.trim()) recipientParts.push(singleUrgeCustom.trim());
+      var recipientDesc = recipientParts.join('、');
+
+      // 邮件通知人
+      var emailNotifyDesc = '';
+      if (singleUrgeMethods.indexOf('email') >= 0 && singleUrgeEmailRecipients.length > 0) {
+        emailNotifyDesc = '，邮件将发送至：' + singleUrgeEmailRecipients.join('、');
+      }
+
+      setUrgeHistory(function(prev) {
+        var copy = {};
+        Object.keys(prev).forEach(function(k) { copy[k] = (prev[k] || []).slice(); });
+        var hist = (copy[singleUrgeRecord.id] || []);
+        var summary = singleUrgeMsg.length > 50 ? singleUrgeMsg.substring(0, 50) + '...' : singleUrgeMsg;
+        hist.unshift({ time: dayjs().format('MM-DD HH:mm:ss'), method: methodDesc, recipients: recipientDesc || emailNotifyDesc.replace('，邮件将发送至：', '') || '-', operator: 'Current.User 当前用户', summary: summary });
+        copy[singleUrgeRecord.id] = hist;
+        return copy;
+      });
+      message.success('催办已发送' + emailNotifyDesc);
+      setSingleUrgeOpen(false);
+      setSingleUrgeRecord(null);
+    }, [singleUrgeRecord, singleUrgeRecipients, singleUrgeMethods, singleUrgeMsg, singleUrgeCustom, singleUrgeEmailRecipients]);
+
+    var filtered = useMemo(function() {
+      return slaData.filter(function(r) {
+        if (urgency && r.urgency !== urgency) return false;
+        if (slaStatus && r.slaStatus !== slaStatus) return false;
+        return true;
+      });
+    }, [slaData, urgency, slaStatus]);
+
+    var summaryPending = slaData.filter(function(r) { return r.slaStatus !== 'responded' && r.slaStatus !== 'overdue'; }).length;
+    var summaryWarning = slaData.filter(function(r) { return r.slaStatus === 'warning'; }).length;
+    var summaryOverdue = slaData.filter(function(r) { return r.slaStatus === 'overdue'; }).length;
+    var summaryResponded = slaData.filter(function(r) { return r.slaStatus === 'responded'; }).length;
+    var slaTotal = slaData.length;
+    var onTimeRate = slaTotal > 0 ? Math.round(summaryResponded / slaTotal * 100) : 100;
+    var maxOverdueMin = slaData.filter(function(r) { return r.slaStatus === 'overdue'; }).reduce(function(max, r) { return Math.max(max, Math.abs(Math.floor(r.remainMin || 0))); }, 0);
+
+    var columns = [
+      { title: '需求标题', dataIndex: 'title', key: 'title', render: function(t, r) { return React.createElement('a', { onClick: function() { window.location.assign('PAGE-PC-05_需求详情页.html?id=' + r.id); } }, t); } },
+      { title: '紧急程度', dataIndex: 'urgency', key: 'urgency', width: 90, render: function(v) { return React.createElement(Tag, { color: urgencyColor[v] }, urgencyLabel[v]); } },
+      { title: '发布时间', dataIndex: 'publishTime', key: 'publishTime', width: 160 },
+      { title: '截止时间', dataIndex: 'deadline', key: 'deadline', width: 160 },
+      { title: '剩余时间', key: 'remain', width: 140, render: function(_, r) { return r.slaStatus === 'responded' ? React.createElement(Text, { type: 'secondary' }, '--') : React.createElement('span', { className: remainClass(r.remainMin) }, formatRemain(r.remainMin)); } },
+      { title: '状态', dataIndex: 'slaStatus', key: 'slaStatus', width: 100, render: function(v) { var s = statusMap[v] || {color:'default',text:v}; return React.createElement(Tag, { color: s.color }, s.text); } },
+      { title: '已响应', dataIndex: 'responseCount', key: 'responseCount', width: 80, render: function(v) { return React.createElement(Text, null, v > 0 ? v + ' 条' : '无'); } },
+      { title: '操作', key: 'action', width: 130, render: function(_, r) { return React.createElement(Space, null,
+        React.createElement(Button, { type: 'link', size: 'small', icon: React.createElement('i', { className: 'ti ti-eye', style: { fontSize: 18 } }), onClick: function() { setDrawerRecord(r); setDrawerOpen(true); } }, '详情'),
+        React.createElement(Button, { type: 'link', size: 'small', icon: React.createElement('i', { className: 'ti ti-alarm', style: { fontSize: 18 } }), onClick: function() { openSingleUrgeModal(r); } }, '催办')
+      ); } },
+    ];
+
+    var noOverdue = filtered.length === 0 && slaStatus === 'overdue';
+
+    return React.createElement('div', { style: { padding: 24 } },
+      React.createElement(Title, { level: 4, style: { marginBottom: 16 } }, React.createElement('i', { className: 'ti ti-clock', style: { marginRight: 8, fontSize: 18 } }), '需求时效监控'),
+
+      /* Z1 筛选栏 */
+      React.createElement(Space, { wrap: true, style: { marginBottom: 16 } },
+        React.createElement(Select, { placeholder: '紧急程度', allowClear: true, style: { width: 140 }, value: urgency, onChange: function(v) { setUrgency(v || null); setCurrentPage(1); }, options: [{ value: 'critical', label: '特急' }, { value: 'urgent', label: '紧急' }, { value: 'normal', label: '普通' }] }),
+        React.createElement(Select, { placeholder: '响应状态', allowClear: true, style: { width: 140 }, value: slaStatus, onChange: function(v) { setSlaStatus(v || null); setActiveCard(v || null); setCurrentPage(1); }, options: [{ value: 'normal', label: '正常' }, { value: 'warning', label: '临近截止' }, { value: 'overdue', label: '已截止' }, { value: 'responded', label: '已响应' }] }),
+        React.createElement(RangePicker, { onChange: setDateRange, placeholder: ['发布日期起', '截止'] })
+      ),
+
+      /* Z2 统计面板 */
+      React.createElement(Row, { gutter: 16, style: { marginBottom: 16 }, className: 'sla-row' },
+        [
+          { label: '总需求数', value: slaTotal, color: '#1677ff' },
+          { label: '及时响应率', value: onTimeRate + '%', color: onTimeRate >= 80 ? '#52c41a' : '#faad14' },
+          { label: '已响应', value: summaryResponded, color: '#1677ff' },
+          { label: '最长超时', value: maxOverdueMin > 0 ? Math.floor(maxOverdueMin/1440) + '天' + Math.floor((maxOverdueMin%1440)/60) + '时' : '--', color: maxOverdueMin > 0 ? '#ff4d4f' : '#999' }
+        ].map(function(c) {
+          return React.createElement(Col, { span: 6, key: c.label },
+            React.createElement(Card, { size: 'small', style: { textAlign: 'center' } },
+              React.createElement(Statistic, { title: c.label, value: c.value, valueStyle: { color: c.color, fontSize: 24 } })
+            )
+          );
+        })
+      ),
+
+      /* Z3 汇总卡片 */
+      React.createElement(Row, { gutter: 16, style: { marginBottom: 16 }, className: 'sla-row' },
+        [
+          { key: 'normal', label: '进行中', value: summaryPending, color: '#1677ff', icon: React.createElement('i', { className: 'ti ti-clock', style: { fontSize: 18 } }) },
+          { key: 'warning', label: '临近截止', value: summaryWarning, color: '#faad14', icon: React.createElement('i', { className: 'ti ti-alert-triangle', style: { fontSize: 18 } }) },
+          { key: 'overdue', label: '已截止', value: summaryOverdue, color: '#ff4d4f', icon: React.createElement('i', { className: 'ti ti-alert-circle', style: { fontSize: 18 } }) },
+          { key: 'responded', label: '已响应', value: summaryResponded, color: '#52c41a', icon: React.createElement('i', { className: 'ti ti-circle-check', style: { fontSize: 18 } }) },
+        ].map(function(c) {
+          return React.createElement(Col, { span: 6, key: c.key },
+            React.createElement(Card, { className: 'sla-card' + (activeCard === c.key ? ' active' : ''), onClick: function() { handleCardClick(c.key); }, hoverable: true },
+              React.createElement(Statistic, { title: c.label, value: c.value, prefix: c.icon, valueStyle: { color: c.color } })
+            )
+          );
+        })
+      ),
+
+      /* Z4 表格 */
+      noOverdue
+        ? React.createElement(Empty, { description: React.createElement(Text, { type: 'success', strong: true }, '太棒了！当前没有已截止的需求'), image: Empty.PRESENTED_IMAGE_SIMPLE, style: { padding: 60 } })
+        : React.createElement(Table, {
+            columns: columns, dataSource: filtered, rowKey: 'id',
+            rowSelection: { selectedRowKeys: selectedRowKeys, onChange: function(keys) { setSelectedRowKeys(keys); } },
+            pagination: { current: currentPage, pageSize: 5, onChange: setCurrentPage, showTotal: function(t) { return '共 ' + t + ' 条'; } },
+            size: 'middle'
+          }),
+
+      /* Z5 批量操作栏 */
+      selectedRowKeys.length > 0 && React.createElement('div', { style: { display:'flex', alignItems:'center', gap:12, padding:'10px 16px', background:'#e6f4ff', borderRadius:6, marginTop:12 } },
+        React.createElement('span', null, '已选 ', React.createElement('span', { style: { fontWeight:600, color:'#1677ff' } }, selectedRowKeys.length), ' 项'),
+        React.createElement(Button, { type:'primary', size:'small', onClick: function() { openUrgeModal(null); }, icon: React.createElement('i',{className:'ti ti-bell-ringing',style:{fontSize:18}}) }, '批量提醒'),
+        React.createElement(Button, { size:'small', onClick: function() { setSelectedRowKeys([]); } }, '取消选择')
+      ),
+
+      /* DRAWER */
+      React.createElement(Drawer, {
+        title: '需求时效详情', width: 560, open: drawerOpen,
+        onClose: function() { setDrawerOpen(false); },
+        footer: React.createElement(Space, null,
+          React.createElement(Button, { type: 'primary', onClick: function() { window.location.assign('PAGE-PC-05_需求详情页.html?id=' + (drawerRecord && drawerRecord.id)); } }, '查看需求详情'),
+          drawerRecord && drawerRecord.slaStatus !== 'responded' && React.createElement(Button, { onClick: function() { setDrawerOpen(false); openSingleUrgeModal(drawerRecord); }, icon: React.createElement('i', { className: 'ti ti-alarm', style: { fontSize: 18 } }) }, '催办'),
+          React.createElement(Button, { onClick: function() { setDrawerOpen(false); } }, '关闭')
+        )
+      },
+        drawerRecord && React.createElement('div', null,
+          React.createElement('div', { style: { marginBottom: 24 } },
+            React.createElement(Row, { gutter: [16, 12] },
+              React.createElement(Col, { span: 24 }, React.createElement(Title, { level: 5 }, drawerRecord.title)),
+              React.createElement(Col, { span: 12 }, React.createElement(Text, { type: 'secondary' }, '发布人：'), drawerRecord.publisher),
+              React.createElement(Col, { span: 12 }, React.createElement(Text, { type: 'secondary' }, '紧急程度：'), React.createElement(Tag, { color: urgencyColor[drawerRecord.urgency] }, urgencyLabel[drawerRecord.urgency])),
+              React.createElement(Col, { span: 12 }, React.createElement(Text, { type: 'secondary' }, '发布时间：'), drawerRecord.publishTime),
+              React.createElement(Col, { span: 12 }, React.createElement(Text, { type: 'secondary' }, '截止时间：'), React.createElement(Text, { strong: true }, drawerRecord.deadline)),
+              React.createElement(Col, { span: 12 }, React.createElement(Text, { type: 'secondary' }, drawerRecord.slaStatus === 'responded' ? '状态：' : '剩余时间：'),
+                drawerRecord.slaStatus === 'responded'
+                  ? React.createElement(Tag, { color: 'blue' }, '已响应')
+                  : React.createElement('span', { className: remainClass(drawerRecord.remainMin) }, formatRemain(drawerRecord.remainMin))
+              ),
+              React.createElement(Col, { span: 12 }, React.createElement(Text, { type: 'secondary' }, '状态：'), React.createElement(Tag, { color: (statusMap[drawerRecord.slaStatus] || {color:'default'}).color }, (statusMap[drawerRecord.slaStatus] || {text:drawerRecord.slaStatus}).text)),
+              React.createElement(Col, { span: 24 }, React.createElement(Text, { type: 'secondary' }, '响应方案数：'), React.createElement(Text, { strong: true }, drawerRecord.responseCount > 0 ? drawerRecord.responseCount + ' 条' : '暂无'))
+            )
+          ),
+          React.createElement(Title, { level: 5, style: { marginTop: 20 } }, React.createElement('i', {className:'ti ti-bell-ringing', style:{marginRight:6,fontSize:18}}), '提醒记录'),
+          (function() {
+            var hist = urgeHistory[drawerRecord.id] || [];
+            if (hist.length === 0) {
+              return React.createElement(Text, { type:'secondary' }, '暂无提醒记录');
+            }
+            return React.createElement(Timeline, { items: hist.map(function(h) { return {
+              color: 'orange',
+              children: React.createElement('div', null,
+                React.createElement(Text, { strong:true }, h.time),
+                React.createElement('br'),
+                React.createElement(Text, null, '提醒方式：' + h.method)
+              )
+            }; }) });
+          })(),
+          React.createElement(Title, { level: 5, style: { marginTop: 20 } }, '事件时间线'),
+          React.createElement(Timeline, { items: drawerRecord.escalationTimeline.map(function(item) { return {
+            color: 'blue',
+            children: React.createElement('div', null,
+              React.createElement(Text, { strong: true }, item.time),
+              React.createElement('br'),
+              React.createElement(Text, null, item.desc),
+              React.createElement('br'),
+              React.createElement(Text, { type: 'secondary' }, '通知对象：' + item.notifyTo)
+            )
+          }; }) })
+        )
+      ),
+
+      /* 催办设置 Modal */
+      urgeModalOpen && React.createElement(antd.Modal, {
+        title: '发送提醒',
+        open: true,
+        width: 520,
+        onCancel: function() { setUrgeModalOpen(false); },
+        footer: React.createElement(Space, null,
+          React.createElement(Button, { onClick: function() { setUrgeModalOpen(false); } }, '取消'),
+          React.createElement(Button, { type: 'primary', onClick: confirmSendUrge, icon: React.createElement('i', { className: 'ti ti-send', style: { fontSize: 16 } }) }, '发送提醒')
+        )
+      },
+        React.createElement('div', { style: { marginBottom: 20 } },
+          React.createElement('div', { style: { fontSize: 13, color: '#8c8c8c', marginBottom: 8 } }, '目标需求'),
+          React.createElement('div', { style: { background: '#fafafa', borderRadius: 8, padding: '8px 12px', fontSize: 13, maxHeight: 80, overflowY: 'auto' } },
+            urgeTargetIds.map(function(tid) {
+              var rec = slaData.find(function(r) { return r.id === tid; });
+              return rec ? React.createElement('div', { key: tid, style: { padding: '2px 0' } }, rec.title) : null;
+            })
+          )
+        ),
+        React.createElement('div', { style: { marginBottom: 20 } },
+          React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 8, color: '#333' } }, '通知对象'),
+          React.createElement(antd.Checkbox.Group, {
+            value: urgeConfig.recipients,
+            onChange: function(vals) { if (vals.length > 0) setUrgeConfig(function(c) { return Object.assign({}, c, { recipients: vals }); }); },
+            style: { display: 'flex', flexDirection: 'column', gap: 8 }
+          },
+            React.createElement('div', null,
+              React.createElement(antd.Checkbox, { value: 'publisher' },
+                React.createElement('span', { style: { fontWeight: 500 } }, '需求发布人'),
+                React.createElement('div', { style: { fontSize: 11, color: '#8c8c8c', marginLeft: 24, marginTop: 1 } }, '直接通知创建该需求的销售人员')
+              )
+            ),
+            React.createElement('div', null,
+              React.createElement(antd.Checkbox, { value: 'supervisor' },
+                React.createElement('span', { style: { fontWeight: 500 } }, '发布人直属主管'),
+                React.createElement('div', { style: { fontSize: 11, color: '#8c8c8c', marginLeft: 24, marginTop: 1 } }, '通知其上级区域经理/主管')
+              )
+            ),
+            React.createElement('div', null,
+              React.createElement(antd.Checkbox, { value: 'product_lead' },
+                React.createElement('span', { style: { fontWeight: 500 } }, '产品线负责人'),
+                React.createElement('div', { style: { fontSize: 11, color: '#8c8c8c', marginLeft: 24, marginTop: 1 } }, '选择对应产品线的负责人')
+              ),
+              urgeConfig.recipients.indexOf('product_lead') >= 0 && React.createElement('div', { style: { marginLeft: 24, marginTop: 8 } },
+                React.createElement(antd.Select, {
+                  mode: 'multiple',
+                  placeholder: '请选择产品线负责人',
+                  value: urgeConfig.productLeadIds || [],
+                  onChange: function(vals) {
+                    setUrgeConfig(function(c) { return Object.assign({}, c, { productLeadIds: vals }); });
+                  },
+                  style: { width: '100%' },
+                  options: PRODUCT_LEADS.map(function(lead) {
+                    return { value: lead.id, label: lead.name + ' · ' + lead.product + ' (' + lead.dept + ')' };
+                  }),
+                  filterOption: function(input, option) {
+                    return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                  }
+                })
+              )
+            )
+          )
+        ),
+        React.createElement('div', { style: { marginBottom: 20 } },
+          React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 8, color: '#333' } }, '通知方式'),
+          React.createElement(antd.Checkbox.Group, {
+            value: urgeConfig.methods,
+            onChange: function(vals) { if (vals.length > 0) setUrgeConfig(function(c) { return Object.assign({}, c, { methods: vals }); }); },
+            style: { display: 'flex', gap: 16 }
+          },
+            React.createElement(antd.Checkbox, { value: 'inapp' },
+              React.createElement('i', { className: 'ti ti-bell', style: { marginRight: 4 } }), '站内信'
+            ),
+            React.createElement(antd.Checkbox, { value: 'feishu' },
+              React.createElement('i', { className: 'ti ti-brand-feishu', style: { marginRight: 4 } }), '飞书消息'
+            ),
+            React.createElement(antd.Checkbox, { value: 'email' },
+              React.createElement('i', { className: 'ti ti-mail', style: { marginRight: 4 } }), '邮件'
+            )
+          )
+        ),
+        urgeConfig.methods.indexOf('email') >= 0 && React.createElement('div', { style: { marginBottom: 20, marginTop: -4 } },
+          React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 8, color: '#333' } }, '邮件通知人'),
+          React.createElement(Select, {
+            mode: 'tags',
+            style: { width: '100%' },
+            placeholder: '输入邮箱地址或搜索人员...',
+            value: urgeEmailRecipients,
+            onChange: function(vals) { setUrgeEmailRecipients(vals); },
+            options: PERSONNEL_EMAIL_OPTIONS,
+            tokenSeparators: [',', ';', ' '],
+            filterOption: function(input, option) {
+              return (option.label || '').toLowerCase().indexOf(input.toLowerCase()) >= 0;
+            }
+          })
+        ),
+        React.createElement('div', null,
+          React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 8, color: '#333' } }, '附言（可选）'),
+          React.createElement(antd.Input.TextArea, {
+            rows: 3,
+            value: urgeConfig.message,
+            onChange: function(e) { setUrgeConfig(function(c) { return Object.assign({}, c, { message: e.target.value }); }); },
+            placeholder: '输入提醒附言，如：请尽快响应客户需求，截止时间已临近…',
+            maxLength: 200,
+            showCount: true
+          })
+        )
+      )
+    ,
+
+    /* ---- 单个催办 Modal ---- */
+    singleUrgeOpen && singleUrgeRecord && React.createElement(antd.Modal, {
+      title: React.createElement('span', null,
+        React.createElement('i', { className: 'ti ti-alarm', style: { marginRight: 8, fontSize: 18 } }),
+        '催办 - ' + singleUrgeRecord.title
+      ),
+      open: true,
+      width: 560,
+      onCancel: function() { setSingleUrgeOpen(false); setSingleUrgeRecord(null); },
+      footer: React.createElement(Space, null,
+        React.createElement(Button, { onClick: function() { setSingleUrgeOpen(false); setSingleUrgeRecord(null); } }, '取消'),
+        React.createElement(Button, { type: 'primary', onClick: confirmSendSingleUrge, icon: React.createElement('i', { className: 'ti ti-send', style: { fontSize: 16 } }) }, '发送催办')
+      )
+    },
+      /* 发送对象 */
+      React.createElement('div', { style: { marginBottom: 20 } },
+        React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 8, color: '#333' } }, '发送对象'),
+        React.createElement(antd.Checkbox.Group, {
+          value: singleUrgeRecipients,
+          onChange: function(vals) { if (vals.length > 0) setSingleUrgeRecipients(vals); },
+          style: { display: 'flex', flexDirection: 'column', gap: 8 }
+        },
+          React.createElement('div', null,
+            React.createElement(antd.Checkbox, { value: 'publisher' },
+              React.createElement('span', { style: { fontWeight: 500 } }, '发布者'),
+              React.createElement('span', { style: { fontSize: 11, color: '#8c8c8c', marginLeft: 8 } }, '(' + singleUrgeRecord.publisher + ')')
+            )
+          ),
+          React.createElement('div', null,
+            React.createElement(antd.Checkbox, { value: 'product_lead' },
+              React.createElement('span', { style: { fontWeight: 500 } }, '相关产品线负责人'),
+              React.createElement('div', { style: { fontSize: 11, color: '#8c8c8c', marginLeft: 24, marginTop: 1 } }, '通知对应产品线的负责人')
+            )
+          ),
+          React.createElement('div', null,
+            React.createElement(antd.Checkbox, { value: 'custom' },
+              React.createElement('span', { style: { fontWeight: 500 } }, '自定义输入'),
+              React.createElement('div', { style: { fontSize: 11, color: '#8c8c8c', marginLeft: 24, marginTop: 1 } }, '手动输入额外的通知对象')
+            ),
+            singleUrgeRecipients.indexOf('custom') >= 0 && React.createElement('div', { style: { marginLeft: 24, marginTop: 6 } },
+              React.createElement(antd.Input, {
+                placeholder: '请输入邮件地址或用户名，多个用逗号分隔',
+                value: singleUrgeCustom,
+                onChange: function(e) { setSingleUrgeCustom(e.target.value); },
+                style: { width: '100%' }
+              })
+            )
+          )
+        )
+      ),
+      /* 通知方式 */
+      React.createElement('div', { style: { marginBottom: 20 } },
+        React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 8, color: '#333' } }, '通知方式'),
+        React.createElement(antd.Checkbox.Group, {
+          value: singleUrgeMethods,
+          onChange: function(vals) { if (vals.length > 0) setSingleUrgeMethods(vals); },
+          style: { display: 'flex', gap: 16 }
+        },
+          React.createElement(antd.Checkbox, { value: 'inapp' },
+            React.createElement('i', { className: 'ti ti-bell', style: { marginRight: 4 } }), '站内信'
+          ),
+          React.createElement(antd.Checkbox, { value: 'feishu' },
+            React.createElement('i', { className: 'ti ti-brand-feishu', style: { marginRight: 4 } }), '飞书'
+          ),
+          React.createElement(antd.Checkbox, { value: 'email' },
+            React.createElement('i', { className: 'ti ti-mail', style: { marginRight: 4 } }), '邮件'
+          )
+        )
+      ),
+      singleUrgeMethods.indexOf('email') >= 0 && React.createElement('div', { style: { marginBottom: 20, marginTop: -4 } },
+        React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 8, color: '#333' } }, '邮件通知人'),
+        React.createElement(Select, {
+          mode: 'tags',
+          style: { width: '100%' },
+          placeholder: '输入邮箱地址或搜索人员...',
+          value: singleUrgeEmailRecipients,
+          onChange: function(vals) { setSingleUrgeEmailRecipients(vals); },
+          options: PERSONNEL_EMAIL_OPTIONS,
+          tokenSeparators: [',', ';', ' '],
+          filterOption: function(input, option) {
+            return (option.label || '').toLowerCase().indexOf(input.toLowerCase()) >= 0;
+          }
+        })
+      ),
+      /* 催办消息 */
+      React.createElement('div', { style: { marginBottom: 20 } },
+        React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 8, color: '#333' } }, '催办消息'),
+        React.createElement(antd.Input.TextArea, {
+          rows: 4,
+          value: singleUrgeMsg,
+          onChange: function(e) { setSingleUrgeMsg(e.target.value); },
+          placeholder: '请输入催办消息...',
+          maxLength: 500,
+          showCount: true
+        })
+      ),
+      /* 催办历史 */
+      React.createElement('div', null,
+        React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 8, color: '#333' } }, '催办历史'),
+        (function() {
+          var hist = urgeHistory[singleUrgeRecord.id] || [];
+          if (hist.length === 0) {
+            return React.createElement(Text, { type: 'secondary' }, '暂无催办记录');
+          }
+          return React.createElement('div', { style: { maxHeight: 160, overflowY: 'auto', background: '#fafafa', borderRadius: 6, padding: '8px 12px' } },
+            hist.map(function(h, i) {
+              return React.createElement('div', { key: i, style: { padding: '6px 0', borderBottom: i < hist.length - 1 ? '1px solid #f0f0f0' : 'none', fontSize: 12 } },
+                React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', marginBottom: 2 } },
+                  React.createElement(Text, { strong: true, style: { fontSize: 12 } }, h.time),
+                  React.createElement(Text, { type: 'secondary', style: { fontSize: 11 } }, h.operator || 'Current.User 当前用户')
+                ),
+                React.createElement('div', null,
+                  React.createElement(Tag, { color: 'blue', style: { fontSize: 10, lineHeight: '16px', padding: '0 4px' } }, h.method || ''),
+                  React.createElement(Tag, { color: 'default', style: { fontSize: 10, lineHeight: '16px', padding: '0 4px', marginLeft: 4 } }, '→ ' + (h.recipients || ''))
+                ),
+                h.summary && React.createElement('div', { style: { color: '#8c8c8c', marginTop: 2 } }, h.summary)
+              );
+            })
+          );
+        })()
+      )
+    )
+  );
+  };
+
+  // Shell + React 渲染
+  window.PROTO_SHELL && window.PROTO_SHELL.renderShell('deadline-monitor');
+  if (window.DataTracker) { window.DataTracker.trackPageView('deadline-monitor', '需求时效监控'); }
+  var container = document.getElementById('proto-content') || document.getElementById('root');
+  ReactDOM.createRoot(container).render(React.createElement(DeadlineMonitorPage));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,561 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>发布方案 - Quectel商机互助平台</title>
+  <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/quill@1.3.7/dist/quill.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/quill@1.3.7/dist/quill.snow.css" />
+  <script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="prototype-shell.js"></script>
+  <script src="data-tracker.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    .page-header {
+      background: #fff; padding: 16px 24px; border-bottom: 1px solid #f0f0f0;
+      display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 50;
+    }
+    .page-header h3 { margin: 0; font-size: 18px; font-weight: 600; }
+    .form-container { max-width: 860px; margin: 0 auto; padding: 24px 24px 100px; }
+    .form-card {
+      background: #fff; border-radius: 16px; padding: 28px 32px; margin-bottom: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04); border: 1px solid #f0f0f0;
+      animation: fadeIn 0.5s ease both;
+    }
+    .form-card-title {
+      font-size: 16px; font-weight: 600; color: #1a1a2e;
+      margin-bottom: 20px; padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0; display: flex; align-items: center; gap: 8px;
+    }
+    .form-card-title .dot { width: 6px; height: 6px; border-radius: 50%; background: #1890ff; }
+    .ql-container { min-height: 260px; font-size: 14px; border-radius: 0 0 10px 10px; }
+    .ql-toolbar { border-radius: 10px 10px 0 0; border-color: #d9d9d9; }
+    .ql-container { border-color: #d9d9d9; }
+    .ql-editor { min-height: 260px; }
+    .ql-editor.ql-blank::before { font-style: normal; color: #bfbfbf; }
+    .upload-zone {
+      border: 2px dashed #d9d9d9; border-radius: 12px; padding: 28px;
+      text-align: center; cursor: pointer; transition: all 0.3s; background: #fafafa;
+    }
+    .upload-zone:hover { border-color: #1890ff; background: #e6f7ff; }
+    .file-item {
+      display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+      background: #fafafa; border-radius: 8px; margin-top: 8px;
+    }
+    .bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; background: #fff;
+      border-top: 1px solid #f0f0f0; padding: 14px 24px;
+      display: flex; justify-content: center; gap: 16px; z-index: 100;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.04);
+    }
+    .autosave-indicator { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #8c8c8c; }
+    .autosave-indicator .as-dot { width: 6px; height: 6px; border-radius: 50%; }
+  
+  /* 响应式 */
+  @media(max-width:768px){
+    .page-header{padding:12px 16px!important;}
+    .page-header h3{font-size:16px!important;}
+    .form-container{padding:12px 16px 90px!important;}
+    .form-card{padding:20px 16px!important;margin-bottom:12px!important;border-radius:14px!important;}
+    .form-card-title{font-size:14px!important;}
+    .form-row-2col{flex-direction:column!important;gap:0!important;}
+    .form-row-2col>[style*="flex"]{flex:auto!important;width:100%!important;}
+    .bottom-bar{padding:12px 16px!important;gap:10px!important;border-radius:0!important;}
+    .upload-zone{padding:28px 16px!important;}
+  }
+  @media(max-width:480px){
+    .form-card{padding:16px 14px!important;border-radius:12px!important;}
+    .bottom-bar{flex-wrap:wrap!important;padding:10px 12px!important;}
+    .bottom-bar button{flex:1!important;min-width:120px!important;}
+    .form-container{padding:8px 12px 80px!important;}
+    .file-item{padding:8px 10px!important;}
+  }</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+(() => {
+  const { Button, Input, Select, Cascader, Upload, Modal, Typography, Space, message, Tag, Form } = antd;
+  const { Title, Text } = Typography;
+  const { TextArea } = Input;
+
+  const TYPE_OPTIONS = [
+    { value: 'product_info', label: '产品信息' },
+    { value: 'solution', label: '解决方案' },
+    { value: 'success_case', label: '成功案例' }
+  ];
+
+  const CATEGORY_TREE = [
+    { value: 'product-line', label: '产品线', children: [
+      { value: '5g-module', label: '5G模组' },
+      { value: '4g-module', label: '4G模组' },
+      { value: 'wifi-module', label: 'WiFi模组' },
+      { value: 'nbiot', label: 'NB-IoT' }
+    ]},
+    { value: 'solution', label: '解决方案', children: [
+      { value: 'smart-city', label: '智慧城市' },
+      { value: 'vehicle', label: '车联网' },
+      { value: 'iiot', label: '工业物联网' }
+    ]},
+    { value: 'case', label: '成功案例', children: [
+      { value: 'carrier', label: '运营商' },
+      { value: 'enterprise', label: '企业客户' }
+    ]}
+  ];
+
+  const MOCK_EDIT_DATA = {
+    title: 'Quectel 5G模组RG500Q技术方案',
+    type: 'product_info',
+    category_ids: [['product-line','5g-module'], ['solution','vehicle']],
+    industry: '车载、工业网关',
+    tags: ['5G', 'SA/NSA', 'Sub-6GHz'],
+    summary: '面向车载T-Box和工业网关场景的5G解决方案，支持SA/NSA双模，下行速率可达2.5Gbps。',
+    description: '<h2>产品概述</h2><p>RG500Q是移远通信推出的5G Sub-6 GHz模组，基于高通骁龙X55平台。</p><h2>核心参数</h2><ul><li>频段：n1/n3/n28/n41/n77/n78/n79</li><li>下行速率：2.5 Gbps</li><li>上行速率：900 Mbps</li><li>尺寸：52.0 x 30.0 x 2.3 mm</li></ul><h2>应用场景</h2><p>车载T-Box、工业路由器、CPE、视频监控、远程医疗等。</p>',
+    attachments: [
+      { uid: '1', name: 'RG500Q_技术规格书_v2.3.pdf', size: 4.2, status: 'done' },
+      { uid: '2', name: '5G模组选型对比表.xlsx', size: 1.8, status: 'done' }
+    ]
+  };
+
+  const COPY_MOCK_DATA = {
+    'BIZ-20260527-001': { title: 'Quectel 5G模组RG500Q技术方案', type: 'product_info', category_ids: [['product-line','5g-module'], ['solution','vehicle']], industry: '车载、工业网关', tags: ['5G', 'SA/NSA', 'Sub-6GHz'], summary: '面向车载T-Box和工业网关场景的5G解决方案，支持SA/NSA双模，下行速率可达2.5Gbps。', description: '<h2>产品概述</h2><p>RG500Q是移远通信推出的5G Sub-6 GHz模组，基于高通骁龙X55平台。</p>' },
+    'BIZ-20260601-002': { title: 'NB-IoT低功耗广域网解决方案', type: 'solution', category_ids: [['product-line','nbiot']], industry: '智慧城市、智能表计', tags: ['NB-IoT', '低功耗', '广覆盖'], summary: '面向智慧城市和智能表计场景的NB-IoT低功耗广域网通信方案。', description: '<h2>方案概述</h2><p>本方案基于NB-IoT技术，提供低功耗、广覆盖的物联网连接能力。</p>' },
+    'BIZ-20260615-003': { title: 'WiFi6模组智慧家居方案', type: 'solution', category_ids: [['product-line','wifi-module']], industry: '智慧家居、消费电子', tags: ['WiFi6', '高速率', '低延迟'], summary: '基于WiFi6模组的智慧家居高速率连接方案。', description: '<h2>方案概述</h2><p>采用最新WiFi6技术，为智慧家居场景提供高速率、低延迟的连接解决方案。</p>' }
+  };
+
+  const PM_LIST = [
+    { name: 'Alice.Wang 王芳', dept: '产品一部' },
+    { name: 'Mark.Zhang 张强', dept: '产品二部' },
+    { name: 'Jing.Chen 陈静', dept: '产品三部' },
+    { name: 'David.Zhao 赵伟', dept: '华南大区产品线' }
+  ];
+
+  const PERSONNEL_EMAIL_OPTIONS = [
+    { label: '李明 Ming.Li — ming.li@company.com', value: 'ming.li@company.com' },
+    { label: '周涛 Tao.Zhou — tao.zhou@company.com', value: 'tao.zhou@company.com' },
+    { label: '赵伟 David.Zhao — david.zhao@company.com', value: 'david.zhao@company.com' },
+    { label: '张红 Hong.Zhang — hong.zhang@company.com', value: 'hong.zhang@company.com' },
+    { label: '王芳 Fang.Wang — fang.wang@company.com', value: 'fang.wang@company.com' },
+    { label: '陈刚 Gang.Chen — gang.chen@company.com', value: 'gang.chen@company.com' },
+    { label: '刘洋 Yang.Liu — yang.liu@company.com', value: 'yang.liu@company.com' },
+    { label: '孙丽 Li.Sun — li.sun@company.com', value: 'li.sun@company.com' },
+  ];
+
+  function RichTextEditor({ value, onChange }) {
+    const containerRef = React.useRef(null);
+    const quillRef = React.useRef(null);
+    const onChangeRef = React.useRef(onChange);
+    onChangeRef.current = onChange;
+    const isInternalChange = React.useRef(false);
+
+    React.useEffect(function() {
+      if (!containerRef.current || quillRef.current) return;
+      var quill = new Quill(containerRef.current, {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'header': [1, 2, 3, false] }],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['link', 'blockquote', 'code-block'],
+            ['clean']
+          ]
+        },
+        placeholder: '请输入详细的方案内容，支持富文本格式...'
+      });
+      if (value) { quill.root.innerHTML = value; }
+      quill.on('text-change', function() {
+        var html = quill.root.innerHTML;
+        var text = quill.getText().trim();
+        isInternalChange.current = true;
+        onChangeRef.current && onChangeRef.current(text ? html : '');
+      });
+      quillRef.current = quill;
+      return function() { quillRef.current = null; };
+    }, []);
+
+    React.useEffect(function() {
+      if (isInternalChange.current) {
+        isInternalChange.current = false;
+        return;
+      }
+      if (quillRef.current && value !== undefined) {
+        var current = quillRef.current.root.innerHTML;
+        if (value !== current) {
+          quillRef.current.root.innerHTML = value || '';
+        }
+      }
+    }, [value]);
+
+    return React.createElement('div', { ref: containerRef });
+  }
+
+  function CreateEditPage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isEditMode = urlParams.has('id');
+    const oppId = urlParams.get('id');
+    const copyFromId = urlParams.get('copy_from');
+    var copySourceData = null;
+    if (copyFromId && COPY_MOCK_DATA[copyFromId]) {
+      copySourceData = COPY_MOCK_DATA[copyFromId];
+    }
+
+    const [form] = Form.useForm();
+    const [formChanged, setFormChanged] = React.useState(false);
+    const [saving, setSaving] = React.useState(false);
+    const [publishing, setPublishing] = React.useState(false);
+    const [showLeaveModal, setShowLeaveModal] = React.useState(false);
+    const [showPublishConfirm, setShowPublishConfirm] = React.useState(false);
+    const [notifySubscribers, setNotifySubscribers] = React.useState(false);
+    const [sendEmail, setSendEmail] = React.useState(false);
+    const [notifyRelated, setNotifyRelated] = React.useState(false);
+    const [syncEmailSubscribers, setSyncEmailSubscribers] = React.useState(true);
+    const [emailRecipients, setEmailRecipients] = React.useState([]);
+    const [autoSaveStatus, setAutoSaveStatus] = React.useState('idle');
+    const [lastSaveTime, setLastSaveTime] = React.useState(null);
+    const [editorContent, setEditorContent] = React.useState('');
+    const [fileList, setFileList] = React.useState([]);
+    const autoSaveTimer = React.useRef(null);
+    const currentUser = (window.PROTO_SHELL && window.PROTO_SHELL.SHELL_CONFIG && window.PROTO_SHELL.SHELL_CONFIG.currentUser) || { name: 'Current.User 当前用户', dept: '' };
+    const [publisher, setPublisher] = React.useState({ name: currentUser.name, dept: currentUser.dept || currentUser.role || '' });
+    const isProxyPublish = publisher.name !== currentUser.name;
+
+    React.useEffect(() => {
+      if (copySourceData) {
+        form.setFieldsValue({
+          title: copySourceData.title,
+          type: copySourceData.type,
+          category_ids: copySourceData.category_ids,
+          industry: copySourceData.industry,
+          tags: copySourceData.tags,
+          summary: copySourceData.summary
+        });
+        setEditorContent(copySourceData.description || '');
+        setFormChanged(true);
+      } else if (isEditMode) {
+        form.setFieldsValue({
+          title: MOCK_EDIT_DATA.title,
+          type: MOCK_EDIT_DATA.type,
+          category_ids: MOCK_EDIT_DATA.category_ids,
+          industry: MOCK_EDIT_DATA.industry,
+          tags: MOCK_EDIT_DATA.tags,
+          summary: MOCK_EDIT_DATA.summary
+        });
+        setEditorContent(MOCK_EDIT_DATA.description);
+        setFileList(MOCK_EDIT_DATA.attachments);
+      }
+    }, []);
+
+    React.useEffect(() => {
+      if (!formChanged) return;
+      autoSaveTimer.current = setInterval(() => {
+        if (formChanged) {
+          setAutoSaveStatus('saving');
+          setTimeout(() => {
+            setAutoSaveStatus('saved');
+            setLastSaveTime(dayjs().format('HH:mm:ss'));
+            setFormChanged(false);
+          }, 800);
+        }
+      }, 60000);
+      return () => clearInterval(autoSaveTimer.current);
+    }, [formChanged]);
+
+    const handleFormChange = () => { setFormChanged(true); };
+
+    const handleSaveDraft = () => {
+      const title = form.getFieldValue('title');
+      if (!title || !title.trim()) { message.warning('请至少填写标题后再保存草稿'); return; }
+      setSaving(true);
+      setTimeout(() => {
+        setSaving(false); setFormChanged(false);
+        setLastSaveTime(dayjs().format('HH:mm:ss'));
+        message.success('草稿已保存');
+      }, 1000);
+    };
+
+    const handlePublishClick = () => {
+      form.validateFields().then(() => {
+        if (!editorContent || !editorContent.replace(/<[^>]*>/g, '').trim()) {
+          message.error('请填写方案详情');
+          return;
+        }
+        setShowPublishConfirm(true);
+      }).catch(() => { message.error('请填写所有必填字段'); });
+    };
+
+    const handlePublishConfirm = () => {
+      setPublishing(true);
+      setTimeout(() => {
+        setPublishing(false); setShowPublishConfirm(false);
+        var extra = [];
+        if (sendEmail) extra.push('邮件');
+        if (notifyRelated) extra.push('相关人员');
+        var extraStr = extra.length > 0 ? '（已同步发送' + extra.join('、') + '）' : '';
+        // 邮件通知人
+        var emailNotifyDesc = '';
+        if ((syncEmailSubscribers || sendEmail) && emailRecipients.length > 0) {
+          emailNotifyDesc = '，邮件将发送至：' + emailRecipients.join('、');
+        }
+        message.success(isProxyPublish ? '已以 ' + publisher.name + ' 身份代为发布成功！' + extraStr : '发布成功！已通知订阅用户' + extraStr + emailNotifyDesc);
+        setTimeout(() => { window.location.href = 'PAGE-PC-02_商机详情页.html'; }, 800);
+      }, 1500);
+    };
+
+    const handleBack = () => {
+      if (formChanged) { setShowLeaveModal(true); }
+      else { window.history.back(); }
+    };
+
+    const handleAddFile = () => {
+      const newFile = {
+        uid: Date.now().toString(),
+        name: '新上传文件_' + Math.floor(Math.random()*100) + '.pdf',
+        size: (Math.random() * 10 + 0.5).toFixed(1),
+        status: 'uploading', progress: 0
+      };
+      setFileList(prev => [...prev, newFile]); setFormChanged(true);
+      let prog = 0;
+      const timer = setInterval(() => {
+        prog += Math.random() * 30 + 10;
+        if (prog >= 100) { prog = 100; clearInterval(timer);
+          setFileList(prev => prev.map(f => f.uid === newFile.uid ? { ...f, status: 'done', progress: 100 } : f)); }
+        else { setFileList(prev => prev.map(f => f.uid === newFile.uid ? { ...f, progress: Math.min(prog, 99) } : f)); }
+      }, 400);
+    };
+
+    const handleRemoveFile = (uid) => {
+      setFileList(prev => prev.filter(f => f.uid !== uid)); setFormChanged(true);
+    };
+
+    const renderAutoSave = () => {
+      const map = {
+        idle: { color: '#d9d9d9', text: '未保存' },
+        saving: { color: '#faad14', text: '正在保存...' },
+        saved: { color: '#52c41a', text: '已自动保存 ' + (lastSaveTime || '') },
+        failed: { color: '#ff4d4f', text: '自动保存失败' }
+      };
+      const s = map[autoSaveStatus];
+      return React.createElement('div', { className: 'autosave-indicator' },
+        React.createElement('div', { className: 'as-dot', style: { background: s.color } }),
+        React.createElement('span', null, s.text)
+      );
+    };
+
+    const totalFileSize = fileList.reduce((sum, f) => sum + parseFloat(f.size || 0), 0);
+
+    return React.createElement('div', null,
+      /* Z1 页面标题栏 */
+      React.createElement('div', { className: 'page-header' },
+        React.createElement(Button, { type: 'text', icon: React.createElement('i', { className:'ti ti-arrow-left', style:{fontSize:18} }), onClick: handleBack }, '返回'),
+        React.createElement('h3', null, isEditMode ? '编辑方案' : (copySourceData ? '复制为新方案' : '发布方案')),
+        isEditMode && React.createElement(Text, { type:'secondary', style:{fontSize:12} }, 'ID: ' + (oppId || 'BIZ-20260527-001')),
+        copySourceData && React.createElement(Text, { type:'secondary', style:{fontSize:12} }, '来源: ' + copyFromId),
+        React.createElement('div', { style:{flex:1} }),
+        renderAutoSave()
+      ),
+      /* copy_from Alert */
+      copySourceData && React.createElement('div', { style: { background:'#e6f7ff', border:'1px solid #91d5ff', borderRadius:10, padding:'10px 16px', marginBottom:16, display:'flex', alignItems:'center', gap:8, fontSize:13, color:'#0050b3', maxWidth:860, margin:'0 auto 0' } },
+        React.createElement('i', { className:'ti ti-info-circle', style:{fontSize:18} }),
+        React.createElement('span', null, '正在基于「', React.createElement('strong', null, copySourceData.title), '」创建新方案，请修改后发布')
+      ),
+
+      /* 表单主体 */
+      React.createElement('div', { className: 'form-container' },
+
+        /* Z2 基础信息 */
+        React.createElement('div', { className: 'form-card', style:{animationDelay:'0.1s'} },
+          React.createElement('div', { className: 'form-card-title' },
+            React.createElement('div', { className: 'dot' }), '基础信息'
+          ),
+          isProxyPublish && React.createElement('div', { style: { background:'#fff7e6', border:'1px solid #ffd591', borderRadius:10, padding:'10px 16px', marginBottom:16, display:'flex', alignItems:'center', gap:8, fontSize:13, color:'#ad6800' } },
+            React.createElement('i', { className:'ti ti-user-check', style:{fontSize:18} }),
+            React.createElement('span', null, '当前以 ', React.createElement('strong', { style:{color:'#d46b08'} }, publisher.name + '（' + publisher.dept + '）'), ' 身份代发布方案，发布后将记入该发布者名下')
+          ),
+          React.createElement(Form, { form: form, layout: 'vertical', onValuesChange: handleFormChange, requiredMark: 'optional' },
+            React.createElement('div', { style:{display:'flex', alignItems:'flex-start', gap:12, marginBottom:16} },
+              React.createElement(Form.Item, { label: React.createElement('span', null, React.createElement('i', {className:'ti ti-user-circle', style:{marginRight:4}}), '发布者'), style:{flex:1, marginBottom:0} },
+                React.createElement(Select, {
+                  showSearch: true,
+                  size: 'large',
+                  style: { borderRadius: 10, width: '100%' },
+                  value: publisher.name,
+                  filterOption: function(input, option) { return (option.label || '').toLowerCase().indexOf(input.toLowerCase()) >= 0; },
+                  onChange: function(val) {
+                    var pm = PM_LIST.find(function(p) { return p.name === val; });
+                    if (pm) { setPublisher(pm); }
+                  },
+                  options: [{ label: currentUser.name + '（本人）', value: currentUser.name }].concat(PM_LIST.map(function(p) { return { label: p.name + '（' + p.dept + '）', value: p.name }; }))
+                })
+              ),
+              isProxyPublish && React.createElement(Tag, { color:'orange', icon: React.createElement('i',{className:'ti ti-user-check', style:{fontSize:14}}), style:{marginTop:30, borderRadius:8, padding:'4px 12px', fontSize:13} }, '代发布')
+            ),
+            React.createElement(Form.Item, { label: '标题', name: 'title', rules: [{ required:true, message:'请输入方案标题' }, { max:100, message:'标题不超过100字' }] },
+              React.createElement(Input, { placeholder: '请输入方案标题，100字以内', maxLength: 100, showCount: true, size: 'large', style:{borderRadius:10} })
+            ),
+            React.createElement('div', { className:'form-row-2col', style:{display:'flex', gap:16} },
+              React.createElement(Form.Item, { label: '类型', name: 'type', rules: [{ required:true, message:'请选择方案类型' }], style:{flex:1} },
+                React.createElement(Select, { placeholder: '请选择方案类型', size: 'large', style:{borderRadius:10}, options: TYPE_OPTIONS })
+              ),
+              React.createElement(Form.Item, { label: '分类标签', name: 'category_ids', rules: [{ required:true, message:'请选择分类标签' }], style:{flex:2},
+                extra: '请选择1~5个分类标签' },
+                React.createElement(Cascader, { options: CATEGORY_TREE, multiple: true, maxTagCount: 3, placeholder: '请选择分类标签', size: 'large', style:{borderRadius:10, width:'100%'} })
+              )
+            ),
+            React.createElement('div', { className:'form-row-2col', style:{display:'flex', gap:16} },
+              React.createElement(Form.Item, { label: '行业场景', name: 'industry', style:{flex:1} },
+                React.createElement(Input, { placeholder: '如：IoT、车载、智慧城市', maxLength: 50, showCount: true, style:{borderRadius:10} })
+              ),
+              React.createElement(Form.Item, { label: '关键词标签', name: 'tags', style:{flex:2} },
+                React.createElement(Select, { mode: 'tags', placeholder: '输入关键词后回车添加', style:{borderRadius:10, width:'100%'} })
+              )
+            ),
+            React.createElement(Form.Item, { label: '摘要', name: 'summary' },
+              React.createElement(TextArea, { placeholder: '简要描述，200字以内（可选）', maxLength: 200, showCount: true, rows: 3, style:{borderRadius:10} })
+            )
+          )
+        ),
+
+        /* Z3 方案详情 */
+        React.createElement('div', { className: 'form-card', style:{animationDelay:'0.2s'} },
+          React.createElement('div', { className: 'form-card-title' },
+            React.createElement('div', { className: 'dot' }), '方案详情',
+            React.createElement(Tag, { color:'red', style:{marginLeft:8, fontSize:11} }, '必填（发布时）')
+          ),
+          React.createElement(RichTextEditor, { value: editorContent, onChange: (v) => { setEditorContent(v); setFormChanged(true); } })
+        ),
+
+        /* Z4 附件上传 */
+        React.createElement('div', { className: 'form-card', style:{animationDelay:'0.3s'} },
+          React.createElement('div', { className: 'form-card-title' },
+            React.createElement('div', { className: 'dot' }), '附件',
+            React.createElement(Text, { type:'secondary', style:{fontSize:12, marginLeft:'auto', fontWeight:400} },
+              fileList.length + ' 个文件 / ' + totalFileSize.toFixed(1) + 'MB（限200MB）'
+            )
+          ),
+          React.createElement('div', { className: 'upload-zone', onClick: handleAddFile },
+            React.createElement('i', { className:'ti ti-cloud-upload', style:{fontSize:36, color:'#1890ff', marginBottom:8} }),
+            React.createElement('div', { style:{color:'#595959', fontSize:14} }, '点击上传附件'),
+            React.createElement('div', { style:{color:'#bfbfbf', fontSize:12, marginTop:4} }, '支持 PDF/DOC/XLS/PPT/JPG/PNG/ZIP，单文件不超过50MB')
+          ),
+          fileList.map(f =>
+            React.createElement('div', { className: 'file-item', key: f.uid },
+              React.createElement('i', { className:'ti ti-paperclip', style:{color:'#1890ff', fontSize:16} }),
+              React.createElement('div', { style:{flex:1} },
+                React.createElement('div', { style:{fontSize:13, color:'#333'} }, f.name),
+                React.createElement('div', { style:{fontSize:11, color:'#bfbfbf'} }, f.size + ' MB')
+              ),
+              f.status === 'done' && React.createElement(Tag, { color:'success', style:{borderRadius:10} }, '已上传'),
+              f.status === 'uploading' && React.createElement(Tag, { color:'processing', style:{borderRadius:10} }, '上传中'),
+              React.createElement(Button, { type:'text', size:'small', danger: true, icon: React.createElement('i', {className:'ti ti-trash', style:{fontSize:18}}), onClick: () => handleRemoveFile(f.uid) })
+            )
+          )
+        )
+      ),
+
+      /* Z5 底部操作栏 */
+      React.createElement('div', { className: 'bottom-bar' },
+        copySourceData && React.createElement('div', { style: { position:'absolute', left:24, top:-28, fontSize:12, color:'#faad14', display:'flex', alignItems:'center', gap:6 } },
+          React.createElement('i', { className:'ti ti-copy', style:{fontSize:14} }),
+          React.createElement('span', null, '复制为新方案模式：请修改标题和内容后发布为新方案')
+        ),
+        React.createElement(Button, { size:'large', icon: React.createElement('i', {className:'ti ti-device-floppy', style:{fontSize:18}}), onClick: handleSaveDraft, loading: saving, style:{borderRadius:10, height:44, paddingInline:28} }, '保存草稿'),
+        React.createElement(Button, { type:'primary', size:'large', icon: React.createElement('i', {className:'ti ti-send', style:{fontSize:18}}), onClick: handlePublishClick, loading: publishing, style:{borderRadius:10, height:44, paddingInline:28, background:'linear-gradient(135deg,#1890ff,#36cfc9)', border:'none', boxShadow:'0 4px 15px rgba(24,144,255,0.35)'} }, isProxyPublish ? '代为发布' : (copySourceData ? '发布为新方案' : '发布方案'))
+      ),
+
+      /* 离开确认弹窗 */
+      showLeaveModal && React.createElement('div', {
+        style: { position:'fixed', top:0, left:0, right:0, bottom:0, background:'rgba(0,0,0,0.45)', zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center' },
+        onClick: () => setShowLeaveModal(false)
+      },
+        React.createElement('div', {
+          style: { background:'#fff', borderRadius:12, padding:32, width:420, boxShadow:'0 12px 40px rgba(0,0,0,0.2)' },
+          onClick: e => e.stopPropagation()
+        },
+          React.createElement('div', { style:{display:'flex', alignItems:'center', gap:12, marginBottom:16} },
+            React.createElement('i', { className:'ti ti-alert-circle', style:{fontSize:22, color:'#faad14'} }),
+            React.createElement(Title, { level:5, style:{margin:0} }, '离开将丢失未保存内容')
+          ),
+          React.createElement(Text, { type:'secondary' }, '当前页面有未保存的更改，是否保存草稿后离开？'),
+          React.createElement('div', { style:{display:'flex', justifyContent:'flex-end', gap:8, marginTop:24} },
+            React.createElement(Button, { onClick: () => setShowLeaveModal(false) }, '取消'),
+            React.createElement(Button, { danger: true, onClick: () => { setShowLeaveModal(false); window.history.back(); } }, '不保存'),
+            React.createElement(Button, { type:'primary', onClick: () => { handleSaveDraft(); setShowLeaveModal(false); setTimeout(() => window.history.back(), 1200); } }, '保存并离开')
+          )
+        )
+      ),
+
+      /* 发布确认弹窗 */
+      React.createElement(Modal, {
+        title: '确认' + (isProxyPublish ? '代' : '') + '发布方案',
+        open: showPublishConfirm,
+        onOk: handlePublishConfirm,
+        onCancel: () => setShowPublishConfirm(false),
+        okText: isProxyPublish ? '确认为代发布' : '确认发布',
+        cancelText: '取消',
+        confirmLoading: publishing,
+        centered: true
+      },
+        React.createElement('p', { style:{marginBottom:16, color:'#595959'} }, '发布后将自动通知订阅用户，确认内容无误？'),
+        React.createElement('div', { style:{marginBottom:12} },
+          React.createElement(antd.Checkbox, {
+            checked: syncEmailSubscribers,
+            onChange: function(e) { setSyncEmailSubscribers(e.target.checked); }
+          }, React.createElement('span', null, '同步发送邮件通知订阅用户', React.createElement('span', {style:{color:'#bfbfbf', fontSize:12, marginLeft:6}}, '默认勾选，取消则不发送邮件')))
+        ),
+        React.createElement('div', { style:{marginBottom:12} },
+          React.createElement(antd.Checkbox, {
+            checked: sendEmail,
+            onChange: function(e) { setSendEmail(e.target.checked); }
+          }, React.createElement('span', null, '同时发送邮件通知', React.createElement('span', {style:{color:'#bfbfbf', fontSize:12, marginLeft:6}}, '向订阅用户发送邮件')))
+        ),
+        React.createElement('div', { style:{marginBottom:12} },
+          React.createElement(antd.Checkbox, {
+            checked: notifyRelated,
+            onChange: function(e) { setNotifyRelated(e.target.checked); }
+          }, React.createElement('span', null, '通知相关人员', React.createElement('span', {style:{color:'#bfbfbf', fontSize:12, marginLeft:6}}, '站内信通知相关产品线负责人')))
+        ),
+        (syncEmailSubscribers || sendEmail) && React.createElement('div', { style: { marginBottom: 12, marginTop: -4 } },
+          React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 8, color: '#333' } }, '邮件通知人'),
+          React.createElement(Select, {
+            mode: 'tags',
+            style: { width: '100%' },
+            placeholder: '输入邮箱地址或搜索人员...',
+            value: emailRecipients,
+            onChange: function(vals) { setEmailRecipients(vals); },
+            options: PERSONNEL_EMAIL_OPTIONS,
+            tokenSeparators: [',', ';', ' '],
+            filterOption: function(input, option) {
+              return (option.label || '').toLowerCase().indexOf(input.toLowerCase()) >= 0;
+            }
+          })
+        ),
+        isProxyPublish && React.createElement('div', { style:{background:'#fff7e6', border:'1px solid #ffd591', borderRadius:8, padding:'10px 14px', marginBottom:12, fontSize:13, color:'#ad6800'} },
+          React.createElement('i', { className:'ti ti-user-check', style:{marginRight:6, fontSize:15, verticalAlign:-2} }),
+          React.createElement('span', null, '发布者：', React.createElement('strong', {style:{color:'#d46b08'}}, publisher.name + '（' + publisher.dept + '）'), ' ｜ 代发布人：', React.createElement('strong', null, currentUser.name))
+        ),
+        isEditMode && React.createElement(antd.Checkbox, {
+          checked: notifySubscribers,
+          onChange: e => setNotifySubscribers(e.target.checked)
+        }, '通知已订阅用户内容已更新')
+      )
+    );
+  }
+
+  if (window.PROTO_SHELL && window.PROTO_SHELL.renderShell) {
+    window.PROTO_SHELL.renderShell('opp-hall');
+    if (window.DataTracker) { window.DataTracker.trackPageView('publish-opp', '发布方案'); }
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(CreateEditPage));
+})();
+</script>
+</body>
+</html>

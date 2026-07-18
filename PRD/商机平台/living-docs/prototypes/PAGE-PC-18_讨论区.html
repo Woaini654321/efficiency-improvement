@@ -1,0 +1,209 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>讨论区 - Quectel商机互助平台</title>
+  <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="prototype-shell.js"></script>
+  <script src="data-tracker.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f5f7fa; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    .post-card { background:#fff; border-radius:14px; padding:20px 24px; margin-bottom:14px; cursor:pointer; border:1px solid #f0f0f0; transition:all .25s; animation:fadeIn .4s ease both; }
+    .post-card:hover { border-color:#1890ff; box-shadow:0 4px 16px rgba(0,0,0,.06); transform:translateX(3px); }
+    .layout-side { display:grid; grid-template-columns:1fr 280px; gap:24px; }
+    .side-card { background:#fff; border-radius:14px; padding:20px; margin-bottom:16px; border:1px solid #f0f0f0; }
+    .side-card h4 { font-size:15px; font-weight:600; color:#1a1a2e; margin-bottom:12px; }
+    .hot-tag { display:inline-flex; padding:4px 12px; border-radius:16px; font-size:12px; color:#1890ff; background:#e6f7ff; cursor:pointer; margin:0 6px 8px 0; }
+    .hot-tag:hover { background:#bae7ff; }
+    .cmt-avatar { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; font-weight:600; flex-shrink:0; }
+    .topic-tabs { margin-bottom:20px; }
+    @media (max-width:768px) { .layout-side { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body><div id="root"></div>
+<script type="text/babel">
+(function(){
+  var useState = React.useState;
+  var Button = antd.Button;
+  var Tag = antd.Tag;
+  var Input = antd.Input;
+  var message = antd.message;
+  var Empty = antd.Empty;
+  var Badge = antd.Badge;
+
+  var TOPICS = ['全部','商机讨论','方案互助','经验分享','行业动态','吐槽'];
+  var TOPIC_COLORS = { '商机讨论':'blue','方案互助':'orange','经验分享':'green','行业动态':'purple','吐槽':'magenta' };
+  var TOPIC_HEX = { '商机讨论':'#1677ff','方案互助':'#fa8c16','经验分享':'#52c41a','行业动态':'#722ed1','吐槽':'#eb2f96' };
+
+  var MOCK_POSTS = [
+    { id:'P1',title:'5G专网在智慧工厂的落地机会探讨',topic:'商机讨论',author:'Tony.Zhang 张伟',content:'最近走访了几个大型制造企业，发现5G专网需求非常旺盛。分享一下我整理的几个切入点：工业视觉质检、AGV调度、数据采集，欢迎大家补充经验和案例。',replyCount:28,viewCount:342,date:'2026-07-05',tags:['5G','智慧工厂','专网'],hot:true },
+    { id:'P2',title:'客户说价格太高，这个话术亲测有效',topic:'经验分享',author:'Leo.Zhao 赵磊',content:'分享一个应对价格异议的实战话术：不要直接降价，而是拆解TCO。拿我们的Cat.1模组举例，虽然单价高2元，但功耗低30%，一年电费就能省回来。客户听完直接签了。',replyCount:45,viewCount:891,date:'2026-07-04',tags:['销售技巧','话术','价格谈判'],hot:true },
+    { id:'P3',title:'求推荐车载前装过车规的5G模组',topic:'方案互助',author:'Owen.Liu 刘洋',content:'客户是新能源车企，需要过AEC-Q100认证的5G模组，工作温度-40~85度，支持SA/NSA双模。目前看RG500Q系列参数可以，但想知道实际装车表现和供货稳定性。',replyCount:12,viewCount:167,date:'2026-07-03',tags:['车载','5G模组'],hot:true },
+    { id:'P4',title:'2026年物联网模组市场趋势分析',topic:'行业动态',author:'Nina.Li 李娜',content:'整理了Q2行业数据：Cat.1bis出货量同比增长120%，5G RedCap模组开始规模商用，卫星物联网模组成为新热点。附详细分析报告链接。',replyCount:33,viewCount:520,date:'2026-07-02',tags:['行业趋势','5G RedCap'],hot:true },
+    { id:'P5',title:'海外智慧城市项目的商机识别技巧',topic:'商机讨论',author:'Kevin.Wang 王强',content:'跟踪了几个东南亚智慧城市项目，总结了商机信号：当地政府发布招标、运营商启动5G建设、本地SI开始寻找模组供应商。建议建立海外商机监测机制。',replyCount:19,viewCount:256,date:'2026-06-30',tags:['海外','智慧城市'] },
+    { id:'P6',title:'如何高效准备客户技术交流PPT',topic:'经验分享',author:'Yan.Chen 陈燕',content:'做了几十场客户技术交流，总结了一套PPT模板：开场公司实力、痛点分析、方案介绍、竞品对比、下一步。需要的同学可以私我要模板。',replyCount:22,viewCount:310,date:'2026-06-29',tags:['技术交流','PPT'] },
+    { id:'P7',title:'Cat.1模组在多省市智能电表项目的适配经验',topic:'方案互助',author:'Liu.Zhao 赵六',content:'目前在甘肃、宁夏、青海三省推智能电表项目，需要Cat.1模组适配各省电力公司的不同协议。EC200A在甘肃已通过测试，宁夏IR46标准有特殊要求。',replyCount:15,viewCount:203,date:'2026-06-28',tags:['Cat.1','智能电表'] },
+
+    { id:'V1',title:'每次产品更新都要翻300条群消息才能找到文档链接',topic:'吐槽',author:'匿名用户  😤',content:'飞书群消息太多，重要文档链接经常被淹没。建议在平台建一个"产品文档中心"，按产品线分类，每次更新自动置顶。',replyCount:18,viewCount:156,date:'2026-07-06',tags:['文档','效率'] },
+    { id:'V2',title:'客户问的NB-IoT方案三个月了还没人跟进',topic:'吐槽',author:'匿名用户  😫',content:'在平台上提了需求，标了"特急"，结果三个月过去了状态还是"待响应"。客户那边我已经不好意思再拖了。',replyCount:22,viewCount:189,date:'2026-07-04',tags:['需求响应','效率'] },
+    { id:'V3',title:'公司WiFi在客户演示时断了三回，尴尬到脚趾抠地',topic:'吐槽',author:'匿名用户  🫣',content:'上周去客户现场做技术演示，公司VPN连不上，WiFi信号只有一格。客户看着我在那里刷新页面等了5分钟。IT能不能给销售配个随身WiFi？',replyCount:35,viewCount:267,date:'2026-06-30',tags:['IT','网络'] },
+    { id:'P8',title:'车载通信模组国产替代的最新进展',topic:'行业动态',author:'Jing.Chen 陈静',content:'近期国内车载模组市场变化很大：国产5G车载模组拿到车规认证，主机厂开始要求二供方案，成本降低30-40%。建议产品线加速车载产品布局。',replyCount:26,viewCount:445,date:'2026-06-27',tags:['车载','国产替代'] }
+  ];
+
+  // ====== PostCard Component ======
+  function PostCard(props) {
+    var p = props.post;
+    var openDetail = props.openDetail;
+    var isVent = p.topic === '吐槽';
+    return React.createElement('div', {
+      className:'post-card',
+      style: { borderLeft: isVent ? '3px solid #ffadd2' : undefined },
+      onClick:function(){ openDetail(p); }
+    },
+      React.createElement('div', { style:{display:'flex',alignItems:'flex-start',gap:12} },
+        React.createElement('div', { style:{flex:1,minWidth:0} },
+          React.createElement('div', { style:{display:'flex',alignItems:'center',gap:8,marginBottom:8} },
+            React.createElement(Tag, { color:TOPIC_COLORS[p.topic]||'default',style:{borderRadius:6,border:'none',fontSize:11} }, p.topic),
+            p.hot ? React.createElement(Badge, { count:'热',style:{background:'#ff4d4f',fontSize:10},size:'small' }) : null,
+            React.createElement('span', { style:{fontSize:16,fontWeight:600,color:'#1a1a2e'} }, p.title)
+          ),
+          React.createElement('div', { style:{fontSize:13,color:'#595959',marginBottom:10,lineHeight:1.6,overflow:'hidden',textOverflow:'ellipsis',display:'-webkit-box',WebkitLineClamp:'2',WebkitBoxOrient:'vertical'} }, p.content),
+          React.createElement('div', { style:{fontSize:12,color:'#bfbfbf',display:'flex',alignItems:'center',gap:14,flexWrap:'wrap'} },
+            React.createElement('span', null, React.createElement('i',{className: isVent ? 'ti ti-ghost' : 'ti ti-user-circle',style:{marginRight:4,color: isVent ? '#eb2f96' : undefined}}), p.author),
+            React.createElement('span', null, React.createElement('i',{className:'ti ti-message-circle',style:{marginRight:4}}), p.replyCount, ' 回复'),
+            React.createElement('span', null, React.createElement('i',{className:'ti ti-eye',style:{marginRight:4}}), p.viewCount, ' 浏览'),
+            React.createElement('span', null, p.date),
+            (p.tags||[]).slice(0,3).map(function(t){ return React.createElement('span',{key:t,style:{background:'#f5f5f5',borderRadius:4,padding:'2px 6px',fontSize:10,color:'#999',marginLeft:4}},t); })
+          )
+        )
+      )
+    );
+  }
+
+  // ====== Hot Posts Sidebar ======
+  function HotSidebar(props) {
+    var hotPosts = props.hotPosts;
+    var openDetail = props.openDetail;
+    return React.createElement('div', { className:'side-card' },
+      React.createElement('h4', null, React.createElement('i',{className:'ti ti-flame',style:{color:'#ff4d4f',marginRight:6}}), '热门讨论'),
+      hotPosts.map(function(p) {
+        return React.createElement('div', {
+          key:p.id,
+          style:{padding:'8px 0',borderBottom:'1px solid #fafafa',cursor:'pointer',fontSize:13},
+          onClick:function(){ openDetail(p); }
+        },
+          React.createElement('div', { style:{fontWeight:500,color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'} }, p.title),
+          React.createElement('div', { style:{fontSize:11,color:'#bfbfbf',marginTop:2} }, p.replyCount, ' 回复 · ', p.viewCount, ' 浏览')
+        );
+      })
+    );
+  }
+
+  // ====== Main Page ======
+  function DiscussionPage() {
+    var activeTopicState = useState('全部');
+    var activeTopic = activeTopicState[0];
+    var setActiveTopic = activeTopicState[1];
+
+    var searchKeyState = useState('');
+    var searchKey = searchKeyState[0];
+    var setSearchKey = searchKeyState[1];
+
+    // Filter
+    var filtered = MOCK_POSTS.filter(function(p) {
+      if (activeTopic !== '全部' && p.topic !== activeTopic) return false;
+      if (searchKey && p.title.indexOf(searchKey)===-1 && p.content.indexOf(searchKey)===-1) return false;
+      return true;
+    });
+
+    // Hot posts
+    var hotPosts = MOCK_POSTS.slice().sort(function(a,b){ return b.viewCount - a.viewCount; }).slice(0,5);
+
+    // Topic counts
+    var topicCounts = {};
+    TOPICS.forEach(function(t) {
+      topicCounts[t] = t==='全部' ? MOCK_POSTS.length : MOCK_POSTS.filter(function(p){ return p.topic===t; }).length;
+    });
+
+    // Open detail in separate page
+    function openDetail(post) {
+      localStorage.setItem('discussionDetail', JSON.stringify(post));
+      window.open('PAGE-PC-18-1_讨论详情页.html', '_blank');
+    }
+
+    // Hot tags
+    var hotTags = ['5G','Cat.1','车载','智慧城市','销售技巧','NB-IoT','WiFi6','工业物联网','海外','价格谈判'];
+
+    return React.createElement('div', { style:{padding:'4px 0 40px'} },
+      // Header
+      React.createElement('div', { style:{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20} },
+        React.createElement('div', null,
+          React.createElement('h2', { style:{fontSize:22,fontWeight:700,color:'#1a1a2e',marginBottom:4} }, '讨论区'),
+          React.createElement('span', { style:{fontSize:13,color:'#8c8c8c'} }, '商机讨论 · 方案互助 · 经验分享 · 行业动态 · 吐槽')
+        ),
+        React.createElement(Button, {
+          type:'primary',
+          icon:React.createElement('i',{className:'ti ti-plus',style:{fontSize:18}}),
+          style:{borderRadius:10,fontWeight:500},
+          onClick:function(){ window.open('PAGE-PC-18-2_发帖页.html', '_blank'); }
+        }, '发帖')
+      ),
+      // Topic Tabs
+      React.createElement('div', { className:'topic-tabs',style:{display:'flex',gap:8,flexWrap:'wrap'} },
+        TOPICS.map(function(t) {
+          return React.createElement(Button, {
+            key:t,
+            type:activeTopic===t?'primary':'default',
+            style:{borderRadius:20},
+            onClick:function(){ setActiveTopic(t); }
+          }, t + ' (' + topicCounts[t] + ')');
+        })
+      ),
+      // Search
+      React.createElement('div', { style:{marginBottom:20} },
+        React.createElement(Input.Search, {
+          placeholder:'搜索讨论话题...',
+          allowClear:true,
+          style:{maxWidth:400},
+          value:searchKey,
+          onChange:function(e){ setSearchKey(e.target.value); }
+        })
+      ),
+      // Content Area
+      React.createElement('div', { className:'layout-side' },
+        React.createElement('div', null,
+          filtered.length > 0
+            ? filtered.map(function(p) { return React.createElement(PostCard,{key:p.id,post:p,openDetail:openDetail}); })
+            : React.createElement(Empty,{description:'暂无相关讨论，快来发起第一个话题吧'})
+        ),
+        React.createElement('div', null,
+          React.createElement(HotSidebar,{hotPosts:hotPosts,openDetail:openDetail}),
+          React.createElement('div', { className:'side-card' },
+            React.createElement('h4', null, React.createElement('i',{className:'ti ti-tag',style:{color:'#1890ff',marginRight:6}}), '热门标签'),
+            hotTags.map(function(t) {
+              return React.createElement('span',{key:t,className:'hot-tag',onClick:function(){setSearchKey(t);}},t);
+            })
+          )
+        )
+      ),
+    );
+  }
+
+  if (window.PROTO_SHELL && window.PROTO_SHELL.renderShell) {
+    window.PROTO_SHELL.renderShell('discussion');
+    if (window.DataTracker) { window.DataTracker.trackPageView('discussion', '讨论区'); }
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(DiscussionPage, null));
+})();
+</script>
+</body>
+</html>

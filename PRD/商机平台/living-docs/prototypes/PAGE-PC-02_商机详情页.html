@@ -1,0 +1,645 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>方案详情 - Quectel商机互助平台</title>
+  <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.2); } }
+    @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    .detail-section { background:#fff; border-radius:16px; padding:28px 32px; margin-bottom:20px; box-shadow:0 2px 12px rgba(0,0,0,0.05); animation:slideUp 0.5s ease both; }
+    .hero-card { background:linear-gradient(135deg, #f0f5ff 0%, #e6f7ff 50%, #f6ffed 100%); border:1px solid #d6e4ff; position:relative; overflow:hidden; }
+    .social-pill { display:inline-flex; align-items:center; gap:6px; padding:10px 22px; border-radius:28px; cursor:pointer; transition:all 0.3s; border:1px solid #e8e8e8; background:#fff; font-size:14px; color:#595959; font-weight:500; }
+    .social-pill:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,0.08); }
+    .social-pill.liked { border-color:#ff4d4f; color:#ff4d4f; background:linear-gradient(135deg,#fff1f0,#ffccc7); }
+    .social-pill.collected { border-color:#faad14; color:#faad14; background:linear-gradient(135deg,#fffbe6,#fff1b8); }
+    .social-pill:active .bounce { animation: pulse 0.3s ease; }
+    /* 微信公众号风格评论区 */
+    .comment-card { padding:18px 0; border-bottom:1px solid #f0f0f0; position:relative; }
+    .comment-card:last-child { border-bottom:none; }
+    .comment-card .cmt-avatar { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; font-weight:600; flex-shrink:0; }
+    .cmt-action { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:6px; cursor:pointer; transition:all 0.2s; color:#8c8c8c; font-size:13px; border:none; background:transparent; }
+    .cmt-action:hover { color:#1890ff; background:rgba(24,144,255,0.06); }
+    .cmt-action.liked { color:#1890ff; }
+    .cmt-action.danger { color:#999; }
+    .cmt-action.danger:hover { color:#ff4d4f; background:rgba(255,77,79,0.06); }
+    .comment-replies { margin-top:8px; padding-left:0; }
+    .comment-reply-item { padding:10px 14px; margin-bottom:4px; background:#f9fafb; border-radius:8px; border-left:3px solid #e8e8e8; font-size:13px; line-height:1.7; }
+    .comment-reply-item:last-child { margin-bottom:0; }
+    .comment-reply-item.mine { background:#f6ffed; border-left-color:#b7eb8f; }
+    .comment-deleted { color:#bfbfbf; font-size:13px; padding:8px 0; }
+    .comment-sort-tab { display:inline-flex; align-items:center; gap:6px; padding:6px 16px; border-radius:18px; cursor:pointer; font-size:13px; color:#8c8c8c; transition:all 0.2s; border:1px solid transparent; background:#fff; }
+    .comment-sort-tab.active { color:#1890ff; background:#f0f5ff; border-color:#d6e4ff; font-weight:500; }
+    .comment-sort-tab:hover { color:#1890ff; }
+    .attach-row { display:flex; align-items:center; gap:14px; padding:14px 18px; border-radius:14px; border:1px solid #f0f0f0; transition:all 0.25s; background:#fafafa; }
+    .attach-row:hover { border-color:#1890ff; background:#f0f5ff; box-shadow:0 4px 16px rgba(24,144,255,0.08); transform:translateX(4px); }
+
+    .rich-body h2 { font-size:20px; font-weight:700; color:#1a1a2e; margin:28px 0 12px; padding-bottom:8px; border-bottom:2px solid #f0f0f0; }
+    .rich-body h2:first-child { margin-top:0; }
+    .rich-body h3 { font-size:16px; font-weight:600; color:#1a1a2e; margin:20px 0 8px; }
+    .rich-body p { font-size:14px; color:#595959; line-height:1.9; margin-bottom:14px; }
+    .rich-body ul { padding-left:20px; margin-bottom:14px; }
+    .rich-body li { font-size:14px; color:#595959; line-height:2.2; }
+    .rich-body table { width:100%; border-collapse:separate; border-spacing:0; margin:16px 0; font-size:13px; border-radius:10px; overflow:hidden; border:1px solid #f0f0f0; }
+    .rich-body th { background:linear-gradient(135deg,#f0f5ff,#e6f7ff); padding:12px 14px; font-weight:600; color:#333; text-align:left; border-bottom:1px solid #e8e8e8; }
+    .rich-body td { padding:11px 14px; color:#595959; border-bottom:1px solid #f5f5f5; }
+    .rich-body tr:last-child td { border-bottom:none; }
+    .rich-body tr:hover td { background:#fafafa; }
+    .rich-body pre { background:#1a1a2e; border-radius:12px; padding:20px; font-size:13px; overflow-x:auto; margin:16px 0; color:#e6e6e6; }
+    .rich-body code { font-family:'Fira Code','Consolas',monospace; }
+    .metric-chip { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:20px; background:rgba(255,255,255,0.7); font-size:12px; color:#666; backdrop-filter:blur(4px); }
+    .related-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; }
+
+    /* 响应式 */
+    @media(max-width:768px){
+      .detail-section{padding:24px 20px!important;margin-bottom:16px!important;border-radius:12px!important;}
+      .hero-card{padding:24px 20px!important;}
+      .comment-reply-item{padding:8px 10px!important;}
+      .rich-body{font-size:14px!important;}
+      .rich-body img{border-radius:8px!important;}
+      .comment-card{padding:12px 0!important;}
+    }
+    @media(max-width:600px){
+      .detail-section{padding:16px 14px!important;margin-bottom:12px!important;}
+      .hero-card{padding:20px 14px!important;}
+      .related-grid{grid-template-columns:1fr;gap:10px;}
+      .comment-reply-item{padding:8px 8px!important;font-size:12px!important;}
+      .attach-row{padding:10px 12px!important;}
+      .metric-chip{padding:3px 10px!important;font-size:11px!important;}
+    }
+  </style>
+</head>
+<body>
+  <script>
+    window.onerror = function(msg, url, line, col, err) {
+      var d = document.createElement('div');
+      d.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#fffbe6;border-bottom:2px solid #faad14;padding:12px 20px;font:14px monospace;color:#d4380d;';
+      d.textContent = '⚠ JS Error: ' + msg + ' (line ' + line + ')';
+      document.body.prepend(d);
+    };
+  </script>
+  <div id="root"></div>
+  <script type="text/babel">
+  (() => {
+    const { Button, Tag, Breadcrumb, Typography, Input, Modal, message, Divider, Tooltip } = antd;
+    const { Text } = Typography;
+
+    const OPP = {
+      id: 'OPP-0001', title: 'EC200A Cat.1模组低功耗方案', type: 'product_info',
+      publisher: 'Nina.Li 李娜', publisher_dept: '产品管理部', created_at: '2026-05-20 14:30',
+      categories: ['Cat.1模组', 'IoT模组', '低功耗'],
+      view_count: 1286, like_count: 89, collect_count: 45, comment_count: 12, status: 'Published',
+      expiry_date: '2026-12-31', superseded_by: null,
+      attachments: [
+        { name: 'EC200A产品规格书_V2.1.pdf', size: '2.3MB', type: 'pdf' },
+        { name: 'Cat.1低功耗方案介绍.pptx', size: '5.1MB', type: 'pptx' },
+        { name: '硬件设计参考指南.pdf', size: '8.7MB', type: 'pdf' }
+      ]
+    };
+
+    // 微信公众号风格扁平评论 - 仅两级：顶级评论 + 扁平回复列表
+    const INIT_COMMENTS = [
+      { id:1, user:'Tony.Zhang 张伟', dept:'华东大区', time:'2小时前', content:'这个方案非常实用，我在XX客户项目中正好需要Cat.1低功耗方案，请问有更详细的功耗测试数据吗？', likes:5, isMine:false, replies:[
+        { id:11, user:'Nina.Li 李娜', dept:'产品管理部', time:'1小时前', content:'@Tony.Zhang 张伟 详细功耗测试报告已上传到附件区，包含PSM和eDRX两种模式下的实测数据。', isMine:false },
+        { id:12, user:'Tony.Zhang 张伟', dept:'华东大区', time:'30分钟前', content:'@Nina.Li 李娜 感谢！已下载查看，PSM模式10uA的待机功耗确实很出色。', isMine:true },
+        { id:13, user:'Nina.Li 李娜', dept:'产品管理部', time:'10分钟前', content:'@Tony.Zhang 张伟 不客气！如果在客户测试中遇到任何问题，随时联系技术支持团队。', isMine:false }
+      ]},
+      { id:2, user:'Kevin.Wang 王强', dept:'华南大区', time:'5小时前', content:'附件里的规格书很详细，已下载给客户参考。Cat.1模组在表计行业应用效果不错。', likes:8, isMine:false, replies:[] },
+      { id:3, user:'Yan.Chen 陈燕', dept:'华北大区', time:'1天前', content:'请问EC200A和EC200S在低功耗模式下的差异是什么？客户想对比选型。', likes:3, isMine:false, replies:[
+        { id:31, user:'Ivy.Sun 孙芳', dept:'技术支持部', time:'20小时前', content:'@Yan.Chen 陈燕 EC200A的PSM待机功耗约10uA，EC200S约15uA。建议看附件规格书第12页的对比表。', isMine:false },
+        { id:32, user:'Yan.Chen 陈燕', dept:'华北大区', time:'18小时前', content:'@Ivy.Sun 孙芳 感谢详细对比，Cat.1 bis的支持确实是EC200A的优势。', isMine:false }
+      ]},
+      { id:4, user:'Leo.Zhao 赵磊', dept:'西南大区', time:'2天前', content:'收藏了，后续有客户咨询Cat.1模组选型会参考这个方案。', likes:2, isMine:false, replies:[] },
+      { id:5, user:'Owen.Liu 刘洋', dept:'海外事业部', time:'3天前', content:'海外市场对低功耗需求很大，这个方案能否支持海外频段？建议补充全球频段适配信息。', likes:4, isMine:false, replies:[
+        { id:51, user:'Nina.Li 李娜', dept:'产品管理部', time:'2天前', content:'@Owen.Liu 刘洋 EC200A-EU版本支持欧洲/中东/非洲频段，EC200A-AU支持澳洲/拉美。', isMine:false },
+        { id:52, user:'Owen.Liu 刘洋', dept:'海外事业部', time:'2天前', content:'@Nina.Li 李娜 好的，期待更新！东南亚市场也有需求。', isMine:true }
+      ]},
+      { id:6, user:'Ivy.Sun 孙芳', dept:'技术支持部', time:'5天前', content:'补充一下：EC200A支持PSM和eDRX两种低功耗模式，待机功耗可低至10uA级别。实际功耗取决于网络环境和配置参数。', likes:12, isMine:false, replies:[] }
+    ];
+
+    const TYPE_COLORS = { product_info:'blue', solution:'green', success_case:'orange' };
+    const TYPE_LABELS = { product_info:'产品信息', solution:'解决方案', success_case:'成功案例' };
+    const AVATAR_COLORS = ['#f56a00','#7265e6','#ffbf00','#00a2ae','#87d068','#1890ff','#eb2f96','#722ed1'];
+
+    function formatCount(n) { return n >= 1000 ? (n/1000).toFixed(1)+'k' : String(n); }
+
+    function FileIcon({ type }) {
+      if (type === 'pdf') return <i className="ti ti-file-type-pdf" style={{fontSize:32, color:'#ff4d4f'}} />;
+      if (type === 'pptx') return <i className="ti ti-file-type-ppt" style={{fontSize:32, color:'#fa8c16'}} />;
+      return <i className="ti ti-file-text" style={{fontSize:32, color:'#1890ff'}} />;
+    }
+
+    // 在评论列表中查找并添加回复（仅2级扁平）
+    function addReplyToComment(comments, parentId, newReply) {
+      return comments.map(c => {
+        if (c.id === parentId) {
+          return { ...c, replies: [...(c.replies || []), newReply] };
+        }
+        return c;
+      });
+    }
+
+    // 从评论或回复列表中删除指定项
+    function removeById(comments, targetId) {
+      return comments
+        .filter(c => c.id !== targetId)
+        .map(c => {
+          if (c.replies && c.replies.length > 0) {
+            return { ...c, replies: c.replies.filter(r => r.id !== targetId) };
+          }
+          return c;
+        });
+    }
+
+    // 统计评论总数（顶级+回复）
+    function countAll(comments) {
+      let n = comments.length;
+      comments.forEach(c => { if (c.replies) n += c.replies.length; });
+      return n;
+    }
+
+    // 微信公众号风格评论卡片 - 仅两级：顶级评论 + 扁平回复
+    function CommentCard({ comment, index, currentUser, onReply, onDelete }) {
+      const [replyOpen, setReplyOpen] = React.useState(false);
+      const [replyText, setReplyText] = React.useState('');
+      const [cLikes, setCLikes] = React.useState(comment.likes || 0);
+      const [cLiked, setCLiked] = React.useState(false);
+      const replies = comment.replies || [];
+      const isMine = comment.isMine || false;
+
+      const handleReply = () => {
+        if (!replyText.trim()) return;
+        const newReply = {
+          id: Date.now(),
+          user: currentUser.name,
+          dept: currentUser.dept,
+          time: '刚刚',
+          content: replyText,
+          isMine: true,
+        };
+        onReply(comment.id, newReply);
+        setReplyText('');
+        setReplyOpen(false);
+        message.success('回复成功');
+      };
+
+      const handleDelete = () => {
+        Modal.confirm({
+          title: '删除评论',
+          content: '确认删除此评论？删除后不可恢复。',
+          okText: '确认删除',
+          cancelText: '取消',
+          okButtonProps: { danger: true },
+          onOk: () => {
+            onDelete(comment.id);
+            message.success('评论已删除');
+          }
+        });
+      };
+
+      const handleDelReply = function(rid) { Modal.confirm({ title: '删除回复', content: '确认删除此回复？', okText: '确认删除', cancelText: '取消', okButtonProps: { danger: true }, onOk: function() { onDelete(rid); message.success('回复已删除'); } }); };
+      return (
+        <div style={{ animationDelay: (index*0.04)+'s', animation:'slideUp 0.35s ease both' }}>
+          <div className={'comment-card'} style={{}}>
+            {/* 删除按钮（仅自己的评论可见） */}
+            {isMine && (
+              <Tooltip title="删除">
+                <button className="cmt-action danger" onClick={handleDelete} style={{ position:'absolute', top:12, right:14 }}>
+                  <i className="ti ti-trash" style={{fontSize:16}} />
+                </button>
+              </Tooltip>
+            )}
+            <div style={{ display:'flex', gap:10 }}>
+              <div style={{ width: 36, height: 36, borderRadius:'50%', background:AVATAR_COLORS[index % AVATAR_COLORS.length], display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize: 13, fontWeight:600, flexShrink:0 }}>
+                {comment.user.charAt(0)}
+              </div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:4 }}>
+                  <span style={{ fontSize: 14, fontWeight:600, color:'#333' }}>{comment.user}</span>
+                  <Tag style={{ borderRadius:6, fontSize:10, color:'#8c8c8c', background:'#f5f5f5', border:'none', margin:0, padding:'0 6px', lineHeight:'18px' }}>{comment.dept}</Tag>
+                  <span style={{ fontSize:10, color:'#bfbfbf', marginLeft:'auto' }}>{comment.time}</span>
+                </div>
+                <div style={{ fontSize: 14, color:'#444', lineHeight:1.7, marginBottom:6 }}>{comment.content}</div>
+                <div style={{ display:'flex', gap:8 }}>
+                  <button className={cLiked ? 'cmt-action liked' : 'cmt-action'} onClick={() => { setCLiked(!cLiked); setCLikes(cLiked ? cLikes-1 : cLikes+1); }}>
+                    {cLiked ? <i className="ti ti-thumb-up-filled" style={{fontSize:16, color:'#1890ff'}} /> : <i className="ti ti-thumb-up" style={{fontSize:16}} />} {cLikes > 0 ? cLikes : ''}
+                  </button>
+                  <button className="cmt-action" onClick={() => setReplyOpen(!replyOpen)}>
+                    <i className="ti ti-message" style={{fontSize:16}} /> 回复
+                  </button>
+                </div>
+              </div>
+            </div>
+            {/* 回复输入 */}
+            {replyOpen && (
+              <div style={{ marginTop:8, display:'flex', gap:8 }}>
+                <Input.TextArea
+                  rows={2} value={replyText} onChange={(e) => setReplyText(e.target.value)}
+                  placeholder={'回复 @'+comment.user+'...'} maxLength={500}
+                  style={{ borderRadius:8, resize:'none', flex:1, fontSize:13 }}
+                  onPressEnter={(e) => { if (!e.shiftKey) { e.preventDefault(); handleReply(); } }}
+                />
+                <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+                  <Button type="primary" size="small" icon={<i className="ti ti-send" style={{fontSize:16}} />} style={{ borderRadius:8 }} onClick={handleReply}>发送</Button>
+                  <Button size="small" style={{ borderRadius:8 }} onClick={() => { setReplyOpen(false); setReplyText(''); }}>取消</Button>
+                </div>
+              </div>
+            )}
+          </div>
+          {/* 扁平回复列表 */}
+          {replies.length > 0 && (
+            <div style={{ marginLeft: 48, marginTop: 8 }}>
+              {replies.map(function(r, ri) {
+                return (
+                  <div key={r.id} style={{ padding: "10px 14px", marginBottom: 4, background: "#f9fafb", borderRadius: 8, borderLeft: "3px solid #e8e8e8", fontSize: 13, lineHeight: 1.7 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "#555" }}>{r.user}</span>
+                    <Tag style={{ borderRadius: 6, fontSize: 10, color: "#8c8c8c", background: "#f5f5f5", border: "none", margin: 0, padding: "0 5px", lineHeight: "16px" }}>{r.dept}</Tag>
+                    <span style={{ fontSize: 11, color: "#bfbfbf", marginLeft: "auto" }}>{r.time}</span>
+                    </div>
+                    <div style={{ fontSize: 13, color: "#555", lineHeight: 1.65 }}>{r.content}</div>
+                    <div style={{ display: "flex", gap: 12, marginTop: 4 }}>
+                    <button className="cmt-action" onClick={() => setReplyOpen(!replyOpen)}><i className="ti ti-message" style={{fontSize:13}}></i> 回复</button>
+                    {r.isMine && <button className="cmt-action danger" onClick={() => handleDelReply(r.id)}><i className="ti ti-trash" style={{fontSize:13}}></i> 删除</button>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function DetailPage() {
+      const [liked, setLiked] = React.useState(false);
+      const [collected, setCollected] = React.useState(false);
+      const [followed, setFollowed] = React.useState(function() {
+        try {
+          var followed = JSON.parse(localStorage.getItem('followed_items') || '[]');
+          return followed.indexOf(OPP.id) >= 0;
+        } catch(e) { return false; }
+      });
+      const [likeNum, setLikeNum] = React.useState(OPP.like_count);
+      const [collectNum, setCollectNum] = React.useState(OPP.collect_count);
+      const [status, setStatus] = React.useState(OPP.status);
+      const [commentText, setCommentText] = React.useState('');
+      const [comments, setComments] = React.useState(INIT_COMMENTS);
+      const [showAll, setShowAll] = React.useState(false);
+      const [shareOpen, setShareOpen] = React.useState(false);
+      const currentUser = { name:'San.Zhang 张三', dept:'销售部' };
+      var MENTION_USERS = ['Tony.Zhang 张伟', 'Nina.Li 李娜', 'Kevin.Wang 王强', 'Yan.Chen 陈燕', 'Leo.Zhao 赵磊', 'Owen.Liu 刘洋', 'Ben.Sun 孙八', 'Joe.Zhou 周九'];
+      const [mentionOpen, setMentionOpen] = React.useState(false);
+      const [mentionSearch, setMentionSearch] = React.useState('');
+
+      const toggleLike = () => { setLiked(!liked); setLikeNum(prev => liked ? prev-1 : prev+1); message.success(liked ? '已取消点赞' : '已点赞'); };
+      const toggleCollect = () => { setCollected(!collected); setCollectNum(prev => collected ? prev-1 : prev+1); message.success(collected ? '已取消收藏' : '已收藏'); };
+      const toggleFollow = () => {
+        var newFollowed = !followed;
+        setFollowed(newFollowed);
+        try {
+          var followed = JSON.parse(localStorage.getItem('followed_items') || '[]');
+          var idx = followed.indexOf(OPP.id);
+          if (newFollowed && idx < 0) followed.push(OPP.id);
+          else if (!newFollowed && idx >= 0) followed.splice(idx, 1);
+          localStorage.setItem('followed_items', JSON.stringify(followed));
+        } catch(e) {}
+        message.success(newFollowed ? '已关注，该方案更新时将通知你' : '已取消关注');
+      };
+
+      const handleArchive = () => {
+        Modal.confirm({ title:'确认下架', content:'下架后该方案信息将对所有用户不可见，但可随时重新上架。', okText:'确认下架', cancelText:'取消', okButtonProps:{ danger:true },
+          onOk:() => { setStatus('Archived'); message.success('已下架'); }
+        });
+      };
+      const handleRepublish = () => {
+        Modal.confirm({ title:'确认重新上架', content:'上架后将重新触发通知推送，确认内容已更新无误？', okText:'确认上架', cancelText:'取消',
+          onOk:() => { setStatus('Published'); message.success('已重新上架'); }
+        });
+      };
+      const handleComment = () => {
+        if (!commentText.trim()) { message.warning('请输入评论内容'); return; }
+        const newComment = { id:Date.now(), user:currentUser.name, dept:currentUser.dept, time:'刚刚', content:commentText, likes:0, isMine:true, replies:[] };
+        setComments([newComment, ...comments]);
+        setCommentText(''); message.success('评论成功');
+      };
+
+      const handleCommentChange = function(e) {
+        var val = e.target.value;
+        setCommentText(val);
+        var lastAtIndex = val.lastIndexOf('@');
+        if (lastAtIndex >= 0) {
+          var afterAt = val.slice(lastAtIndex + 1);
+          if (afterAt.indexOf(' ') === -1 && afterAt.indexOf('\n') === -1) {
+            setMentionSearch(afterAt);
+            setMentionOpen(true);
+          } else {
+            setMentionOpen(false);
+          }
+        } else {
+          setMentionOpen(false);
+        }
+      };
+
+      const selectMention = function(name) {
+        var val = commentText;
+        var lastAtIndex = val.lastIndexOf('@');
+        var newVal = val.slice(0, lastAtIndex) + '@' + name + ' ';
+        setCommentText(newVal);
+        setMentionOpen(false);
+        setMentionSearch('');
+      };
+
+      // 在树中任意节点添加回复
+      const handleReply = (parentId, newReply) => {
+        setComments(prev => addReplyToComment(prev, parentId, newReply));
+      };
+
+      // 从树中删除自己的评论
+      const handleDelete = (targetId) => {
+        setComments(prev => removeById(prev, targetId));
+      };
+
+      const displayComments = showAll ? comments : comments.slice(0,4);
+      const totalCommentCount = countAll(comments);
+
+      return (
+        <div style={{ maxWidth:920, margin:'0 auto' }}>
+          {/* 过期提示横幅 */}
+          {dayjs().isAfter(OPP.expiry_date) && (
+            <div style={{ background:'#fffbe6', border:'1px solid #ffe58f', borderRadius:10, padding:'10px 20px', marginBottom:16, display:'flex', alignItems:'center', gap:10, fontSize:13, color:'#ad6800' }}>
+              <i className="ti ti-alert-triangle" style={{fontSize:18}} />
+              <span style={{flex:1}}>⚠️ 本方案已于 {OPP.expiry_date} 过期，部分技术规格可能已更新，请联系产品经理确认最新版本。</span>
+              {OPP.superseded_by && <a style={{color:'#1677ff', cursor:'pointer', whiteSpace:'nowrap'}} href={'PAGE-PC-02_商机详情页.html?id='+OPP.superseded_by}>查看新版本 →</a>}
+            </div>
+          )}
+          {!dayjs().isAfter(OPP.expiry_date) && dayjs().diff(dayjs(OPP.expiry_date), 'day') > -30 && (
+            <div style={{ background:'#fff7e6', border:'1px solid #ffd591', borderRadius:10, padding:'8px 20px', marginBottom:16, display:'flex', alignItems:'center', gap:10, fontSize:13, color:'#ad8b00' }}>
+              <i className="ti ti-clock-exclamation" style={{fontSize:18}} />
+              <span>本方案将于 {dayjs(OPP.expiry_date).format('YYYY-MM-DD')} 到期（剩余 {dayjs(OPP.expiry_date).diff(dayjs(), 'day')} 天）</span>
+            </div>
+          )}
+          {/* Z1 面包屑 */}
+          <div style={{ marginBottom:16, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+            <Breadcrumb items={[
+              { title: React.createElement('a', { onClick: function() { window.location.href='PAGE-PC-01_找方案.html'; }, style: { cursor:'pointer' } }, '首页') },
+              { title: TYPE_LABELS[OPP.type] },
+              { title: OPP.title.length > 20 ? OPP.title.slice(0,20)+'...' : OPP.title }
+            ]} />
+            <Button icon={React.createElement('i', { className:'ti ti-arrow-left', style: {fontSize:16} })} style={{ borderRadius:8, flexShrink:0 }} onClick={function() { window.location.href='PAGE-PC-01_找方案.html'; }}>返回首页</Button>
+          </div>
+
+          {/* Z2 Hero Card */}
+          <div className="detail-section hero-card" style={{ padding:'32px 36px' }}>
+            <div style={{ position:'absolute', top:-60, right:-60, width:220, height:220, borderRadius:'50%', background:'rgba(24,144,255,0.05)' }} />
+            <div style={{ position:'absolute', bottom:-40, left:-40, width:160, height:160, borderRadius:'50%', background:'rgba(54,207,201,0.05)' }} />
+            <div style={{ position:'relative' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
+                <Tag color={TYPE_COLORS[OPP.type]} style={{ borderRadius:8, fontSize:13, fontWeight:600, padding:'3px 14px', border:'none' }}>{TYPE_LABELS[OPP.type]}</Tag>
+                {status === 'Archived' && <Tag color="error" style={{ borderRadius:8 }}>已下架</Tag>}
+                {status === 'Published' && <Tag color="success" style={{ borderRadius:8 }}>已发布</Tag>}
+              </div>
+              <h1 style={{ fontSize:28, fontWeight:700, color:'#1a1a2e', marginBottom:20, lineHeight:1.4 }}>{OPP.title}</h1>
+              <div style={{ display:'flex', alignItems:'center', gap:20, marginBottom:18, flexWrap:'wrap' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                  <div style={{ width:42, height:42, borderRadius:'50%', background:'linear-gradient(135deg,#1890ff,#36cfc9)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:700, fontSize:16, boxShadow:'0 3px 10px rgba(24,144,255,0.3)' }}>{OPP.publisher.charAt(0)}</div>
+                  <div>
+                    <div style={{ fontSize:15, fontWeight:600, color:'#333' }}>{OPP.publisher}</div>
+                    <div style={{ fontSize:12, color:'#8c8c8c' }}>{OPP.publisher_dept}</div>
+                  </div>
+                </div>
+                <div style={{ width:1, height:28, background:'#e8e8e8' }} />
+                <div style={{ display:'flex', alignItems:'center', gap:5, color:'#8c8c8c', fontSize:13 }}>
+                  <i className="ti ti-clock" style={{fontSize:18}} /> {OPP.created_at}
+                </div>
+              </div>
+              <div style={{ display:'flex', gap:8, marginBottom:18, flexWrap:'wrap' }}>
+                {OPP.categories.map((c,i) => <Tag key={i} style={{ borderRadius:20, background:'rgba(24,144,255,0.08)', color:'#1890ff', border:'1px solid rgba(24,144,255,0.2)', fontSize:12, padding:'2px 12px' }}>{c}</Tag>)}
+              </div>
+              <div style={{ display:'flex', alignItems:'center', gap:12, flexWrap:'wrap' }}>
+                <span className="metric-chip"><i className="ti ti-eye" style={{fontSize:18}} /> {formatCount(OPP.view_count)} 浏览</span>
+                <span className="metric-chip"><i className="ti ti-heart" style={{fontSize:18}} /> {formatCount(likeNum)} 点赞</span>
+                <span className="metric-chip"><i className="ti ti-star" style={{fontSize:18}} /> {formatCount(collectNum)} 收藏</span>
+              <span className="metric-chip"><i className="ti ti-message" style={{fontSize:18}} /> {totalCommentCount} 评论</span>
+              </div>
+              <Divider style={{ margin:'18px 0 14px' }} />
+              <div style={{ display:'flex', gap:10 }}>
+                <Button icon={<i className="ti ti-edit" style={{fontSize:18}} />} style={{ borderRadius:10 }} onClick={() => window.location.href='PAGE-PC-03_创建编辑商机.html?id='+OPP.id}>编辑</Button>
+                {currentUser.name === OPP.publisher && React.createElement(Button, { icon: React.createElement('i', { className:'ti ti-copy', style:{fontSize:18} }), style: { borderRadius:10 }, onClick: function() {
+                  window.location.href = 'PAGE-PC-03_创建编辑商机.html?copy_from=OPP-0001';
+                } }, '复制为新方案')}
+                {status === 'Published'
+                  ? <Button icon={<i className="ti ti-ban" style={{fontSize:18}} />} danger style={{ borderRadius:10 }} onClick={handleArchive}>下架</Button>
+                  : <Button icon={<i className="ti ti-circle-check" style={{fontSize:18}} />} type="primary" style={{ borderRadius:10 }} onClick={handleRepublish}>重新上架</Button>
+                }
+              </div>
+            </div>
+          </div>
+
+          {/* Z3 正文 */}
+          <div className="detail-section" style={{ animationDelay:'0.1s' }}>
+            <div className="rich-body">
+              <h2>产品概述</h2>
+              <p>EC200A是移远通信推出的高性能Cat.1 bis无线通信模组，专为中低速率物联网应用场景设计。该模组采用紫光展锐8910DM平台，支持LTE Cat.1 bis标准，下行速率最高10Mbps，上行速率最高5Mbps，能够满足大多数物联网场景的通信需求。</p>
+              <h2>核心优势</h2>
+              <ul>
+                <li><strong>超低功耗设计</strong>：支持PSM（Power Saving Mode）和eDRX（Extended DRX），待机电流低至10uA级别</li>
+                <li><strong>丰富接口</strong>：UART/USB/SPI/I2C/GPIO等多种接口，满足不同硬件集成需求</li>
+                <li><strong>全网通支持</strong>：支持移动/联通/电信三大运营商网络，无需多SKU备货</li>
+                <li><strong>VoLTE语音</strong>：支持高清语音通话，适用于对讲机、紧急呼叫等场景</li>
+                <li><strong>小尺寸封装</strong>：LCC+LGA封装，尺寸仅22.9x23.1mm，便于紧凑型产品设计</li>
+              </ul>
+              <h3>关键参数对比</h3>
+              <table>
+                <thead><tr><th>参数</th><th>EC200A</th><th>竞品A</th><th>竞品B</th></tr></thead>
+                <tbody>
+                  <tr><td>下行速率</td><td><strong>10Mbps</strong></td><td>10Mbps</td><td>5Mbps</td></tr>
+                  <tr><td>待机功耗(PSM)</td><td><strong>10uA</strong></td><td>15uA</td><td>20uA</td></tr>
+                  <tr><td>尺寸(mm)</td><td><strong>22.9x23.1</strong></td><td>24.0x24.0</td><td>25.0x25.0</td></tr>
+                  <tr><td>工作温度</td><td><strong>-35~+75°C</strong></td><td>-30~+70°C</td><td>-20~+70°C</td></tr>
+                  <tr><td>VoLTE</td><td><strong>支持</strong></td><td>不支持</td><td>支持</td></tr>
+                </tbody>
+              </table>
+              <h2>典型应用场景</h2>
+              <p>EC200A广泛应用于以下场景，尤其在对功耗敏感的电池供电设备中表现优异：</p>
+              <ul>
+                <li>智慧表计（水/电/气/热）远程抄表</li>
+                <li>资产追踪与物流管理终端</li>
+                <li>共享设备（充电桩/充电宝/两轮车）</li>
+                <li>工业DTU与数据采集网关</li>
+                <li>智慧农业环境监测设备</li>
+              </ul>
+              <h3>AT指令示例</h3>
+              <pre><code>// 进入PSM模式
+AT+CPSMS=1,,,"01000011","00100001"
+OK
+
+// 查询PSM状态
+AT+CPSMS?
++CPSMS: 1,,,"01000011","00100001"
+OK</code></pre>
+            </div>
+          </div>
+
+          {/* Z4 附件 */}
+          <div className="detail-section" style={{ animationDelay:'0.15s' }}>
+            <div style={{ fontSize:17, fontWeight:600, color:'#1a1a2e', marginBottom:16, display:'flex', alignItems:'center', gap:8 }}>
+              <i className="ti ti-paperclip" style={{fontSize:18}} /> 附件 ({OPP.attachments.length})
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+              {OPP.attachments.map((att,i) => (
+                <div key={i} className="attach-row">
+                  <FileIcon type={att.type} />
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:14, fontWeight:500, color:'#333' }}>{att.name}</div>
+                    <div style={{ fontSize:12, color:'#bfbfbf', marginTop:2 }}>{att.size}</div>
+                  </div>
+                  <Button size="small" icon={<i className="ti ti-download" style={{fontSize:18}} />} style={{ borderRadius:8 }} onClick={() => message.success('开始下载: '+att.name)}>下载</Button>
+                  <Button size="small" type="link" onClick={() => message.info('预览功能开发中')}>预览</Button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Z5 互动栏 */}
+          <div className="detail-section" style={{ animationDelay:'0.2s', display:'flex', alignItems:'center', gap:14, flexWrap:'wrap' }}>
+            <button className={'social-pill'+(liked ? ' liked' : '')} onClick={toggleLike}>
+              <span className="bounce">{liked ? <i className="ti ti-heart-filled" style={{fontSize:18}} /> : <i className="ti ti-heart" style={{fontSize:18}} />}</span> {liked ? '已点赞' : '点赞'} {likeNum}
+            </button>
+            <button className={'social-pill'+(collected ? ' collected' : '')} onClick={toggleCollect}>
+              <span className="bounce">{collected ? <i className="ti ti-star-filled" style={{fontSize:18}} /> : <i className="ti ti-star" style={{fontSize:18}} />}</span> {collected ? '已收藏' : '收藏'} {collectNum}
+            </button>
+            <button className={'social-pill' + (followed ? ' collected' : '')} onClick={toggleFollow}>
+              <span className="bounce">{followed ? <i className="ti ti-bell-ringing-filled" style={{fontSize:18}} /> : <i className="ti ti-bell" style={{fontSize:18}} />}</span> {followed ? '已关注' : '关注'}
+            </button>
+            <button className="social-pill" onClick={() => setShareOpen(true)}>
+              <i className="ti ti-share" style={{fontSize:18}} /> 分享
+            </button>
+            <div style={{ flex:1 }} />
+          </div>
+
+          {/* Z6 评论区 */}
+          <div className="detail-section" style={{ animationDelay:'0.25s' }}>
+            <div style={{ fontSize:17, fontWeight:600, color:'#1a1a2e', marginBottom:20, display:'flex', alignItems:'center', gap:8 }}>
+              <i className="ti ti-message" style={{fontSize:18}} /> 评论 ({totalCommentCount})
+            </div>
+            <div style={{ display:'flex', gap:12, marginBottom:24, background:'#f9fafb', borderRadius:14, padding:16 }}>
+              <div style={{ width:40, height:40, borderRadius:'50%', background:'linear-gradient(135deg,#1890ff,#36cfc9)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:700, fontSize:15, flexShrink:0 }}>张</div>
+              <div style={{ flex:1 }}>
+                <Input.TextArea rows={3} value={commentText} onChange={handleCommentChange}
+                  placeholder="写下你的评论，输入 @ 提及其他用户..." maxLength={500} showCount style={{ borderRadius:12, resize:'none', border:'1px solid #e8e8e8' }}
+                />
+                <div style={{ fontSize:11, color:'#bfbfbf', marginTop:4 }}>支持 @提及用户</div>{mentionOpen && React.createElement('div', { style: { background:'#fff', border:'1px solid #e8e8e8', borderRadius:10, boxShadow:'0 6px 24px rgba(0,0,0,0.12)', zIndex:100, maxHeight:220, overflow:'auto', marginTop:8 } },
+                  (function() {var filtered = MENTION_USERS.filter(function(u) { return u.indexOf(mentionSearch) >= 0; });
+                    if (filtered.length === 0) { return React.createElement('div', { style: { padding:'12px', textAlign:'center', color:'#bfbfbf', fontSize:12 } }, '无匹配用户'); }return filtered.map(function(user, i) { return React.createElement('div', { key: i, onClick: function() { selectMention(user); }, style: { padding:'8px 14px', cursor:'pointer', fontSize:13, display:'flex', alignItems:'center', gap:8, transition:'background .15s' }, onMouseEnter: function(e) { e.currentTarget.style.background = '#f0f5ff'; }, onMouseLeave: function(e) { e.currentTarget.style.background = '#fff'; } }, React.createElement('div', { style: { width:28, height:28, borderRadius:'50%', background: AVATAR_COLORS[i % AVATAR_COLORS.length], display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:11, fontWeight:600, flexShrink:0 } }, user.charAt(0)), React.createElement('span', { style: { color:'#333' } }, user) ); });
+                    }
+                  )()
+                )}
+                <div style={{ display:'flex', justifyContent:'flex-end', marginTop:10 }}>
+                  <Button type="primary" icon={<i className="ti ti-send" style={{fontSize:18}} />} style={{ borderRadius:22, padding:'0 24px', height:36, fontWeight:500 }} onClick={handleComment}>发表评论</Button>
+                </div>
+              </div>
+            </div>
+            <Divider style={{ margin:'0 0 16px' }} />
+            {displayComments.map((c,i) => (
+              <CommentCard
+                key={c.id}
+                comment={c}
+                index={i}
+                currentUser={currentUser}
+                onReply={handleReply}
+                onDelete={handleDelete}
+              />
+            ))}
+            {!showAll && comments.length > 4 && (
+              <div style={{ textAlign:'center', paddingTop:16 }}>
+                <Button type="link" style={{ fontSize:14 }} onClick={() => setShowAll(true)}>展开更多评论 ({comments.length - 4} 条)</Button>
+              </div>
+            )}
+          </div>
+
+          {/* Z7 相关推荐 */}
+          <div className="detail-section" style={{ animationDelay:'0.3s' }}>
+            <div style={{ fontSize:17, fontWeight:600, color:'#1a1a2e', marginBottom:16, display:'flex', alignItems:'center', gap:8 }}>
+              <i className="ti ti-layout-grid" style={{fontSize:18}} /> 相关方案推荐
+            </div>
+            <div className="related-grid">
+              {[
+                { title:'EC800M Cat.1 DTU行业应用', type:'product_info', views:892 },
+                { title:'RG500Q 5G模组车载集成方案', type:'solution', views:1567 },
+                { title:'BC260Y NB-IoT智慧表计案例', type:'success_case', views:634 },
+                { title:'BG95-M3 多模LPWA全球方案', type:'product_info', views:1102 }
+              ].map(function(item, i) {
+                return (
+                  <div key={i} style={{ display:'flex', alignItems:'center', gap:10, padding:'12px 16px', border:'1px solid #f0f0f0', borderRadius:10, cursor:'pointer', transition:'all .2s' }}
+                    onMouseEnter={function(e){e.currentTarget.style.borderColor='#1890ff';e.currentTarget.style.boxShadow='0 2px 8px rgba(24,144,255,0.1)'}}
+                    onMouseLeave={function(e){e.currentTarget.style.borderColor='#f0f0f0';e.currentTarget.style.boxShadow='none'}}
+                    onClick={function(){message.success('跳转到详情页: '+item.title)}}>
+                    <Tag color={TYPE_COLORS[item.type]} style={{ borderRadius:6, flexShrink:0 }}>{TYPE_LABELS[item.type]}</Tag>
+                    <div style={{ flex:1, fontSize:13, fontWeight:500, color:'#333', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{item.title}</div>
+                    <span style={{ fontSize:11, color:'#bfbfbf', flexShrink:0 }}>{item.views} 浏览</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+        {/* Share Overlay */}
+        {shareOpen && React.createElement('div', { style: { position:'fixed', inset:0, background:'rgba(0,0,0,0.45)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center', padding:16 } },
+          React.createElement('div', { onClick: function() { setShareOpen(false); } }, ''),
+          React.createElement('div', { style: { background:'#fff', borderRadius:16, padding:32, width:'100%', maxWidth:440, boxShadow:'0 12px 48px rgba(0,0,0,0.2)', position:'relative', animation:'gsFadeIn 0.2s ease' } },
+            React.createElement('button', { onClick: function() { setShareOpen(false); }, style: { position:'absolute', top:16, right:16, border:'none', background:'transparent', cursor:'pointer', color:'#bfbfbf', fontSize:20 } }, React.createElement('i', { className:'ti ti-x' })),
+            React.createElement('div', { style: { textAlign:'center', marginBottom:24 } },
+              React.createElement('div', { style: { fontSize:18, fontWeight:600, color:'#1a1a2e', marginBottom:4 } }, '分享方案'),
+              React.createElement('div', { style: { fontSize:13, color:'#8c8c8c', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' } }, OPP.title)
+            ),
+            React.createElement('div', { style: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 } },
+              React.createElement('div', { onClick: function() { window.open('https://www.feishu.cn', '_blank'); setShareOpen(false); }, style: { cursor:'pointer', padding:'24px 16px', borderRadius:12, border:'1px solid #e8e8e8', textAlign:'center', transition:'all .2s', background:'#fff' },
+                onMouseEnter: function(e) { e.currentTarget.style.borderColor='#3370ff'; e.currentTarget.style.background='#f0f5ff'; },
+                onMouseLeave: function(e) { e.currentTarget.style.borderColor='#e8e8e8'; e.currentTarget.style.background='#fff'; }
+              },
+                React.createElement('i', { className:'ti ti-brand-feishu', style: { fontSize:32, color:'#3370ff', display:'block', marginBottom:8 } }),
+                React.createElement('div', { style: { fontSize:14, fontWeight:600, color:'#1a1a2e', marginBottom:2 } }, '分享至飞书对话'),
+                React.createElement('div', { style: { fontSize:11, color:'#8c8c8c' } }, '发送到飞书对话或群组')
+              ),
+              React.createElement('div', { onClick: function() { navigator.clipboard.writeText(window.location.href).then(function() { message.success('链接已复制'); setShareOpen(false); }); }, style: { cursor:'pointer', padding:'24px 16px', borderRadius:12, border:'1px solid #e8e8e8', textAlign:'center', transition:'all .2s', background:'#fff' },
+                onMouseEnter: function(e) { e.currentTarget.style.borderColor='#1890ff'; e.currentTarget.style.background='#f0f5ff'; },
+                onMouseLeave: function(e) { e.currentTarget.style.borderColor='#e8e8e8'; e.currentTarget.style.background='#fff'; }
+              },
+                React.createElement('i', { className:'ti ti-link', style: { fontSize:32, color:'#1890ff', display:'block', marginBottom:8 } }),
+                React.createElement('div', { style: { fontSize:14, fontWeight:600, color:'#1a1a2e', marginBottom:2 } }, '复制链接'),
+                React.createElement('div', { style: { fontSize:11, color:'#8c8c8c' } }, '复制页面链接分享给他人')
+              )
+            )
+          )
+        )}
+      </div>
+      );
+    }
+
+    // 先Shell再React
+    if (window.PROTO_SHELL && window.PROTO_SHELL.renderShell) {
+      window.PROTO_SHELL.renderShell('opp-hall');
+    }
+    // 埋点
+    if (window.DataTracker) {
+      window.DataTracker.trackPageView('opp-detail', '方案详情');
+      window.DataTracker.trackContentView('OPP-0001', 'opportunity', '5G模组NB-IoT解决方案合作');
+    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<DetailPage />);
+  })();
+  </script>
+</body>
+</html>

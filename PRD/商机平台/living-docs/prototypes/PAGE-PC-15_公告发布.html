@@ -1,0 +1,627 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>公告发布 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/quill@1.3.7/dist/quill.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<link rel="stylesheet" href="https://unpkg.com/quill@1.3.7/dist/quill.snow.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  .page-container { padding: 20px 24px; animation: fadeIn 0.4s ease; }
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+  .stat-card {
+    background: #fff; border-radius: 12px; padding: 20px 24px;
+    display: flex; align-items: center; gap: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f0f0f0;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .stat-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
+  .stat-card .icon-wrap {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 24px;
+  }
+  .stat-card .num { font-size: 28px; font-weight: 700; color: #1a1a2e; line-height: 1; }
+  .stat-card .lbl { font-size: 13px; color: #8c8c8c; margin-top: 4px; }
+  .table-card {
+    background: #fff; border-radius: 12px; padding: 20px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f0f0f0;
+  }
+  .table-card .header-row {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+  }
+  .ql-container { min-height: 200px; font-size: 14px; border-radius: 0 0 8px 8px; }
+  .ql-toolbar { border-radius: 8px 8px 0 0; border-color: #d9d9d9; }
+  .ql-container { border-color: #d9d9d9; }
+  .ql-editor { min-height: 200px; }
+  .ql-editor.ql-blank::before { font-style: normal; color: #bfbfbf; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+(() => {
+  const { useState, useMemo, useCallback, useRef, useEffect } = React;
+  const {
+    Typography, Input, Select, DatePicker, Table, Tag, Button,
+    Modal, message, Drawer, Switch, Radio, Popconfirm, Space, Form,
+    Tooltip
+  } = antd;
+  const { Title, Text } = Typography;
+  const { RangePicker } = DatePicker;
+  const { TextArea } = Input;
+
+  // ----- 公告类型 -----
+  const ANN_TYPES = [
+    { value: 'notice', label: '通知' },
+    { value: 'policy', label: '政策' },
+    { value: 'activity', label: '活动' },
+    { value: 'other', label: '其他' }
+  ];
+  const TYPE_LABEL = { notice: '通知', policy: '政策', activity: '活动', other: '其他' };
+  const TYPE_COLOR = { notice: 'blue', policy: 'purple', activity: 'green', other: 'default' };
+
+  // ----- 公告状态 -----
+  const STATUS_MAP = { draft: '草稿', published: '已发布', expired: '已过期' };
+  const STATUS_COLOR = { draft: 'default', published: 'green', expired: 'orange' };
+
+  // ----- Mock 数据 -----
+  const MOCK_DATA = [
+    { id: 'ANN-001', title: 'Quectel商机互助平台正式上线公告', type: 'notice', status: 'published', priority: 'high', pinned: true, pushBanner: true,
+      content: '<p>各位同事：</p><p>Quectel商机互助平台已于今日正式上线运行。平台汇集了公司最新的产品信息、解决方案和成功案例，同时支持方案需求的提交与对接。</p><p>请各部门积极使用平台进行方案发布与协作。</p>',
+      publisher: '管理员', createTime: '2026-06-01 09:00', publishTime: '2026-06-01 09:30', readCount: 328 },
+    { id: 'ANN-002', title: '关于6月份方案质量考核的通知', type: 'policy', status: 'published', priority: 'high', pinned: true, pushBanner: false,
+      content: '<p>各销售团队负责人：</p><p>根据公司安排，6月份将进行方案质量专项考核。考核维度包括：方案数量、方案完整度、需求响应及时率、客户反馈评分。</p><p>请各位在6月25日前完成自评，考核结果将纳入季度绩效。</p>',
+      publisher: '管理员', createTime: '2026-06-05 14:00', publishTime: '2026-06-05 14:30', readCount: 512 },
+    { id: 'ANN-003', title: '5G模组新产品资料库更新', type: 'notice', status: 'published', priority: 'normal', pinned: false, pushBanner: false,
+      content: '<p>产品线同事已更新以下5G模组产品的技术资料：</p><ul><li>RG500Q 技术规格书 v3.2</li><li>RG650x 选型对比表</li><li>5G模组天线设计指南</li></ul><p>请在"方案发布"模块中查阅最新资料。</p>',
+      publisher: 'Li.E 李工', createTime: '2026-06-08 11:00', publishTime: '2026-06-08 11:00', readCount: 186 },
+    { id: 'ANN-004', title: '6月18日方案对接线上交流会', type: 'activity', status: 'published', priority: 'normal', pinned: false, pushBanner: true,
+      content: '<p>定于6月18日（周四）下午2:00-4:00举办方案对接线上交流会。</p><p>会议主题：</p><ol><li>智慧城市项目方案发布与对接</li><li>车联网模组需求集中收集</li><li>海外市场拓展策略讨论</li></ol><p>请通过企业微信会议链接加入，会议号：980-123-456。</p>',
+      publisher: 'Chen.M 陈经理', createTime: '2026-06-10 16:00', publishTime: '2026-06-10 16:20', readCount: 265 },
+    { id: 'ANN-005', title: '平台功能更新：新增需求热度分析', type: 'notice', status: 'published', priority: 'normal', pinned: false, pushBanner: false,
+      content: '<p>平台近期上线了需求热度分析功能：</p><ul><li>需求广场增加热度排序</li><li>运营看板增加需求响应率趋势图</li><li>支持按行业、分类维度分析需求分布</li></ul>',
+      publisher: '管理员', createTime: '2026-06-12 10:00', publishTime: '2026-06-12 10:00', readCount: 143 },
+    { id: 'ANN-006', title: 'Q3方案激励计划草案（内部讨论）', type: 'policy', status: 'draft', priority: 'normal', pinned: false, pushBanner: false,
+      content: '<p>Q3方案激励计划初稿，待管理层审批后正式发布：</p><ul><li>月度方案TOP10奖励方案</li><li>需求采纳率达标奖励</li><li>跨部门协作积分制度</li></ul>',
+      publisher: '管理员', createTime: '2026-06-14 09:00', publishTime: null, readCount: 0 },
+    { id: 'ANN-007', title: '关于规范方案分类标签的通知', type: 'policy', status: 'published', priority: 'high', pinned: false, pushBanner: false,
+      content: '<p>为提高方案检索效率，现对方案分类标签进行规范化管理：</p><p>1. 产品线分类统一使用最新的产品树结构</p><p>2. 行业标签建议使用标准行业分类词</p><p>3. 关键词标签不超过5个</p>',
+      publisher: '管理员', createTime: '2026-06-02 08:00', publishTime: '2026-06-02 08:15', readCount: 401 },
+    { id: 'ANN-008', title: '平台7月改版预告', type: 'other', status: 'draft', priority: 'normal', pinned: false, pushBanner: false,
+      content: '<p>7月份平台计划进行以下改版：</p><ul><li>首页UI全面升级</li><li>增加AI智能推荐功能</li><li>移动端适配优化</li></ul><p>欢迎大家提出改进建议。</p>',
+      publisher: '管理员', createTime: '2026-06-13 15:00', publishTime: null, readCount: 0 }
+  ];
+
+  // ----- RichTextEditor -----
+  function RichTextEditor({ value, onChange }) {
+    const containerRef = useRef(null);
+    const quillRef = useRef(null);
+    const onChangeRef = useRef(onChange);
+    onChangeRef.current = onChange;
+    const isInternalChange = useRef(false);
+
+    useEffect(function() {
+      if (!containerRef.current || quillRef.current) return;
+      var quill = new Quill(containerRef.current, {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'header': [1, 2, 3, false] }],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['link', 'blockquote'],
+            ['clean']
+          ]
+        },
+        placeholder: '请输入公告正文...'
+      });
+      if (value) { quill.root.innerHTML = value; }
+      quill.on('text-change', function() {
+        var html = quill.root.innerHTML;
+        var text = quill.getText().trim();
+        isInternalChange.current = true;
+        onChangeRef.current && onChangeRef.current(text ? html : '');
+      });
+      quillRef.current = quill;
+      return function() { quillRef.current = null; };
+    }, []);
+
+    useEffect(function() {
+      if (isInternalChange.current) {
+        isInternalChange.current = false;
+        return;
+      }
+      if (quillRef.current && value !== undefined) {
+        var current = quillRef.current.root.innerHTML;
+        if (value !== current) {
+          quillRef.current.root.innerHTML = value || '';
+        }
+      }
+    }, [value]);
+
+    return React.createElement('div', { ref: containerRef });
+  }
+
+  function AnnouncementPage() {
+    const [dataSource, setDataSource] = useState(MOCK_DATA);
+    const [typeFilter, setTypeFilter] = useState(undefined);
+    const [statusFilter, setStatusFilter] = useState(undefined);
+    const [keyword, setKeyword] = useState('');
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [editingId, setEditingId] = useState(null);
+    const [publishModalOpen, setPublishModalOpen] = useState(false);
+    const [publishTarget, setPublishTarget] = useState(null);
+    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+    const [form] = Form.useForm();
+    const [editorContent, setEditorContent] = useState('');
+    const [pinned, setPinned] = useState(false);
+    const [pushBanner, setPushBanner] = useState(false);
+
+    // 筛选
+    const filteredData = useMemo(() => {
+      var list = dataSource;
+      if (typeFilter) { list = list.filter(function(r) { return r.type === typeFilter; }); }
+      if (statusFilter) { list = list.filter(function(r) { return r.status === statusFilter; }); }
+      if (keyword && keyword.trim()) {
+        var kw = keyword.trim().toLowerCase();
+        list = list.filter(function(r) { return r.title.toLowerCase().indexOf(kw) !== -1; });
+      }
+      return list;
+    }, [dataSource, typeFilter, statusFilter, keyword]);
+
+    // 统计
+    var totalCount = dataSource.length;
+    var publishedCount = dataSource.filter(function(r) { return r.status === 'published'; }).length;
+    var draftCount = dataSource.filter(function(r) { return r.status === 'draft'; }).length;
+    var totalReads = dataSource.reduce(function(sum, r) { return sum + (r.readCount || 0); }, 0);
+
+    // 打开新建 Drawer
+    var handleCreate = function() {
+      setEditingId(null);
+      setEditorContent('');
+      setPinned(false);
+      setPushBanner(false);
+      form.resetFields();
+      form.setFieldsValue({ priority: 'normal', type: 'notice' });
+      setDrawerOpen(true);
+    };
+
+    // 打开编辑 Drawer
+    var handleEdit = function(record) {
+      setEditingId(record.id);
+      setEditorContent(record.content || '');
+      setPinned(record.pinned || false);
+      setPushBanner(record.pushBanner || false);
+      form.setFieldsValue({
+        title: record.title,
+        type: record.type,
+        priority: record.priority
+      });
+      setDrawerOpen(true);
+    };
+
+    // 保存草稿
+    var handleSaveDraft = function() {
+      form.validateFields(['title', 'type']).then(function(values) {
+        if (!editorContent || !editorContent.replace(/<[^>]*>/g, '').trim()) {
+          message.warning('请填写公告正文');
+          return;
+        }
+        var now = dayjs().format('YYYY-MM-DD HH:mm');
+        if (editingId) {
+          setDataSource(function(prev) {
+            return prev.map(function(r) {
+              if (r.id === editingId) {
+                return Object.assign({}, r, {
+                  title: values.title, type: values.type, priority: values.priority,
+                  content: editorContent, pinned: pinned, pushBanner: pushBanner
+                });
+              }
+              return r;
+            });
+          });
+          message.success('公告已更新（草稿）');
+        } else {
+          var newId = 'ANN-' + String(Date.now()).slice(-6).toUpperCase();
+          var newAnn = {
+            id: newId, title: values.title, type: values.type, status: 'draft',
+            priority: values.priority, content: editorContent,
+            publisher: '管理员', createTime: now, publishTime: null, readCount: 0,
+            pinned: pinned, pushBanner: pushBanner
+          };
+          setDataSource(function(prev) { return [newAnn].concat(prev); });
+          message.success('公告已保存为草稿');
+        }
+        setDrawerOpen(false);
+      }).catch(function() { message.error('请填写必填字段'); });
+    };
+
+    // 发布（草稿 → 确认弹窗）
+    var handleRequestPublish = function() {
+      form.validateFields(['title', 'type']).then(function(values) {
+        if (!editorContent || !editorContent.replace(/<[^>]*>/g, '').trim()) {
+          message.warning('请填写公告正文');
+          return;
+        }
+        setPublishTarget({ values: values, content: editorContent });
+        setPublishModalOpen(true);
+      }).catch(function() { message.error('请填写必填字段'); });
+    };
+
+    // 确认发布
+    var handleConfirmPublish = function() {
+      var now = dayjs().format('YYYY-MM-DD HH:mm');
+      var target = publishTarget;
+      if (editingId) {
+        setDataSource(function(prev) {
+          return prev.map(function(r) {
+            if (r.id === editingId) {
+              return Object.assign({}, r, {
+                title: target.values.title, type: target.values.type,
+                priority: target.values.priority, content: target.content,
+                status: 'published', publishTime: r.publishTime || now,
+                pinned: pinned, pushBanner: pushBanner
+              });
+            }
+            return r;
+          });
+        });
+        message.success('公告已发布');
+      } else {
+        var newId = 'ANN-' + String(Date.now()).slice(-6).toUpperCase();
+        setDataSource(function(prev) { return [{
+          id: newId, title: target.values.title, type: target.values.type,
+          status: 'published', priority: target.values.priority, content: target.content,
+          publisher: '管理员', createTime: now, publishTime: now, readCount: 0,
+          pinned: pinned, pushBanner: pushBanner
+        }].concat(prev); });
+        message.success('公告已发布');
+      }
+      setPublishModalOpen(false);
+      setPublishTarget(null);
+      setDrawerOpen(false);
+      setEditingId(null);
+    };
+
+    // 直接发布（已发布列表中的操作）
+    var handlePublishDraft = function(record) {
+      Modal.confirm({
+        title: '确认发布',
+        content: '确认发布公告"' + record.title + '"？发布后所有用户可见。',
+        okText: '确认发布',
+        cancelText: '取消',
+        onOk: function() {
+          var now = dayjs().format('YYYY-MM-DD HH:mm');
+          setDataSource(function(prev) {
+            return prev.map(function(r) {
+              if (r.id === record.id) { return Object.assign({}, r, { status: 'published', publishTime: now }); }
+              return r;
+            });
+          });
+          message.success('公告已发布');
+        }
+      });
+    };
+
+    // 下架
+    var handleRetract = function(record) {
+      Modal.confirm({
+        title: '确认下架',
+        content: '下架后公告将不再对用户展示，确认下架"' + record.title + '"？',
+        okText: '确认下架',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk: function() {
+          setDataSource(function(prev) {
+            return prev.map(function(r) {
+              if (r.id === record.id) { return Object.assign({}, r, { status: 'expired' }); }
+              return r;
+            });
+          });
+          message.success('公告已下架');
+        }
+      });
+    };
+
+    // 重新发布
+    var handleRepublish = function(record) {
+      var now = dayjs().format('YYYY-MM-DD HH:mm');
+      setDataSource(function(prev) {
+        return prev.map(function(r) {
+          if (r.id === record.id) { return Object.assign({}, r, { status: 'published', publishTime: now }); }
+          return r;
+        });
+      });
+      message.success('公告已重新发布');
+    };
+
+    // 删除
+    var handleDelete = function(record) {
+      setDataSource(function(prev) { return prev.filter(function(r) { return r.id !== record.id; }); });
+      message.success('公告已删除');
+    };
+
+    // 批量删除
+    var handleBatchDelete = function() {
+      if (selectedRowKeys.length === 0) { message.warning('请先选择公告'); return; }
+      Modal.confirm({
+        title: '确认批量删除',
+        content: '确认删除选中的 ' + selectedRowKeys.length + ' 条公告？此操作不可恢复。',
+        okText: '确认删除',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk: function() {
+          setDataSource(function(prev) { return prev.filter(function(r) { return selectedRowKeys.indexOf(r.id) === -1; }); });
+          setSelectedRowKeys([]);
+          message.success('已删除 ' + selectedRowKeys.length + ' 条公告');
+        }
+      });
+    };
+
+    // 预览 - 跳转用户端公告详情页
+    var handlePreview = function(record) {
+      window.open('PAGE-PC-16_公告详情页.html?id=' + record.id, '_blank');
+    };
+
+    // 列定义
+    var columns = [
+      { title: '编号', dataIndex: 'id', key: 'id', width: 100 },
+      { title: '公告标题', dataIndex: 'title', key: 'title', ellipsis: true,
+        render: function(text, record) {
+          return React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 6 } },
+            record.pinned && React.createElement(Tag, { color: 'red', style: { fontSize: 10, lineHeight: '16px', padding: '0 4px', borderRadius: 4 } }, '置顶'),
+            React.createElement('span', { style: { fontWeight: record.status === 'published' ? 600 : 400, cursor: 'pointer', color: '#1890ff' },
+              onClick: function() { handlePreview(record); } }, text)
+          );
+        }
+      },
+      { title: '类型', dataIndex: 'type', key: 'type', width: 100,
+        render: function(v) { return React.createElement(Tag, { color: TYPE_COLOR[v] || 'default' }, TYPE_LABEL[v]); }
+      },
+      { title: '状态', dataIndex: 'status', key: 'status', width: 90,
+        render: function(v) { return React.createElement(Tag, { color: STATUS_COLOR[v] || 'default' }, STATUS_MAP[v]); }
+      },
+      { title: '优先级', dataIndex: 'priority', key: 'priority', width: 80,
+        render: function(v) {
+          return v === 'high'
+            ? React.createElement(Tag, { color: 'red', style: { borderRadius: 10 } }, '重要')
+            : React.createElement('span', { style: { color: '#bfbfbf' } }, '普通');
+        }
+      },
+      { title: '发布人', dataIndex: 'publisher', key: 'publisher', width: 100 },
+      { title: '创建时间', dataIndex: 'createTime', key: 'createTime', width: 140 },
+      { title: '发布时间', dataIndex: 'publishTime', key: 'publishTime', width: 140,
+        render: function(v) { return v || React.createElement('span', { style: { color: '#bfbfbf' } }, '—'); }
+      },
+      { title: '阅读量', dataIndex: 'readCount', key: 'readCount', width: 80, sorter: function(a, b) { return a.readCount - b.readCount; } },
+      { title: '操作', key: 'action', width: 240, fixed: 'right',
+        render: function(_, record) {
+          var btns = [];
+          // 预览
+          btns.push(React.createElement(Button, { key: 'preview', type: 'link', size: 'small',
+            onClick: function() { handlePreview(record); } }, '预览'));
+          // 编辑
+          btns.push(React.createElement(Button, { key: 'edit', type: 'link', size: 'small',
+            onClick: function() { handleEdit(record); } }, '编辑'));
+          // 发布/下架/重新发布
+          if (record.status === 'draft') {
+            btns.push(React.createElement(Button, { key: 'publish', type: 'link', size: 'small',
+              style: { color: '#52c41a' },
+              onClick: function() { handlePublishDraft(record); } }, '发布'));
+          } else if (record.status === 'published') {
+            btns.push(React.createElement(Button, { key: 'retract', type: 'link', size: 'small', danger: true,
+              onClick: function() { handleRetract(record); } }, '下架'));
+          } else if (record.status === 'expired') {
+            btns.push(React.createElement(Button, { key: 'republish', type: 'link', size: 'small',
+              style: { color: '#52c41a' },
+              onClick: function() { handleRepublish(record); } }, '重新发布'));
+          }
+          // 删除
+          btns.push(React.createElement(Popconfirm, { key: 'delete', title: '确认删除该公告？',
+            onConfirm: function() { handleDelete(record); }, okText: '删除', cancelText: '取消' },
+            React.createElement(Button, { type: 'link', size: 'small', danger: true }, '删除')
+          ));
+          return React.createElement(Space, { size: 0 }, btns);
+        }
+      }
+    ];
+
+    return React.createElement('div', { className: 'page-container' },
+      /* 统计卡片 */
+      React.createElement('div', { className: 'stat-row' },
+        React.createElement('div', { className: 'stat-card', onClick: function() { setStatusFilter(undefined); } },
+          React.createElement('div', { className: 'icon-wrap', style: { background: 'linear-gradient(135deg,#e6f7ff,#bae7ff)', color: '#1890ff' } },
+            React.createElement('i', { className: 'ti ti-speakerphone' })
+          ),
+          React.createElement('div', null,
+            React.createElement('div', { className: 'num' }, totalCount),
+            React.createElement('div', { className: 'lbl' }, '公告总数')
+          )
+        ),
+        React.createElement('div', { className: 'stat-card', onClick: function() { setStatusFilter('published'); },
+          style: statusFilter === 'published' ? { borderColor: '#52c41a', background: '#f6ffed' } : {} },
+          React.createElement('div', { className: 'icon-wrap', style: { background: 'linear-gradient(135deg,#f6ffed,#d9f7be)', color: '#52c41a' } },
+            React.createElement('i', { className: 'ti ti-circle-check' })
+          ),
+          React.createElement('div', null,
+            React.createElement('div', { className: 'num' }, publishedCount),
+            React.createElement('div', { className: 'lbl' }, '已发布')
+          )
+        ),
+        React.createElement('div', { className: 'stat-card', onClick: function() { setStatusFilter('draft'); },
+          style: statusFilter === 'draft' ? { borderColor: '#faad14', background: '#fffbe6' } : {} },
+          React.createElement('div', { className: 'icon-wrap', style: { background: 'linear-gradient(135deg,#fffbe6,#fff1b8)', color: '#faad14' } },
+            React.createElement('i', { className: 'ti ti-file-pencil' })
+          ),
+          React.createElement('div', null,
+            React.createElement('div', { className: 'num' }, draftCount),
+            React.createElement('div', { className: 'lbl' }, '草稿')
+          )
+        ),
+        React.createElement('div', { className: 'stat-card' },
+          React.createElement('div', { className: 'icon-wrap', style: { background: 'linear-gradient(135deg,#f0f5ff,#d6e4ff)', color: '#2f54eb' } },
+            React.createElement('i', { className: 'ti ti-eye' })
+          ),
+          React.createElement('div', null,
+            React.createElement('div', { className: 'num' }, totalReads),
+            React.createElement('div', { className: 'lbl' }, '总阅读量')
+          )
+        )
+      ),
+
+      /* 表格卡片 */
+      React.createElement('div', { className: 'table-card' },
+        React.createElement('div', { className: 'header-row' },
+          React.createElement(Title, { level: 5, style: { margin: 0 } }, '公告列表'),
+          React.createElement(Space, null,
+            React.createElement(Button, { type: 'primary', icon: React.createElement('i', { className: 'ti ti-plus', style: { fontSize: 16 } }),
+              onClick: handleCreate }, '新建公告'),
+            selectedRowKeys.length > 0 && React.createElement(Button, { danger: true,
+              icon: React.createElement('i', { className: 'ti ti-trash', style: { fontSize: 16 } }),
+              onClick: handleBatchDelete }, '批量删除（' + selectedRowKeys.length + '）')
+          )
+        ),
+
+        /* 筛选栏 */
+        React.createElement('div', { style: { display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' } },
+          React.createElement(Input.Search, {
+            placeholder: '搜索公告标题...',
+            allowClear: true,
+            style: { width: 260 },
+            value: keyword,
+            onChange: function(e) { setKeyword(e.target.value); },
+            onSearch: function(v) { setKeyword(v); }
+          }),
+          React.createElement(Select, {
+            placeholder: '公告类型', allowClear: true,
+            style: { width: 140 },
+            value: typeFilter,
+            onChange: function(v) { setTypeFilter(v); },
+            options: ANN_TYPES
+          }),
+          React.createElement(Select, {
+            placeholder: '状态', allowClear: true,
+            style: { width: 120 },
+            value: statusFilter,
+            onChange: function(v) { setStatusFilter(v); },
+            options: [
+              { value: 'draft', label: '草稿' },
+              { value: 'published', label: '已发布' },
+              { value: 'expired', label: '已过期' }
+            ]
+          })
+        ),
+
+        /* 表格 */
+        React.createElement(Table, {
+          rowKey: 'id',
+          columns: columns,
+          dataSource: filteredData,
+          rowSelection: {
+            selectedRowKeys: selectedRowKeys,
+            onChange: function(keys) { setSelectedRowKeys(keys); }
+          },
+          pagination: {
+            pageSize: 10,
+            showTotal: function(total) { return '共 ' + total + ' 条公告'; },
+            showSizeChanger: true
+          },
+          scroll: { x: 1200 },
+          size: 'middle'
+        })
+      ),
+
+      /* 编辑/新建 Drawer */
+      React.createElement(Drawer, {
+        title: editingId ? '编辑公告' : '新建公告',
+        open: drawerOpen,
+        width: 720,
+        onClose: function() { setDrawerOpen(false); },
+        extra: React.createElement(Space, null,
+          React.createElement(Button, { onClick: handleSaveDraft }, '保存草稿'),
+          React.createElement(Button, { type: 'primary',
+            icon: React.createElement('i', { className: 'ti ti-send', style: { fontSize: 16 } }),
+            onClick: handleRequestPublish }, '发布公告')
+        )
+      },
+        React.createElement(Form, { form: form, layout: 'vertical', style: { marginTop: 8 } },
+          React.createElement(Form.Item, { label: '公告标题', name: 'title',
+            rules: [{ required: true, message: '请输入公告标题' }, { max: 100, message: '标题不超过100字' }] },
+            React.createElement(Input, { placeholder: '请输入公告标题，100字以内', maxLength: 100, showCount: true })
+          ),
+          React.createElement('div', { style: { display: 'flex', gap: 16 } },
+            React.createElement(Form.Item, { label: '公告类型', name: 'type', rules: [{ required: true, message: '请选择公告类型' }], style: { flex: 1 } },
+              React.createElement(Select, { placeholder: '请选择公告类型', options: ANN_TYPES })
+            ),
+            React.createElement(Form.Item, { label: '优先级', name: 'priority', style: { flex: 1 } },
+              React.createElement(Radio.Group, null,
+                React.createElement(Radio, { value: 'normal' }, '普通'),
+                React.createElement(Radio, { value: 'high' }, '重要')
+              )
+            )
+          ),
+          React.createElement('div', { style: { display: 'flex', gap: 24, marginBottom: 24 } },
+            React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+              React.createElement(Switch, { checked: pinned, onChange: function(v) { setPinned(v); } }),
+              React.createElement('span', { style: { fontSize: 14, color: '#333' } }, '置顶公告'),
+              React.createElement(Tooltip, { title: '开启后该公告将置顶显示在公告列表最上方' },
+                React.createElement('i', { className: 'ti ti-info-circle', style: { fontSize: 14, color: '#bfbfbf', cursor: 'help' } })
+              )
+            ),
+            React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+              React.createElement(Switch, { checked: pushBanner, onChange: function(v) { setPushBanner(v); } }),
+              React.createElement('span', { style: { fontSize: 14, color: '#333' } }, '推送至首页横幅'),
+              React.createElement(Tooltip, { title: '开启后该公告将展示在首页顶部横幅位置' },
+                React.createElement('i', { className: 'ti ti-info-circle', style: { fontSize: 14, color: '#bfbfbf', cursor: 'help' } })
+              )
+            )
+          ),
+          React.createElement(Form.Item, { label: '公告正文', required: true },
+            React.createElement(RichTextEditor, { value: editorContent, onChange: function(v) { setEditorContent(v); } })
+          ),
+          React.createElement(Form.Item, { label: '发布信息' },
+            React.createElement('div', { style: { fontSize: 12, color: '#8c8c8c' } },
+              React.createElement('div', null, '发布人：管理员'),
+              React.createElement('div', null, '创建时间：' + (editingId ? (dataSource.find(function(r) { return r.id === editingId; }) || {}).createTime : dayjs().format('YYYY-MM-DD HH:mm')))
+            )
+          )
+        )
+      ),
+
+      /* 发布确认弹窗 */
+      React.createElement(Modal, {
+        title: '确认发布公告',
+        open: publishModalOpen,
+        onOk: handleConfirmPublish,
+        onCancel: function() { setPublishModalOpen(false); },
+        okText: '确认发布',
+        cancelText: '取消',
+        centered: true
+      },
+        React.createElement('p', { style: { marginBottom: 12 } }, '发布后公告将对所有用户可见，确认发布？'),
+        React.createElement('p', { style: { fontSize: 13, color: '#8c8c8c' } }, '已发布公告可在列表中随时下架。')
+      )
+    );
+  }
+
+  if (window.PROTO_SHELL && window.PROTO_SHELL.renderShell) {
+    window.PROTO_SHELL.renderShell('announcement');
+    if (window.DataTracker) { window.DataTracker.trackPageView('announcement', '公告发布'); }
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(AnnouncementPage));
+})();
+</script>
+</body>
+</html>

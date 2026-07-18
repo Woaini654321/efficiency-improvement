@@ -1,0 +1,505 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>行业情报详情 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fa;color:#333}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+
+.page-wrap{max-width:900px;margin:0 auto;padding:24px 20px 40px;animation:fadeInUp .4s ease}
+
+.nav-back{display:flex;align-items:center;gap:8px;margin-bottom:24px;font-size:14px;color:#8c8c8c;cursor:pointer;transition:color .2s;width:fit-content}
+.nav-back:hover{color:#1890ff}
+.nav-back i{font-size:18px}
+
+/* Hero */
+.hero-card{background:#fff;border-radius:16px;padding:36px 40px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,0.04);position:relative;overflow:hidden}
+.hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#1890ff,#36cfc9,#722ed1)}
+.hero-card .decoration{position:absolute;top:-80px;right:-80px;width:240px;height:240px;border-radius:50%;background:rgba(24,144,255,0.03);pointer-events:none}
+.hero-card .decoration2{position:absolute;bottom:-60px;left:-60px;width:180px;height:180px;border-radius:50%;background:rgba(54,207,201,0.03);pointer-events:none}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;position:relative}
+.hero-title{font-size:26px;font-weight:700;color:#1a1a2e;line-height:1.45;margin-bottom:20px;position:relative}
+.hero-meta{display:flex;align-items:center;gap:20px;flex-wrap:wrap;font-size:13px;color:#8c8c8c;position:relative}
+.hero-meta span{display:inline-flex;align-items:center;gap:5px}
+.hero-meta-divider{width:1px;height:16px;background:#e8e8e8}
+
+/* 正文 */
+.content-card{background:#fff;border-radius:16px;padding:32px 40px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,0.04);animation:slideIn .4s ease both;animation-delay:.1s}
+
+.article-body{font-size:15px;color:#333;line-height:2.0}
+.article-body .summary-highlight{background:linear-gradient(135deg,#e6f7ff,#f0f5ff);border-left:4px solid #1890ff;padding:18px 22px;border-radius:0 12px 12px 0;margin-bottom:28px;font-size:16px;color:#434343;line-height:1.9}
+.article-body h2{font-size:19px;font-weight:700;color:#1a1a2e;margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid #f0f0f0}
+.article-body h2:first-child{margin-top:0}
+.article-body h3{font-size:16px;font-weight:600;color:#1a1a2e;margin:22px 0 10px}
+.article-body p{margin-bottom:16px}
+.article-body ul,.article-body ol{padding-left:22px;margin-bottom:16px}
+.article-body li{margin-bottom:6px;line-height:1.9}
+.article-body blockquote{border-left:3px solid #1890ff;padding:14px 18px;margin:20px 0;background:#f0f5ff;border-radius:0 10px 10px 0;color:#595959;font-size:14px}
+.article-body .highlight-box{background:#e6fffb;border:1px solid #87e8de;border-radius:10px;padding:16px 20px;margin:16px 0;font-size:14px}
+.article-body .highlight-box strong{color:#006d75}
+
+.source-ref{margin-top:28px;padding-top:20px;border-top:1px solid #f0f0f0;display:flex;align-items:flex-start;gap:12px;font-size:13px;color:#8c8c8c}
+.source-ref i{font-size:18px;color:#bfbfbf;flex-shrink:0;margin-top:1px}
+
+/* 互动栏 */
+.interact-card{background:#fff;border-radius:16px;padding:20px 40px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,0.04);display:flex;align-items:center;gap:14px;flex-wrap:wrap;animation:slideIn .4s ease both;animation-delay:.2s}
+.social-pill{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:28px;cursor:pointer;transition:all .3s;border:1px solid #e8e8e8;background:#fff;font-size:14px;color:#595959;font-weight:500}
+.social-pill:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.social-pill.liked{border-color:#ff4d4f;color:#ff4d4f;background:linear-gradient(135deg,#fff1f0,#ffccc7)}
+.social-pill.collected{border-color:#faad14;color:#faad14;background:linear-gradient(135deg,#fffbe6,#fff1b8)}
+.social-pill:active .bounce{animation:pulse .3s ease}
+
+/* 评论区 */
+.comment-card{padding:18px 0;border-bottom:1px solid #f0f0f0;position:relative}
+.comment-card:last-child{border-bottom:none}
+.cmt-action{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:6px;cursor:pointer;transition:all .2s;color:#8c8c8c;font-size:13px;border:none;background:transparent}
+.cmt-action:hover{color:#1890ff;background:rgba(24,144,255,0.06)}
+.cmt-action.liked{color:#1890ff}
+.cmt-action.danger{color:#999}
+.cmt-action.danger:hover{color:#ff4d4f;background:rgba(255,77,79,0.06)}
+.comment-reply-item{padding:10px 14px;margin-bottom:4px;background:#f9fafb;border-radius:8px;border-left:3px solid #e8e8e8;font-size:13px;line-height:1.7}
+.comment-reply-item:last-child{margin-bottom:0}
+
+/* 相关推荐 */
+.related-card{background:#fff;border-radius:16px;padding:28px 40px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,0.04);animation:slideIn .4s ease both;animation-delay:.3s}
+.related-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.related-item{display:flex;align-items:center;gap:10px;padding:14px 18px;border:1px solid #f0f0f0;border-radius:12px;cursor:pointer;transition:all .25s}
+.related-item:hover{border-color:#1890ff;box-shadow:0 4px 16px rgba(24,144,255,0.08);transform:translateX(4px)}
+
+.page-footer{text-align:center;padding:20px;color:#bfbfbf;font-size:12px;animation:fadeIn .5s ease both;animation-delay:.4s}
+
+@media(max-width:768px){
+  .page-wrap{padding:16px 12px 24px}
+  .hero-card{padding:24px 20px}
+  .content-card{padding:20px 18px}
+  .interact-card{padding:16px 20px;gap:10px}
+  .related-card{padding:20px 18px}
+  .hero-title{font-size:21px}
+  .article-body{font-size:14px}
+  .related-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .hero-meta{flex-direction:column;align-items:flex-start;gap:8px}
+  .hero-meta-divider{display:none}
+  .social-pill{padding:8px 16px;font-size:13px}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+(function(){
+var useState=React.useState;var useMemo=React.useMemo;var useEffect=React.useEffect;
+var Text=antd.Typography.Text;var Button=antd.Button;var Tag=antd.Tag;var Divider=antd.Divider;
+var Modal=antd.Modal;var message=antd.message;var Input=antd.Input;
+var TextArea=Input.TextArea;var Tooltip=antd.Tooltip;
+
+var INDUSTRY_COLORS={"行业趋势":"blue","车载":"geekblue","法规政策":"purple","能源":"gold","工业IoT":"cyan","智慧城市":"green","供应链":"orange","5G/通信":"blue"};
+var AVATAR_COLORS=["#1890ff","#f56a00","#7265e6","#ffbf00","#00a2ae","#87d068","#36cfc9","#eb2f96"];
+
+// ===== 扩展的行业情报数据 =====
+var INDUSTRY_DATA_EXTENDED = {
+"I1":{id:"I1",
+  overview:"Counterpoint Research最新发布《Global Cellular IoT Module Tracker Q2 2026》，报告显示全球蜂窝物联网模组市场持续高速增长。2026年全年出货量预计达到6.5亿片，其中5G模组将首次突破1.5亿片，占比超过25%。该报告涵盖了全球主要模组厂商（Quectel、广和通、Sierra Wireless、Telit、移远等）的出货数据和市场分析。",
+  keyPoints:["2026年全球蜂窝IoT模组出货量将达6.5亿片，同比增长18%","5G模组出货量首次突破1.5亿片，占比超过25%","车载和工业互联网是5G模组增长的两大核心驱动力","Quectel全球市场份额保持领先，但在5G细分市场面临Sierra和Telit追赶","RedCap（轻量化5G）模组出货量增长300%，有望成为下一个爆发点"],
+  analysis:"5G模组占比突破25%是一个里程碑式的节点。这标志着5G在物联网领域正从'尝鲜试用'走向'规模部署'。对Quectel而言，巩固4G/Cat.1基本盘的同时，必须加速5G产品线布局——尤其是RedCap（RG520N等产品）的市场推广节奏。RedCap增长300%的信号非常强烈，这是Cat.4和Cat.1高端市场的替代威胁，同时也是Quectel的机会。",
+  impact:"建议产品线重点关注RedCap模组的产品矩阵完善和认证进度，销售团队应主动向工业传感器、视频监控、可穿戴设备等目标客户推广RedCap方案。同时留意Sierra和Telit在5G市场的追赶态势。"
+},
+"I2":{id:"I2",
+  overview:"工业和信息化部于7月5日正式发布《智能网联汽车标准体系（2026版）》，这是对2024版的全面修订。新版标准体系新增了V2X通信模组技术规范、车载5G通信模块安全要求、车路协同通信协议等多项与通信模组直接相关的标准。标准从发布之日起有6个月过渡期，2027年1月起正式实施。",
+  keyPoints:["新增《V2X通信模组技术规范》（YD/T XXXX-2026），明确PC5/Uu双模技术要求","新增《车载5G通信模块安全要求》，涵盖安全启动、固件OTA、密钥管理","车路协同通信协议标准化，统一了OBU-RSU之间的消息格式和交互流程","6个月过渡期，2027年1月1日起新车型必须满足新标准","通信模组需要同时通过AEC-Q104车规认证和新标准合规认证"],
+  analysis:"新标准对通信模组厂商提出了更高的合规要求。V2X双模（PC5直连+Uu蜂窝）成为车载模组的标配，这意味着仅支持Uu模式的5G模组将无法满足新车规要求。安全要求方面，安全启动和固件OTA这两个特性在Quectel车规模组上已有支持，但需要补充标准合规认证。过渡期只有6个月，产品线应尽快启动新标准的gap analysis。",
+  impact:"短期来看，符合新标准的5G+V2X双模模组将成为车企选型的硬性门槛，Quectel应加快下一代车规模组的V2X支持开发。同时，安全认证（安全启动+OTA）可作为差异化卖点向车企宣传——很多竞品的安全特性还在规划阶段。"
+},
+"I3":{id:"I3",
+  overview:"欧盟《网络弹性法案》（Cyber Resilience Act, CRA）于2026年7月1日正式实施。该法案涵盖所有在欧盟市场销售的数字产品（含IoT设备），要求制造商在产品全生命周期内提供网络安全保障——包括安全设计、漏洞管理、安全更新机制等。不符合要求的产品将被禁止进入欧盟市场，并面临最高1500万欧元或全球营收2.5%的罚款。",
+  keyPoints:["适用范围：所有在欧盟市场销售的数字产品，含IoT设备和嵌入式模组","核心要求：安全启动、固件更新机制、漏洞披露与修补、默认安全配置","制造商需在产品生命周期内提供安全更新支持（最低5年）","不符合要求的产品将被禁售，罚款最高1500万欧元或全球营收2.5%","通信模组属于'带数字元素的组件'，需配合终端厂商满足合规"],
+  analysis:"CRA对Quectel的影响分两个层面：1）模组作为终端的组成部分，需要配合终端客户满足CRA合规——这意味着模组固件的安全启动、安全OTA升级能力变成刚需，而不仅仅是加分项；2）Quectel自身作为产品提供商，部分直接面向欧洲客户的模组产品（如带OpenCPU的智能模组）可能需要直接满足CRA要求。相比之下，Sierra Wireless作为欧洲本土厂商在CRA合规上天然有优势。",
+  impact:"强烈建议Quectel产品线：1）将所有面向欧洲市场的模组固件升级至支持安全启动+安全OTA；2）建立漏洞管理和披露流程；3）在模组Datasheet中增加CRA合规声明章节，帮助终端客户应对合规审查。这是一项系统性工程但刻不容缓——CRA已生效，客户的合规压力会快速传导到模组厂商。"
+}
+};
+
+function getDefaultFullContent(item){
+  return {
+    overview:item.summary,
+    keyPoints:["该资讯来源为："+item.source,"发布时间："+item.date,"行业分类："+item.industry],
+    analysis:"该行业情报目前暂无深度分析。建议关注此趋势对Quectel相关产品线的潜在影响，持续跟踪后续发展和相关数据更新。",
+    impact:"请结合具体业务场景评估该资讯对市场和客户的潜在影响，必要时可在团队会议上进行讨论。"
+  };
+}
+
+var ALL_INDUSTRY_DATA = [
+{id:"I1",title:"2026年全球蜂窝物联网模组市场：5G占比将突破25%",summary:"Counterpoint最新报告预测，2026年全球蜂窝物联网模组出货量将达6.5亿片，其中5G模组出货量将首次超过1.5亿片，占比突破25%。车载和工业互联网是5G模组增长的主要驱动力。",industry:"行业趋势",source:"Counterpoint Research",date:"2026-07-07",icon:"ti-chart-line"},
+{id:"I2",title:"中国智能网联汽车标准体系2026版正式发布",summary:"工信部正式发布了《智能网联汽车标准体系（2026版）》，新增了V2X通信模组技术规范、车载5G通信模块安全要求等标准。这将推动车载前装通信模组的标准化和规模化应用。",industry:"车载",source:"工信部",date:"2026-07-05",icon:"ti-car"},
+{id:"I3",title:"欧盟《网络弹性法案》正式实施，IoT设备须满足新要求",summary:"欧盟Cyber Resilience Act于7月1日正式实施，要求所有在欧盟市场销售的IoT设备必须满足新的网络安全标准，包括安全启动、固件更新机制等。对中国厂商的模组和终端产品出口带来新的合规挑战。",industry:"法规政策",source:"EU Commission",date:"2026-07-03",icon:"ti-shield"},
+{id:"I4",title:"国家电网2026年第二批智能电表招标启动，Cat.1和NB-IoT模组需求旺盛",summary:"国家电网发布了2026年第二批智能电表集中招标公告，总量约3800万台。从招标文件看，通信模块中Cat.1占比已超过60%，NB-IoT主要用于水表和燃气表。",industry:"能源",source:"国家电网电子商务平台",date:"2026-07-02",icon:"ti-bolt"},
+{id:"I5",title:"5G专网在制造业落地的三大趋势",summary:"IDC指出2026年5G专网在制造业落地呈现三大趋势：1)从试点走向规模部署，2)与工业以太网融合加深，3)边缘AI与5G专网深度耦合。这对Quectel的5G模组在工业场景的推广具有参考意义。",industry:"工业IoT",source:"IDC",date:"2026-06-30",icon:"ti-building-factory"},
+{id:"I6",title:"东南亚智慧城市建设加速，IoT模组需求增长40%",summary:"据东盟ICT报告，2026年上半年东南亚智慧城市建设投资同比增长40%，新加坡、泰国、印尼三国领跑。重点应用场景包括：智能路灯、智慧停车、环境监测和公共交通。对中国厂商来说是重要的出海机遇。",industry:"智慧城市",source:"ASEAN ICT Report",date:"2026-06-28",icon:"ti-building-skyscraper"},
+{id:"I7",title:"全球芯片供应格局变化：车规级芯片产能向中国转移",summary:"受地缘政治和供应链多元化策略影响，多家大型IDM厂商正在将车规级芯片产能转移至中国。台积电南京厂和SMIC深圳厂均已启动车规认证流程。这将改善车载模组的芯片供应保障。",industry:"供应链",source:"IC Insights",date:"2026-06-25",icon:"ti-cpu"},
+{id:"I8",title:"2026年下半年中国5G RedCap商用进程加速",summary:"三大运营商联合宣布2026年下半年将在全国50个重点城市完成5G RedCap网络升级。RedCap作为轻量化5G技术，将在工业传感器、可穿戴设备和视频监控等领域率先规模商用。",industry:"5G/通信",source:"工信部",date:"2026-06-22",icon:"ti-broadcast"}
+];
+
+// ===== 评论数据 =====
+var INIT_COMMENTS = [
+{id:1,user:"Owen.Liu 刘洋",dept:"海外事业部",time:"3小时前",content:"5G占比突破25%这个数据很关键，说明5G IoT的市场拐点已经到来。建议大家重点关注RedCap细分市场，增长速度远超预期。",likes:7,isMine:false,replies:[
+  {id:11,user:"Tony.Zhang 张伟",dept:"华东大区",time:"2小时前",content:"@Owen.Liu 刘洋 确实，上周拜访的几个工业客户都在问RedCap方案，感觉需求正在爆发。",isMine:false}
+]},
+{id:2,user:"Nina.Li 李娜",dept:"产品管理部",time:"6小时前",content:"CRA法案对欧洲市场的影响可能会比预期更大。建议技术团队尽快启动面向欧洲产品的安全合规audit，尤其是安全启动和OTA这两个硬性要求。",likes:5,isMine:false,replies:[]},
+{id:3,user:"Kevin.Wang 王强",dept:"华南大区",time:"1天前",content:"新国标对车载V2X模组的要求应该提前向车企客户同步。很多客户可能还不知道6个月过渡期的截止时间。",likes:3,isMine:false,replies:[
+  {id:31,user:"Ivy.Sun 孙芳",dept:"技术支持部",time:"20小时前",content:"@Kevin.Wang 王强 已准备技术白皮书，下周开始向重点车企客户做专题workshop。",isMine:false}
+]}
+];
+
+function countAll(comments){
+  var n=comments.length;
+  comments.forEach(function(c){if(c.replies)n+=c.replies.length});
+  return n;
+}
+
+// ===== 评论卡片组件 =====
+function CommentCard(props){
+  var comment=props.comment;var index=props.index;var currentUser=props.currentUser;
+  var onReply=props.onReply;var onDelete=props.onDelete;
+  var replyOpenState=useState(false);var replyOpen=replyOpenState[0];var setReplyOpen=replyOpenState[1];
+  var replyTextState=useState("");var replyText=replyTextState[0];var setReplyText=replyTextState[1];
+  var cLikesState=useState(comment.likes||0);var cLikes=cLikesState[0];var setCLikes=cLikesState[1];
+  var cLikedState=useState(false);var cLiked=cLikedState[0];var setCLiked=cLikedState[1];
+  var replies=comment.replies||[];var isMine=comment.isMine||false;
+
+  var handleReply=function(){
+    if(!replyText.trim())return;
+    var newReply={id:Date.now(),user:currentUser.name,dept:currentUser.dept,time:"刚刚",content:replyText,isMine:true};
+    onReply(comment.id,newReply);setReplyText("");setReplyOpen(false);message.success("回复成功");
+  };
+  var handleDelete=function(){
+    Modal.confirm({title:"删除评论",content:"确认删除此评论？删除后不可恢复。",okText:"确认删除",cancelText:"取消",okButtonProps:{danger:true},
+      onOk:function(){onDelete(comment.id);message.success("评论已删除")}
+    });
+  };
+  var handleDelReply=function(rid){
+    Modal.confirm({title:"删除回复",content:"确认删除此回复？",okText:"确认删除",cancelText:"取消",okButtonProps:{danger:true},
+      onOk:function(){onDelete(rid);message.success("回复已删除")}
+    });
+  };
+
+  return (
+    <div style={{animationDelay:(index*0.04)+"s",animation:"fadeInUp .35s ease both"}}>
+      <div className="comment-card">
+        {isMine && <Tooltip title="删除"><button className="cmt-action danger" onClick={handleDelete} style={{position:"absolute",top:12,right:14}}><i className="ti ti-trash" style={{fontSize:16}} /></button></Tooltip>}
+        <div style={{display:"flex",gap:10}}>
+          <div style={{width:36,height:36,borderRadius:"50%",background:AVATAR_COLORS[index%AVATAR_COLORS.length],display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:13,fontWeight:600,flexShrink:0}}>{comment.user.charAt(0)}</div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+              <span style={{fontSize:14,fontWeight:600,color:"#333"}}>{comment.user}</span>
+              <Tag style={{borderRadius:6,fontSize:10,color:"#8c8c8c",background:"#f5f5f5",border:"none",margin:0,padding:"0 6px",lineHeight:"18px"}}>{comment.dept}</Tag>
+              <span style={{fontSize:10,color:"#bfbfbf",marginLeft:"auto"}}>{comment.time}</span>
+            </div>
+            <div style={{fontSize:14,color:"#444",lineHeight:1.7,marginBottom:6}}>{comment.content}</div>
+            <div style={{display:"flex",gap:8}}>
+              <button className={cLiked?"cmt-action liked":"cmt-action"} onClick={function(){setCLiked(!cLiked);setCLikes(cLiked?cLikes-1:cLikes+1)}}>
+                {cLiked?<i className="ti ti-thumb-up-filled" style={{fontSize:16,color:"#1890ff"}} />:<i className="ti ti-thumb-up" style={{fontSize:16}} />} {cLikes>0?cLikes:""}
+              </button>
+              <button className="cmt-action" onClick={function(){setReplyOpen(!replyOpen)}}><i className="ti ti-message" style={{fontSize:16}} /> 回复</button>
+            </div>
+          </div>
+        </div>
+        {replyOpen && (
+          <div style={{marginTop:8,display:"flex",gap:8}}>
+            <TextArea rows={2} value={replyText} onChange={function(e){setReplyText(e.target.value)}} placeholder={"回复 @"+comment.user+"..."} maxLength={500} style={{borderRadius:8,resize:"none",flex:1,fontSize:13}}
+              onPressEnter={function(e){if(!e.shiftKey){e.preventDefault();handleReply()}}} />
+            <div style={{display:"flex",flexDirection:"column",gap:4}}>
+              <Button type="primary" size="small" icon={<i className="ti ti-send" style={{fontSize:16}} />} style={{borderRadius:8}} onClick={handleReply}>发送</Button>
+              <Button size="small" style={{borderRadius:8}} onClick={function(){setReplyOpen(false);setReplyText("")}}>取消</Button>
+            </div>
+          </div>
+        )}
+      </div>
+      {replies.length>0 && (
+        <div style={{marginLeft:48,marginTop:8}}>
+          {replies.map(function(r){
+            return (
+              <div key={r.id} className="comment-reply-item">
+                <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:3}}>
+                  <span style={{fontSize:13,fontWeight:600,color:"#555"}}>{r.user}</span>
+                  <Tag style={{borderRadius:6,fontSize:10,color:"#8c8c8c",background:"#f5f5f5",border:"none",margin:0,padding:"0 5px",lineHeight:"16px"}}>{r.dept}</Tag>
+                  <span style={{fontSize:11,color:"#bfbfbf",marginLeft:"auto"}}>{r.time}</span>
+                </div>
+                <div style={{fontSize:13,color:"#555",lineHeight:1.65}}>{r.content}</div>
+                <div style={{display:"flex",gap:12,marginTop:4}}>
+                  <button className="cmt-action" onClick={function(){setReplyOpen(!replyOpen)}}><i className="ti ti-message" style={{fontSize:13}} /> 回复</button>
+                  {r.isMine && <button className="cmt-action danger" onClick={function(){handleDelReply(r.id)}}><i className="ti ti-trash" style={{fontSize:13}} /> 删除</button>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function IndustryDetailPage(){
+  var itemState=useState(null);var item=itemState[0];var setItem=itemState[1];
+  var loadingState=useState(true);var loading=loadingState[0];var setLoading=loadingState[1];
+
+  useEffect(function(){
+    try{
+      var raw=localStorage.getItem("industryDetail");
+      if(raw){
+        var data=JSON.parse(raw);
+        var ext=INDUSTRY_DATA_EXTENDED[data.id];
+        if(ext) data.fullContent=ext;
+        else data.fullContent=getDefaultFullContent(data);
+        setItem(data);
+      }
+    }catch(e){console.error("读取行业情报数据失败",e)}
+    setLoading(false);
+  },[]);
+
+  var likedState=useState(false);var liked=likedState[0];var setLiked=likedState[1];
+  var collectedState=useState(false);var collected=collectedState[0];var setCollected=collectedState[1];
+  var likeNumState=useState(56);var likeNum=likeNumState[0];var setLikeNum=likeNumState[1];
+  var collectNumState=useState(32);var collectNum=collectNumState[0];var setCollectNum=collectNumState[1];
+  var commentTextState=useState("");var commentText=commentTextState[0];var setCommentText=commentTextState[1];
+  var commentsState=useState(INIT_COMMENTS);var comments=commentsState[0];var setComments=commentsState[1];
+  var showAllState=useState(false);var showAll=showAllState[0];var setShowAll=showAllState[1];
+  var currentUser={name:"San.Zhang 张三",dept:"销售部"};
+
+  var toggleLike=function(){setLiked(!liked);setLikeNum(liked?likeNum-1:likeNum+1);message.success(liked?"已取消点赞":"已点赞")};
+  var toggleCollect=function(){setCollected(!collected);setCollectNum(collected?collectNum-1:collectNum+1);message.success(collected?"已取消收藏":"已收藏")};
+
+  var handleComment=function(){
+    if(!commentText.trim()){message.warning("请输入评论内容");return}
+    var newComment={id:Date.now(),user:currentUser.name,dept:currentUser.dept,time:"刚刚",content:commentText,likes:0,isMine:true,replies:[]};
+    setComments([newComment].concat(comments));
+    setCommentText("");message.success("评论成功");
+  };
+  var handleReply=function(parentId,newReply){
+    setComments(comments.map(function(c){
+      if(c.id===parentId)return Object.assign({},c,{replies:(c.replies||[]).concat([newReply])});
+      return c;
+    }));
+  };
+  var handleDelete=function(targetId){
+    setComments(comments.filter(function(c){return c.id!==targetId}).map(function(c){
+      if(c.replies&&c.replies.length>0)return Object.assign({},c,{replies:c.replies.filter(function(r){return r.id!==targetId})});
+      return c;
+    }));
+  };
+
+  var relatedItems=useMemo(function(){
+    if(!item)return[];
+    return ALL_INDUSTRY_DATA.filter(function(d){
+      if(d.id===item.id)return false;
+      return d.industry===item.industry;
+    }).slice(0,4);
+  },[item]);
+
+  var displayComments=showAll?comments:comments.slice(0,4);
+  var totalComments=countAll(comments);
+
+  var goToList=function(){
+    try{localStorage.removeItem("industryDetail")}catch(e){}
+    window.location.href="PAGE-PC-20_情报中心.html";
+  };
+
+  if(loading)return React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"center",height:"60vh",color:"#bfbfbf",fontSize:16}},React.createElement("i",{className:"ti ti-loader",style:{fontSize:24,marginRight:8}}),"加载中...");
+
+  if(!item)return (
+    <div className="page-wrap" style={{textAlign:"center",paddingTop:"15vh"}}>
+      <i className="ti ti-alert-circle" style={{fontSize:64,color:"#bfbfbf",display:"block",marginBottom:16}} />
+      <h2 style={{fontSize:18,color:"#8c8c8c",marginBottom:12}}>未找到行业资讯数据</h2>
+      <p style={{fontSize:14,color:"#bfbfbf",marginBottom:20}}>请从情报中心页面进入查看详情</p>
+      <Button type="primary" onClick={goToList}>返回情报中心</Button>
+    </div>
+  );
+
+  var fc=item.fullContent;
+
+  return (
+    <div className="page-wrap">
+      <div className="nav-back" onClick={goToList}>
+        <i className="ti ti-arrow-left" /> 返回情报中心
+      </div>
+
+      {/* Hero */}
+      <div className="hero-card">
+        <div className="decoration" />
+        <div className="decoration2" />
+        <div className="hero-tags">
+          <Tag color={INDUSTRY_COLORS[item.industry]||"blue"} style={{borderRadius:6,fontSize:13,fontWeight:500,padding:"3px 12px"}}>
+            <i className={"ti "+item.icon} style={{marginRight:4,fontSize:14}} />{item.industry}
+          </Tag>
+        </div>
+        <h1 className="hero-title">{item.title}</h1>
+        <div className="hero-meta">
+          <span><i className="ti ti-link" style={{fontSize:16}} /> 来源：{item.source}</span>
+          <span className="hero-meta-divider" />
+          <span><i className="ti ti-calendar" style={{fontSize:16}} /> {item.date}</span>
+        </div>
+      </div>
+
+      {/* 正文 */}
+      <div className="content-card">
+        <div className="article-body">
+          <div className="summary-highlight">
+            <strong style={{color:"#1890ff"}}>📌 资讯摘要：</strong>{item.summary}
+          </div>
+
+          <h2>资讯详情</h2>
+          <p>{fc.overview}</p>
+
+          <h3>关键要点</h3>
+          <ul>
+            {fc.keyPoints.map(function(kp,i){
+              return <li key={i}>{kp}</li>;
+            })}
+          </ul>
+
+          <h2>行业分析</h2>
+          <p>{fc.analysis}</p>
+
+          <h2>对Quectel的影响</h2>
+          <p>{fc.impact}</p>
+
+          {/* 行业特定建议 */}
+          {item.industry==="法规政策" && (
+            <div className="highlight-box">
+              <strong>📋 法规政策应对建议：</strong>
+              <ul style={{marginTop:8,marginBottom:0}}>
+                <li>组织法务和技术团队进行合规差距分析（Gap Analysis）</li>
+                <li>制定合规整改时间表，优先处理高影响项目</li>
+                <li>主动向客户传递合规进展，将合规转化为竞争卖点</li>
+              </ul>
+            </div>
+          )}
+
+          {item.industry==="行业趋势" && (
+            <div className="highlight-box">
+              <strong>📈 行业趋势应对建议：</strong>
+              <ul style={{marginTop:8,marginBottom:0}}>
+                <li>将报告数据整理为内部市场分析材料，共享至销售团队</li>
+                <li>基于趋势判断，调整产品线的优先级和资源投入方向</li>
+                <li>在客户拜访中引用权威数据，增强方案说服力</li>
+              </ul>
+            </div>
+          )}
+
+          {(item.industry==="车载"||item.industry==="能源"||item.industry==="工业IoT") && (
+            <div className="highlight-box">
+              <strong>🏭 垂直行业应对建议：</strong>
+              <ul style={{marginTop:8,marginBottom:0}}>
+                <li>深入了解该行业客户的痛点和决策链条</li>
+                <li>准备行业定制化的方案演示材料和成功案例</li>
+                <li>与行业头部客户建立联合创新合作，抢占标杆项目</li>
+              </ul>
+            </div>
+          )}
+
+          <div className="source-ref">
+            <i className="ti ti-link" />
+            <div>
+              <div style={{fontWeight:500,color:"#595959",marginBottom:2}}>信息来源</div>
+              <div>{item.source} · 发布于 {item.date}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 互动栏 */}
+      <div className="interact-card">
+        <button className={"social-pill"+(liked?" liked":"")} onClick={toggleLike}>
+          <span className="bounce">{liked?<i className="ti ti-heart-filled" style={{fontSize:18}} />:<i className="ti ti-heart" style={{fontSize:18}} />}</span> {liked?"已点赞":"点赞"} {likeNum}
+        </button>
+        <button className={"social-pill"+(collected?" collected":"")} onClick={toggleCollect}>
+          <span className="bounce">{collected?<i className="ti ti-star-filled" style={{fontSize:18}} />:<i className="ti ti-star" style={{fontSize:18}} />}</span> {collected?"已收藏":"收藏"} {collectNum}
+        </button>
+        <div style={{flex:1}} />
+        <Text type="secondary" style={{fontSize:12}}><i className="ti ti-eye" style={{fontSize:16,marginRight:4}} /> 512 次浏览</Text>
+      </div>
+
+      {/* 评论区 */}
+      <div className="content-card" style={{animationDelay:".25s"}}>
+        <div style={{fontSize:17,fontWeight:600,color:"#1a1a2e",marginBottom:20,display:"flex",alignItems:"center",gap:8}}>
+          <i className="ti ti-message" style={{fontSize:18}} /> 讨论 ({totalComments})
+        </div>
+        <div style={{display:"flex",gap:12,marginBottom:24,background:"#f9fafb",borderRadius:14,padding:16}}>
+          <div style={{width:40,height:40,borderRadius:"50%",background:"linear-gradient(135deg,#1890ff,#36cfc9)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:700,fontSize:15,flexShrink:0}}>张</div>
+          <div style={{flex:1}}>
+            <TextArea rows={3} value={commentText} onChange={function(e){setCommentText(e.target.value)}} placeholder="写下你的看法或行业见解..." maxLength={500} showCount style={{borderRadius:12,resize:"none",border:"1px solid #e8e8e8"}} />
+            <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}>
+              <Button type="primary" icon={<i className="ti ti-send" style={{fontSize:18}} />} style={{borderRadius:22,padding:"0 24px",height:36,fontWeight:500}} onClick={handleComment}>发表评论</Button>
+            </div>
+          </div>
+        </div>
+        <Divider style={{margin:"0 0 16px"}} />
+        {displayComments.map(function(c,i){
+          return React.createElement(CommentCard,{key:c.id,comment:c,index:i,currentUser:currentUser,onReply:handleReply,onDelete:handleDelete});
+        })}
+        {!showAll&&comments.length>4&&(
+          <div style={{textAlign:"center",paddingTop:16}}>
+            <Button type="link" style={{fontSize:14}} onClick={function(){setShowAll(true)}}>展开更多评论 ({comments.length-4} 条)</Button>
+          </div>
+        )}
+      </div>
+
+      {/* 相关推荐 */}
+      {relatedItems.length>0 && (
+        <div className="related-card">
+          <div style={{fontSize:17,fontWeight:600,color:"#1a1a2e",marginBottom:16,display:"flex",alignItems:"center",gap:8}}>
+            <i className="ti ti-trending-up" style={{fontSize:18,color:"#1890ff"}} /> 同行业更多资讯
+          </div>
+          <div className="related-grid">
+            {relatedItems.map(function(d,i){
+              return (
+                <div key={d.id} className="related-item" onClick={function(){
+                  try{localStorage.setItem("industryDetail",JSON.stringify(d))}catch(e){}
+                  window.open("PAGE-PC-20-2_行业情报详情页.html");
+                }}>
+                  <i className={"ti "+d.icon} style={{fontSize:22,color:"#1890ff",flexShrink:0}} />
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:500,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{d.title}</div>
+                    <div style={{fontSize:11,color:"#bfbfbf",marginTop:2}}>{d.source} · {d.date}</div>
+                  </div>
+                  <i className="ti ti-chevron-right" style={{color:"#bfbfbf",flexShrink:0}} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="page-footer">
+        <div style={{marginBottom:4}}>本资讯由 Quectel商机互助平台 情报中心 提供</div>
+        <div>资讯内容仅供参考，具体业务决策请结合实际情况综合判断</div>
+      </div>
+    </div>
+  );
+}
+
+if(window.PROTO_SHELL&&window.PROTO_SHELL.renderShell){
+  window.PROTO_SHELL.renderShell("intel-center");
+}
+if(window.DataTracker){
+  window.DataTracker.trackPageView("industry-detail","行业情报详情");
+}
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(IndustryDetailPage));
+})();
+</script>
+</body>
+</html>

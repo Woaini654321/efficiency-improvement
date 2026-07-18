@@ -1,0 +1,578 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>会议任务管理 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+.page-container { padding: 24px; }
+.filter-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+.filter-bar .filter-right { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+.batch-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #e6f4ff; border-radius: 6px; margin-top: 12px; }
+.batch-bar .count { font-weight: 600; color: #1677ff; }
+.overdue-row td { background: #fff2f0 !important; }
+.drawer-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+.drawer-field label { font-size: 13px; font-weight: 500; color: #333; }
+.drawer-field .hint { font-size: 11px; color: #bfbfbf; }
+@keyframes overdueBlink { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.overdue-badge { animation: overdueBlink 1s ease-in-out infinite; }
+@media(max-width:768px){
+  .page-container { padding: 16px; }
+  .filter-bar { flex-direction: column; }
+  .filter-bar .filter-right { margin-left: 0; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+(function() {
+  var useState = React.useState;
+  var useMemo = React.useMemo;
+  var useCallback = React.useCallback;
+  var useRef = React.useRef;
+
+  var Typography = antd.Typography;
+  var Title = Typography.Title;
+  var Text = Typography.Text;
+  var Paragraph = Typography.Paragraph;
+  var Table = antd.Table;
+  var Tag = antd.Tag;
+  var Select = antd.Select;
+  var DatePicker = antd.DatePicker;
+  var Button = antd.Button;
+  var Space = antd.Space;
+  var Input = antd.Input;
+  var Drawer = antd.Drawer;
+  var Modal = antd.Modal;
+  var message = antd.message;
+  var Tooltip = antd.Tooltip;
+  var Segmented = antd.Segmented;
+  var Dropdown = antd.Dropdown;
+  var Empty = antd.Empty;
+  var RangePicker = DatePicker.RangePicker;
+  var TextArea = Input.TextArea;
+
+  var PRIORITY_LABELS = { normal: '普通', urgent: '紧急', critical: '特急' };
+  var PRIORITY_COLORS = { normal: 'default', urgent: 'orange', critical: 'red' };
+  var STATUS_LABELS = { pending: '待处理', processing: '处理中', completed: '已完成', transferred: '已转交', cancelled: '已作废' };
+  var STATUS_COLORS = { pending: 'blue', processing: 'orange', completed: 'green', transferred: 'purple', cancelled: 'default' };
+
+  // Mock 销售人员列表
+  var SALES_USERS = [
+    { id: 's1', name: 'San.Zhang 张三', dept: '华东销售部' },
+    { id: 's2', name: 'Si.Li 李四', dept: '华南销售部' },
+    { id: 's3', name: 'Wu.Wang 王五', dept: '华北销售部' },
+    { id: 's4', name: 'Liu.Zhao 赵六', dept: '华东销售部' },
+    { id: 's5', name: 'Sean.Sun 孙七', dept: '华南销售部' },
+    { id: 's6', name: 'Ben.Zhou 周八', dept: '西南销售部' },
+    { id: 's7', name: 'Jack.Wu 吴九', dept: '华北销售部' },
+    { id: 's8', name: 'Sam.Zheng 郑十', dept: '海外销售部' },
+    { id: 's9', name: 'Tony.Zhang 张伟', dept: '华东销售部' },
+    { id: 's10', name: 'Nina.Li 李娜', dept: '华南销售部' }
+  ];
+
+  function getUserName(uid) {
+    var u = SALES_USERS.find(function(s) { return s.id === uid; });
+    return u ? u.name : uid;
+  }
+
+  var MOCK_TASKS = [
+    { id: 'TASK-001', meetingName: '2026Q3华东区QBR复盘会', meetingDate: '2026-07-05', recorder: '运营管理员', description: '跟进华东区5G模组批量采购项目，完成方案报价并发送给客户', priority: 'critical', deadline: '2026-07-10', assignees: ['s1', 's3'], status: 'pending', transferHistory: [], createdAt: '2026-07-05' },
+    { id: 'TASK-002', meetingName: '2026Q3华东区QBR复盘会', meetingDate: '2026-07-05', recorder: '运营管理员', description: '整理Cat.1模组在智能电表行业的成功案例，形成标准化方案文档', priority: 'urgent', deadline: '2026-07-12', assignees: ['s4'], status: 'processing', transferHistory: [], createdAt: '2026-07-05' },
+    { id: 'TASK-003', meetingName: '2026Q3华南区QBR复盘会', meetingDate: '2026-07-06', recorder: '运营管理员', description: '协调产品线解决NB-IoT水表方案的供货周期问题，与供应链确认交期', priority: 'critical', deadline: '2026-07-08', assignees: ['s2'], status: 'completed', transferHistory: [], createdAt: '2026-07-06' },
+    { id: 'TASK-004', meetingName: '2026Q3华南区QBR复盘会', meetingDate: '2026-07-06', recorder: '运营管理员', description: '针对车载前装市场，整理RG500Q和AG525R的竞品对比分析报告', priority: 'normal', deadline: '2026-07-20', assignees: ['s5', 's10'], status: 'pending', transferHistory: [], createdAt: '2026-07-06' },
+    { id: 'TASK-005', meetingName: '2026Q3华北区QBR复盘会', meetingDate: '2026-07-04', recorder: '运营管理员', description: '跟进智慧城市5G专网项目，与运营商确认技术方案并更新项目进度', priority: 'urgent', deadline: '2026-07-09', assignees: ['s3'], status: 'processing', transferHistory: [], createdAt: '2026-07-04' },
+    { id: 'TASK-006', meetingName: '2026Q3华北区QBR复盘会', meetingDate: '2026-07-04', recorder: '运营管理员', description: '调研华北区智慧表计行业2026下半年预算和采购计划，形成市场分析报告', priority: 'normal', deadline: '2026-07-25', assignees: ['s7'], status: 'pending', transferHistory: [], createdAt: '2026-07-04' },
+    { id: 'TASK-007', meetingName: '2026Q3西南区QBR复盘会', meetingDate: '2026-07-03', recorder: '运营管理员', description: '准备LoRa网关模组在西南区的推广方案，包含定价策略和渠道计划', priority: 'urgent', deadline: '2026-07-07', assignees: ['s6'], status: 'pending', transferHistory: [], createdAt: '2026-07-03' },
+    { id: 'TASK-008', meetingName: '2026Q3西南区QBR复盘会', meetingDate: '2026-07-03', recorder: '运营管理员', description: '整理GNSS定位模组在物流行业的已成交案例，制作宣传材料', priority: 'normal', deadline: '2026-07-15', assignees: ['s6'], status: 'completed', transferHistory: [], createdAt: '2026-07-03' },
+    { id: 'TASK-009', meetingName: '2026Q3海外业务季度复盘', meetingDate: '2026-07-02', recorder: '运营管理员', description: '更新海外销售工具包：产品英文手册、FAQ、报价模板', priority: 'urgent', deadline: '2026-07-06', assignees: ['s8'], status: 'pending', transferHistory: [], createdAt: '2026-07-02' },
+    { id: 'TASK-010', meetingName: '2026Q3海外业务季度复盘', meetingDate: '2026-07-02', recorder: '运营管理员', description: '分析东南亚市场5G模组竞争格局，输出竞品动态周报', priority: 'normal', deadline: '2026-07-18', assignees: ['s8'], status: 'processing', transferHistory: [{ from: 's8', to: 's1', reason: '对东南亚市场不熟悉，转交华东同事处理', time: '2026-07-03 10:30' }], createdAt: '2026-07-02' },
+    { id: 'TASK-011', meetingName: '2026Q2全员复盘大会', meetingDate: '2026-06-28', recorder: '运营管理员', description: '推进客户满意度调查方案落地，协调各区域收集客户反馈信息', priority: 'critical', deadline: '2026-07-01', assignees: ['s1', 's2', 's3', 's5', 's7'], status: 'pending', transferHistory: [], createdAt: '2026-06-28' },
+    { id: 'TASK-012', meetingName: '2026Q2全员复盘大会', meetingDate: '2026-06-28', recorder: '运营管理员', description: '完成Q2销售数据汇总分析，输出季度报告供管理层审阅', priority: 'urgent', deadline: '2026-07-05', assignees: ['s4'], status: 'completed', transferHistory: [], createdAt: '2026-06-28' }
+  ];
+
+  function isOverdue(task) {
+    if (task.status === 'completed' || task.status === 'cancelled' || task.status === 'transferred') return false;
+    return dayjs().isAfter(dayjs(task.deadline), 'day');
+  }
+
+  var MeetingTaskPage = function() {
+    var _dataState = useState(MOCK_TASKS);
+    var taskData = _dataState[0];
+    var setTaskData = _dataState[1];
+
+    var _statusFilterState = useState(null);
+    var statusFilter = _statusFilterState[0];
+    var setStatusFilter = _statusFilterState[1];
+
+    var _priorityFilterState = useState(null);
+    var priorityFilter = _priorityFilterState[0];
+    var setPriorityFilter = _priorityFilterState[1];
+
+    var _dateRangeState = useState(null);
+    var dateRange = _dateRangeState[0];
+    var setDateRange = _dateRangeState[1];
+
+    var _assigneeFilterState = useState(null);
+    var assigneeFilter = _assigneeFilterState[0];
+    var setAssigneeFilter = _assigneeFilterState[1];
+
+    var _keywordState = useState('');
+    var keyword = _keywordState[0];
+    var setKeyword = _keywordState[1];
+
+    var _selectedState = useState([]);
+    var selectedRowKeys = _selectedState[0];
+    var setSelectedRowKeys = _selectedState[1];
+
+    var _pageState = useState(1);
+    var currentPage = _pageState[0];
+    var setCurrentPage = _pageState[1];
+
+    // Drawer state
+    var _drawerOpenState = useState(false);
+    var drawerOpen = _drawerOpenState[0];
+    var setDrawerOpen = _drawerOpenState[1];
+
+    var _editingTaskState = useState(null);
+    var editingTask = _editingTaskState[0];
+    var setEditingTask = _editingTaskState[1];
+
+    // Form fields
+    var _formMeetingNameState = useState('');
+    var formMeetingName = _formMeetingNameState[0];
+    var setFormMeetingName = _formMeetingNameState[1];
+
+    var _formMeetingDateState = useState(null);
+    var formMeetingDate = _formMeetingDateState[0];
+    var setFormMeetingDate = _formMeetingDateState[1];
+
+    var _formRecorderState = useState('运营管理员');
+    var formRecorder = _formRecorderState[0];
+    var setFormRecorder = _formRecorderState[1];
+
+    var _formDescState = useState('');
+    var formDesc = _formDescState[0];
+    var setFormDesc = _formDescState[1];
+
+    var _formPriorityState = useState('normal');
+    var formPriority = _formPriorityState[0];
+    var setFormPriority = _formPriorityState[1];
+
+    var _formDeadlineState = useState(null);
+    var formDeadline = _formDeadlineState[0];
+    var setFormDeadline = _formDeadlineState[1];
+
+    var _formAssigneesState = useState([]);
+    var formAssignees = _formAssigneesState[0];
+    var setFormAssignees = _formAssigneesState[1];
+
+    // Urge modal
+    var _urgeModalOpenState = useState(false);
+    var urgeModalOpen = _urgeModalOpenState[0];
+    var setUrgeModalOpen = _urgeModalOpenState[1];
+
+    var _urgeTargetState = useState(null);
+    var urgeTarget = _urgeTargetState[0];
+    var setUrgeTarget = _urgeTargetState[1];
+
+    // Cancel modal
+    var _cancelModalOpenState = useState(false);
+    var cancelModalOpen = _cancelModalOpenState[0];
+    var setCancelModalOpen = _cancelModalOpenState[1];
+
+    var _cancelTargetState = useState(null);
+    var cancelTarget = _cancelTargetState[0];
+    var setCancelTarget = _cancelTargetState[1];
+
+    var nextIdRef = useRef(13);
+
+    // Filtered data
+    var filtered = useMemo(function() {
+      return taskData.filter(function(t) {
+        if (statusFilter && t.status !== statusFilter) return false;
+        if (priorityFilter && t.priority !== priorityFilter) return false;
+        if (dateRange && dateRange[0] && dateRange[1]) {
+          var d = dayjs(t.meetingDate);
+          if (d.isBefore(dayjs(dateRange[0]), 'day') || d.isAfter(dayjs(dateRange[1]), 'day')) return false;
+        }
+        if (assigneeFilter && assigneeFilter.length > 0) {
+          var hasMatch = assigneeFilter.some(function(af) { return t.assignees.indexOf(af) >= 0; });
+          if (!hasMatch) return false;
+        }
+        if (keyword) {
+          var kw = keyword.toLowerCase();
+          if (t.meetingName.toLowerCase().indexOf(kw) === -1 && t.description.toLowerCase().indexOf(kw) === -1 && t.recorder.toLowerCase().indexOf(kw) === -1) return false;
+        }
+        return true;
+      });
+    }, [taskData, statusFilter, priorityFilter, dateRange, assigneeFilter, keyword]);
+
+    // Reset form
+    var resetForm = function() {
+      setFormMeetingName('');
+      setFormMeetingDate(null);
+      setFormRecorder('运营管理员');
+      setFormDesc('');
+      setFormPriority('normal');
+      setFormDeadline(null);
+      setFormAssignees([]);
+    };
+
+    // Open create drawer
+    var openCreateDrawer = function() {
+      setEditingTask(null);
+      resetForm();
+      setDrawerOpen(true);
+    };
+
+    // Open edit drawer
+    var openEditDrawer = function(task) {
+      setEditingTask(task);
+      setFormMeetingName(task.meetingName);
+      setFormMeetingDate(dayjs(task.meetingDate));
+      setFormRecorder(task.recorder);
+      setFormDesc(task.description);
+      setFormPriority(task.priority);
+      setFormDeadline(dayjs(task.deadline));
+      setFormAssignees(task.assignees.slice());
+      setDrawerOpen(true);
+    };
+
+    // Submit form
+    var handleSubmit = function() {
+      if (!formMeetingName.trim()) { message.warning('请输入会议名称'); return; }
+      if (!formMeetingDate) { message.warning('请选择会议日期'); return; }
+      if (!formDesc.trim()) { message.warning('请输入任务描述'); return; }
+      if (!formDeadline) { message.warning('请选择截止日期'); return; }
+      if (formAssignees.length === 0) { message.warning('请选择执行人'); return; }
+
+      if (editingTask) {
+        setTaskData(function(prev) {
+          return prev.map(function(t) {
+            if (t.id === editingTask.id) {
+              return Object.assign({}, t, {
+                meetingName: formMeetingName.trim(),
+                meetingDate: formMeetingDate.format('YYYY-MM-DD'),
+                recorder: formRecorder.trim(),
+                description: formDesc.trim(),
+                priority: formPriority,
+                deadline: formDeadline.format('YYYY-MM-DD'),
+                assignees: formAssignees.slice()
+              });
+            }
+            return t;
+          });
+        });
+        message.success('任务已更新');
+      } else {
+        var newTask = {
+          id: 'TASK-' + String(nextIdRef.current).padStart(3, '0'),
+          meetingName: formMeetingName.trim(),
+          meetingDate: formMeetingDate.format('YYYY-MM-DD'),
+          recorder: formRecorder.trim(),
+          description: formDesc.trim(),
+          priority: formPriority,
+          deadline: formDeadline.format('YYYY-MM-DD'),
+          assignees: formAssignees.slice(),
+          status: 'pending',
+          transferHistory: [],
+          createdAt: dayjs().format('YYYY-MM-DD')
+        };
+        nextIdRef.current++;
+        setTaskData(function(prev) { return [newTask].concat(prev); });
+        message.success('任务已创建并下发给执行人');
+      }
+      setDrawerOpen(false);
+      setEditingTask(null);
+    };
+
+    // Urge
+    var openUrgeModal = function(task) {
+      setUrgeTarget(task);
+      setUrgeModalOpen(true);
+    };
+
+    var confirmUrge = function() {
+      var names = urgeTarget.assignees.map(function(uid) { return getUserName(uid); }).join('、');
+      message.success('已向 ' + names + ' 发送催办提醒通知');
+      setUrgeModalOpen(false);
+      setUrgeTarget(null);
+    };
+
+    // Cancel
+    var openCancelModal = function(task) {
+      setCancelTarget(task);
+      setCancelModalOpen(true);
+    };
+
+    var confirmCancel = function() {
+      setTaskData(function(prev) {
+        return prev.map(function(t) {
+          if (t.id === cancelTarget.id) {
+            return Object.assign({}, t, { status: 'cancelled' });
+          }
+          return t;
+        });
+      });
+      message.success('任务已作废');
+      setCancelModalOpen(false);
+      setCancelTarget(null);
+    };
+
+    // Table columns
+    var columns = [
+      { title: '编号', dataIndex: 'id', key: 'id', width: 100 },
+      { title: '会议名称', dataIndex: 'meetingName', key: 'meetingName', width: 200, ellipsis: true,
+        render: function(t) { return React.createElement(Tooltip, { title: t }, React.createElement(Text, { strong: true }, t)); }
+      },
+      { title: '会议日期', dataIndex: 'meetingDate', key: 'meetingDate', width: 110, sorter: function(a, b) { return dayjs(a.meetingDate).unix() - dayjs(b.meetingDate).unix(); } },
+      { title: '记录人', dataIndex: 'recorder', key: 'recorder', width: 100 },
+      { title: '任务描述', dataIndex: 'description', key: 'description', ellipsis: true,
+        render: function(t) { return React.createElement(Tooltip, { title: t }, React.createElement(Text, null, t)); }
+      },
+      { title: '优先级', dataIndex: 'priority', key: 'priority', width: 80,
+        render: function(v) { return React.createElement(Tag, { color: PRIORITY_COLORS[v] }, PRIORITY_LABELS[v]); }
+      },
+      { title: '截止日期', dataIndex: 'deadline', key: 'deadline', width: 110, sorter: function(a, b) { return dayjs(a.deadline).unix() - dayjs(b.deadline).unix(); },
+        render: function(d, r) {
+          var overdue = isOverdue(r);
+          return React.createElement('span', { style: { color: overdue ? '#ff4d4f' : '#333', fontWeight: overdue ? 600 : 400 } },
+            d,
+            overdue ? React.createElement('span', { className: 'overdue-badge', style: { marginLeft: 4, fontSize: 11, color: '#ff4d4f' } }, '超期') : null
+          );
+        }
+      },
+      { title: '执行人', dataIndex: 'assignees', key: 'assignees', width: 180,
+        render: function(arr) {
+          return React.createElement(Space, { wrap: true, size: [2, 2] },
+            arr.map(function(uid) {
+              return React.createElement(Tag, { key: uid, color: 'blue', style: { margin: 0 } }, getUserName(uid));
+            })
+          );
+        }
+      },
+      { title: '状态', dataIndex: 'status', key: 'status', width: 90,
+        render: function(v) { return React.createElement(Tag, { color: STATUS_COLORS[v] }, STATUS_LABELS[v]); }
+      },
+      { title: '操作', key: 'action', width: 160,
+        render: function(_, r) {
+          var items = [];
+          if (r.status !== 'cancelled' && r.status !== 'completed') {
+            items.push({ key: 'edit', label: '编辑', icon: React.createElement('i', { className: 'ti ti-edit', style: { fontSize: 16 } }), onClick: function() { openEditDrawer(r); } });
+            items.push({ key: 'urge', label: '催办', icon: React.createElement('i', { className: 'ti ti-bell-ringing', style: { fontSize: 16 } }), onClick: function() { openUrgeModal(r); } });
+            if (r.status !== 'transferred') {
+              items.push({ key: 'cancel', label: '作废', icon: React.createElement('i', { className: 'ti ti-trash', style: { fontSize: 16 } }), danger: true, onClick: function() { openCancelModal(r); } });
+            }
+          }
+          if (items.length === 0) {
+            return React.createElement(Text, { type: 'secondary' }, '--');
+          }
+          return React.createElement(Dropdown, { menu: { items: items }, trigger: ['click'] },
+            React.createElement(Button, { type: 'link', size: 'small' }, '操作', React.createElement('i', { className: 'ti ti-chevron-down', style: { fontSize: 12, marginLeft: 4 } }))
+          );
+        }
+      }
+    ];
+
+    return React.createElement('div', { className: 'page-container' },
+      React.createElement(Title, { level: 4, style: { marginBottom: 16 } },
+        React.createElement('i', { className: 'ti ti-clipboard-list', style: { marginRight: 8, fontSize: 18 } }),
+        '会议任务管理'
+      ),
+      React.createElement('div', { style: { marginBottom: 16 } },
+        React.createElement(Button, { type: 'primary', size: 'large', icon: React.createElement('i', { className: 'ti ti-stack-2', style: { fontSize: 20 } }), onClick: function() { window.location.href = 'PAGE-PC-23_批量发布任务.html'; } }, '批量发布任务'),
+        React.createElement(Text, { type: 'secondary', style: { marginLeft: 12, fontSize: 13 } }, '从会议记录中批量创建行动项，统一下发执行人')
+      ),
+
+      /* Filter bar */
+      React.createElement('div', { className: 'filter-bar' },
+        React.createElement(Input.Search, { placeholder: '搜索会议名称/任务描述', allowClear: true, style: { width: 240 }, value: keyword, onChange: function(e) { setKeyword(e.target.value); setCurrentPage(1); } }),
+        React.createElement(Select, { placeholder: '任务状态', allowClear: true, style: { width: 130 }, value: statusFilter, onChange: function(v) { setStatusFilter(v || null); setCurrentPage(1); },
+          options: [
+            { value: 'pending', label: '待处理' }, { value: 'processing', label: '处理中' },
+            { value: 'completed', label: '已完成' }, { value: 'transferred', label: '已转交' },
+            { value: 'cancelled', label: '已作废' }
+          ]
+        }),
+        React.createElement(Select, { placeholder: '优先级', allowClear: true, style: { width: 110 }, value: priorityFilter, onChange: function(v) { setPriorityFilter(v || null); setCurrentPage(1); },
+          options: [
+            { value: 'critical', label: '特急' }, { value: 'urgent', label: '紧急' }, { value: 'normal', label: '普通' }
+          ]
+        }),
+        React.createElement(RangePicker, { placeholder: ['会议日期起', '会议日期止'], style: { width: 240 }, value: dateRange, onChange: function(dates) { setDateRange(dates); setCurrentPage(1); } }),
+        React.createElement(Select, { mode: 'multiple', placeholder: '执行人筛选', allowClear: true, style: { width: 200 }, value: assigneeFilter, onChange: function(v) { setAssigneeFilter(v || null); setCurrentPage(1); }, maxTagCount: 1,
+          options: SALES_USERS.map(function(u) { return { value: u.id, label: u.name + ' (' + u.dept + ')' }; })
+        }),
+        React.createElement('div', { className: 'filter-right' },
+          React.createElement(Button, { icon: React.createElement('i', { className: 'ti ti-stack-2', style: { fontSize: 18 } }), onClick: function() { window.location.href = 'PAGE-PC-23_批量发布任务.html'; } }, '批量发布'),
+          React.createElement(Button, { type: 'primary', icon: React.createElement('i', { className: 'ti ti-plus', style: { fontSize: 18 } }), onClick: openCreateDrawer }, '新建会议任务')
+        )
+      ),
+
+      /* Table */
+      filtered.length === 0
+        ? React.createElement(Empty, { description: '暂无匹配的任务记录', image: Empty.PRESENTED_IMAGE_SIMPLE, style: { padding: 60 } })
+        : React.createElement(Table, {
+            columns: columns,
+            dataSource: filtered,
+            rowKey: 'id',
+            rowClassName: function(r) { return isOverdue(r) ? 'overdue-row' : ''; },
+            rowSelection: { selectedRowKeys: selectedRowKeys, onChange: function(keys) { setSelectedRowKeys(keys); } },
+            pagination: { current: currentPage, pageSize: 10, onChange: setCurrentPage, showSizeChanger: true, showQuickJumper: true, showTotal: function(t) { return '共 ' + t + ' 条任务'; } },
+            size: 'middle',
+            scroll: { x: 1300 }
+          }),
+
+      /* Batch bar */
+      selectedRowKeys.length > 0 && React.createElement('div', { className: 'batch-bar' },
+        React.createElement('span', null, '已选 ', React.createElement('span', { className: 'count' }, selectedRowKeys.length), ' 项'),
+        React.createElement(Button, { type: 'primary', size: 'small', icon: React.createElement('i', { className: 'ti ti-bell-ringing', style: { fontSize: 16 } }),
+          onClick: function() {
+            var targets = taskData.filter(function(t) { return selectedRowKeys.indexOf(t.id) >= 0 && t.status !== 'completed' && t.status !== 'cancelled'; });
+            if (targets.length === 0) { message.info('选中的任务无需催办'); return; }
+            var names = [];
+            targets.forEach(function(t) { t.assignees.forEach(function(a) { if (names.indexOf(a) === -1) names.push(a); }); });
+            message.success('已向 ' + names.length + ' 位执行人批量发送催办提醒');
+            setSelectedRowKeys([]);
+          }
+        }, '批量催办'),
+        React.createElement(Button, { size: 'small', onClick: function() { setSelectedRowKeys([]); } }, '取消选择')
+      ),
+
+      /* CREATE/EDIT DRAWER */
+      React.createElement(Drawer, {
+        title: editingTask ? '编辑会议任务' : '新建会议任务',
+        width: 520,
+        open: drawerOpen,
+        onClose: function() { setDrawerOpen(false); setEditingTask(null); },
+        extra: React.createElement(Space, null,
+          React.createElement(Button, { onClick: function() { setDrawerOpen(false); setEditingTask(null); } }, '取消'),
+          React.createElement(Button, { type: 'primary', onClick: handleSubmit }, editingTask ? '保存修改' : '创建并下发')
+        )
+      },
+        React.createElement('div', { className: 'drawer-field' },
+          React.createElement('label', null, '会议名称'),
+          React.createElement(Input, { placeholder: '如：2026Q3华东区QBR复盘会', value: formMeetingName, onChange: function(e) { setFormMeetingName(e.target.value); } })
+        ),
+        React.createElement('div', { className: 'drawer-field' },
+          React.createElement('label', null, '会议日期'),
+          React.createElement(DatePicker, { placeholder: '选择会议日期', style: { width: '100%' }, value: formMeetingDate, onChange: setFormMeetingDate })
+        ),
+        React.createElement('div', { className: 'drawer-field' },
+          React.createElement('label', null, '记录人'),
+          React.createElement(Input, { placeholder: '记录人姓名', value: formRecorder, onChange: function(e) { setFormRecorder(e.target.value); } }),
+          React.createElement('span', { className: 'hint' }, '默认为当前登录用户')
+        ),
+        React.createElement('div', { className: 'drawer-field' },
+          React.createElement('label', null, '任务描述'),
+          React.createElement(TextArea, { rows: 4, placeholder: '描述会议中产生的具体行动项...', value: formDesc, onChange: function(e) { setFormDesc(e.target.value); }, maxLength: 500, showCount: true })
+        ),
+        React.createElement('div', { className: 'drawer-field' },
+          React.createElement('label', null, '优先级'),
+          React.createElement(Segmented, { value: formPriority, onChange: setFormPriority, options: [
+            { label: '普通', value: 'normal' },
+            { label: '紧急', value: 'urgent' },
+            { label: '特急', value: 'critical' }
+          ]})
+        ),
+        React.createElement('div', { className: 'drawer-field' },
+          React.createElement('label', null, '截止日期'),
+          React.createElement(DatePicker, { placeholder: '选择截止日期', style: { width: '100%' }, value: formDeadline, onChange: setFormDeadline })
+        ),
+        React.createElement('div', { className: 'drawer-field' },
+          React.createElement('label', null, '执行人'),
+          React.createElement(Select, {
+            mode: 'multiple',
+            placeholder: '选择执行人（可多选）',
+            style: { width: '100%' },
+            value: formAssignees,
+            onChange: setFormAssignees,
+            options: SALES_USERS.map(function(u) { return { value: u.id, label: u.name + ' · ' + u.dept }; }),
+            filterOption: function(input, option) { return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0; }
+          }),
+          React.createElement('span', { className: 'hint' }, '任务将分别下发给每位执行人')
+        )
+      ),
+
+      /* URGE MODAL */
+      urgeModalOpen && urgeTarget && React.createElement(Modal, {
+        title: React.createElement('span', null,
+          React.createElement('i', { className: 'ti ti-bell-ringing', style: { marginRight: 8, fontSize: 18, color: '#fa8c16' } }),
+          '催办任务'
+        ),
+        open: true,
+        width: 480,
+        onCancel: function() { setUrgeModalOpen(false); setUrgeTarget(null); },
+        footer: React.createElement(Space, null,
+          React.createElement(Button, { onClick: function() { setUrgeModalOpen(false); setUrgeTarget(null); } }, '取消'),
+          React.createElement(Button, { type: 'primary', onClick: confirmUrge, icon: React.createElement('i', { className: 'ti ti-send', style: { fontSize: 16 } }) }, '发送催办通知')
+        )
+      },
+        React.createElement('div', { style: { marginBottom: 16 } },
+          React.createElement(Text, { type: 'secondary' }, '任务编号：'), React.createElement(Text, { strong: true }, ' ' + urgeTarget.id)
+        ),
+        React.createElement('div', { style: { marginBottom: 12 } },
+          React.createElement(Text, { type: 'secondary' }, '任务描述：'), React.createElement(Text, null, ' ' + urgeTarget.description)
+        ),
+        React.createElement('div', { style: { marginBottom: 16 } },
+          React.createElement(Text, { type: 'secondary' }, '当前状态：'),
+          React.createElement(Tag, { color: STATUS_COLORS[urgeTarget.status], style: { marginLeft: 4 } }, STATUS_LABELS[urgeTarget.status])
+        ),
+        React.createElement('div', { style: { marginBottom: 20 } },
+          React.createElement(Text, { type: 'secondary' }, '执行人：'),
+          urgeTarget.assignees.map(function(uid) {
+            return React.createElement(Tag, { key: uid, color: 'blue', style: { marginLeft: 4 } }, getUserName(uid));
+          })
+        ),
+        React.createElement('div', { style: { padding: '12px 16px', background: '#fffbe6', border: '1px solid #ffe58f', borderRadius: 8, fontSize: 13, color: '#595959' } },
+          React.createElement('i', { className: 'ti ti-info-circle', style: { marginRight: 6, color: '#faad14' } }),
+          '确认后将通过站内通知提醒执行人，并附带截止日期提醒。已超期的任务将显示红色标记。'
+        )
+      ),
+
+      /* CANCEL MODAL */
+      cancelModalOpen && cancelTarget && React.createElement(Modal, {
+        title: React.createElement('span', null,
+          React.createElement('i', { className: 'ti ti-alert-triangle', style: { marginRight: 8, fontSize: 18, color: '#ff4d4f' } }),
+          '确认作废任务'
+        ),
+        open: true,
+        width: 440,
+        onCancel: function() { setCancelModalOpen(false); setCancelTarget(null); },
+        footer: React.createElement(Space, null,
+          React.createElement(Button, { onClick: function() { setCancelModalOpen(false); setCancelTarget(null); } }, '取消'),
+          React.createElement(Button, { type: 'primary', danger: true, onClick: confirmCancel }, '确认作废')
+        )
+      },
+        React.createElement(Text, null, '确认要作废以下任务吗？作废后执行人将无法继续处理。'),
+        React.createElement('div', { style: { marginTop: 12, padding: '10px 14px', background: '#fafafa', borderRadius: 8 } },
+          React.createElement('div', { style: { marginBottom: 4 } }, React.createElement(Text, { strong: true }, cancelTarget.id), ' ', React.createElement(Text, { type: 'secondary' }, cancelTarget.meetingName)),
+          React.createElement(Text, null, cancelTarget.description)
+        ),
+        React.createElement('div', { style: { marginTop: 12, color: '#ff4d4f', fontSize: 12 } },
+          React.createElement('i', { className: 'ti ti-alert-circle', style: { marginRight: 4 } }),
+          '此操作不可撤销'
+        )
+      )
+    );
+  };
+
+  window.PROTO_SHELL && window.PROTO_SHELL.renderShell('meeting-task-mgmt');
+  if (window.DataTracker) { window.DataTracker.trackPageView('meeting-task-mgmt', '会议任务管理'); }
+  var container = document.getElementById('proto-content') || document.getElementById('root');
+  ReactDOM.createRoot(container).render(React.createElement(MeetingTaskPage));
+})();
+</script>
+</body>
+</html>

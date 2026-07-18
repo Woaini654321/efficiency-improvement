@@ -1,0 +1,293 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>查方案 - Quectel商机互助平台</title>
+  <script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+  <script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="prototype-shell.js"></script>
+  <script src="data-tracker.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.15); } }
+
+    .opp-card {
+      background: #fff; border-radius: 16px; overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1); cursor: pointer;
+      border: 1px solid #f0f0f0; animation: fadeIn 0.5s ease both;
+    }
+    .opp-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(0,0,0,0.12); border-color: #1890ff; }
+    .opp-card .card-cover {
+      height: 140px; position: relative; overflow: hidden;
+    }
+    .opp-card .card-cover img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .opp-card:hover .card-cover img { transform: scale(1.05); }
+    .social-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 20px; font-size: 13px;
+      color: #8c8c8c; cursor: pointer; transition: all 0.2s;
+      background: transparent; border: none;
+    }
+    .social-btn:hover { color: #1890ff; background: rgba(24,144,255,0.06); }
+    .social-btn.active { color: #1890ff; }
+
+    .list-row {
+      background: #fff; border-radius: 12px; padding: 16px 20px;
+      display: flex; align-items: center; gap: 16px;
+      transition: all 0.25s; cursor: pointer; border: 1px solid #f0f0f0;
+      margin-bottom: 12px; animation: fadeIn 0.4s ease both;
+    }
+    .list-row:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-color: #1890ff; transform: translateX(4px); }
+
+    .filter-bar {
+      background: #fff; border-radius: 16px; padding: 16px 20px;
+      margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+
+    .opp-card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    @media (max-width: 1200px) { .opp-card-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) { .opp-card-grid { grid-template-columns: 1fr; } .filter-bar { flex-direction: column; align-items: stretch; } }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+(function(){
+  const { useState, useEffect, useMemo } = React;
+  const { Button, Tag, Input, Spin, Empty, Cascader, Select, Segmented, Pagination, DatePicker } = antd;
+  const { RangePicker } = DatePicker;
+
+  const TYPE_LABELS = { product_info: '产品信息', solution: '解决方案', success_case: '成功案例' };
+  const TYPE_COLORS = { product_info: 'blue', solution: 'green', success_case: 'orange' };
+
+  // Mock：36条方案
+  const MOCK_DATA = (function() {
+    var types = ['product_info','solution','success_case'];
+    var titles = ['EC200A Cat.1模组低功耗方案','RG500Q 5G模组车载集成方案','BC260Y NB-IoT智慧表计案例','AG525R 车载前装解决方案','EC800M Cat.1 DTU行业应用','SC66 智能模组Android方案','RG200U Cat.1bis模组产品手册','FC41D Wi-Fi&BLE双模方案','EG912Y Cat.4模组海外部署案例','BG95-M3 多模LPWA全球方案','LC29H GNSS双频定位方案','SG865W-WF 5G+WiFi6方案'];
+    var pubs = ['Tony.Zhang 张伟','Nina.Li 李娜','Kevin.Wang 王强','Yan.Chen 陈燕','Leo.Zhao 赵磊','Owen.Liu 刘洋'];
+    var cats = [['Cat.1模组','IoT模组'],['5G模组','车载方案'],['NB-IoT模组','智慧表计'],['车载方案'],['Cat.1模组','IoT模组','行业方案'],['智能模组']];
+    var arr = [];
+    for (var i=0; i<36; i++) {
+      var tp = types[i%3]; var d = new Date(); d.setDate(d.getDate()-Math.floor(Math.random()*30));
+      arr.push({ id:'OPP-'+String(i+1).padStart(4,'0'), title:titles[i%titles.length], summary:'本方案详细介绍了'+titles[i%titles.length]+'的技术特性、应用场景及客户收益。', type:tp, categories:cats[i%cats.length], publisher:pubs[i%pubs.length], date:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'), view_count:Math.floor(Math.random()*3000)+100, like_count:Math.floor(Math.random()*200)+10, collect_count:Math.floor(Math.random()*80)+5, comment_count:Math.floor(Math.random()*30)+2, pinned:i<2, daysAgo:Math.floor(Math.random()*30) });
+    }
+    return arr;
+  })();
+
+  const CATEGORIES = [
+    { value:'iot-module', label:'IoT模组', children:[
+      { value:'cat1', label:'Cat.1模组' }, { value:'4g-module', label:'4G模组' }, { value:'5g-module', label:'5G模组' }, { value:'nb-iot', label:'NB-IoT模组' }
+    ]},
+    { value:'antenna', label:'天线产品', children:[
+      { value:'gnss', label:'GNSS天线' }, { value:'lte', label:'LTE天线' }, { value:'wifi-ant', label:'WiFi天线' }
+    ]},
+    { value:'industry-sol', label:'行业方案', children:[
+      { value:'automotive', label:'车载方案' }, { value:'smart-meter', label:'智慧表计' }, { value:'pos', label:'支付POS' }
+    ]}
+  ];
+  const TYPE_OPTIONS = [{ value:'', label:'全部类型' },{ value:'product_info', label:'产品信息' },{ value:'solution', label:'解决方案' },{ value:'success_case', label:'成功案例' }];
+  const SORT_OPTIONS = [{ value:'latest', label:'最新发布' },{ value:'hottest', label:'最热门' },{ value:'most_liked', label:'最多点赞' }];
+
+  function formatCount(n) { return n >= 10000 ? (n/10000).toFixed(1)+'w' : n >= 1000 ? (n/1000).toFixed(1)+'k' : String(n); }
+  function timeAgo(dateStr) {
+    var d = new Date(dateStr); var now = new Date();
+    var diff = Math.floor((now - d) / (1000*60*60*24));
+    if (diff === 0) return '今天'; if (diff === 1) return '昨天';
+    if (diff < 7) return diff+'天前'; if (diff < 30) return Math.floor(diff/7)+'周前';
+    return Math.floor(diff/30)+'个月前';
+  }
+
+  var COVER_IMAGES = [
+    'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=200&fit=crop',
+    'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=200&fit=crop',
+    'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop',
+    'https://images.unsplash.com/photo-1535223289827-42f1e9919769?w=400&h=200&fit=crop',
+    'https://images.unsplash.com/photo-1563770660941-20978e870e26?w=400&h=200&fit=crop',
+    'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=200&fit=crop',
+    'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&h=200&fit=crop',
+    'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=400&h=200&fit=crop'
+  ];
+  var AVATAR_COLORS = ['#1890ff','#52c41a','#fa8c16','#722ed1','#eb2f96','#13c2c2','#faad14','#2f54eb'];
+  var STAT_COLORS = [
+    { icon:'ti-database', label:'全部方案', bg:'#f0f5ff', color:'#1677ff' },
+    { icon:'ti-rocket', label:'解决方案', bg:'#f6ffed', color:'#52c41a' },
+    { icon:'ti-flame', label:'成功案例', bg:'#fff7e6', color:'#fa541c' },
+    { icon:'ti-clock', label:'今日新增', bg:'#f9f0ff', color:'#722ed1' }
+  ];
+
+  function OppCard({ item, index }) {
+    var coverUrl = COVER_IMAGES[(index + item.id.length) % COVER_IMAGES.length];
+    var avatarColor = AVATAR_COLORS[(index + item.id.length) % AVATAR_COLORS.length];
+    return React.createElement('div', { className:'opp-card', style:{animationDelay:index*0.05+'s'}, onClick:function(){ window.location.href='PAGE-PC-02_商机详情页.html?id='+item.id; } },
+      React.createElement('div', { className:'card-cover' },
+        React.createElement('img', { src:coverUrl, alt:'', style:{width:'100%',height:'100%',objectFit:'cover',transition:'transform 0.5s ease'},
+          onError: function(e) { e.target.style.display='none'; }
+        }),
+        React.createElement('div', { style:{position:'absolute',top:10,left:10,display:'flex',gap:6} },
+          item.pinned && React.createElement(Tag, { color:'#ff4d4f',style:{borderRadius:6,border:'none',fontWeight:600} },'置顶'),
+          React.createElement(Tag, { color:TYPE_COLORS[item.type],style:{borderRadius:6,border:'none'} },TYPE_LABELS[item.type])
+        ),
+        React.createElement('div', { style:{position:'absolute',top:10,right:10,background:'rgba(0,0,0,0.5)',color:'#fff',borderRadius:12,padding:'2px 8px',fontSize:11,display:'flex',alignItems:'center',gap:4} },
+          React.createElement('i',{className:'ti ti-eye',style:{fontSize:12}}),formatCount(item.view_count)
+        )
+      ),
+      React.createElement('div', { style:{padding:'14px 16px'} },
+        React.createElement('div', { style:{fontSize:15,fontWeight:600,color:'#1a1a2e',marginBottom:8,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'} },item.title),
+        React.createElement('div', { style:{fontSize:12,color:'#8c8c8c',marginBottom:10,display:'-webkit-box',WebkitLineClamp:'2',WebkitBoxOrient:'vertical',overflow:'hidden',lineHeight:1.6,minHeight:38} },item.summary),
+        React.createElement('div', { style:{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap',marginBottom:10} },
+          item.categories.slice(0,3).map(function(c){ return React.createElement(Tag,{key:c,style:{borderRadius:6,fontSize:10,border:'none',background:'#f5f5f5',color:'#595959'}},c); })
+        ),
+        React.createElement('div', { style:{display:'flex',alignItems:'center',justifyContent:'space-between'} },
+          React.createElement('div', { style:{display:'flex',alignItems:'center',gap:8} },
+            React.createElement('div',{style:{width:24,height:24,borderRadius:'50%',background:avatarColor,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:11,fontWeight:600}},item.publisher.charAt(0)),
+            React.createElement('span',{style:{fontSize:12,color:'#8c8c8c'}},item.publisher),React.createElement('span',{style:{fontSize:11,color:'#bfbfbf'}},timeAgo(item.date))
+          ),
+          React.createElement('div',{style:{display:'flex',gap:4}},
+            React.createElement('button',{className:'social-btn',onClick:function(e){e.stopPropagation();}},React.createElement('i',{className:'ti ti-heart',style:{fontSize:14}}),formatCount(item.like_count)),
+            React.createElement('button',{className:'social-btn',onClick:function(e){e.stopPropagation();}},React.createElement('i',{className:'ti ti-star',style:{fontSize:14}}),formatCount(item.collect_count)),
+            React.createElement('button',{className:'social-btn',onClick:function(e){e.stopPropagation();}},React.createElement('i',{className:'ti ti-message-circle',style:{fontSize:14}}),formatCount(item.comment_count))
+          )
+        )
+      )
+    );
+  }
+
+  function OppRow({ item, index }) {
+    var coverUrl = COVER_IMAGES[(index + item.id.length) % COVER_IMAGES.length];
+    return React.createElement('div',{className:'list-row',style:{animationDelay:index*0.03+'s'},onClick:function(){window.location.href='PAGE-PC-02_商机详情页.html?id='+item.id;}},
+      React.createElement('div',{style:{width:80,height:56,borderRadius:8,flexShrink:0,overflow:'hidden'}},
+        React.createElement('img',{src:coverUrl,alt:'',style:{width:'100%',height:'100%',objectFit:'cover'},
+          onError:function(e){e.target.style.display='none'}
+        })
+      ),
+      React.createElement('div',{style:{flex:1,minWidth:0}},
+        React.createElement('div',{style:{display:'flex',alignItems:'center',gap:8,marginBottom:4}},
+          item.pinned && React.createElement(Tag,{color:'error',style:{borderRadius:6,border:'none',fontSize:10}},'置顶'),
+          React.createElement(Tag,{color:TYPE_COLORS[item.type],style:{borderRadius:6,border:'none',fontSize:10}},TYPE_LABELS[item.type]),
+          React.createElement('span',{style:{fontSize:14,fontWeight:600,color:'#1a1a2e',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},item.title)
+        ),
+        React.createElement('div',{style:{fontSize:12,color:'#8c8c8c',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',marginBottom:4}},item.summary)
+      ),
+      React.createElement('div',{style:{display:'flex',alignItems:'center',gap:16,fontSize:12,color:'#bfbfbf',flexShrink:0}},
+        React.createElement('span',null,React.createElement('i',{className:'ti ti-eye',style:{fontSize:12,marginRight:2}}),formatCount(item.view_count)),
+        React.createElement('span',null,React.createElement('i',{className:'ti ti-heart',style:{fontSize:12,marginRight:2}}),formatCount(item.like_count)),
+        React.createElement('span',null,React.createElement('i',{className:'ti ti-message-circle',style:{fontSize:12,marginRight:2}}),formatCount(item.comment_count)),
+        React.createElement('span',null,item.publisher),React.createElement('span',null,timeAgo(item.date))
+      )
+    );
+  }
+  function SearchSolutionPage() {
+    const [categoryFilter, setCategoryFilter] = useState([]);
+    const [typeFilter, setTypeFilter] = useState('');
+    const [sortBy, setSortBy] = useState('latest');
+    const [searchKey, setSearchKey] = useState('');
+    const [viewMode, setViewMode] = useState('card');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(12);
+    const [loading, setLoading] = useState(false);
+
+    const filtered = useMemo(function() {
+      var list = MOCK_DATA.slice();
+      if (typeFilter) list = list.filter(function(d) { return d.type === typeFilter; });
+      if (searchKey) {
+        var kw = searchKey.toLowerCase();
+        list = list.filter(function(d) { return d.title.toLowerCase().indexOf(kw)>=0 || d.summary.toLowerCase().indexOf(kw)>=0; });
+      }
+      if (sortBy==='latest') list.sort(function(a,b){ return a.daysAgo - b.daysAgo; });
+      else if (sortBy==='hottest') list.sort(function(a,b){ return b.view_count - a.view_count; });
+      else list.sort(function(a,b){ return b.like_count - a.like_count; });
+      return list.sort(function(a,b) { return (b.pinned?1:0) - (a.pinned?1:0); });
+    }, [typeFilter, searchKey, sortBy]);
+
+    var paged = filtered.slice((currentPage-1)*pageSize, currentPage*pageSize);
+
+    var handleFilterChange = function() { setCurrentPage(1); setLoading(true); setTimeout(function(){setLoading(false);},300); };
+
+    var stats = [
+      { icon:'ti-database', label:'全部方案', value:MOCK_DATA.length, bg:'#f0f5ff', color:'#1677ff' },
+      { icon:'ti-rocket', label:'解决方案', value:MOCK_DATA.filter(function(d){return d.type==='solution';}).length, bg:'#f6ffed', color:'#52c41a' },
+      { icon:'ti-flame', label:'成功案例', value:MOCK_DATA.filter(function(d){return d.type==='success_case';}).length, bg:'#fff7e6', color:'#fa541c' },
+      { icon:'ti-clock', label:'今日新增', value:MOCK_DATA.filter(function(d){return d.daysAgo===0;}).length, bg:'#f9f0ff', color:'#722ed1' }
+    ];
+
+    return React.createElement('div', { style: { padding: '4px 0 40px' } },
+      // Page Title
+      React.createElement('div', { style: { marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'space-between' } },
+        React.createElement('div', null,
+          React.createElement('h2', { style: { fontSize: 22, fontWeight: 700, color: '#1a1a2e', marginBottom: 4 } }, '查方案'),
+          React.createElement('span', { style: { fontSize: 13, color: '#8c8c8c' } }, '浏览和搜索全部产品信息、解决方案和成功案例')
+        ),
+        React.createElement(Button, { type: 'primary', icon: React.createElement('i', { className: 'ti ti-plus', style: { fontSize: 18 } }), style: { borderRadius: 10, fontWeight: 500 }, onClick: function() { window.location.href = 'PAGE-PC-03_创建编辑商机.html'; } }, '发布方案')
+      ),
+      // Stats
+      React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 20 } },
+        stats.map(function(s, i) {
+          return React.createElement('div', { key: i, style: { background: s.bg, borderRadius: 14, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 14, animation: 'fadeIn 0.5s ease both', animationDelay: i*0.1+'s', border:'1px solid #f0f0f0' } },
+            React.createElement('div', { style: { width: 40, height: 40, borderRadius: 10, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
+              React.createElement('i', { className: 'ti '+s.icon, style: { fontSize: 20, color: s.color } })
+            ),
+            React.createElement('div', null,
+              React.createElement('div', { style: { fontSize: 22, fontWeight: 700, color: '#1a1a2e' } }, s.value),
+              React.createElement('div', { style: { fontSize: 12, color: '#8c8c8c' } }, s.label)
+            )
+          );
+        })
+      ),
+      // Filter Bar
+      React.createElement('div', { className: 'filter-bar' },
+        React.createElement('i', { className: 'ti ti-filter', style: { color: '#bfbfbf', fontSize: 16 } }),
+        React.createElement(Cascader, { options: CATEGORIES, placeholder: '全部分类', changeOnSelect: true, allowClear: true, style: { width: 180 }, onChange: function(v) { setCategoryFilter(v||[]); handleFilterChange(); } }),
+        React.createElement(Select, { value: typeFilter, options: TYPE_OPTIONS, style: { width: 130 }, onChange: function(v) { setTypeFilter(v); handleFilterChange(); } }),
+        React.createElement(Select, { value: sortBy, options: SORT_OPTIONS, style: { width: 120 }, onChange: function(v) { setSortBy(v); handleFilterChange(); } }),
+        React.createElement('div', { style: { flex: 1 } }),
+        React.createElement(Input.Search, { placeholder: '搜索方案标题/摘要...', allowClear: true, style: { width: 260 }, onSearch: function(v) { setSearchKey(v); handleFilterChange(); }, onChange: function(e) { if (!e.target.value) { setSearchKey(''); handleFilterChange(); } } }),
+        React.createElement(Segmented, { value: viewMode, onChange: setViewMode, options: [
+          { value: 'card', icon: React.createElement('i', { className: 'ti ti-layout-grid', style: { fontSize: 18 } }) },
+          { value: 'list', icon: React.createElement('i', { className: 'ti ti-list', style: { fontSize: 18 } }) }
+        ]})
+      ),
+      // Content
+      React.createElement(Spin, { spinning: loading, tip: '加载中...' },
+        paged.length === 0
+          ? React.createElement('div', { style: { background: '#fff', borderRadius: 16, padding: '80px 0', textAlign: 'center' } },
+              React.createElement(Empty, { description: searchKey ? '未找到相关方案，换个关键词试试' : '暂无方案信息，请联系产品经理发布' }))
+          : viewMode === 'card'
+            ? React.createElement('div', { className: 'opp-card-grid' },
+                paged.map(function(item, i) { return React.createElement(OppCard, { key: item.id, item: item, index: i }); }))
+            : React.createElement('div', null,
+                paged.map(function(item, i) { return React.createElement(OppRow, { key: item.id, item: item, index: i }); }))
+      ),
+      // Pagination
+      filtered.length > 0 && React.createElement('div', { style: { display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: 24, background: '#fff', borderRadius: 12, padding: '12px 20px' } },
+        React.createElement(Pagination, {
+          current: currentPage, total: filtered.length, pageSize: pageSize,
+          showSizeChanger: true, pageSizeOptions: [12, 24, 48],
+          showTotal: function(t) { return '共 '+t+' 条'; },
+          onChange: function(p, s) { setCurrentPage(p); setPageSize(s); setLoading(true); setTimeout(function(){setLoading(false);},300); }
+        })
+      )
+    );
+  }
+
+  if (window.PROTO_SHELL && window.PROTO_SHELL.renderShell) {
+    window.PROTO_SHELL.renderShell('search-solution');
+    if (window.DataTracker) { window.DataTracker.trackPageView('search-solution', '查方案'); }
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(SearchSolutionPage, null));
+})();
+</script>
+</body>
+</html>

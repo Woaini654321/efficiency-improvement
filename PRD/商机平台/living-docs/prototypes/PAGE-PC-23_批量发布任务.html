@@ -1,0 +1,835 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>批量发布任务 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+.page-container { padding: 24px; }
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+.steps-card { background: #fff; border-radius: 14px; padding: 24px; margin-bottom: 20px; border: 1px solid #f0f0f0; }
+.steps-card h4 { font-size: 15px; font-weight: 600; color: #1a1a2e; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.steps-card .subtitle { font-size: 12px; color: #8c8c8c; margin-bottom: 18px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 0; }
+.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 0; }
+.task-row { display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; background: #fafbfc; border-radius: 10px; margin-bottom: 10px; border: 1px solid #f0f0f0; transition: all 0.2s; }
+.task-row:hover { border-color: #d9d9d9; background: #f5f7fa; }
+.task-row-index { width: 28px; height: 28px; border-radius: 50%; background: #e6f7ff; color: #1890ff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 4px; }
+.task-row-fields { flex: 1; display: grid; grid-template-columns: 1fr 100px 120px 200px; gap: 10px; align-items: start; }
+.task-row-actions { display: flex; gap: 4px; flex-shrink: 0; margin-top: 2px; }
+.bulk-actions-bar { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 8px; margin-bottom: 16px; font-size: 13px; }
+.bulk-actions-bar .label { color: #595959; font-weight: 500; white-space: nowrap; }
+.preview-card { background: #fff; border-radius: 14px; padding: 24px; margin-bottom: 20px; border: 1px solid #f0f0f0; }
+.publish-success { text-align: center; padding: 48px 24px; }
+.publish-success .icon-wrap { width: 80px; height: 80px; border-radius: 50%; background: #f6ffed; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 36px; color: #52c41a; }
+@media(max-width:768px){
+  .page-container { padding: 16px; }
+  .field-row, .field-row-3 { grid-template-columns: 1fr; }
+  .task-row-fields { grid-template-columns: 1fr; }
+  .task-row { flex-wrap: wrap; }
+  .bulk-actions-bar { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+(function() {
+  var useState = React.useState;
+  var useMemo = React.useMemo;
+  var useRef = React.useRef;
+  var Typography = antd.Typography;
+  var Text = Typography.Text;
+  var Title = Typography.Title;
+  var Button = antd.Button;
+  var Tag = antd.Tag;
+  var Select = antd.Select;
+  var DatePicker = antd.DatePicker;
+  var Input = antd.Input;
+  var TextArea = Input.TextArea;
+  var Segmented = antd.Segmented;
+  var Table = antd.Table;
+  var Modal = antd.Modal;
+  var message = antd.message;
+  var Space = antd.Space;
+  var Divider = antd.Divider;
+  var Empty = antd.Empty;
+  var Alert = antd.Alert;
+  var Collapse = antd.Collapse;
+  var Upload = antd.Upload;
+
+  var PRIORITY_LABELS = { normal: '普通', urgent: '紧急', critical: '特急' };
+  var PRIORITY_COLORS = { normal: 'default', urgent: 'orange', critical: 'red' };
+  var STATUS_LABELS = { pending: '待处理', processing: '处理中', completed: '已完成', transferred: '已转交', cancelled: '已作废' };
+  var STATUS_COLORS = { pending: 'blue', processing: 'orange', completed: 'green', transferred: 'purple', cancelled: 'default' };
+
+  var SALES_USERS = [
+    { id: 's1', name: 'San.Zhang 张三', dept: '华东销售部' },
+    { id: 's2', name: 'Si.Li 李四', dept: '华南销售部' },
+    { id: 's3', name: 'Wu.Wang 王五', dept: '华北销售部' },
+    { id: 's4', name: 'Liu.Zhao 赵六', dept: '华东销售部' },
+    { id: 's5', name: 'Sean.Sun 孙七', dept: '华南销售部' },
+    { id: 's6', name: 'Ben.Zhou 周八', dept: '西南销售部' },
+    { id: 's7', name: 'Jack.Wu 吴九', dept: '华北销售部' },
+    { id: 's8', name: 'Sam.Zheng 郑十', dept: '海外销售部' },
+    { id: 's9', name: 'Tony.Zhang 张伟', dept: '华东销售部' },
+    { id: 's10', name: 'Nina.Li 李娜', dept: '华南销售部' }
+  ];
+
+  var MOCK_MEETINGS = [
+    { id: 'M1', name: '2026Q3华东区QBR复盘会', date: '2026-07-05' },
+    { id: 'M2', name: '2026Q3华南区QBR复盘会', date: '2026-07-06' },
+    { id: 'M3', name: '2026Q3华北区QBR复盘会', date: '2026-07-04' },
+    { id: 'M4', name: '2026Q3西南区QBR复盘会', date: '2026-07-03' },
+    { id: 'M5', name: '2026Q3海外业务季度复盘', date: '2026-07-02' },
+    { id: 'M6', name: '2026Q2全员复盘大会', date: '2026-06-28' }
+  ];
+
+  function getUserName(uid) {
+    var u = SALES_USERS.find(function(s) { return s.id === uid; });
+    return u ? u.name : uid;
+  }
+
+  function createEmptyTask() {
+    return { id: 'row-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4), description: '', priority: 'normal', deadline: null, assignees: [] };
+  }
+
+  function BatchPublishPage() {
+    // Step state
+    var _stepState = useState(1);
+    var currentStep = _stepState[0];
+    var setCurrentStep = _stepState[1];
+
+    // Meeting info
+    var _meetingIdState = useState(null);
+    var meetingId = _meetingIdState[0];
+    var setMeetingId = _meetingIdState[1];
+
+    var _newMeetingNameState = useState('');
+    var newMeetingName = _newMeetingNameState[0];
+    var setNewMeetingName = _newMeetingNameState[1];
+
+    var _meetingDateState = useState(null);
+    var meetingDate = _meetingDateState[0];
+    var setMeetingDate = _meetingDateState[1];
+
+    var _recorderState = useState('运营管理员');
+    var recorder = _recorderState[0];
+    var setRecorder = _recorderState[1];
+
+    var _isNewMeetingState = useState(false);
+    var isNewMeeting = _isNewMeetingState[0];
+    var setIsNewMeeting = _isNewMeetingState[1];
+
+    // Task rows
+    var _taskRowsState = useState([createEmptyTask()]);
+    var taskRows = _taskRowsState[0];
+    var setTaskRows = _taskRowsState[1];
+
+    // Bulk settings for quick-apply
+    var _bulkPriorityState = useState(null);
+    var bulkPriority = _bulkPriorityState[0];
+    var setBulkPriority = _bulkPriorityState[1];
+
+    var _bulkDeadlineState = useState(null);
+    var bulkDeadline = _bulkDeadlineState[0];
+    var setBulkDeadline = _bulkDeadlineState[1];
+
+    var _bulkAssigneesState = useState([]);
+    var bulkAssignees = _bulkAssigneesState[0];
+    var setBulkAssignees = _bulkAssigneesState[1];
+
+    // Publish state
+    var _publishingState = useState(false);
+    var publishing = _publishingState[0];
+    var setPublishing = _publishingState[1];
+
+    var _publishedIdsState = useState([]);
+    var publishedIds = _publishedIdsState[0];
+    var setPublishedIds = _publishedIdsState[1];
+
+    var _publishCountState = useState(0);
+    var publishCount = _publishCountState[0];
+    var setPublishCount = _publishCountState[1];
+
+    // Modal
+    var _confirmModalState = useState(false);
+    var confirmModalOpen = _confirmModalState[0];
+    var setConfirmModalOpen = _confirmModalState[1];
+
+    // File import
+    var _importModalOpenState = useState(false);
+    var importModalOpen = _importModalOpenState[0];
+    var setImportModalOpen = _importModalOpenState[1];
+
+    var _importedTasksState = useState([]);
+    var importedTasks = _importedTasksState[0];
+    var setImportedTasks = _importedTasksState[1];
+
+    var _importFileNameState = useState('');
+    var importFileName = _importFileNameState[0];
+    var setImportFileName = _importFileNameState[1];
+
+    // Add task row
+    var addTaskRow = function() {
+      setTaskRows(function(prev) { return prev.concat([createEmptyTask()]); });
+    };
+
+    // Remove task row
+    var removeTaskRow = function(rowId) {
+      setTaskRows(function(prev) {
+        if (prev.length <= 1) {
+          message.warning('至少保留一条任务');
+          return prev;
+        }
+        return prev.filter(function(r) { return r.id !== rowId; });
+      });
+    };
+
+    // Update task row field
+    var updateTaskRow = function(rowId, field, value) {
+      setTaskRows(function(prev) {
+        return prev.map(function(r) {
+          if (r.id === rowId) {
+            var updated = {};
+            updated[field] = value;
+            return Object.assign({}, r, updated);
+          }
+          return r;
+        });
+      });
+    };
+
+    // Apply bulk settings to all rows
+    var applyBulkPriority = function() {
+      if (!bulkPriority) { message.warning('请先选择优先级'); return; }
+      setTaskRows(function(prev) {
+        return prev.map(function(r) { return Object.assign({}, r, { priority: bulkPriority }); });
+      });
+      message.success('已批量设置优先级为 ' + PRIORITY_LABELS[bulkPriority]);
+    };
+
+    var applyBulkDeadline = function() {
+      if (!bulkDeadline) { message.warning('请先选择截止日期'); return; }
+      setTaskRows(function(prev) {
+        return prev.map(function(r) { return Object.assign({}, r, { deadline: bulkDeadline }); });
+      });
+      message.success('已批量设置截止日期为 ' + bulkDeadline.format('YYYY-MM-DD'));
+    };
+
+    var applyBulkAssignees = function() {
+      if (bulkAssignees.length === 0) { message.warning('请先选择执行人'); return; }
+      setTaskRows(function(prev) {
+        return prev.map(function(r) { return Object.assign({}, r, { assignees: bulkAssignees.slice() }); });
+      });
+      var names = bulkAssignees.map(function(uid) { return getUserName(uid); }).join('、');
+      message.success('已批量设置执行人为 ' + names);
+    };
+
+    // Validate all rows
+    var validateRows = function() {
+      var meetingName = isNewMeeting ? newMeetingName.trim() : (meetingId ? (MOCK_MEETINGS.find(function(m) { return m.id === meetingId; }) || {}).name : '');
+      if (!meetingName) { message.warning('请选择或输入会议名称'); return false; }
+      if (!meetingDate) { message.warning('请选择会议日期'); return false; }
+      if (!recorder.trim()) { message.warning('请输入记录人'); return false; }
+
+      var validRows = taskRows.filter(function(r) { return r.description.trim(); });
+      if (validRows.length === 0) { message.warning('请至少填写一条任务描述'); return false; }
+
+      for (var i = 0; i < validRows.length; i++) {
+        var r = validRows[i];
+        if (!r.deadline) { message.warning('第 ' + (i + 1) + ' 条任务未设置截止日期'); return false; }
+        if (r.assignees.length === 0) { message.warning('第 ' + (i + 1) + ' 条任务未选择执行人'); return false; }
+      }
+      return true;
+    };
+
+    // Get valid rows (with description filled)
+    var validRows = useMemo(function() {
+      return taskRows.filter(function(r) { return r.description.trim(); });
+    }, [taskRows]);
+
+    // Get meeting display name
+    var meetingDisplayName = useMemo(function() {
+      if (isNewMeeting) return newMeetingName.trim();
+      if (meetingId) {
+        var m = MOCK_MEETINGS.find(function(mt) { return mt.id === meetingId; });
+        return m ? m.name : '';
+      }
+      return '';
+    }, [isNewMeeting, meetingId, newMeetingName]);
+
+    // Open confirm modal
+    var openConfirmModal = function() {
+      if (!validateRows()) return;
+      setConfirmModalOpen(true);
+    };
+
+    // Execute publish
+    var handlePublish = function() {
+      setPublishing(true);
+      setConfirmModalOpen(false);
+
+      // Simulate publish delay
+      setTimeout(function() {
+        var ids = [];
+        validRows.forEach(function(r, i) {
+          ids.push('TASK-' + String(100 + i + publishCount).padStart(3, '0'));
+        });
+        setPublishedIds(ids);
+        setPublishCount(function(c) { return c + ids.length; });
+        setPublishing(false);
+        setCurrentStep(3);
+        message.success('成功发布 ' + ids.length + ' 条任务！');
+      }, 1200);
+    };
+
+    // Reset form
+    var handleReset = function() {
+      setMeetingId(null);
+      setNewMeetingName('');
+      setMeetingDate(null);
+      setRecorder('运营管理员');
+      setIsNewMeeting(false);
+      setTaskRows([createEmptyTask()]);
+      setBulkPriority(null);
+      setBulkDeadline(null);
+      setBulkAssignees([]);
+      setPublishedIds([]);
+      setImportedTasks([]);
+      setImportFileName('');
+      setImportModalOpen(false);
+      setCurrentStep(1);
+    };
+
+    // Duplicate a row
+    var duplicateRow = function(row) {
+      setTaskRows(function(prev) {
+        var newRow = Object.assign({}, row, { id: 'row-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4) });
+        return prev.concat([newRow]);
+      });
+    };
+
+    // Parse CSV content into task objects
+    var parseCSV = function(text) {
+      var lines = text.split(/\r?\n/).filter(function(l) { return l.trim(); });
+      if (lines.length < 2) { message.warning('文件内容为空或格式不正确，至少需要表头 + 1 行数据'); return []; }
+
+      var header = lines[0].split(',').map(function(h) { return h.trim(); });
+      var tasks = [];
+
+      for (var i = 1; i < lines.length; i++) {
+        var cols = lines[i].split(',').map(function(c) { return c.trim().replace(/^"(.*)"$/, '$1'); });
+        if (cols.length < 1 || !cols[0]) continue;
+
+        var task = {
+          id: 'import-' + Date.now() + '-' + i + '-' + Math.random().toString(36).substr(2, 4),
+          description: '',
+          priority: 'normal',
+          deadline: null,
+          assignees: []
+        };
+
+        for (var j = 0; j < header.length; j++) {
+          var h = header[j].toLowerCase();
+          var val = cols[j] || '';
+          if (h.indexOf('描述') >= 0 || h.indexOf('任务') >= 0 || h.indexOf('内容') >= 0 || h === 'description') {
+            task.description = val || task.description;
+          } else if (h.indexOf('优先级') >= 0 || h === 'priority') {
+            var p = val.toLowerCase();
+            if (p.indexOf('特急') >= 0 || p === 'critical') task.priority = 'critical';
+            else if (p.indexOf('紧急') >= 0 || p === 'urgent') task.priority = 'urgent';
+            else task.priority = 'normal';
+          } else if (h.indexOf('截止') >= 0 || h.indexOf('日期') >= 0 || h === 'deadline') {
+            if (val) {
+              var d = dayjs(val);
+              if (d.isValid()) task.deadline = d;
+            }
+          } else if (h.indexOf('执行') >= 0 || h.indexOf('负责人') >= 0 || h.indexOf('assignee') >= 0) {
+            if (val) {
+              var names = val.split(/[;；、]/);
+              task.assignees = names.map(function(n) {
+                var trimmed = n.trim();
+                if (!trimmed) return null;
+                var found = SALES_USERS.find(function(u) {
+                  return u.name.indexOf(trimmed) >= 0 || u.id === trimmed ||
+                    (u.name.split(' ')[1] && trimmed.indexOf(u.name.split(' ')[1]) >= 0);
+                });
+                return found ? found.id : null;
+              }).filter(Boolean);
+            }
+          }
+        }
+
+        // Fallback: if no header matched, use positional mapping
+        if (!task.description && cols[0]) task.description = cols[0];
+        if (task.assignees.length === 0 && cols[1]) {
+          // Try col as name
+        }
+
+        if (task.description) tasks.push(task);
+      }
+
+      return tasks;
+    };
+
+    // Handle file upload before upload
+    var handleFileImport = function(file) {
+      setImportFileName(file.name);
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var text = e.target.result;
+        var ext = file.name.split('.').pop().toLowerCase();
+        if (ext === 'csv' || ext === 'txt') {
+          var tasks = parseCSV(text);
+          if (tasks.length === 0) return;
+          setImportedTasks(tasks);
+        } else {
+          message.warning('暂仅支持 CSV 格式文件，请下载模板转换后重新上传');
+          setImportedTasks([]);
+        }
+      };
+      reader.readAsText(file, 'UTF-8');
+      return false; // Prevent actual upload
+    };
+
+    // Confirm import: merge imported tasks into taskRows
+    var confirmImport = function() {
+      setTaskRows(function(prev) {
+        // Keep existing rows that have content, plus imported rows
+        var existingValid = prev.filter(function(r) { return r.description.trim(); });
+        return existingValid.concat(importedTasks);
+      });
+      setImportModalOpen(false);
+      setImportedTasks([]);
+      setImportFileName('');
+      message.success('成功导入 ' + importedTasks.length + ' 条任务');
+    };
+
+    // Preview columns
+    var previewColumns = [
+      { title: '序号', key: 'idx', width: 60, render: function(_, __, idx) { return idx + 1; } },
+      { title: '任务描述', dataIndex: 'description', key: 'description', ellipsis: true },
+      { title: '优先级', dataIndex: 'priority', key: 'priority', width: 80,
+        render: function(v) { return React.createElement(Tag, { color: PRIORITY_COLORS[v] }, PRIORITY_LABELS[v]); }
+      },
+      { title: '截止日期', dataIndex: 'deadline', key: 'deadline', width: 120,
+        render: function(d) { return d ? d.format('YYYY-MM-DD') : '--'; }
+      },
+      { title: '执行人', dataIndex: 'assignees', key: 'assignees', width: 200,
+        render: function(arr) {
+          if (!arr || arr.length === 0) return React.createElement(Text, { type: 'secondary' }, '未指定');
+          return React.createElement(Space, { wrap: true, size: [2, 2] },
+            arr.map(function(uid) {
+              return React.createElement(Tag, { key: uid, color: 'blue', style: { margin: 0 } }, getUserName(uid));
+            })
+          );
+        }
+      }
+    ];
+
+    // ====== Step 1: Meeting Info ======
+    var renderStep1 = function() {
+      return React.createElement('div', { className: 'steps-card' },
+        React.createElement('h4', null,
+          React.createElement('span', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: '#e6f7ff', color: '#1890ff', fontSize: 14, fontWeight: 700 } }, '1'),
+          '会议信息'
+        ),
+        React.createElement('div', { className: 'subtitle' }, '选择已有会议或创建新会议，任务将关联到该会议'),
+        React.createElement('div', { style: { marginBottom: 16 } },
+          React.createElement(Segmented, {
+            value: isNewMeeting ? 'new' : 'existing',
+            onChange: function(v) { setIsNewMeeting(v === 'new'); },
+            options: [
+              { label: '选择已有会议', value: 'existing' },
+              { label: '创建新会议', value: 'new' }
+            ]
+          })
+        ),
+        isNewMeeting
+          ? React.createElement('div', { className: 'field-row' },
+              React.createElement('div', null,
+                React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 6, color: '#333' } }, '会议名称'),
+                React.createElement(Input, { placeholder: '如：2026Q3华东区QBR复盘会', value: newMeetingName, onChange: function(e) { setNewMeetingName(e.target.value); } })
+              ),
+              React.createElement('div', null,
+                React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 6, color: '#333' } }, '会议日期'),
+                React.createElement(DatePicker, { placeholder: '选择会议日期', style: { width: '100%' }, value: meetingDate, onChange: setMeetingDate })
+              )
+            )
+          : React.createElement('div', { className: 'field-row' },
+              React.createElement('div', null,
+                React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 6, color: '#333' } }, '选择会议'),
+                React.createElement(Select, {
+                  placeholder: '搜索并选择会议...', style: { width: '100%' }, value: meetingId, onChange: function(v) {
+                    setMeetingId(v);
+                    var m = MOCK_MEETINGS.find(function(mt) { return mt.id === v; });
+                    if (m) setMeetingDate(dayjs(m.date));
+                  },
+                  showSearch: true, filterOption: function(input, option) { return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0; },
+                  options: MOCK_MEETINGS.map(function(m) { return { value: m.id, label: m.name + ' (' + m.date + ')' }; })
+                })
+              ),
+              React.createElement('div', null,
+                React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 6, color: '#333' } }, '会议日期'),
+                React.createElement(DatePicker, { placeholder: '选择日期', style: { width: '100%' }, value: meetingDate, onChange: setMeetingDate, disabled: !!meetingId })
+              )
+            ),
+        React.createElement('div', { style: { marginTop: 16, maxWidth: 400 } },
+          React.createElement('div', { style: { fontSize: 13, fontWeight: 500, marginBottom: 6, color: '#333' } }, '记录人'),
+          React.createElement(Input, { placeholder: '记录人姓名', value: recorder, onChange: function(e) { setRecorder(e.target.value); } })
+        ),
+        React.createElement('div', { style: { marginTop: 20, display: 'flex', justifyContent: 'flex-end' } },
+          React.createElement(Button, { type: 'primary', size: 'large', onClick: function() {
+            var name = isNewMeeting ? newMeetingName.trim() : meetingDisplayName;
+            if (!name) { message.warning('请选择或输入会议名称'); return; }
+            if (!meetingDate) { message.warning('请选择会议日期'); return; }
+            setCurrentStep(2);
+          }, icon: React.createElement('i', { className: 'ti ti-arrow-right', style: { fontSize: 18 } }) }, '下一步：填写任务')
+        )
+      );
+    };
+
+    // ====== Step 2: Task Rows ======
+    var renderStep2 = function() {
+      return React.createElement('div', null,
+        // Meeting info summary bar
+        React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px', background: '#e6f7ff', borderRadius: 10, marginBottom: 20, fontSize: 13 } },
+          React.createElement('i', { className: 'ti ti-calendar-event', style: { color: '#1890ff', fontSize: 16 } }),
+          React.createElement('strong', null, meetingDisplayName),
+          React.createElement(Text, { type: 'secondary' }, meetingDate ? meetingDate.format('YYYY-MM-DD') : ''),
+          React.createElement(Text, { type: 'secondary' }, '记录人: ' + recorder),
+          React.createElement(Button, { type: 'link', size: 'small', onClick: function() { setCurrentStep(1); }, style: { marginLeft: 'auto' } }, '修改')
+        ),
+
+        // Task rows form
+        React.createElement('div', { className: 'steps-card' },
+          React.createElement('h4', null,
+            React.createElement('span', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: '#e6f7ff', color: '#1890ff', fontSize: 14, fontWeight: 700 } }, '2'),
+            '填写任务清单'
+          ),
+          React.createElement('div', { className: 'subtitle' }, '逐条填写会议中产生的行动项，支持批量设置通用字段'),
+          React.createElement('div', { style: { marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12 } },
+            React.createElement(Text, { strong: true, style: { fontSize: 13 } }, '共 '), React.createElement(Tag, { color: 'blue' }, validRows.length + ' 条有效任务')
+          ),
+          // Task rows
+          taskRows.map(function(row, idx) {
+            var isEmpty = !row.description.trim();
+            return React.createElement('div', { key: row.id, className: 'task-row', style: isEmpty ? { opacity: 0.6, borderStyle: 'dashed' } : undefined },
+              React.createElement('div', { className: 'task-row-index' }, idx + 1),
+              React.createElement('div', { className: 'task-row-fields' },
+                React.createElement(TextArea, {
+                  placeholder: '任务描述（必填）...',
+                  value: row.description,
+                  onChange: function(e) { updateTaskRow(row.id, 'description', e.target.value); },
+                  rows: 2,
+                  maxLength: 500,
+                  style: isEmpty ? { borderColor: '#ffccc7' } : undefined
+                }),
+                React.createElement(Select, {
+                  value: row.priority, onChange: function(v) { updateTaskRow(row.id, 'priority', v); },
+                  style: { width: '100%' },
+                  options: [
+                    { value: 'critical', label: '特急' }, { value: 'urgent', label: '紧急' }, { value: 'normal', label: '普通' }
+                  ]
+                }),
+                React.createElement(DatePicker, {
+                  placeholder: '截止日期', value: row.deadline, onChange: function(d) { updateTaskRow(row.id, 'deadline', d); },
+                  style: { width: '100%' }
+                }),
+                React.createElement(Select, {
+                  mode: 'multiple', placeholder: '选择执行人', value: row.assignees,
+                  onChange: function(v) { updateTaskRow(row.id, 'assignees', v); },
+                  style: { width: '100%' }, maxTagCount: 1,
+                  options: SALES_USERS.map(function(u) { return { value: u.id, label: u.name + ' · ' + u.dept }; }),
+                  filterOption: function(input, option) { return option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0; }
+                })
+              ),
+              React.createElement('div', { className: 'task-row-actions' },
+                React.createElement(Button, { type: 'text', size: 'small', icon: React.createElement('i', { className: 'ti ti-copy', style: { fontSize: 16 } }),
+                  onClick: function() { duplicateRow(row); }, title: '复制此行' }),
+                React.createElement(Button, { type: 'text', size: 'small', danger: true, icon: React.createElement('i', { className: 'ti ti-x', style: { fontSize: 16 } }),
+                  onClick: function() { removeTaskRow(row.id); }, title: '删除此行' })
+              )
+            );
+          }),
+          // Add row & import buttons
+          React.createElement('div', { style: { marginTop: 8 } },
+            React.createElement('div', { style: { display: 'flex', gap: 10 } },
+              React.createElement(Button, { type: 'dashed', icon: React.createElement('i', { className: 'ti ti-plus', style: { fontSize: 18 } }), onClick: addTaskRow, style: { flex: 1 } }, '手动添加一条'),
+              React.createElement(Button, { type: 'dashed', icon: React.createElement('i', { className: 'ti ti-file-import', style: { fontSize: 18 } }), onClick: function() { setImportModalOpen(true); } }, '从文件导入')
+            ),
+            React.createElement(Text, { type: 'secondary', style: { fontSize: 11, display: 'block', marginTop: 6 } }, '提示：描述为空的行在发布时将被自动跳过')
+          )
+        ),
+
+        // Bulk actions
+        React.createElement('div', { className: 'bulk-actions-bar' },
+          React.createElement('i', { className: 'ti ti-bolt', style: { color: '#faad14', fontSize: 18 } }),
+          React.createElement('span', { className: 'label' }, '批量设置：'),
+          React.createElement(Select, { placeholder: '统一优先级', allowClear: true, style: { width: 110 }, size: 'small', value: bulkPriority, onChange: setBulkPriority,
+            options: [{ value: 'critical', label: '特急' }, { value: 'urgent', label: '紧急' }, { value: 'normal', label: '普通' }]
+          }),
+          React.createElement(Button, { size: 'small', onClick: applyBulkPriority }, '应用优先级'),
+          React.createElement(DatePicker, { placeholder: '统一截止日期', style: { width: 140 }, size: 'small', value: bulkDeadline, onChange: setBulkDeadline }),
+          React.createElement(Button, { size: 'small', onClick: applyBulkDeadline }, '应用截止日'),
+          React.createElement(Select, { mode: 'multiple', placeholder: '统一执行人', style: { width: 180 }, size: 'small', value: bulkAssignees, onChange: setBulkAssignees, maxTagCount: 1,
+            options: SALES_USERS.map(function(u) { return { value: u.id, label: u.name }; })
+          }),
+          React.createElement(Button, { size: 'small', onClick: applyBulkAssignees }, '应用执行人')
+        ),
+
+        // Preview
+        validRows.length > 0 && React.createElement('div', { className: 'preview-card' },
+          React.createElement('h4', { style: { marginBottom: 12 } },
+            React.createElement('i', { className: 'ti ti-eye', style: { marginRight: 6, color: '#1890ff' } }), '发布预览'
+          ),
+          React.createElement(Table, {
+            columns: previewColumns,
+            dataSource: validRows,
+            rowKey: 'id',
+            size: 'small',
+            pagination: false,
+            scroll: { x: 700 }
+          })
+        ),
+
+        // Step actions
+        React.createElement('div', { style: { marginTop: 20, display: 'flex', justifyContent: 'space-between' } },
+          React.createElement(Button, { size: 'large', onClick: function() { setCurrentStep(1); }, icon: React.createElement('i', { className: 'ti ti-arrow-left', style: { fontSize: 18 } }) }, '上一步'),
+          React.createElement(Space, null,
+            React.createElement(Button, { size: 'large', onClick: handleReset }, '重置'),
+            React.createElement(Button, { type: 'primary', size: 'large', onClick: openConfirmModal, disabled: validRows.length === 0,
+              icon: React.createElement('i', { className: 'ti ti-send', style: { fontSize: 18 } })
+            }, '发布任务 (' + validRows.length + ' 条)')
+          )
+        )
+      );
+    };
+
+    // ====== Step 3: Success ======
+    var renderStep3 = function() {
+      return React.createElement('div', { className: 'steps-card' },
+        React.createElement('div', { className: 'publish-success' },
+          React.createElement('div', { className: 'icon-wrap' },
+            React.createElement('i', { className: 'ti ti-circle-check' })
+          ),
+          React.createElement(Title, { level: 3, style: { marginBottom: 8 } }, '任务发布成功！'),
+          React.createElement(Text, { type: 'secondary', style: { fontSize: 14 } },
+            '会议「', React.createElement('strong', null, meetingDisplayName), '」的 ', React.createElement('strong', { style: { color: '#1890ff' } }, publishedIds.length), ' 条任务已成功下发'
+          ),
+          React.createElement('div', { style: { marginTop: 24, display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' } },
+            publishedIds.map(function(tid) {
+              return React.createElement(Tag, { key: tid, color: 'blue', style: { padding: '4px 12px', fontSize: 13, borderRadius: 6 } }, tid);
+            })
+          ),
+          React.createElement('div', { style: { marginTop: 12, color: '#8c8c8c', fontSize: 13 } },
+            '已通过站内通知提醒 ', React.createElement('strong', null, '执行人')
+          ),
+          React.createElement('div', { style: { marginTop: 28, display: 'flex', justifyContent: 'center', gap: 12 } },
+            React.createElement(Button, { size: 'large', onClick: handleReset, icon: React.createElement('i', { className: 'ti ti-plus', style: { fontSize: 18 } }) }, '继续发布'),
+            React.createElement(Button, { type: 'primary', size: 'large', onClick: function() { window.location.href = 'PAGE-PC-21_会议任务管理.html'; },
+              icon: React.createElement('i', { className: 'ti ti-clipboard-list', style: { fontSize: 18 } })
+            }, '查看任务列表')
+          )
+        )
+      );
+    };
+
+    // ====== Main Render ======
+    return React.createElement('div', { className: 'page-container' },
+      React.createElement('div', { className: 'page-header' },
+        React.createElement('div', null,
+          React.createElement(Title, { level: 4, style: { margin: 0, display: 'flex', alignItems: 'center', gap: 8 } },
+            React.createElement('i', { className: 'ti ti-stack-2', style: { fontSize: 22, color: '#1890ff' } }),
+            '批量发布任务'
+          ),
+          React.createElement(Text, { type: 'secondary', style: { fontSize: 13 } }, '从会议记录中批量创建行动项并下发给执行人')
+        ),
+        React.createElement(Space, null,
+          React.createElement(Button, { onClick: function() { window.location.href = 'PAGE-PC-21_会议任务管理.html'; },
+            icon: React.createElement('i', { className: 'ti ti-list', style: { fontSize: 18 } })
+          }, '任务列表'),
+          React.createElement(Button, { type: 'primary', onClick: function() { window.location.href = 'PAGE-PC-21_会议任务管理.html'; },
+            icon: React.createElement('i', { className: 'ti ti-plus', style: { fontSize: 18 } })
+          }, '单个新建')
+        )
+      ),
+
+      // Steps indicator
+      React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 0, marginBottom: 24 } },
+        [ { step: 1, label: '会议信息', icon: 'ti-calendar-event' },
+          { step: 2, label: '填写任务', icon: 'ti-list-check' },
+          { step: 3, label: '发布完成', icon: 'ti-circle-check' }
+        ].map(function(s, idx, arr) {
+          var isActive = currentStep === s.step;
+          var isDone = currentStep > s.step;
+          return React.createElement('div', { key: s.step, style: { display: 'flex', alignItems: 'center', gap: 0 } },
+            React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 20, background: isActive ? '#e6f7ff' : isDone ? '#f6ffed' : '#fafafa', border: isActive ? '1px solid #91caff' : isDone ? '1px solid #b7eb8f' : '1px solid #f0f0f0', cursor: isDone ? 'pointer' : 'default' },
+              onClick: isDone ? function() { setCurrentStep(s.step); } : undefined },
+              React.createElement('i', { className: 'ti ' + s.icon, style: { fontSize: 16, color: isActive ? '#1890ff' : isDone ? '#52c41a' : '#bfbfbf' } }),
+              React.createElement('span', { style: { fontSize: 13, fontWeight: isActive ? 600 : 400, color: isActive ? '#1890ff' : isDone ? '#52c41a' : '#8c8c8c' } }, s.label)
+            ),
+            idx < arr.length - 1 && React.createElement('div', { style: { width: 40, height: 2, background: isDone ? '#b7eb8f' : '#f0f0f0', margin: '0 4px' } })
+          );
+        })
+      ),
+
+      // Step content
+      currentStep === 1 && renderStep1(),
+      currentStep === 2 && renderStep2(),
+      currentStep === 3 && renderStep3(),
+
+      // Publish loading overlay
+      publishing && React.createElement(Modal, {
+        open: true, closable: false, footer: null, width: 360, centered: true
+      },
+        React.createElement('div', { style: { textAlign: 'center', padding: 24 } },
+          React.createElement('i', { className: 'ti ti-loader', style: { fontSize: 40, color: '#1890ff', animation: 'spin 1s linear infinite' } }),
+          React.createElement('div', { style: { marginTop: 16, fontSize: 15, fontWeight: 500 } }, '正在发布任务...'),
+          React.createElement(Text, { type: 'secondary', style: { fontSize: 13 } }, '正在创建任务并通知执行人')
+        )
+      ),
+
+      // Confirm modal
+      confirmModalOpen && React.createElement(Modal, {
+        title: React.createElement('span', null,
+          React.createElement('i', { className: 'ti ti-send', style: { marginRight: 8, fontSize: 18, color: '#1890ff' } }),
+          '确认批量发布'
+        ),
+        open: true,
+        width: 520,
+        onCancel: function() { setConfirmModalOpen(false); },
+        footer: React.createElement(Space, null,
+          React.createElement(Button, { onClick: function() { setConfirmModalOpen(false); } }, '取消'),
+          React.createElement(Button, { type: 'primary', onClick: handlePublish, icon: React.createElement('i', { className: 'ti ti-send', style: { fontSize: 16 } }) }, '确认发布')
+        )
+      },
+        React.createElement(Alert, { message: '即将向以下执行人发送任务通知', type: 'info', showIcon: true, style: { marginBottom: 16 } }),
+        React.createElement('div', { style: { marginBottom: 16 } },
+          React.createElement(Text, { strong: true }, '会议：'), React.createElement(Text, null, ' ' + meetingDisplayName),
+          React.createElement('br'),
+          React.createElement(Text, { strong: true }, '日期：'), React.createElement(Text, null, ' ' + (meetingDate ? meetingDate.format('YYYY-MM-DD') : '')),
+          React.createElement('br'),
+          React.createElement(Text, { strong: true }, '任务数：'), React.createElement(Tag, { color: 'blue', style: { marginLeft: 4 } }, validRows.length + ' 条')
+        ),
+        React.createElement(Table, {
+          columns: previewColumns,
+          dataSource: validRows,
+          rowKey: 'id',
+          size: 'small',
+          pagination: false,
+          scroll: { x: 600 }
+        }),
+        React.createElement('div', { style: { marginTop: 16, padding: '10px 14px', background: '#fffbe6', border: '1px solid #ffe58f', borderRadius: 8, fontSize: 12, color: '#8c8c8c' } },
+          React.createElement('i', { className: 'ti ti-info-circle', style: { marginRight: 4, color: '#faad14' } }),
+          '发布后每位执行人将收到站内通知，任务将显示在他们的「我的任务」列表中。'
+        )
+      ),
+
+      // File import modal
+      importModalOpen && React.createElement(Modal, {
+        title: React.createElement('span', null,
+          React.createElement('i', { className: 'ti ti-file-import', style: { marginRight: 8, fontSize: 18, color: '#1890ff' } }),
+          '从文件导入任务'
+        ),
+        open: true,
+        width: 640,
+        onCancel: function() { setImportModalOpen(false); setImportedTasks([]); setImportFileName(''); },
+        footer: React.createElement(Space, null,
+          React.createElement(Button, { onClick: function() { setImportModalOpen(false); setImportedTasks([]); setImportFileName(''); } }, '取消'),
+          React.createElement(Button, { type: 'primary', onClick: confirmImport, disabled: importedTasks.length === 0,
+            icon: React.createElement('i', { className: 'ti ti-check', style: { fontSize: 16 } })
+          }, '确认导入' + (importedTasks.length > 0 ? ' (' + importedTasks.length + ' 条)' : ''))
+        )
+      },
+        React.createElement(Alert, {
+          message: '支持 CSV 格式文件，第一行为表头，从第二行开始为数据。',
+          description: React.createElement('div', { style: { marginTop: 4 } },
+            React.createElement('div', null, '列名示例：',
+              React.createElement('code', { style: { background: '#f0f0f0', padding: '1px 6px', borderRadius: 3, margin: '0 4px' } }, '任务描述'),
+              React.createElement('code', { style: { background: '#f0f0f0', padding: '1px 6px', borderRadius: 3, margin: '0 4px' } }, '优先级'),
+              React.createElement('code', { style: { background: '#f0f0f0', padding: '1px 6px', borderRadius: 3, margin: '0 4px' } }, '截止日期'),
+              React.createElement('code', { style: { background: '#f0f0f0', padding: '1px 6px', borderRadius: 3, margin: '0 4px' } }, '执行人')
+            ),
+            React.createElement('div', { style: { marginTop: 6, color: '#8c8c8c' } },
+              '优先级：特急/紧急/普通 | 日期：YYYY-MM-DD | 执行人：用分号分隔姓名，如"张三;李四"'
+            )
+          ),
+          type: 'info', showIcon: true, style: { marginBottom: 16 }
+        }),
+        React.createElement('div', { style: { display: 'flex', gap: 12, marginBottom: 16 } },
+          React.createElement(Upload, {
+            beforeUpload: handleFileImport,
+            showUploadList: false,
+            accept: '.csv,.txt',
+            maxCount: 1
+          },
+            React.createElement(Button, { icon: React.createElement('i', { className: 'ti ti-upload', style: { fontSize: 16 } }), type: 'primary', ghost: true }, '上传 CSV 文件')
+          ),
+          React.createElement(Button, {
+            icon: React.createElement('i', { className: 'ti ti-download', style: { fontSize: 16 } }),
+            onClick: function() {
+              var bom = '\\uFEFF';
+              var header = '任务描述,优先级,截止日期,执行人';
+              var examples = [
+                '跟进华东区Q3客户需求,紧急,2026-08-01,张三;李四',
+                '完成华南区竞品分析报告,特急,2026-07-25,王五',
+                '提交月度销售数据汇总,普通,2026-08-10,赵六;孙七;周八'
+              ].join('\\n');
+              var csvContent = bom + header + '\\n' + examples;
+              var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+              var url = URL.createObjectURL(blob);
+              var a = document.createElement('a');
+              a.href = url;
+              a.download = '任务导入模板.csv';
+              a.click();
+              URL.revokeObjectURL(url);
+              message.success('模板下载成功');
+            }
+          }, '下载模板')
+        ),
+        importFileName && React.createElement('div', { style: { marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: '#f6ffed', borderRadius: 6, border: '1px solid #b7eb8f' } },
+          React.createElement('i', { className: 'ti ti-file-check', style: { color: '#52c41a', fontSize: 16 } }),
+          React.createElement(Text, { style: { fontSize: 13 } }, '已选择文件：' + importFileName),
+          React.createElement(Button, { type: 'link', size: 'small', onClick: function() { setImportFileName(''); setImportedTasks([]); } }, '清除')
+        ),
+        importedTasks.length > 0 && React.createElement('div', null,
+          React.createElement(Text, { strong: true, style: { fontSize: 13, display: 'block', marginBottom: 8 } },
+            React.createElement('i', { className: 'ti ti-table', style: { marginRight: 4, color: '#1890ff' } }),
+            '预览导入数据（' + importedTasks.length + ' 条）'
+          ),
+          React.createElement(Table, {
+            columns: previewColumns,
+            dataSource: importedTasks,
+            rowKey: 'id',
+            size: 'small',
+            pagination: false,
+            scroll: { x: 600, y: 240 }
+          }),
+          React.createElement('div', { style: { marginTop: 10, padding: '8px 12px', background: '#fffbe6', borderRadius: 6, border: '1px solid #ffe58f', fontSize: 12, color: '#8c8c8c' } },
+            React.createElement('i', { className: 'ti ti-alert-triangle', style: { marginRight: 4, color: '#faad14' } }),
+            '确认导入后，这批任务将追加到当前任务清单中。已有任务不会被覆盖。'
+          )
+        )
+      )
+    );
+  }
+
+  window.PROTO_SHELL && window.PROTO_SHELL.renderShell('batch-publish');
+  if (window.DataTracker) { window.DataTracker.trackPageView('batch-publish', '批量发布任务'); }
+  var container = document.getElementById('proto-content') || document.getElementById('root');
+  ReactDOM.createRoot(container).render(React.createElement(BatchPublishPage));
+})();
+</script>
+</body>
+</html>

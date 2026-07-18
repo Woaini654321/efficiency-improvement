@@ -1,0 +1,620 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>竞品情报详情 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fa;color:#333}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+
+/* ===== 页面容器 ===== */
+.page-wrap{max-width:900px;margin:0 auto;padding:24px 20px 40px;animation:fadeInUp .4s ease}
+
+/* ===== 返回导航条 ===== */
+.nav-back{display:flex;align-items:center;gap:8px;margin-bottom:24px;font-size:14px;color:#8c8c8c;cursor:pointer;transition:color .2s;width:fit-content}
+.nav-back:hover{color:#1890ff}
+.nav-back i{font-size:18px}
+
+/* ===== Hero 头部 ===== */
+.hero-card{background:#fff;border-radius:16px;padding:36px 40px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,0.04);position:relative;overflow:hidden}
+.hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#722ed1,#1890ff,#36cfc9)}
+.hero-card .decoration{position:absolute;top:-80px;right:-80px;width:240px;height:240px;border-radius:50%;background:rgba(114,46,209,0.03);pointer-events:none}
+.hero-card .decoration2{position:absolute;bottom:-60px;left:-60px;width:180px;height:180px;border-radius:50%;background:rgba(24,144,255,0.03);pointer-events:none}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;position:relative}
+.hero-title{font-size:26px;font-weight:700;color:#1a1a2e;line-height:1.45;margin-bottom:20px;position:relative}
+.hero-meta{display:flex;align-items:center;gap:20px;flex-wrap:wrap;font-size:13px;color:#8c8c8c;position:relative}
+.hero-meta span{display:inline-flex;align-items:center;gap:5px}
+.hero-meta-divider{width:1px;height:16px;background:#e8e8e8}
+
+/* ===== 正文卡片 ===== */
+.content-card{background:#fff;border-radius:16px;padding:32px 40px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,0.04);animation:slideIn .4s ease both;animation-delay:.1s}
+
+.article-body{font-size:15px;color:#333;line-height:2.0}
+.article-body .summary-highlight{background:linear-gradient(135deg,#f9f0ff,#f0f5ff);border-left:4px solid #722ed1;padding:18px 22px;border-radius:0 12px 12px 0;margin-bottom:28px;font-size:16px;color:#434343;line-height:1.9}
+.article-body h2{font-size:19px;font-weight:700;color:#1a1a2e;margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid #f0f0f0}
+.article-body h2:first-child{margin-top:0}
+.article-body h3{font-size:16px;font-weight:600;color:#1a1a2e;margin:22px 0 10px}
+.article-body p{margin-bottom:16px}
+.article-body ul,.article-body ol{padding-left:22px;margin-bottom:16px}
+.article-body li{margin-bottom:6px;line-height:1.9}
+.article-body blockquote{border-left:3px solid #722ed1;padding:14px 18px;margin:20px 0;background:#fafafa;border-radius:0 10px 10px 0;color:#595959;font-size:14px}
+.article-body .highlight-box{background:#fffbe6;border:1px solid #ffe58f;border-radius:10px;padding:16px 20px;margin:16px 0;font-size:14px}
+.article-body .highlight-box strong{color:#ad6800}
+.article-body table{width:100%;border-collapse:separate;border-spacing:0;margin:18px 0;font-size:13px;border-radius:10px;overflow:hidden;border:1px solid #f0f0f0}
+.article-body th{background:linear-gradient(135deg,#f9f0ff,#f0f5ff);padding:11px 14px;font-weight:600;color:#434343;text-align:left;border-bottom:1px solid #e8e8e8}
+.article-body td{padding:10px 14px;color:#595959;border-bottom:1px solid #f5f5f5}
+.article-body tr:last-child td{border-bottom:none}
+.article-body tr:hover td{background:#fafafa}
+
+/* ===== 来源引用 ===== */
+.source-ref{margin-top:28px;padding-top:20px;border-top:1px solid #f0f0f0;display:flex;align-items:flex-start;gap:12px;font-size:13px;color:#8c8c8c}
+.source-ref i{font-size:18px;color:#bfbfbf;flex-shrink:0;margin-top:1px}
+
+/* ===== 互动栏 ===== */
+.interact-card{background:#fff;border-radius:16px;padding:20px 40px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,0.04);display:flex;align-items:center;gap:14px;flex-wrap:wrap;animation:slideIn .4s ease both;animation-delay:.2s}
+.social-pill{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:28px;cursor:pointer;transition:all .3s;border:1px solid #e8e8e8;background:#fff;font-size:14px;color:#595959;font-weight:500}
+.social-pill:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.social-pill.liked{border-color:#ff4d4f;color:#ff4d4f;background:linear-gradient(135deg,#fff1f0,#ffccc7)}
+.social-pill.collected{border-color:#faad14;color:#faad14;background:linear-gradient(135deg,#fffbe6,#fff1b8)}
+.social-pill:active .bounce{animation:pulse .3s ease}
+
+/* ===== 评论区 ===== */
+.comment-card{padding:18px 0;border-bottom:1px solid #f0f0f0;position:relative}
+.comment-card:last-child{border-bottom:none}
+.cmt-action{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:6px;cursor:pointer;transition:all .2s;color:#8c8c8c;font-size:13px;border:none;background:transparent}
+.cmt-action:hover{color:#1890ff;background:rgba(24,144,255,0.06)}
+.cmt-action.liked{color:#1890ff}
+.cmt-action.danger{color:#999}
+.cmt-action.danger:hover{color:#ff4d4f;background:rgba(255,77,79,0.06)}
+.comment-reply-item{padding:10px 14px;margin-bottom:4px;background:#f9fafb;border-radius:8px;border-left:3px solid #e8e8e8;font-size:13px;line-height:1.7}
+.comment-reply-item:last-child{margin-bottom:0}
+
+/* ===== 相关推荐 ===== */
+.related-card{background:#fff;border-radius:16px;padding:28px 40px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,0.04);animation:slideIn .4s ease both;animation-delay:.3s}
+.related-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.related-item{display:flex;align-items:center;gap:10px;padding:14px 18px;border:1px solid #f0f0f0;border-radius:12px;cursor:pointer;transition:all .25s}
+.related-item:hover{border-color:#1890ff;box-shadow:0 4px 16px rgba(24,144,255,0.08);transform:translateX(4px)}
+
+/* ===== 页脚 ===== */
+.page-footer{text-align:center;padding:20px;color:#bfbfbf;font-size:12px;animation:fadeIn .5s ease both;animation-delay:.4s}
+
+/* ===== 分享弹窗 ===== */
+.share-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;animation:fadeIn .2s ease}
+.share-panel{background:#fff;border-radius:16px;padding:32px;width:100%;max-width:420px;box-shadow:0 12px 48px rgba(0,0,0,0.2);position:relative;animation:fadeInUp .25s ease}
+.share-panel .close-btn{position:absolute;top:16px;right:16px;border:none;background:transparent;cursor:pointer;color:#bfbfbf;font-size:20px;transition:color .2s}
+.share-panel .close-btn:hover{color:#333}
+.share-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.share-option{padding:24px 16px;border-radius:12px;border:1px solid #e8e8e8;text-align:center;cursor:pointer;transition:all .2s}
+.share-option:hover{border-color:#1890ff;background:#f0f5ff}
+.share-option i{font-size:32px;display:block;margin-bottom:8px}
+
+/* ===== 响应式 ===== */
+@media(max-width:768px){
+  .page-wrap{padding:16px 12px 24px}
+  .hero-card{padding:24px 20px}
+  .content-card{padding:20px 18px}
+  .interact-card{padding:16px 20px;gap:10px}
+  .related-card{padding:20px 18px}
+  .hero-title{font-size:21px}
+  .article-body{font-size:14px}
+  .related-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .hero-meta{flex-direction:column;align-items:flex-start;gap:8px}
+  .hero-meta-divider{display:none}
+  .social-pill{padding:8px 16px;font-size:13px}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+(function(){
+var useState=React.useState;var useMemo=React.useMemo;var useEffect=React.useEffect;
+var Text=antd.Typography.Text;var Button=antd.Button;var Tag=antd.Tag;var Divider=antd.Divider;
+var Modal=antd.Modal;var message=antd.message;var Input=antd.Input;
+var TextArea=Input.TextArea;var Tooltip=antd.Tooltip;
+
+var TYPE_COLORS={"新品发布":"green","价格变动":"orange","客户案例":"blue","其他":"default"};
+var AVATAR_COLORS=["#722ed1","#f56a00","#7265e6","#ffbf00","#00a2ae","#87d068","#1890ff","#eb2f96"];
+
+// ===== 扩展的竞品情报数据（含详细正文） =====
+var COMPETITIVE_DATA_EXTENDED = {
+"C1":{id:"C1",brand:"Sierra Wireless",product:"EM9293",type:"新品发布",title:"Sierra推出EM9293 5G NR模组，对标RG500Q",summary:"Sierra Wireless近期发布了其新一代5G Sub-6GHz模组EM9293，支持SA/NSA双模，宣称功耗较上代降低20%。目标市场为车载前装和工业路由，与Quectel RG500Q直接竞争。值得关注的是其基带采用了高通SDX62平台。",source:"Sierra Wireless官网",submitter:"Tony.Zhang 张伟",date:"2026-07-06",
+  fullContent:{
+    overview:"Sierra Wireless于2026年7月初正式发布了其新一代5G Sub-6GHz模组EM9293。该产品基于高通SDX62调制解调器平台，支持SA（独立组网）和NSA（非独立组网）双模工作，覆盖全球主要5G频段。EM9293是Sierra Wireless在5G模组领域的旗舰产品，直接对标Quectel RG500Q系列。",
+    specs:[
+      {label:"平台",value:"高通SDX62"},
+      {label:"5G模式",value:"SA / NSA 双模"},
+      {label:"频段支持",value:"Sub-6GHz (n1-n79)"},
+      {label:"下行速率",value:"最高 3.5 Gbps"},
+      {label:"上行速率",value:"最高 900 Mbps"},
+      {label:"功耗",value:"较上代降低20%"},
+      {label:"封装",value:"M.2 3042 / LGA"},
+      {label:"目标市场",value:"车载前装、工业路由、FWA"}
+    ],
+    analysis:"EM9293在功耗方面的改进值得关注。其宣称较上代HL7800系列降低20%功耗，若实际测试数据属实，将对车载前装市场产生较强吸引力——低功耗意味着更好的热管理和更长的设备续航。此外，SDX62平台相比RG500Q采用的SDX55平台在调制解调效率上有代际优势。建议技术团队尽快获取样片进行对比测试。",
+    impact:"EM9293主要面向中高端5G市场，与RG500Q形成直接竞争。在车载前装领域，Sierra Wireless凭借与Tier-1供应商的长期合作关系，可能抢占部分原本属于Quectel的市场份额。建议产品线提前准备RG500Q的升级路线图，特别是在功耗优化和平台升级方面的规划。"
+  }
+},
+"C2":{id:"C2",brand:"Telit",product:"ME910G1",type:"价格变动",title:"Telit ME910G1全球降价，冲击NB-IoT市场",summary:"Telit宣布其NB-IoT模组ME910G1全球统一降价15%-20%，重点争夺中国市场智慧表计和智慧路灯项目。此举可能影响Quectel BC260Y在部分政企项目中的报价优势。",source:"Telit官方通知",submitter:"Nina.Li 李娜",date:"2026-07-04",
+  fullContent:{
+    overview:"Telit于7月4日正式向全球渠道合作伙伴发出调价通知，对其主力NB-IoT模组ME910G1实施15%-20%的价格下调。此次调价是全球统一策略，覆盖亚太、欧洲和北美市场。Telit在通知中明确表示将'以更积极的价格策略参与中国智慧城市项目竞标'。",
+    specs:[
+      {label:"降价幅度",value:"15% - 20%"},
+      {label:"覆盖市场",value:"全球（重点中国市场）"},
+      {label:"影响产品",value:"ME910G1全系列"},
+      {label:"生效时间",value:"2026年7月10日起"},
+      {label:"目标场景",value:"智慧表计、智慧路灯、环境监测"}
+    ],
+    analysis:"Telit此次降价的战略意图非常清晰——通过牺牲利润换取市场份额，尤其是在中国市场。ME910G1在性能和认证方面与BC260Y相当，降价后在政企招标中的价格竞争力将大幅提升。对于价格敏感型客户（如国网集采），5%的价差就可能影响中标结果。",
+    impact:"短期内，BC260Y在部分政企项目中的报价优势将受到冲击。建议销售团队在应对客户'压价'时，主动提供BC260Y的TCO对比分析（包括功耗、供货稳定性、技术支持响应等非价格因素），同时关注Telit的实际出货价与报价的差距。"
+  }
+},
+"C3":{id:"C3",brand:"广和通",product:"FG360",type:"客户案例",title:"广和通FG360中标某新能源车企T-Box项目",summary:"广和通宣布其5G模组FG360已获得某头部新能源车企的T-Box定点，预计2027年Q1量产。该客户此前与Quectel有过技术交流，需关注客户关系维护。",source:"广和通官方公众号",submitter:"Kevin.Wang 王强",date:"2026-07-03",
+  fullContent:{
+    overview:"广和通于7月3日通过官方公众号宣布，其5G车规级模组FG360已成功获得某头部新能源车企的T-Box定点项目，预计2027年Q1进入批量供货阶段。虽然公告未直接透露客户名称，但业内普遍推测为比亚迪或蔚来。",
+    specs:[
+      {label:"中标产品",value:"FG360 (5G车规级模组)"},
+      {label:"应用场景",value:"T-Box (车载远程信息处理终端)"},
+      {label:"预计量产",value:"2027年Q1"},
+      {label:"客户行业",value:"新能源汽车"},
+      {label:"竞对状态",value:"前期曾与Quectel技术交流"}
+    ],
+    analysis:"这是一个标志性案例——在车载前装这个高价值市场，广和通正在缩小与Quectel的差距。丢失T-Box项目不仅意味着失去当前项目的模组供货机会，更重要的是失去了在该客户车型平台上建立长期合作关系的入口。建议复盘该客户的技术交流过程，分析FG360相比Quectel对标产品的竞争优势所在。",
+    impact:"直接影响：丢失一个T-Box定点项目。间接影响：广和通可能以此案例为背书，争取更多车企客户的T-Box和V2X项目。建议加强对现有车企客户的定期技术交流和关系维护，同时加快下一代5G车规模组的研发和认证进度。"
+  }
+}
+};
+
+// 默认基于C1生成兼容数据（其他卡片回退用）
+function getDefaultFullContent(c){
+  return {
+    overview:c.summary,
+    specs:[
+      {label:"竞品品牌",value:c.brand},
+      {label:"产品型号",value:c.product||"未指定"},
+      {label:"情报类型",value:c.type},
+      {label:"信息来源",value:c.source},
+      {label:"提交人",value:c.submitter},
+      {label:"发布日期",value:c.date}
+    ],
+    analysis:"该情报目前暂无详细竞品分析。建议产品线和技术支持团队关注此动态，评估对Quectel相关产品线的潜在影响，并在团队会议上进行讨论。",
+    impact:"需持续关注后续动态，评估对相关市场和客户的潜在影响。建议将此情报同步至相关产品线和销售团队。"
+  };
+}
+
+var ALL_COMPETITIVE_DATA = [
+{id:"C1",brand:"Sierra Wireless",product:"EM9293",type:"新品发布",title:"Sierra推出EM9293 5G NR模组，对标RG500Q",summary:"Sierra Wireless近期发布了其新一代5G Sub-6GHz模组EM9293，支持SA/NSA双模，宣称功耗较上代降低20%。目标市场为车载前装和工业路由，与Quectel RG500Q直接竞争。值得关注的是其基带采用了高通SDX62平台。",source:"Sierra Wireless官网",submitter:"Tony.Zhang 张伟",date:"2026-07-06"},
+{id:"C2",brand:"Telit",product:"ME910G1",type:"价格变动",title:"Telit ME910G1全球降价，冲击NB-IoT市场",summary:"Telit宣布其NB-IoT模组ME910G1全球统一降价15%-20%，重点争夺中国市场智慧表计和智慧路灯项目。此举可能影响Quectel BC260Y在部分政企项目中的报价优势。",source:"Telit官方通知",submitter:"Nina.Li 李娜",date:"2026-07-04"},
+{id:"C3",brand:"广和通",product:"FG360",type:"客户案例",title:"广和通FG360中标某新能源车企T-Box项目",summary:"广和通宣布其5G模组FG360已获得某头部新能源车企的T-Box定点，预计2027年Q1量产。该客户此前与Quectel有过技术交流，需关注客户关系维护。",source:"广和通官方公众号",submitter:"Kevin.Wang 王强",date:"2026-07-03"},
+{id:"C4",brand:"Sierra Wireless",product:"HL78系列",type:"其他",title:"Sierra Wireless与AWS深化IoT平台合作",summary:"Sierra Wireless宣布其HL78系列LPWA模组将深度集成AWS IoT Core相关服务，提供开箱即用的云连接方案。这对其在海外市场的IoT平台生态竞争力有增强作用。",source:"Sierra Wireless Blog",submitter:"Owen.Liu 刘洋",date:"2026-07-01"},
+{id:"C5",brand:"Telit",product:"FN980",type:"新品发布",title:"Telit FN980 5G毫米波模组通过FCC认证",summary:"Telit的5G毫米波模组FN980近期通过了FCC认证，支持n258/n260/n261频段，面向北美市场FWA和CPE场景。目前在毫米波模组领域Quectel尚未有直接竞品。",source:"FCC OET",submitter:"Yan.Chen 陈燕",date:"2026-06-28"},
+{id:"C6",brand:"广和通",product:"全系列",type:"价格变动",title:"广和通4G/Cat.1模组渠道价格下调",summary:"据渠道反馈，广和通近期下调了4G和Cat.1模组的渠道出货价，降幅在8%-12%之间，主要针对二三级市场的中小客户。对Quectel EC200A和EC800M在价格敏感型项目上构成压力。",source:"渠道商反馈",submitter:"Leo.Zhao 赵磊",date:"2026-06-25"},
+{id:"C7",brand:"Sierra Wireless",product:"RC76系列",type:"客户案例",title:"Sierra RC76赢得欧洲智慧农业项目",summary:"Sierra Wireless的RC76系列LPWA模组赢得了一个覆盖15个国家的欧洲智慧农业物联网项目，预计首批部署量超过50万片。该项目此前Quectel也有跟进。",source:"IoTNow News",submitter:"Liu.Zhao 赵六",date:"2026-06-20"},
+{id:"C8",brand:"移远",product:"RG520N",type:"新品发布",title:"移远发布RG520N 5G RedCap模组",summary:"移远通信发布了RG520N 5G RedCap模组，采用高通SDX53平台，主打低成本5G场景。RedCap（轻量化5G）是目前行业热点，预计将对Cat.4和Cat.1高端市场产生替代效应。Quectel需关注RedCap产品线的布局节奏。",source:"移远官方",submitter:"Sean.Sun 孙七",date:"2026-06-18"}
+];
+
+// ===== 模拟评论数据 =====
+var INIT_COMMENTS = [
+{id:1,user:"Tony.Zhang 张伟",dept:"华东大区",time:"2小时前",content:"Sierra EM9293的功耗数据非常关键，建议技术团队尽快拿样片实测，重点对比RG500Q在PSM模式下的功耗差异。",likes:5,isMine:false,replies:[
+  {id:11,user:"Nina.Li 李娜",dept:"产品管理部",time:"1小时前",content:"@Tony.Zhang 张伟 已在联系Sierra代理商申请样片，预计下周可拿到。届时会安排实验室做对比测试。",isMine:false},
+  {id:12,user:"Tony.Zhang 张伟",dept:"华东大区",time:"30分钟前",content:"@Nina.Li 李娜 好的，测试结果出来后建议同步到产品线周会分享。",isMine:true}
+]},
+{id:2,user:"Kevin.Wang 王强",dept:"华南大区",time:"5小时前",content:"高通SDX62平台相比SDX55确实有代际提升，Quectel需要加快RG500Q的平台升级计划，否则在高端市场会有压力。",likes:8,isMine:false,replies:[]},
+{id:3,user:"Ivy.Sun 孙芳",dept:"技术支持部",time:"1天前",content:"补充一个信息：EM9293的M.2封装在车载前装的兼容性更好，很多Tier-1客户偏好这种封装形式。这一点可能比功耗更值得关注。",likes:3,isMine:false,replies:[
+  {id:31,user:"Owen.Liu 刘洋",dept:"海外事业部",time:"20小时前",content:"@Ivy.Sun 孙芳 确实，欧洲车企对M.2封装的接受度更高。Quectel是否考虑推出M.2封装的RG500Q变体？",isMine:false}
+]}
+];
+
+function countAll(comments){
+  var n=comments.length;
+  comments.forEach(function(c){if(c.replies)n+=c.replies.length});
+  return n;
+}
+
+// ===== 评论卡片组件 =====
+function CommentCard(props){
+  var comment=props.comment;var index=props.index;var currentUser=props.currentUser;
+  var onReply=props.onReply;var onDelete=props.onDelete;
+  var replyOpenState=useState(false);var replyOpen=replyOpenState[0];var setReplyOpen=replyOpenState[1];
+  var replyTextState=useState("");var replyText=replyTextState[0];var setReplyText=replyTextState[1];
+  var cLikesState=useState(comment.likes||0);var cLikes=cLikesState[0];var setCLikes=cLikesState[1];
+  var cLikedState=useState(false);var cLiked=cLikedState[0];var setCLiked=cLikedState[1];
+  var replies=comment.replies||[];var isMine=comment.isMine||false;
+
+  var handleReply=function(){
+    if(!replyText.trim())return;
+    var newReply={id:Date.now(),user:currentUser.name,dept:currentUser.dept,time:"刚刚",content:replyText,isMine:true};
+    onReply(comment.id,newReply);setReplyText("");setReplyOpen(false);message.success("回复成功");
+  };
+  var handleDelete=function(){
+    Modal.confirm({title:"删除评论",content:"确认删除此评论？删除后不可恢复。",okText:"确认删除",cancelText:"取消",okButtonProps:{danger:true},
+      onOk:function(){onDelete(comment.id);message.success("评论已删除")}
+    });
+  };
+  var handleDelReply=function(rid){
+    Modal.confirm({title:"删除回复",content:"确认删除此回复？",okText:"确认删除",cancelText:"取消",okButtonProps:{danger:true},
+      onOk:function(){onDelete(rid);message.success("回复已删除")}
+    });
+  };
+
+  return (
+    <div style={{animationDelay:(index*0.04)+"s",animation:"fadeInUp .35s ease both"}}>
+      <div className="comment-card">
+        {isMine && <Tooltip title="删除"><button className="cmt-action danger" onClick={handleDelete} style={{position:"absolute",top:12,right:14}}><i className="ti ti-trash" style={{fontSize:16}} /></button></Tooltip>}
+        <div style={{display:"flex",gap:10}}>
+          <div style={{width:36,height:36,borderRadius:"50%",background:AVATAR_COLORS[index%AVATAR_COLORS.length],display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:13,fontWeight:600,flexShrink:0}}>{comment.user.charAt(0)}</div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+              <span style={{fontSize:14,fontWeight:600,color:"#333"}}>{comment.user}</span>
+              <Tag style={{borderRadius:6,fontSize:10,color:"#8c8c8c",background:"#f5f5f5",border:"none",margin:0,padding:"0 6px",lineHeight:"18px"}}>{comment.dept}</Tag>
+              <span style={{fontSize:10,color:"#bfbfbf",marginLeft:"auto"}}>{comment.time}</span>
+            </div>
+            <div style={{fontSize:14,color:"#444",lineHeight:1.7,marginBottom:6}}>{comment.content}</div>
+            <div style={{display:"flex",gap:8}}>
+              <button className={cLiked?"cmt-action liked":"cmt-action"} onClick={function(){setCLiked(!cLiked);setCLikes(cLiked?cLikes-1:cLikes+1)}}>
+                {cLiked?<i className="ti ti-thumb-up-filled" style={{fontSize:16,color:"#1890ff"}} />:<i className="ti ti-thumb-up" style={{fontSize:16}} />} {cLikes>0?cLikes:""}
+              </button>
+              <button className="cmt-action" onClick={function(){setReplyOpen(!replyOpen)}}><i className="ti ti-message" style={{fontSize:16}} /> 回复</button>
+            </div>
+          </div>
+        </div>
+        {replyOpen && (
+          <div style={{marginTop:8,display:"flex",gap:8}}>
+            <TextArea rows={2} value={replyText} onChange={function(e){setReplyText(e.target.value)}} placeholder={"回复 @"+comment.user+"..."} maxLength={500} style={{borderRadius:8,resize:"none",flex:1,fontSize:13}}
+              onPressEnter={function(e){if(!e.shiftKey){e.preventDefault();handleReply()}}} />
+            <div style={{display:"flex",flexDirection:"column",gap:4}}>
+              <Button type="primary" size="small" icon={<i className="ti ti-send" style={{fontSize:16}} />} style={{borderRadius:8}} onClick={handleReply}>发送</Button>
+              <Button size="small" style={{borderRadius:8}} onClick={function(){setReplyOpen(false);setReplyText("")}}>取消</Button>
+            </div>
+          </div>
+        )}
+      </div>
+      {replies.length>0 && (
+        <div style={{marginLeft:48,marginTop:8}}>
+          {replies.map(function(r){
+            return (
+              <div key={r.id} className="comment-reply-item">
+                <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:3}}>
+                  <span style={{fontSize:13,fontWeight:600,color:"#555"}}>{r.user}</span>
+                  <Tag style={{borderRadius:6,fontSize:10,color:"#8c8c8c",background:"#f5f5f5",border:"none",margin:0,padding:"0 5px",lineHeight:"16px"}}>{r.dept}</Tag>
+                  <span style={{fontSize:11,color:"#bfbfbf",marginLeft:"auto"}}>{r.time}</span>
+                </div>
+                <div style={{fontSize:13,color:"#555",lineHeight:1.65}}>{r.content}</div>
+                <div style={{display:"flex",gap:12,marginTop:4}}>
+                  <button className="cmt-action" onClick={function(){setReplyOpen(!replyOpen)}}><i className="ti ti-message" style={{fontSize:13}} /> 回复</button>
+                  {r.isMine && <button className="cmt-action danger" onClick={function(){handleDelReply(r.id)}}><i className="ti ti-trash" style={{fontSize:13}} /> 删除</button>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function IntelDetailPage(){
+  // 从localStorage读取情报数据
+  var intelState=useState(null);var intel=intelState[0];var setIntel=intelState[1];
+  var loadingState=useState(true);var loading=loadingState[0];var setLoading=loadingState[1];
+
+  useEffect(function(){
+    try{
+      var raw=localStorage.getItem("intelDetail");
+      if(raw){
+        var data=JSON.parse(raw);
+        // 获取扩展内容
+        var ext=COMPETITIVE_DATA_EXTENDED[data.id];
+        if(ext){
+          data.fullContent=ext.fullContent;
+        }else{
+          data.fullContent=getDefaultFullContent(data);
+        }
+        setIntel(data);
+      }
+    }catch(e){console.error("读取情报数据失败",e)}
+    setLoading(false);
+  },[]);
+
+  // 互动状态
+  var likedState=useState(false);var liked=likedState[0];var setLiked=likedState[1];
+  var collectedState=useState(false);var collected=collectedState[0];var setCollected=collectedState[1];
+  var likeNumState=useState(42);var likeNum=likeNumState[0];var setLikeNum=likeNumState[1];
+  var collectNumState=useState(18);var collectNum=collectNumState[0];var setCollectNum=collectNumState[1];
+  var shareOpenState=useState(false);var shareOpen=shareOpenState[0];var setShareOpen=shareOpenState[1];
+  var commentTextState=useState("");var commentText=commentTextState[0];var setCommentText=commentTextState[1];
+  var commentsState=useState(INIT_COMMENTS);var comments=commentsState[0];var setComments=commentsState[1];
+  var showAllState=useState(false);var showAll=showAllState[0];var setShowAll=showAllState[1];
+  var currentUser={name:"San.Zhang 张三",dept:"销售部"};
+
+  var toggleLike=function(){setLiked(!liked);setLikeNum(liked?likeNum-1:likeNum+1);message.success(liked?"已取消点赞":"已点赞")};
+  var toggleCollect=function(){setCollected(!collected);setCollectNum(collected?collectNum-1:collectNum+1);message.success(collected?"已取消收藏":"已收藏")};
+
+  var handleComment=function(){
+    if(!commentText.trim()){message.warning("请输入评论内容");return}
+    var newComment={id:Date.now(),user:currentUser.name,dept:currentUser.dept,time:"刚刚",content:commentText,likes:0,isMine:true,replies:[]};
+    setComments([newComment].concat(comments));
+    setCommentText("");message.success("评论成功");
+  };
+
+  var handleReply=function(parentId,newReply){
+    setComments(comments.map(function(c){
+      if(c.id===parentId)return Object.assign({},c,{replies:(c.replies||[]).concat([newReply])});
+      return c;
+    }));
+  };
+
+  var handleDelete=function(targetId){
+    setComments(comments.filter(function(c){return c.id!==targetId}).map(function(c){
+      if(c.replies&&c.replies.length>0)return Object.assign({},c,{replies:c.replies.filter(function(r){return r.id!==targetId})});
+      return c;
+    }));
+  };
+
+  // 相关推荐：推荐同品牌或同类型的情报，排除自身
+  var relatedIntel=useMemo(function(){
+    if(!intel)return[];
+    return ALL_COMPETITIVE_DATA.filter(function(c){
+      if(c.id===intel.id)return false;
+      return c.brand===intel.brand||c.type===intel.type;
+    }).slice(0,4);
+  },[intel]);
+
+  var displayComments=showAll?comments:comments.slice(0,4);
+  var totalComments=countAll(comments);
+
+  var goToList=function(){
+    try{localStorage.removeItem("intelDetail")}catch(e){}
+    window.location.href="PAGE-PC-20_情报中心.html";
+  };
+
+  if(loading)return React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"center",height:"60vh",color:"#bfbfbf",fontSize:16}},React.createElement("i",{className:"ti ti-loader",style:{fontSize:24,marginRight:8}}),"加载中...");
+
+  if(!intel)return (
+    <div className="page-wrap" style={{textAlign:"center",paddingTop:"15vh"}}>
+      <i className="ti ti-alert-circle" style={{fontSize:64,color:"#bfbfbf",display:"block",marginBottom:16}} />
+      <h2 style={{fontSize:18,color:"#8c8c8c",marginBottom:12}}>未找到情报数据</h2>
+      <p style={{fontSize:14,color:"#bfbfbf",marginBottom:20}}>请从情报中心页面进入查看详情</p>
+      <Button type="primary" onClick={goToList}>返回情报中心</Button>
+    </div>
+  );
+
+  var fc=intel.fullContent;
+
+  return (
+    <div className="page-wrap">
+      {/* 返回导航条 */}
+      <div className="nav-back" onClick={goToList}>
+        <i className="ti ti-arrow-left" /> 返回情报中心
+      </div>
+
+      {/* Hero 头部 */}
+      <div className="hero-card">
+        <div className="decoration" />
+        <div className="decoration2" />
+        <div className="hero-tags">
+          <Tag color="purple" style={{borderRadius:6,fontSize:13,fontWeight:500,padding:"3px 12px"}}>{intel.brand}</Tag>
+          {intel.product && <Tag color="default" style={{borderRadius:6,fontSize:13,padding:"3px 12px"}}>{intel.product}</Tag>}
+          <Tag color={TYPE_COLORS[intel.type]||"default"} style={{borderRadius:6,fontSize:13,fontWeight:500,padding:"3px 12px"}}>{intel.type}</Tag>
+        </div>
+        <h1 className="hero-title">{intel.title}</h1>
+        <div className="hero-meta">
+          <span><i className="ti ti-link" style={{fontSize:16}} /> 来源：{intel.source}</span>
+          <span className="hero-meta-divider" />
+          <span><i className="ti ti-user" style={{fontSize:16}} /> {intel.submitter}</span>
+          <span className="hero-meta-divider" />
+          <span><i className="ti ti-calendar" style={{fontSize:16}} /> {intel.date}</span>
+        </div>
+      </div>
+
+      {/* 正文内容 */}
+      <div className="content-card">
+        <div className="article-body">
+          {/* 亮点摘要 */}
+          <div className="summary-highlight">
+            <strong style={{color:"#722ed1"}}>📌 情报摘要：</strong>{intel.summary}
+          </div>
+
+          {/* 概述 */}
+          <h2>动态概述</h2>
+          <p>{fc.overview}</p>
+
+          {/* 关键信息表 */}
+          <h3>关键信息一览</h3>
+          <table>
+            <tbody>
+              {fc.specs.map(function(s,i){
+                return (
+                  <tr key={i}>
+                    <td style={{fontWeight:600,color:"#434343",width:"30%",background:"#fafafa"}}>{s.label}</td>
+                    <td style={{color:"#333"}}>{s.value}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+
+          {/* 竞品分析 */}
+          <h2>竞品分析</h2>
+          <p>{fc.analysis}</p>
+
+          {/* 影响评估 */}
+          <h2>影响评估与建议</h2>
+          <p>{fc.impact}</p>
+
+          {/* 行动建议 */}
+          {intel.type==="价格变动" && (
+            <div className="highlight-box">
+              <strong>⚠️ 价格变动应对建议：</strong>
+              <ul style={{marginTop:8,marginBottom:0}}>
+                <li>尽快核实竞品的实际出货价（渠道反馈可能与报价有差异）</li>
+                <li>准备TCO对比分析材料，突出非价格优势（功耗、供货、技术支持）</li>
+                <li>关注重点客户是否有比价行为，提前做好客情维护</li>
+              </ul>
+            </div>
+          )}
+
+          {intel.type==="新品发布" && (
+            <div className="highlight-box">
+              <strong>🆕 新品发布应对建议：</strong>
+              <ul style={{marginTop:8,marginBottom:0}}>
+                <li>尽快获取竞品样片或技术文档，进行对比测试</li>
+                <li>评估竞品在关键参数上的真实竞争力，避免仅凭宣传资料判断</li>
+                <li>若竞品有明显技术优势，建议产品线制定应对路线图</li>
+              </ul>
+            </div>
+          )}
+
+          {intel.type==="客户案例" && (
+            <div className="highlight-box">
+              <strong>🏆 客户流失应对建议：</strong>
+              <ul style={{marginTop:8,marginBottom:0}}>
+                <li>复盘与客户的技术交流和商务沟通过程，分析流失原因</li>
+                <li>加强与现有客户的定期沟通和技术支持，防止进一步流失</li>
+                <li>将此案例整理为内部分析材料，供销售团队学习参考</li>
+              </ul>
+            </div>
+          )}
+
+          {/* 来源引用 */}
+          <div className="source-ref">
+            <i className="ti ti-link" />
+            <div>
+              <div style={{fontWeight:500,color:"#595959",marginBottom:2}}>信息来源</div>
+              <div>{intel.source} · 发布于 {intel.date}</div>
+              <div style={{marginTop:2}}>提交人：{intel.submitter}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 互动栏 */}
+      <div className="interact-card">
+        <button className={"social-pill"+(liked?" liked":"")} onClick={toggleLike}>
+          <span className="bounce">{liked?<i className="ti ti-heart-filled" style={{fontSize:18}} />:<i className="ti ti-heart" style={{fontSize:18}} />}</span> {liked?"已点赞":"点赞"} {likeNum}
+        </button>
+        <button className={"social-pill"+(collected?" collected":"")} onClick={toggleCollect}>
+          <span className="bounce">{collected?<i className="ti ti-star-filled" style={{fontSize:18}} />:<i className="ti ti-star" style={{fontSize:18}} />}</span> {collected?"已收藏":"收藏"} {collectNum}
+        </button>
+        <button className="social-pill" onClick={function(){setShareOpen(true)}}>
+          <i className="ti ti-share" style={{fontSize:18}} /> 分享
+        </button>
+        <div style={{flex:1}} />
+        <Text type="secondary" style={{fontSize:12}}><i className="ti ti-eye" style={{fontSize:16,marginRight:4}} /> 326 次浏览</Text>
+      </div>
+
+      {/* 评论区 */}
+      <div className="content-card" style={{animationDelay:".25s"}}>
+        <div style={{fontSize:17,fontWeight:600,color:"#1a1a2e",marginBottom:20,display:"flex",alignItems:"center",gap:8}}>
+          <i className="ti ti-message" style={{fontSize:18}} /> 讨论 ({totalComments})
+        </div>
+        <div style={{display:"flex",gap:12,marginBottom:24,background:"#f9fafb",borderRadius:14,padding:16}}>
+          <div style={{width:40,height:40,borderRadius:"50%",background:"linear-gradient(135deg,#722ed1,#1890ff)",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:700,fontSize:15,flexShrink:0}}>张</div>
+          <div style={{flex:1}}>
+            <TextArea rows={3} value={commentText} onChange={function(e){setCommentText(e.target.value)}} placeholder="写下你的看法或补充信息..." maxLength={500} showCount style={{borderRadius:12,resize:"none",border:"1px solid #e8e8e8"}} />
+            <div style={{display:"flex",justifyContent:"flex-end",marginTop:10}}>
+              <Button type="primary" icon={<i className="ti ti-send" style={{fontSize:18}} />} style={{borderRadius:22,padding:"0 24px",height:36,fontWeight:500}} onClick={handleComment}>发表评论</Button>
+            </div>
+          </div>
+        </div>
+        <Divider style={{margin:"0 0 16px"}} />
+        {displayComments.map(function(c,i){
+          return React.createElement(CommentCard,{key:c.id,comment:c,index:i,currentUser:currentUser,onReply:handleReply,onDelete:handleDelete});
+        })}
+        {!showAll&&comments.length>4&&(
+          <div style={{textAlign:"center",paddingTop:16}}>
+            <Button type="link" style={{fontSize:14}} onClick={function(){setShowAll(true)}}>展开更多评论 ({comments.length-4} 条)</Button>
+          </div>
+        )}
+      </div>
+
+      {/* 相关推荐 */}
+      {relatedIntel.length>0 && (
+        <div className="related-card">
+          <div style={{fontSize:17,fontWeight:600,color:"#1a1a2e",marginBottom:16,display:"flex",alignItems:"center",gap:8}}>
+            <i className="ti ti-radar" style={{fontSize:18,color:"#722ed1"}} /> 相关情报推荐
+          </div>
+          <div className="related-grid">
+            {relatedIntel.map(function(item,i){
+              return (
+                <div key={item.id} className="related-item" onClick={function(){
+                  try{localStorage.setItem("intelDetail",JSON.stringify(item))}catch(e){}
+                  window.open("PAGE-PC-20-1_竞品情报详情页.html");
+                }}>
+                  <Tag color={TYPE_COLORS[item.type]||"default"} style={{borderRadius:6,flexShrink:0}}>{item.type}</Tag>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:13,fontWeight:500,color:"#333",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.title}</div>
+                    <div style={{fontSize:11,color:"#bfbfbf",marginTop:2}}>{item.brand} · {item.date}</div>
+                  </div>
+                  <i className="ti ti-chevron-right" style={{color:"#bfbfbf",flexShrink:0}} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 页脚 */}
+      <div className="page-footer">
+        <div style={{marginBottom:4}}>本情报由 Quectel商机互助平台 情报中心 提供</div>
+        <div>情报内容仅供参考，具体业务决策请结合实际情况综合判断</div>
+      </div>
+
+      {/* 分享弹窗 */}
+      {shareOpen && React.createElement("div",{className:"share-overlay"},
+        React.createElement("div",{className:"share-panel"},
+          React.createElement("button",{className:"close-btn",onClick:function(){setShareOpen(false)}},React.createElement("i",{className:"ti ti-x"})),
+          React.createElement("div",{style:{textAlign:"center",marginBottom:24}},
+            React.createElement("div",{style:{fontSize:18,fontWeight:600,color:"#1a1a2e",marginBottom:4}},"分享情报"),
+            React.createElement("div",{style:{fontSize:13,color:"#8c8c8c",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},intel.title)
+          ),
+          React.createElement("div",{className:"share-grid"},
+            React.createElement("div",{className:"share-option",onClick:function(){window.open("https://www.feishu.cn","_blank");setShareOpen(false)},
+              onMouseEnter:function(e){e.currentTarget.style.borderColor="#3370ff";e.currentTarget.style.background="#f0f5ff"},
+              onMouseLeave:function(e){e.currentTarget.style.borderColor="#e8e8e8";e.currentTarget.style.background="#fff"}},
+              React.createElement("i",{className:"ti ti-brand-feishu",style:{color:"#3370ff"}}),
+              React.createElement("div",{style:{fontSize:14,fontWeight:600,color:"#1a1a2e",marginBottom:2}},"分享至飞书"),
+              React.createElement("div",{style:{fontSize:11,color:"#8c8c8c"}},"发送到飞书对话或群组")
+            ),
+            React.createElement("div",{className:"share-option",onClick:function(){navigator.clipboard.writeText(window.location.href).then(function(){message.success("链接已复制");setShareOpen(false)})},
+              onMouseEnter:function(e){e.currentTarget.style.borderColor="#1890ff";e.currentTarget.style.background="#f0f5ff"},
+              onMouseLeave:function(e){e.currentTarget.style.borderColor="#e8e8e8";e.currentTarget.style.background="#fff"}},
+              React.createElement("i",{className:"ti ti-link",style:{color:"#1890ff"}}),
+              React.createElement("div",{style:{fontSize:14,fontWeight:600,color:"#1a1a2e",marginBottom:2}},"复制链接"),
+              React.createElement("div",{style:{fontSize:11,color:"#8c8c8c"}},"复制页面链接分享")
+            )
+          )
+        )
+      )}
+    </div>
+  );
+}
+
+// 先Shell再React
+if(window.PROTO_SHELL&&window.PROTO_SHELL.renderShell){
+  window.PROTO_SHELL.renderShell("intel-center");
+}
+if(window.DataTracker){
+  window.DataTracker.trackPageView("intel-detail","竞品情报详情");
+}
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(IntelDetailPage));
+})();
+</script>
+</body>
+</html>

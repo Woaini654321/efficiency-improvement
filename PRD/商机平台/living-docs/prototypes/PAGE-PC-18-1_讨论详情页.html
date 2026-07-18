@@ -1,0 +1,319 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>讨论详情 - Quectel商机互助平台</title>
+<script crossorigin="anonymous" src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/dayjs@1/dayjs.min.js"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/antd@5/dist/antd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/antd@5/dist/antd.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<script crossorigin="anonymous" src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="prototype-shell.js"></script>
+<script src="data-tracker.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fa;color:#333}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+
+/* ===== 页面容器 ===== */
+.page-wrap{max-width:900px;margin:0 auto;padding:24px 20px 40px;animation:fadeInUp .4s ease}
+
+/* ===== 返回导航条 ===== */
+.nav-back{display:flex;align-items:center;gap:8px;margin-bottom:24px;font-size:14px;color:#8c8c8c;cursor:pointer;transition:color .2s;width:fit-content;text-decoration:none}
+.nav-back:hover{color:#1890ff}
+.nav-back i{font-size:18px}
+
+/* ===== Hero 头部 ===== */
+.hero-card{background:#fff;border-radius:16px;padding:36px 40px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,0.04);position:relative;overflow:hidden}
+.hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.hero-card.topic-blue::before{background:linear-gradient(90deg,#1677ff,#69b1ff)}
+.hero-card.topic-orange::before{background:linear-gradient(90deg,#fa8c16,#ffc069)}
+.hero-card.topic-green::before{background:linear-gradient(90deg,#52c41a,#95de64)}
+.hero-card.topic-purple::before{background:linear-gradient(90deg,#722ed1,#b37feb)}
+.hero-card.topic-pink::before{background:linear-gradient(90deg,#eb2f96,#ff85c0)}
+.hero-card .decoration{position:absolute;top:-80px;right:-80px;width:240px;height:240px;border-radius:50%;background:rgba(24,144,255,0.03);pointer-events:none}
+.hero-card .decoration2{position:absolute;bottom:-60px;left:-60px;width:180px;height:180px;border-radius:50%;background:rgba(250,140,22,0.03);pointer-events:none}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;position:relative}
+.hero-title{font-size:26px;font-weight:700;color:#1a1a2e;line-height:1.45;margin-bottom:20px;position:relative}
+.hero-meta{display:flex;align-items:center;gap:20px;flex-wrap:wrap;font-size:13px;color:#8c8c8c;position:relative}
+.hero-meta span{display:inline-flex;align-items:center;gap:5px}
+.hero-meta-divider{width:1px;height:16px;background:#e8e8e8}
+
+/* ===== 正文卡片 ===== */
+.content-card{background:#fff;border-radius:16px;padding:32px 40px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,0.04);animation:slideIn .4s ease both;animation-delay:.1s}
+.post-body{font-size:15px;color:#333;line-height:2.0;background:#fafafa;border-radius:12px;padding:24px;white-space:pre-wrap;word-break:break-word}
+
+/* ===== 评论区 ===== */
+.comment-section{background:#fff;border-radius:16px;padding:28px 40px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,0.04);animation:slideIn .4s ease both;animation-delay:.2s}
+.comment-section h4{font-size:16px;font-weight:600;color:#1a1a2e;margin-bottom:4px}
+.cmt-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600;flex-shrink:0}
+.cmt-action{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:6px;cursor:pointer;transition:all .2s;color:#8c8c8c;font-size:13px;border:none;background:transparent}
+.cmt-action:hover{color:#1890ff;background:rgba(24,144,255,0.06)}
+.cmt-action.danger{color:#999}
+.cmt-action.danger:hover{color:#ff4d4f;background:rgba(255,77,79,0.06)}
+
+/* ===== 多级嵌套评论树 ===== */
+.comment-node{border-bottom:1px solid #f0f0f0;position:relative}
+.comment-node:last-child{border-bottom:none}
+.comment-node-body{padding:14px 0}
+.cmt-reply-btn{display:inline-flex;align-items:center;gap:4px;cursor:pointer;color:#8c8c8c;font-size:12px;border:none;background:transparent;padding:2px 8px;border-radius:4px;transition:all .15s}
+.cmt-reply-btn:hover{color:#1890ff;background:rgba(24,144,255,0.06)}
+.cmt-children{margin-top:2px;padding-left:28px;border-left:2px solid #e8e8e8}
+.cmt-children .cmt-children{border-left-color:#e0e0e0}
+.cmt-children .cmt-children .cmt-children{border-left-color:#d9d9d9}
+.cmt-children .cmt-children .cmt-children .cmt-children{border-left-color:#d9d9d9}
+.cmt-collapse-btn{display:inline-flex;align-items:center;gap:2px;font-size:11px;color:#999;cursor:pointer;border:none;background:transparent;padding:2px 6px;border-radius:4px;margin-bottom:4px;transition:all .15s}
+.cmt-collapse-btn:hover{color:#1890ff;background:rgba(24,144,255,0.06)}
+.cmt-reply-box{margin-top:10px;display:flex;gap:8px}
+.cmt-reply-box textarea{border-radius:8px;resize:none;font-size:13px}
+
+/* ===== 页脚 ===== */
+.page-footer{text-align:center;padding:20px;color:#bfbfbf;font-size:12px;animation:fadeIn .5s ease both;animation-delay:.4s}
+
+/* ===== 响应式 ===== */
+@media(max-width:768px){
+  .page-wrap{padding:16px 12px 24px}
+  .hero-card{padding:24px 20px}
+  .content-card{padding:20px 18px}
+  .comment-section{padding:20px 18px}
+  .hero-title{font-size:21px}
+  .post-body{font-size:14px;padding:16px}
+  .cmt-children{padding-left:18px}
+}
+@media(max-width:480px){
+  .hero-meta{flex-direction:column;align-items:flex-start;gap:8px}
+  .hero-meta-divider{display:none}
+  .cmt-children{padding-left:12px}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+(function(){
+var useState=React.useState;
+var Button=antd.Button;var Tag=antd.Tag;var Input=antd.Input;var message=antd.message;
+
+var TOPIC_COLORS={'商机讨论':'blue','方案互助':'orange','经验分享':'green','行业动态':'purple','吐槽':'magenta'};
+var TOPIC_HEX={'商机讨论':'#1677ff','方案互助':'#fa8c16','经验分享':'#52c41a','行业动态':'#722ed1','吐槽':'#eb2f96'};
+var TOPIC_CSS_CLASS={'商机讨论':'topic-blue','方案互助':'topic-orange','经验分享':'topic-green','行业动态':'topic-purple','吐槽':'topic-pink'};
+
+var INIT_REPLIES={
+  P1:[
+    {id:101,author:'San.Zhang 张三',content:'这个分析很到位！我们团队最近也在关注这个方向。',time:'2小时前',color:'#1890ff',children:[
+      {id:1011,author:'Nina.Li 李娜',content:'补充：5G专网还需要考虑与现有工业以太网的融合问题。',time:'1小时前',color:'#52c41a',children:[
+        {id:10111,author:'Owen.Liu 刘洋',content:'华南区已经跑通了一个5G专网+AGV的案例，效果很好。',time:'30分钟前',color:'#fa8c16',children:[
+          {id:101111,author:'San.Zhang 张三',content:'@Owen.Liu 刘洋 能分享一下这个案例的详细数据吗？我们也有类似需求。',time:'20分钟前',color:'#1890ff',children:[]}
+        ]}
+      ]},
+      {id:1012,author:'Ben.Sun 孙八',content:'同意，智慧城市方向确实是今年的重点。',time:'45分钟前',color:'#87d068',children:[]}
+    ]},
+    {id:102,author:'Tao.Zhou 周涛',content:'可以考虑搭配边缘计算网关，5G专网+边缘计算的方案客户接受度更高。',time:'1小时前',color:'#722ed1',children:[]}
+  ],
+  P2:[
+    {id:201,author:'Kevin.Wang 王强',content:'这个话术我用了好几次，客户确实买账！',time:'3小时前',color:'#722ed1',children:[
+      {id:2011,author:'Mark.Zhang 张强',content:'补充一个角度：除了TCO，还可以强调售后支持和生态兼容性。',time:'1小时前',color:'#13c2c2',children:[
+        {id:20111,author:'Yan.Chen 陈燕',content:'对，生态兼容性是个很好的切入点，客户很关注长期维护成本。',time:'30分钟前',color:'#2f54eb',children:[]}
+      ]}
+    ]},
+    {id:202,author:'Leo.Zhao 赵磊',content:'补充：针对不同行业客户，可以准备不同侧重点的话术模板。',time:'2小时前',color:'#f56a00',children:[]}
+  ],
+  P3:[
+    {id:301,author:'Joe.Zhou 周九',content:'RG500Q系列在车载场景表现稳定，建议客户可以先做EVB测试。',time:'5小时前',color:'#87d068',children:[
+      {id:3011,author:'Nina.Li 李娜',content:'已确认RG500Q-EA供货周期约2周，价格可以谈。',time:'3小时前',color:'#52c41a',children:[]},
+      {id:3012,author:'Owen.Liu 刘洋',content:'EVB测试一般需要1-2周，我们可以提供远程技术支持加速流程。',time:'2小时前',color:'#fa8c16',children:[]}
+    ]}
+  ]
+};
+
+var AVATAR_COLORS=['#1890ff','#52c41a','#fa8c16','#722ed1','#eb2f96','#13c2c2','#faad14','#2f54eb'];
+
+// Count all nodes in tree
+function countTree(nodes){
+  if(!nodes || !nodes.length) return 0;
+  return nodes.reduce(function(sum,n){
+    return sum+1+(n.children?countTree(n.children):0);
+  },0);
+}
+
+// Recursively add reply to node by id
+function addReplyToTree(nodes,parentId,newReply){
+  return nodes.map(function(n){
+    if(n.id===parentId){
+      return Object.assign({},n,{children:(n.children||[]).concat([newReply])});
+    }
+    if(n.children && n.children.length>0){
+      return Object.assign({},n,{children:addReplyToTree(n.children,parentId,newReply)});
+    }
+    return n;
+  });
+}
+
+// ===== Recursive CommentNode =====
+function CommentNode(props){
+  var c=props.comment;var depth=props.depth||0;var onReply=props.onReply;
+  var children=c.children||[];
+  var replyOpenState=useState(false);var replyOpen=replyOpenState[0];var setReplyOpen=replyOpenState[1];
+  var replyTextState=useState('');var replyText=replyTextState[0];var setReplyText=replyTextState[1];
+  var collapsedState=useState(false);var collapsed=collapsedState[0];var setCollapsed=collapsedState[1];
+  var colorIdx=(c.id||depth)%AVATAR_COLORS.length;
+
+  var handleReply=function(){
+    if(!replyText.trim()){message.warning('请输入回复内容');return;}
+    var newR={id:Date.now(),author:'当前用户',content:replyText,time:'刚刚',color:AVATAR_COLORS[colorIdx],children:[]};
+    if(onReply){onReply(c.id,newR);}
+    setReplyText('');
+    setReplyOpen(false);
+    message.success('回复成功');
+  };
+
+  var hasChildren=children.length>0;
+  var maxDepth=5;
+  var isDeep=depth>=maxDepth;
+
+  return React.createElement('div',{className:'comment-node'},
+    React.createElement('div',{className:'comment-node-body'},
+      React.createElement('div',{style:{display:'flex',gap:10}},
+        React.createElement('div',{className:'cmt-avatar',style:{background:'linear-gradient(135deg,'+AVATAR_COLORS[colorIdx]+',#36cfc9)',width:depth>0?28:36,height:depth>0?28:36,fontSize:depth>0?11:14}},c.author.charAt(0)),
+        React.createElement('div',{style:{flex:1,minWidth:0}},
+          React.createElement('div',{style:{display:'flex',alignItems:'center',gap:8,marginBottom:3,flexWrap:'wrap'}},
+            React.createElement('span',{style:{fontSize:13,fontWeight:600,color:'#333'}},c.author),
+            React.createElement('span',{style:{fontSize:11,color:'#bfbfbf',marginLeft:'auto'}},c.time)
+          ),
+          React.createElement('div',{style:{fontSize:14,color:'#444',lineHeight:1.75,marginBottom:4}},c.content),
+          React.createElement('div',{style:{display:'flex',alignItems:'center',gap:12}},
+            React.createElement('button',{className:'cmt-reply-btn',onClick:function(){setReplyOpen(!replyOpen)}},
+              React.createElement('i',{className:'ti ti-message',style:{fontSize:12}}),' 回复'
+            ),
+            hasChildren && React.createElement('button',{className:'cmt-collapse-btn',onClick:function(){setCollapsed(!collapsed)}},
+              React.createElement('i',{className:collapsed?'ti ti-chevron-right':'ti ti-chevron-down',style:{fontSize:10}}),
+              collapsed?'展开 '+(children.length)+' 条回复':'收起'
+            )
+          )
+        )
+      ),
+      replyOpen && React.createElement('div',{className:'cmt-reply-box',style:{marginLeft:depth>0?38:48}},
+        React.createElement(Input.TextArea,{rows:2,value:replyText,onChange:function(e){setReplyText(e.target.value)},placeholder:'回复 '+c.author+'...',style:{flex:1}}),
+        React.createElement('div',{style:{display:'flex',flexDirection:'column',gap:4}},
+          React.createElement(Button,{type:'primary',size:'small',onClick:handleReply,style:{borderRadius:8}},'发送'),
+          React.createElement(Button,{size:'small',onClick:function(){setReplyOpen(false);setReplyText('')},style:{borderRadius:8}},'取消')
+        )
+      )
+    ),
+    hasChildren && !isDeep && !collapsed && React.createElement('div',{className:'cmt-children'},
+      children.map(function(ch){
+        return React.createElement(CommentNode,{key:ch.id,comment:ch,depth:depth+1,onReply:onReply});
+      })
+    ),
+    hasChildren && isDeep && !collapsed && React.createElement('div',{className:'cmt-children'},
+      children.map(function(ch){
+        return React.createElement('div',{key:ch.id,className:'comment-reply-item',style:{marginBottom:4}},
+          React.createElement('div',{style:{display:'flex',alignItems:'center',gap:6,marginBottom:3}},
+            React.createElement('span',{style:{fontSize:12,fontWeight:600,color:'#555'}},ch.author),
+            React.createElement('span',{style:{fontSize:10,color:'#bfbfbf',marginLeft:'auto'}},ch.time)
+          ),
+          React.createElement('div',{style:{fontSize:12,color:'#555',lineHeight:1.6}},ch.content)
+        );
+      })
+    )
+  );
+}
+
+// ===== Main Page =====
+function DiscussionDetailPage(){
+  var post=null;
+  try{
+    var raw=localStorage.getItem('discussionDetail');
+    if(raw){post=JSON.parse(raw);}
+  }catch(e){}
+
+  var repliesState=useState(function(){
+    if(post && INIT_REPLIES[post.id]){return INIT_REPLIES[post.id];}
+    return [];
+  });
+  var replies=repliesState[0];var setReplies=repliesState[1];
+
+  var backUrl='PAGE-PC-18_讨论区.html';
+
+  var handleReply=function(commentId,newReply){
+    setReplies(function(prev){return addReplyToTree(prev,commentId,newReply);});
+  };
+
+  if(!post){
+    return React.createElement('div',{className:'page-wrap'},
+      React.createElement('a',{className:'nav-back',href:backUrl},
+        React.createElement('i',{className:'ti ti-arrow-left'}),'返回讨论区'
+      ),
+      React.createElement('div',{style:{background:'#fff',borderRadius:16,padding:60,textAlign:'center',boxShadow:'0 2px 12px rgba(0,0,0,0.04)'}},
+        React.createElement('i',{className:'ti ti-file-off',style:{fontSize:48,color:'#d9d9d9',display:'block',marginBottom:16}}),
+        React.createElement('div',{style:{fontSize:16,color:'#8c8c8c',marginBottom:8}},'未找到帖子信息'),
+        React.createElement('div',{style:{fontSize:13,color:'#bfbfbf',marginBottom:20}},'请从讨论区点击帖子进入'),
+        React.createElement(Button,{type:'primary',onClick:function(){window.location.href=backUrl}},'返回讨论区')
+      )
+    );
+  }
+
+  var cssClass=TOPIC_CSS_CLASS[post.topic]||'topic-blue';
+  var isVent=post.topic==='吐槽';
+  var totalReplies=countTree(replies);
+
+  return React.createElement('div',{className:'page-wrap'},
+    // Back nav
+    React.createElement('a',{className:'nav-back',href:backUrl,onClick:function(e){e.preventDefault();window.location.href=backUrl}},
+      React.createElement('i',{className:'ti ti-arrow-left'}),'返回讨论区'
+    ),
+
+    // Hero card
+    React.createElement('div',{className:'hero-card '+cssClass},
+      React.createElement('div',{className:'decoration'}),
+      React.createElement('div',{className:'decoration2'}),
+      React.createElement('div',{className:'hero-tags'},
+        React.createElement(Tag,{color:TOPIC_COLORS[post.topic]||'default',style:{borderRadius:6,border:'none',fontSize:12,padding:'2px 10px'}},post.topic)
+      ),
+      React.createElement('h1',{className:'hero-title'},post.title),
+      React.createElement('div',{className:'hero-meta'},
+        React.createElement('span',null,
+          React.createElement('i',{className:isVent?'ti ti-ghost':'ti ti-user-circle',style:{color:isVent?'#eb2f96':'#bfbfbf'}}),
+          post.author
+        ),
+        React.createElement('span',{className:'hero-meta-divider'}),
+        React.createElement('span',null,React.createElement('i',{className:'ti ti-calendar',style:{color:'#bfbfbf'}}),post.date),
+        React.createElement('span',{className:'hero-meta-divider'}),
+        React.createElement('span',null,React.createElement('i',{className:'ti ti-eye',style:{color:'#bfbfbf'}}),post.viewCount,' 浏览'),
+        React.createElement('span',{className:'hero-meta-divider'}),
+        React.createElement('span',null,React.createElement('i',{className:'ti ti-message-circle',style:{color:'#bfbfbf'}}),totalReplies,' 回复')
+      )
+    ),
+
+    // Content card
+    React.createElement('div',{className:'content-card'},
+      React.createElement('div',{className:'post-body'},post.content)
+    ),
+
+    // Comment section
+    React.createElement('div',{className:'comment-section'},
+      React.createElement('h4',null,React.createElement('i',{className:'ti ti-messages',style:{color:'#1890ff',marginRight:8}}),'评论 (',totalReplies,')'),
+      React.createElement('div',{style:{margin:'8px 0 16px',height:1,background:'#f0f0f0'}}),
+      replies.map(function(c){
+        return React.createElement(CommentNode,{key:c.id,comment:c,depth:0,onReply:handleReply});
+      })
+    ),
+
+    React.createElement('div',{className:'page-footer'},'© 2026 Quectel商机互助平台')
+  );
+}
+
+if(window.PROTO_SHELL && window.PROTO_SHELL.renderShell){
+  window.PROTO_SHELL.renderShell('discussion-detail');
+  if(window.DataTracker){window.DataTracker.trackPageView('discussion-detail','讨论详情');}
+}
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(DiscussionDetailPage,null));
+})();
+</script>
+</body>
+</html>
