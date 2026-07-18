@@ -1,0 +1,102 @@
+:root,
+/* 二级侧栏是在一级侧栏内部，避免被深色一级侧栏影响，这里定义一份二级侧栏的默认样式 */
+:root[data-deep-sub-sidebar='false']:not(:root[data-theme='dark']) .layout-sub-sidebar {
+  /**
+   * 颜色
+   */
+
+  /* 黑白基准色 */
+  --black: 0 0% 0%;
+  --white: 0 0% 100%;
+
+  /* background */
+  --bg: 0 0% 100%;
+
+  /* foreground */
+  --fg: 0 0% 11%;
+
+  /* 背景色 */
+
+  /* 主体区域 */
+  --main-bg: 0 0% 96%;
+
+  /* 卡片 */
+  --card-bg: 0 0% 100%;
+
+  /* Popover、Modal 等 */
+  --popover-bg: 0 0% 100%;
+
+  /* 弱背景（说明/辅助区块） */
+  --muted-bg: 0 0% 98%;
+
+  /* 顶栏 */
+  --header-bg: 0 0% 100%;
+
+  /* 一级侧栏 */
+  --sidebar-bg: 0 0% 100%;
+
+  /* 二级侧栏 */
+  --sub-sidebar-bg: 0 0% 100%;
+
+  /* 底栏 */
+  --footer-bg: 0 0% 100%;
+
+  /* 二级菜单（inline 模式） */
+  --sub-menu-bg: 0 0% 100%;
+
+  /* 文本色 */
+
+  /* 常规文本（正文色） */
+  --text: 0 0% 40%;
+
+  /* 次要文本（用于placeholder） */
+  --secondary-text: 0 0% 61%;
+
+  /* 辅助文本 */
+  --auxiliary-text: 0 0% 75%;
+
+  /* 语义色 */
+
+  /* 主要（品牌色） */
+  --primary: 218 96% 55%;
+
+  /* 成功 */
+  --success: 160 80% 41%;
+
+  /* 警告 */
+  --warning: 28 96% 55%;
+
+  /* 错误 */
+  --error: 360 99% 63%;
+
+  /* 信息 */
+  --info: 240 5% 96%;
+
+  /* 遮罩 */
+  --overlay: 0 0% 11% / 50%;
+
+  /**
+   * 结构
+   */
+
+  /* 边框，分隔线 */
+  --line: 0 0% 94%;
+
+  /* input、button 等组件的边框 */
+  --line-base: 0 0% 88%;
+
+  /* 阴影 */
+  --shadow: 0px 8px 24px 0px rgb(0 0 0 / 16%);
+
+  /* 圆角 */
+  --radius: 0.5rem;
+
+  /**
+   * 基准 字体 & 字号
+   */
+  --font-family:
+    -apple-system, blinkmacsystemfont, 'Segoe UI', roboto, 'Helvetica Neue', helvetica, arial,
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', 'Microsoft YaHei', 'Noto Sans SC',
+    sans-serif;
+  --font-size: 16px;
+}

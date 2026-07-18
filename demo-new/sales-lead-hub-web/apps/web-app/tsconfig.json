@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.app-base.json",
+  "compilerOptions": {
+    "baseUrl": ".", // 让相对项目根进行路径解析
+    "types": ["vite/client", "@q-mono-x/types/web", "vite-plugin-vue-layouts-next/client"]
+  },
+  "include": ["src", "**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

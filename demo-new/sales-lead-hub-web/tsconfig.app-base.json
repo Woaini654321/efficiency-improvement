@@ -1,0 +1,51 @@
+{
+  "compilerOptions": {
+    // —— 语言/环境目标 —— //
+    "target": "ES2020", // 编译输出的 JS 语法级别；较新可减少垫片/兼容成本
+    "module": "esnext", // 源码使用 ES 模块语义；交给打包器决定最终格式
+    "lib": ["ES2020", "DOM"], // 启用的全局类型环境：现代 JS + 浏览器 DOM API
+    "jsx": "preserve", // JSX 保留给后续工具（Vite/Babel/SWC）去转换；TS只做类型
+    "jsxImportSource": "vue",
+
+    // —— 模块解析与互操作（与现代打包器一致） —— //
+    "moduleResolution": "Bundler", // 按现代打包器解析（更贴近 Vite/webpack 的行为）
+    "resolveJsonModule": true, // 允许 import JSON 文件
+    "esModuleInterop": true, // CJS 与 ESM 默认导出互操作（简化 import 语法）
+    "allowSyntheticDefaultImports": true, // 无 default 导出也允许默认导入（类型层面放宽）
+    "isolatedModules": true, // 每个文件可独立转译；与 Babel/ts-loader 兼容
+    "forceConsistentCasingInFileNames": true, // 强制导入路径大小写与文件名一致（跨平台可靠）
+
+    // —— 严格类型检查（质量保障） —— //
+    "strict": true, // 打开所有严格检查
+    "noImplicitAny": true, // 禁止隐式 any
+    "noUnusedLocals": true, // 未使用的局部变量报错
+    "noUnusedParameters": true, // 未使用的函数参数报错
+    "exactOptionalPropertyTypes": true, // 可选属性更精确：区分 `T?` 与 `T|undefined`
+    "noFallthroughCasesInSwitch": true, // switch 穿透（漏写 break）报错
+    "noUncheckedIndexedAccess": true, // 索引访问自动带上 undefined，强制空值处理
+    "useDefineForClassFields": true, // 类字段采用 TC39 语义，避免运行时差异
+    "skipLibCheck": true, // 跳过 .d.ts 检查，加快编译、减少第三方噪音
+
+    // —— 路径别名（编辑器/类型解析层面） —— //
+    "baseUrl": ".", // 让相对项目根进行路径解析
+    "paths": {
+      "@/*": ["src/*"] // 定义 @ 别名指向 src；需在 Vite 的 resolve.alias 同步配置
+    },
+
+    // —— 调试与产物（前端应用通常交给打包器） —— //
+    "sourceMap": true, // 生成 sourcemap（配合打包器调试更友好）
+    "inlineSources": true, // 在 sourcemap 中内嵌源代码
+    "declaration": false, // 应用项目一般不产出 .d.ts（库项目才打开）
+    "noEmit": true // 不输出 JS；交给 Vite 构建（应用场景推荐）
+
+    // —— 全局类型包（请参考注释内容，自行在子包中配置）—— //
+    // 引入 Node 全局类型 + Vite 的客户端类型（如 import.meta.env） + 全局类型
+    // 如需要请对应安装：@types/node、vite、@q-mono-x/types 依赖
+    // Web 项目使用 @q-mono-x/types/web，Uni 项目使用 @q-mono-x/types/uni，通用包使用 @q-mono-x/types
+    // "types": ["node", "vite/client", "@q-mono-x/types"]
+  }
+
+  // —— 文件集合（请参考注释内容，自行在子包中配置）—— //
+  // "include": ["src"], // 编译/类型检查包含的目录与声明
+  // "exclude": ["node_modules", "dist"] // 排除依赖与打包产物目录
+}

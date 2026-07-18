@@ -1,0 +1,70 @@
+:root[data-theme='dark'],
+:root[data-deep-header='true'] .layout-header,
+:root[data-deep-sidebar='true'] .layout-sidebar,
+:root[data-deep-sidebar='true'] .layout-sidebar-drawer-menu,
+:root[data-deep-sub-sidebar='true'] .layout-sub-sidebar,
+:root[data-deep-footer='true'] .layout-footer {
+  /**
+   * 颜色
+   */
+
+  /* 黑白基准色 */
+  --black: 0 0% 100%;
+  --white: 0 0% 0%;
+
+  /* background */
+  --bg: 222.34deg 10.43% 12.27%;
+
+  /* foreground */
+  --fg: 0 0% 100% / 85%;
+
+  /* 背景色 */
+
+  /* 主体区域 */
+  --main-bg: 220deg 13.06% 9%;
+
+  /* 卡片 */
+  --card-bg: 222.34deg 10.43% 12.27%;
+
+  /* Popover、Modal 等 */
+  --popover-bg: 0 0% 14.2%;
+
+  /* 弱背景（说明/辅助区块） */
+  --muted-bg: 240 3.7% 15.9%;
+
+  /* 顶栏 */
+  --header-bg: 222.34deg 10.43% 12.27%;
+
+  /* 一级侧栏 */
+  --sidebar-bg: 222.34deg 10.43% 12.27%;
+
+  /* 二级侧栏 */
+  --sub-sidebar-bg: 222.34deg 10.43% 16.27%;
+
+  /* 底栏 */
+  --footer-bg: 222.34deg 10.43% 12.27%;
+
+  /* 二级菜单（inline 模式） */
+  --sub-menu-bg: 222.34deg 10.43% 16.27%;
+
+  /* 文本色 */
+
+  /* 常规文本（正文色） */
+  --text: 0 0% 100% / 65%;
+
+  /* 次要文本（用于placeholder） */
+  --secondary-text: 0 0% 100% / 45%;
+
+  /* 辅助文本 */
+  --auxiliary-text: 0 0% 100% / 25%;
+
+  /**
+   * 结构
+   */
+
+  /* 边框，分隔线 */
+  --line: 0 0% 16%;
+
+  /* input、button 等组件的边框 */
+  --line-base: 0 0% 46%;
+}

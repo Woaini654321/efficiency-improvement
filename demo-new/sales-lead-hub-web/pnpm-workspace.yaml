@@ -1,0 +1,8 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+  - 'web-plugins/*'
+  - 'uni-plugins/*'
+  - 'releases/cli/*'
+  - 'releases/ui/*'
+  - 'sites/*'

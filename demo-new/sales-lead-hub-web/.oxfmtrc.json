@@ -1,0 +1,33 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "trailingComma": "none",
+  "singleQuote": true,
+  "semi": false,
+  "printWidth": 100,
+  "arrowParens": "avoid",
+  "proseWrap": "always",
+  "tabWidth": 2,
+  "useTabs": false,
+  "quoteProps": "consistent",
+  "jsxSingleQuote": false,
+  "bracketSpacing": true,
+  "bracketSameLine": true,
+  "jsxBracketSameLine": false,
+  "vueIndentScriptAndStyle": false,
+  "singleAttributePerLine": false,
+  "htmlWhitespaceSensitivity": "ignore",
+  "sortPackageJson": true,
+  "ignorePatterns": [
+    "node_modules",
+    "uni_modules",
+    "static",
+    "dist",
+    "lib",
+    "cache",
+    "typed-router.d.ts",
+    "components.d.ts",
+    "uni-pages.d.ts",
+    "async-import.d.ts",
+    "async-component.d.ts"
+  ]
+}

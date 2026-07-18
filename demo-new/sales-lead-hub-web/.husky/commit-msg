@@ -1,0 +1,5 @@
+# 以仓库根目录为基准，获取仓库绝对路径，规避上下文问题
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+# 执行 commit-msg shell 脚本
+"${REPO_ROOT}/.husky/scripts/commit-msg.sh" || exit 1

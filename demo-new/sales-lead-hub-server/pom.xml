@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 继承框架 parent：一次性拿到 spring-boot / spring-cloud / spring-cloud-alibaba / quectel-code-bom 四套 BOM 的版本基线。
+         切勿改用 spring-boot-starter-parent —— 会漏掉 spring-cloud 版本仲裁导致 NoSuchMethodError。 -->
+    <parent>
+        <groupId>com.quectel.code</groupId>
+        <artifactId>quectel-code-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.quectel.web.cloud</groupId>
+    <artifactId>sales-lead-hub-server</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <description>销售商机互助平台后端服务</description>
+
+    <!-- Java 8 编译、UTF-8 编码均由 quectel-code-parent 统一设定。
+         com.quectel.code 组件依赖一律不写 version，由 parent 仲裁。 -->
+
+    <dependencies>
+        <dependency>
+            <groupId>com.quectel.code</groupId>
+            <artifactId>quectel-code-web-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.quectel.code</groupId>
+            <artifactId>quectel-code-security-starter</artifactId>
+        </dependency>
+        <!-- security-starter 的 SecurityMetaObjectHandler 在配置扫描期即引用 MyBatis-Plus 的 MetaObjectHandler，
+             故 security 场景必须同时引入 mysql-starter（提供 mybatis-plus），否则启动期 NoClassDefFoundError。 -->
+        <dependency>
+            <groupId>com.quectel.code</groupId>
+            <artifactId>quectel-code-mysql-starter</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <!-- version 与 repackage 均由 quectel-code-parent 的 pluginManagement 提供，无需写 version / executions。 -->
+                <configuration>
+                    <finalName>${project.name}</finalName>
+                    <outputDirectory>./dist</outputDirectory>
+                </configuration>
+            </plugin>
+            <!-- 不声明 maven-compiler-plugin：parent 已统一配置 Java 8 + Lombok/MapStruct 注解处理器路径。 -->
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,9 @@
+{
+  "**/*.{js,jsx,ts,tsx,vue,mjs,mts,cts,cjs}": [
+    "pnpm exec oxlint --fix",
+    "pnpm exec eslint --fix",
+    "pnpm exec oxfmt"
+  ],
+  "**/*.{html,json,md,scss,css,txt}": ["pnpm exec oxfmt"],
+  "**/*.{html,css,vue}": ["stylelint --fix"]
+}

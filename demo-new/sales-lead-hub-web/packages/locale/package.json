@@ -1,0 +1,14 @@
+{
+  "name": "@q-mono-x/locale",
+  "version": "1.0.0",
+  "description": "通用的语言包，可以将一些可以复用的语言放到这里哦~",
+  "keywords": [],
+  "license": "ISC",
+  "author": "Hovben Gong",
+  "main": "index.ts",
+  "scripts": {},
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vue-tsc": "3.1.5"
+  }
+}

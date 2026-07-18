@@ -1,0 +1,21 @@
+server:
+  # 前端 dev 也默认 8080，后端错开到 8081 避免本机同时启动时端口冲突
+  port: 8081
+
+spring:
+  application:
+    name: sales-lead-hub-server
+  datasource:
+    # 单体：直接写连接信息（dev MySQL）。createDatabaseIfNotExist 让首次启动自建库，免手工建库。
+    url: jdbc:mysql://192.168.10.28:3306/sales_lead_hub_server?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&createDatabaseIfNotExist=true
+    username: root
+    password: QuecTel!123
+
+quectel:
+  web:
+    swagger-auth:
+      username: admin
+      password: Info@a3XkQ9m
+  base:
+    # security-starter 用它拼装 UAA 地址（开发环境网关）。换 test/prod 改此行即可。
+    gateway-url: http://192.168.10.27:8088/api

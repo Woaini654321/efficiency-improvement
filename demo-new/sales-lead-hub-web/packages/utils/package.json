@@ -1,0 +1,19 @@
+{
+  "name": "@q-mono-x/utils",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "Hovben Gong",
+  "main": "index.ts",
+  "scripts": {},
+  "dependencies": {
+    "vue-i18n": "11.2.8"
+  },
+  "devDependencies": {
+    "@q-mono-x/types": "workspace:*",
+    "typescript": "5.9.3",
+    "vite": "8.1.0",
+    "vue-tsc": "3.1.5"
+  }
+}

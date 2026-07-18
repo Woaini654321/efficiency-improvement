@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    // —— 语言与模块目标 —— //
+    "target": "ES2020", // 输出的 JS 语法级别：使用较新的特性，减少垫片需求
+    "module": "ESNext", // 源代码使用 ES 模块；利于现代打包器与双格式产物
+    "jsx": "preserve", // JSX 保留给后续工具（Vite/Babel/SWC）去转换；TS只做类型
+    "jsxImportSource": "vue",
+
+    // —— 声明文件（库项目常用） —— //
+    "declaration": true, // 生成 .d.ts 类型声明文件（对外暴露类型）
+    "declarationMap": true, // 为声明文件生成 sourcemap，调试/跳转更友好
+    "emitDeclarationOnly": false, // 不仅生成声明，还同时输出 JS（如果只要声明可设为 true）
+
+    // —— 输出/目录结构 —— //
+    // "outDir": "dist", // 编译产物目录
+    // "rootDir": "src", // 源代码根目录（约束输入文件范围）
+
+    // —— 模块解析与互操作（现代工具链友好） —— //
+    "moduleResolution": "bundler", // 按现代打包器的解析行为处理（与 Vite/webpack 等一致）
+    "resolveJsonModule": true, // 允许 import JSON 文件
+    "esModuleInterop": true, // 与 CommonJS 默认导出互操作（简化 import 语法）
+    "allowSyntheticDefaultImports": true, // 即使模块无 default 导出，也允许默认导入（类型层面放宽）
+    "isolatedModules": true, // 保证每个文件可独立转译（与 Babel/ts-loader 更兼容）
+
+    // —— 严格类型检查（质量保障） —— //
+    "strict": true, // 开启所有严格检查
+    "noImplicitAny": true, // 禁止隐式 any
+    "exactOptionalPropertyTypes": true, // 可选属性类型更精确（避免误用）
+    "noUnusedLocals": true, // 未使用的局部变量报错（清理死代码）
+    "noUnusedParameters": true, // 未使用的参数报错（避免无意义参数）
+    "skipLibCheck": true, // 跳过 .d.ts 的类型检查（加快编译、减少第三方噪音）
+
+    // —— 调试体验 —— //
+    "sourceMap": true, // 生成 JS sourcemap，便于调试
+    "inlineSources": true // 在 sourcemap 中内嵌源代码（提升定位与还原）
+  }
+
+  // —— 文件包含（请参考注释内容，自行在子包中配置）—— //
+  // "include": ["src"], // 编译包含的源目录
+  // "exclude": ["node_modules", "dist", "lib"] // 排除依赖与产物目录（避免重复编译）
+}

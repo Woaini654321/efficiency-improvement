@@ -1,0 +1,70 @@
+{
+  "name": "sales-lead-hub-web",
+  "version": "1.0.0",
+  "description": "移远多端一体化Monorepo前端框架",
+  "keywords": [],
+  "license": "ISC",
+  "author": "Hovben Gong",
+  "type": "module",
+  "main": "index.js",
+  "dependencies": {
+    "@ai-request-guard/core": "^1.0.7",
+    "@ant-design/icons-vue": "7.0.1",
+    "@q-mono-x/styles": "workspace:*",
+    "@q-tools/core": "0.0.5",
+    "@q-ui/icons": "0.7.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "20.1.0",
+    "@commitlint/config-conventional": "20.0.0",
+    "@q-mono-x/types": "workspace:*",
+    "@types/node": "24.10.1",
+    "@typescript-eslint/parser": "8.48.0",
+    "chalk": "5.6.2",
+    "eslint": "9.39.1",
+    "eslint-plugin-oxlint": "1.30.0",
+    "eslint-plugin-vue": "10.6.2",
+    "execa": "9.6.1",
+    "husky": "9.1.7",
+    "lint-staged": "16.2.7",
+    "oxfmt": "0.42.0",
+    "oxlint": "1.30.0",
+    "postcss": "8.5.8",
+    "postcss-html": "1.8.1",
+    "postcss-load-config": "6.0.1",
+    "postcss-preset-env": "11.2.0",
+    "stylelint": "17.6.0",
+    "stylelint-config-standard": "40.0.0",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3",
+    "unocss": "66.5.10",
+    "vue-eslint-parser": "10.2.0",
+    "vue-tsc": "3.1.5"
+  },
+  "needBuild": false,
+  "needPublish": true,
+  "scripts": {
+    "lint": "oxlint & eslint",
+    "lint-fix": "oxlint --fix & eslint --fix",
+    "fmt": "oxfmt --check",
+    "fmt-fix": "oxfmt",
+    "stylelint": "stylelint \"**/*.{html,css,vue}\"\"",
+    "stylelint-fix": "stylelint \"**/*.{html,css,vue}\" --fix",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "typecheck:all": "pnpm -r --if-present run typecheck",
+    "lint-staged": "lint-staged",
+    "commitlint": "commitlint --from=HEAD~1 --to=HEAD",
+    "prune": "pnpm prune",
+    "delete-all-node_modules": "pnpm dlx rimraf --glob \"**/node_modules\" \"node_modules\"",
+    "dev:web-app": "pnpm --filter web-app dev",
+    "build:web-app": "pnpm --filter web-app build"
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": "8.1.0",
+      "typescript": "5.9.3",
+      "vue-tsc": "3.1.5",
+      "unocss": "66.5.10"
+    }
+  }
+}

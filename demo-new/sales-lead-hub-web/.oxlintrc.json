@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "extends": ["config:recommended"],
+  "plugins": ["import", "typescript", "unicorn"],
+  "rules": {
+    "no-console": "off",
+    "no-unused-vars": "error",
+    "no-debugger": "off"
+  },
+  "env": {
+    "es6": true
+  },
+  "globals": {},
+  "ignorePatterns": [
+    "node_modules",
+    "uni_modules",
+    "static",
+    "dist",
+    "lib",
+    "cache",
+    "typed-router.d.ts",
+    "components.d.ts",
+    "uni-pages.d.ts",
+    "async-import.d.ts",
+    "async-component.d.ts"
+  ],
+  "settings": {},
+  "overrides": []
+}

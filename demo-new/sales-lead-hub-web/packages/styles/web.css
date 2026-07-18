@@ -1,0 +1,6 @@
+/**
+ * 尽量使用 UnoCSS 预设完成样式的编写
+ */
+
+/* Design Token CSS 变量 */
+@import url('./index.css');

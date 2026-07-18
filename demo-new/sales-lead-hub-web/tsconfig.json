@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.app-base.json",
+  "compilerOptions": {
+    "ignoreDeprecations": "5.0",
+    "types": ["node", "@q-mono-x/types"]
+  },
+  "include": [".husky/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

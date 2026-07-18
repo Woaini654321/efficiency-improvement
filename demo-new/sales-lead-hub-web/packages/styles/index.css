@@ -1,0 +1,46 @@
+/* 尽量使用 UnoCSS 预设完成样式的编写 */
+
+/* Design Token CSS 变量 */
+@import url('./tokens/default.css');
+@import url('./tokens/dark.css');
+
+/* UI指定的字体样式 */
+html {
+  font-size: hsl(var(--font-size));
+  color: hsl(var(--fg));
+  min-width: 375px;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  overflow-y: hidden;
+}
+
+/* 覆盖所有 WebKit 自动填充背景色（Chrome/Edge/Safari） */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  /* 用 inset 的大 box-shadow 覆盖黄色背景 */
+  box-shadow: 0 0 0 1000px var(--bg) inset !important;
+
+  /* 文字色与主题一致 */
+  -webkit-text-fill-color: var(--fg) !important;
+
+  /* 光标颜色（可选） */
+  caret-color: var(--fg) !important;
+
+  /* 禁用默认背景颜色的过渡“闪烁” */
+  transition:
+    background-color 0s ease-out 99999s,
+    color 0s ease-out 99999s !important;
+}
+
+/* 解决 Chromium 内核（Chrome 120+，包括最近的正式版）引入的一项全新机制：
+“Clip Text overflow on user interaction”（用户交互时隐藏省略号并截断 ）所带来的问题 */
+.text-ellipsis {
+  user-select: none;
+}

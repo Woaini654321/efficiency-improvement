@@ -1,0 +1,5 @@
+# 浏览器 MCP 临时产物
+.playwright-mcp/
+
+# 运行 / 开发日志
+*.log
