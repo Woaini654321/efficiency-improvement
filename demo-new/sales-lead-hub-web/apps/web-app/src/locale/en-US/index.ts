@@ -10,6 +10,12 @@ export const en_US = {
     ...en_US_of_error_pages.page, // 错误页英文包
     'login': 'Log In',
     'home': 'Home',
+    'hello': {
+      'DEFAULT': 'Hello',
+      'world': {
+        'DEFAULT': 'Hello World'
+      }
+    },
     'demos': {
       'DEFAULT': 'Demos',
       'antdv-pro': {
@@ -27,6 +33,5 @@ export const en_US = {
     'fold-1-2-1': 'Fold-1-2-1',
     'external-link': 'External Link',
     'with-badge': 'With Badge'
-  },
-  test: 'test ddd'
+  }
 }

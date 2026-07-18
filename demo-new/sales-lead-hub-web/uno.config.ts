@@ -23,6 +23,7 @@ export default defineConfig({
       // 如果需要动态使用 图标 类名，需要加入到 safelist，否则相关动态 图标 类名可能无法编译进去
       safelist: [
         'q-icon:home-linear',
+        'q-icon:smile-linear',
         'q-icon:code-base-linear',
         'q-icon:link-linear',
         'q-icon:like-linear',

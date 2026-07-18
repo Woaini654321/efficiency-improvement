@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 当前登录用户信息 —— SSO(UAA) 骨架示例接口。
- * 需携带有效 UAA token 访问；未认证时框架返回 401。
+ * 需携带有效 UAA token 访问；未认证时本类显式判空返回 401（不依赖默认兜底）。
+ * ⚠️ 仅认证骨架、非分层范例：真实业务接口应走 controller→service 分层，勿照搬直接在 controller 调 SecurityUtils。
  */
 @RestController
 @RequestMapping("/me")
@@ -30,6 +31,10 @@ public class MeController {
     /** 仅获取当前登录用户 ID */
     @GetMapping("/id")
     public Result<Long> currentUserId() {
-        return Result.success(SecurityUtils.getCurrentUserId());
+        Long userId = SecurityUtils.getCurrentUserId();
+        if (userId == null) {
+            throw new BaseException(ErrorCode.UNAUTHORIZED);
+        }
+        return Result.success(userId);
     }
 }

@@ -1,0 +1,16 @@
+# 由 vue-coding reference-sync 自动生成。可按需修改，本文件不会被覆盖。
+# 划分依据：能重建的不提交，删了丢工作的提交。
+
+# 可重建 —— reference-sync 一条命令补齐
+cache/
+
+# 瞬时产物 —— 每次运行重写，提交进仓库只是噪音
+state/gate-tokens.json
+state/artifacts/
+state/swagger-cache.json
+
+# 以下**故意不忽略**：
+#   state/entities.json  state/step-state.json  state/project-state.json  state/env.lock
+#     └ 团队共享项目进度，删了丢工作
+#   gate/
+#     └ predev 门禁本体。同事 clone 后没装 vue-coding 也要能 pnpm dev，必须提交。

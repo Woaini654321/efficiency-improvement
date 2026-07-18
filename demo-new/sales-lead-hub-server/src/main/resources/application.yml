@@ -1,21 +1,29 @@
 server:
   # 前端 dev 也默认 8080，后端错开到 8081 避免本机同时启动时端口冲突
   port: 8081
+  servlet:
+    # 微服务上下文=sales-lead-hub，与前端 VITE_API_DEFAULT_SERVICE_BASE_URL 第一段成对（联调 STEP 00.6）。
+    # 生效后 /me → /sales-lead-hub/me；前端 q-cli.config.ts 代理 rewrite 去掉 /api 前缀后正好对上。
+    context-path: /sales-lead-hub
 
 spring:
+  # 敏感口令从 application-local.yml 覆盖注入（该文件被同目录 .gitignore 忽略，不提交）；
+  # 生产可改走环境变量 ${DB_PASSWORD} / ${SWAGGER_PASSWORD}。yml 本体只留占位，不写明文口令。
+  config:
+    import: optional:classpath:application-local.yml
   application:
     name: sales-lead-hub-server
   datasource:
     # 单体：直接写连接信息（dev MySQL）。createDatabaseIfNotExist 让首次启动自建库，免手工建库。
     url: jdbc:mysql://192.168.10.28:3306/sales_lead_hub_server?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&createDatabaseIfNotExist=true
     username: root
-    password: QuecTel!123
+    password: ${DB_PASSWORD:}
 
 quectel:
   web:
     swagger-auth:
       username: admin
-      password: Info@a3XkQ9m
+      password: ${SWAGGER_PASSWORD:}
   base:
     # security-starter 用它拼装 UAA 地址（开发环境网关）。换 test/prod 改此行即可。
     gateway-url: http://192.168.10.27:8088/api

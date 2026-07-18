@@ -11,6 +11,12 @@ export const zh_CN = {
     ...zh_CN_of_error_pages.page, // 错误页中文包
     'login': '登录',
     'home': '首页',
+    'hello': {
+      'DEFAULT': 'Hello',
+      'world': {
+        'DEFAULT': 'Hello World'
+      }
+    },
     'demos': {
       'DEFAULT': '示例',
       'antdv-pro': {
