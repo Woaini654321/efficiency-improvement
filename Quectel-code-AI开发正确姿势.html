@@ -1,0 +1,147 @@
+<!DOCTYPE html><html><head>
+      <title>Quectel-code AI 开发正确姿势</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+      code[class*=language-],pre[class*=language-]{color:#333;background:0 0;font-family:Consolas,"Liberation Mono",Menlo,Courier,monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.4;-moz-tab-size:8;-o-tab-size:8;tab-size:8;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:.8em;overflow:auto;border-radius:3px;background:#f5f5f5}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal;background:#f5f5f5}html body{font-family:'Helvetica Neue',Helvetica,'Segoe UI',Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em;border-bottom:1px solid #eaecef}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em;border-bottom:1px solid #eaecef}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body strong{color:#000}html body del{color:#5c5c5c}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ol,html body>ul{margin-bottom:16px}html body ol,html body ul{padding-left:2em}html body li{margin-bottom:0}html body li>p{margin-top:0;margin-bottom:0}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:700;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em .4em}html body pre>code{padding:0;margin:0;word-break:normal;white-space:pre;background:0 0;border:0}html body .highlight pre,html body pre{padding:1em;overflow:auto;line-height:1.45;border:1px solid #eaecef;border-radius:3px;background-color:#f6f8fa}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0;color:#24292e;font-size:.85em}html body blockquote,html body dl,html body ol,html body p,html body pre,html body ul{margin-top:0;margin-bottom:16px}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview ul{list-style:disc}.markdown-preview ul ul{list-style:circle}.markdown-preview ol{list-style:decimal}html body[for=html-export]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0;min-height:100vh}@media screen and (min-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{font-size:14px!important;padding:1em}}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}
+      </style>
+    </head>
+    <body for="html-export">
+      <div class="crossnote markdown-preview">
+      <div>
+<h1>用 Quectel-code 套件 + AI 快速开发 · 正确姿势</h1>
+<blockquote>
+<p>适用对象：<strong>已了解公司前后端框架与开发规范</strong>的研发。<br>
+目标：用 <code>code-master / vue-coding / java-coding</code> 三个 AI Skill，把“产品设计 → 前端设计 → 后端设计 → 前后端开发 → 联调 → 测试 → 上线”跑成一条可控流水线，研发时间最多可省 80%。<br>
+本文以「销售商机互助平台」骨架搭建为实战样本，把新手容易走的弯路反过来写成<strong>开场即说清</strong>的正确做法。</p>
+</blockquote>
+<hr>
+<h2>0. 一句话心法</h2>
+<p><strong>前端先行定义 API 契约 → 后端以契约为准开发 → 联调以 Swagger 为基准自动差异修复。</strong><br>
+全程由 <code>code-master</code> 调度，<code>.quectel-code/state/project-state.json</code> 状态文件驱动，断点可续、阶段可回退。你从“专项开发者”转成<strong>架构师/审查官</strong>视角：大多数时间是给 AI 指方向、做 check，而不是自己写代码。</p>
+<hr>
+<h2>1. 一次性准备（做一次，后面都省事）</h2>
+<h3>1.1 环境（版本要卡准，别用最新）</h3>
+<table>
+<thead><tr><th>工具</th><th>要求</th><th>易错点</th></tr></thead>
+<tbody>
+<tr><td>Node.js</td><td><strong>22.x（≥22.8）</strong></td><td>别用 24；vite 编译可能出问题</td></tr>
+<tr><td>pnpm</td><td><strong>10.x（必须 &lt; 11）</strong></td><td>⚠ 装了 pnpm 11 前端脚手架会拒绝，<code>npm i -g pnpm@10</code></td></tr>
+<tr><td>JDK</td><td>1.8</td><td></td></tr>
+<tr><td>Maven</td><td>3.6.3+（配好公司 Nexus 私服 settings.xml）</td><td><code>quectel-code-parent</code> 靠私服解析</td></tr>
+<tr><td>Git</td><td>≥ 2.30</td><td></td></tr>
+<tr><td>q-cli</td><td>由 vue-coding 自动装（内部 registry）</td><td></td></tr>
+</tbody>
+</table>
+<h3>1.2 GITLAB_TOKEN（必要）</h3>
+<p>Skill 要从内部 GitLab（project 1491 知识库）拉规范文档/组件库。GitLab → Settings → Access Tokens → 勾 <code>read_repository</code> → 创建，然后：</p>
+<pre><code>setx GITLAB_TOKEN "你的token"     # Windows；配完重启会话生效</code></pre>
+<blockquote>
+<p>如本机装了走外网的全局代理（<code>HTTP_PROXY</code>），需把 <code>git.quectel.com</code> 加进 <code>NO_PROXY</code>，否则内网 git 会被代理拦到拦截页。内网 git 认证可用 <code>git config --global url."http://oauth2:$GITLAB_TOKEN@git.quectel.com/".insteadOf "http://git.quectel.com/"</code>。</p>
+</blockquote>
+<h3>1.3 安装三个 Skill（手册 2.1 · Claude CLI 推荐）</h3>
+<pre><code>/plugin marketplace add http://git.quectel.com/quectel-code/quectel-plugin-marketplace.git
+/plugin install code-master
+/plugin install java-coding
+/plugin install vue-coding
+/reload-plugins        # 未立即生效时</code></pre>
+<p>装完<strong>重启 Claude Code</strong>，三个 skill 才作为正式能力加载。</p>
+<h3>1.4 ⚠ 项目必须放<strong>纯英文（ASCII）路径</strong></h3>
+<p>QMonoX 前端 self-check 门禁会拿<strong>页面绝对路径</strong>匹配中文——项目路径里只要有一个中文字（如 <code>大模型提效</code>），门禁就永久报「文件名含中文」，<code>pnpm dev</code> 起不来。<br>
+<strong>正确做法：一开始就把工作目录放在纯英文路径</strong>，例如 <code>C:\dev\demo-new\</code> 或 <code>C:\Users\xxx\Desktop\dmx\</code>。</p>
+<hr>
+<h2>2. 标准 Workspace 与六阶段</h2>
+<pre><code>{workdir}/                          ← 纯英文路径
+├── {project}-design/               # PRD 仓库（git clone）
+├── {project}-web/                  # 前端（vue-coding / q-cli 建）
+├── {project}-server/               # 后端（java-coding 建）
+├── docs/                           # 各阶段设计文档产物
+└── .quectel-code/state/project-state.json   # 进度真相源</code></pre>
+<table>
+<thead><tr><th>阶段</th><th>谁做</th><th>产物</th></tr></thead>
+<tbody>
+<tr><td>1 产品设计</td><td>你/PM</td><td>PRD、原型、需求分析 → <code>docs/</code></td></tr>
+<tr><td>2 前端设计</td><td><strong>vue-coding</strong></td><td>需求原型分析、前端详细设计、<strong>API 接口文档（前后端契约）</strong></td></tr>
+<tr><td>3 后端设计</td><td><strong>java-coding</strong></td><td>后端详细设计、DDL SQL</td></tr>
+<tr><td>4 前后端开发（可并行）</td><td><strong>vue-coding + java-coding</strong></td><td>Vue 页面/组件；Java 骨架+业务代码</td></tr>
+<tr><td>4.5 联调</td><td><strong>vue-coding integration</strong></td><td>Swagger diff → 自动修复 → 冒烟</td></tr>
+<tr><td>5 测试 / 6 上线</td><td>你</td><td>测试报告、部署配置</td></tr>
+</tbody>
+</table>
+<hr>
+<h2>3. 正确的对话流程（关键：让 code-master 调度，你只做决策）</h2>
+<h3>开场（就这一句）</h3>
+<blockquote>
+<p><strong>“我有一个『销售商机互助平台』系统，需求设计在 https://git.quectel.com/xxx ，用 code-master 帮我开发。”</strong></p>
+</blockquote>
+<p>code-master 会初始化 <code>project-state.json</code>、识别当前阶段、按阶段依次调度 vue-coding / java-coding。<strong>你不用记命令，跟着它的提问答即可。</strong></p>
+<h3>每阶段你要做的</h3>
+<ul>
+<li><strong>答它的选择题</strong>（组件选型、模块拆分等）——见第 4 节把关键决策提前说清。</li>
+<li><strong>每个 Step 让它输出边界确认</strong>：<code>[step X 完成] 引用规则文档 / 产物 / 下一步</code>，确认后再进下一步。</li>
+<li><strong>不确定就让它停下问你</strong>，别让它猜框架内部 API。</li>
+</ul>
+<h3>只搭框架骨架（需求未就位时）</h3>
+<blockquote>
+<p><strong>“需求还没就位，先用 java-coding 建后端骨架、vue-coding 建前端骨架，要支持 SSO 单点登录和获取用户信息。”</strong></p>
+</blockquote>
+<hr>
+<h2>4. 开场即说清的关键决策（这是避免弯路的精华）</h2>
+<p>新手最容易在这几点上返工。<strong>在对应阶段一开始就主动说清</strong>：</p>
+<ol>
+<li><strong>要 SSO/security，就同时选 mysql 组件。</strong><br>
+后端 <code>security-starter</code> 内部依赖 MyBatis-Plus，<strong>只选 web+security 不选 mysql 会编译过、但一启动就 <code>NoClassDefFoundError</code></strong>。<br>
+<em>正确话术</em>：“后端组件选 web + security + mysql；用框架 <code>quectel-code-security-starter</code> 接 UAA，示例接口 <code>/me</code> 用 <code>SecurityUtils.getCurrentUser()</code> 取当前用户。”</li>
+<li><strong>暂时没有数据库？告诉 AI“不连库走内存”。</strong>（手册 FAQ 5.4）<br>
+出于安全，skill 默认不直连数据库。骨架阶段可让它走内存；项目跑起来后再给数据库信息让它对接。<br>
+<em>或</em>：明确给 dev 库信息，JDBC url 加 <code>createDatabaseIfNotExist=true</code> 让首启自建库。</li>
+<li><strong>环境固定说清</strong>（dev/test/prod）。SSO 的 UAA 地址、Nacos、数据源按环境不同，一开始说“用开发环境”，它就取 dev 值，省得来回改。</li>
+<li><strong>前端让 q-cli 建，禁止手搭。</strong> 组件（QBigTable/QForm 等）从 GitLab 下载，依赖装进 <code>apps/web-app</code> 工作区（不是 monorepo 根）。这些 vue-coding 会自动做，你别自己动手拼。</li>
+<li><strong>单体 vs 微服务</strong>：要注册 Nacos/网关就选 <code>cloud</code> 组件；只是本地骨架就先不选，避免依赖 Nacos 才能启动。</li>
+</ol>
+<hr>
+<h2>5. 高频坑位 → 正确姿势（速查）</h2>
+<table>
+<thead><tr><th>坑</th><th>现象</th><th>正确姿势</th></tr></thead>
+<tbody>
+<tr><td>项目路径含中文</td><td>前端 <code>pnpm dev</code> 门禁报「文件名含中文」永不过</td><td>项目放纯 ASCII 路径</td></tr>
+<tr><td>security 不带 mysql</td><td>编译过、启动 <code>NoClassDefFoundError: MetaObjectHandler</code></td><td>security 场景必带 mysql-starter</td></tr>
+<tr><td>pnpm 版本 11</td><td>q-cli / 脚手架报错</td><td>锁 pnpm 10.x</td></tr>
+<tr><td>依赖装到 monorepo 根</td><td>组件报缺依赖</td><td>装进 <code>apps/web-app</code> 工作区</td></tr>
+<tr><td>clean-demo 没删干净</td><td>self-check 因残留 demo 页 FAIL</td><td>手删 <code>demos/external-link/home/with-badge</code> 等脚手架演示页</td></tr>
+<tr><td>内网 git/registry 被代理拦</td><td>clone 跳到拦截页</td><td><code>NO_PROXY</code> 加 <code>git.quectel.com</code>；token 走 <code>insteadOf</code></td></tr>
+<tr><td>装完 skill 没重启</td><td>skill 不生效</td><td>重启 Claude Code / <code>/reload-plugins</code></td></tr>
+<tr><td>AI 猜框架内部 API</td><td>用 antdv/Spring 通用知识硬套出错</td><td>让它先查 <code>{starter}-starter.md</code> / constraints / codegraph，拿不到就停下问你</td></tr>
+</tbody>
+</table>
+<hr>
+<h2>6. 一个完整的“正确版”示范对话（骨架搭建）</h2>
+<blockquote>
+<p>以下是如果一开始就懂规范、<strong>没有弯路</strong>的理想流程。</p>
+</blockquote>
+<ol>
+<li><strong>你</strong>：（在纯英文路径 <code>C:\dev\demo-new</code> 打开 Claude Code，已装好 skill 并重启）<br>
+“用 code-master 帮我搭『销售商机互助平台』前后端框架骨架，前端 vue3+ts+vite，后端 Java；要支持 SSO 单点登录和获取用户信息，需求未就位先搭架子。”</li>
+<li><strong>code-master</strong>：初始化状态 → 识别为 Phase 4 骨架 → 调度 java-coding + vue-coding，让你确认组件。</li>
+<li><strong>你</strong>（一次说清关键决策）：<br>
+“后端组件 web + security + mysql，单体不接 Nacos；SSO 用 quectel-code-security-starter 接 dev 环境 UAA，加个 <code>/me</code> 示例接口用 SecurityUtils.getCurrentUser() 取当前用户；dev MySQL 用 createDatabaseIfNotExist 自建库。前端用 q-cli 建 QMonoX 骨架。”</li>
+<li><strong>java-coding</strong>：读 <code>init-backend.md</code> + <code>security-starter.md</code> → 生成 pom（继承 quectel-code-parent，不写版本号）/启动类/application.yml/<code>/me</code> 接口 → <code>mvn compile</code> + <code>spring-boot:run</code> 验证启动。</li>
+<li><strong>vue-coding</strong>：读 <code>create-project.md</code> → q-cli create + add web-app + 装依赖 + 下组件 + 注册 Antd（在 QUI 前）→ <code>pnpm dev</code> self-check PASS。</li>
+<li><strong>你</strong>：确认两边都起来（后端 :8081，前端 :8080/web），骨架交付。需求就位后回到 Phase 1/2 让 code-master 继续。</li>
+</ol>
+<p><strong>产出</strong>：可编译、可启动、符合部门框架规范的前后端骨架，SSO 打通、能取用户信息。</p>
+<hr>
+<h2>7. 交付验收标准（每阶段 check 什么）</h2>
+<ul>
+<li><strong>后端</strong>：<code>mvn compile</code> BUILD SUCCESS；<code>mvn spring-boot:run</code> 出现 <code>Started ...Application</code>；Swagger <code>/doc.html</code> 可访问；<code>/me</code> 带 UAA token 能取到用户。</li>
+<li><strong>前端</strong>：<code>pnpm dev:web-app</code> 出现 <code>Local: ...</code>，self-check <code>FAIL: 0</code>；页面 F12 接口调用正确、数据回显正常。</li>
+<li><strong>联调</strong>：以后端 Swagger 为基准做 diff，snake_case↔camelCase、字段差异由 vue-coding 的 integration 流程自动修复。</li>
+<li><strong>端口</strong>：后端与前端 dev 默认都 8080，本机同起时把后端错开到 8081。</li>
+</ul>
+<hr>
+<blockquote>
+<p>记住：AI 写错、理解错很正常——你以<strong>把控者</strong>身份指挥它改就行。真正的提效不在“让 AI 少犯错”，而在你用架构师视角把关键决策<strong>提前说清</strong>、让 skill 严格按公司规范执行。</p>
+</blockquote>
+      </div>
+      </div>
+    </body></html>
