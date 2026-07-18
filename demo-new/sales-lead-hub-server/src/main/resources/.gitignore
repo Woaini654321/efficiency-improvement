@@ -1,0 +1,2 @@
+# 本地开发密钥覆盖（含真实口令），禁止提交
+application-local.yml

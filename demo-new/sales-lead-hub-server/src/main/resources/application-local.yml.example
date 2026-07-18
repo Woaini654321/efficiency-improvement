@@ -1,0 +1,9 @@
+# 复制本文件为 application-local.yml（同目录 .gitignore 已忽略后者，不会提交），填真实开发口令。
+# 生产环境改用环境变量 DB_PASSWORD / SWAGGER_PASSWORD 注入亦可。
+spring:
+  datasource:
+    password: your-dev-db-password
+quectel:
+  web:
+    swagger-auth:
+      password: your-swagger-password
