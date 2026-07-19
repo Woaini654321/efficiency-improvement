@@ -28,6 +28,10 @@
 --  · 冗余快照列（用户硬约束「一展示字段一表、绝不跨表拼装」）：publisher_name/responder_name/*_names 等
 --    与 FK id 同事务写入，展示读快照免 JOIN；关系/筛选走 FK 与关联表。
 --  · 不建物理外键（MyBatis-Plus 常规，关系在应用层保证，利于软删/批量/分库）；仅建索引。
+--  · 聚合计数写入纪律（评审 M2）：view/like/collect/comment/response_count 与真相行(interaction/view_log)
+--    的 insert/delete 必须同一事务增减；notification_batch.read_count/confirm_count 支撑 §7 48h 已读率<80%
+--    告警，建议直接 COUNT(*) 现算(已有 idx_notif_batch) 或加周期对账，避免与 notification.is_read 漂移误告警。
+--  · SLA 升级幂等（评审 m6）：bump escalation_level + 发 sla_escalate 通知 + 写 audit_log 须同事务，防重复催办。
 -- =============================================================================
 
 CREATE DATABASE IF NOT EXISTS `sales_lead_hub_server`
@@ -130,6 +134,7 @@ CREATE TABLE `category` (
   `create_time` DATETIME     DEFAULT NULL,
   `update_time` DATETIME     DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_cat_parent_name` (`parent_id`, `name`),
   KEY `idx_cat_parent` (`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='分类标签';
 
@@ -184,8 +189,7 @@ CREATE TABLE `opportunity_request` (
   `publisher_dept_name`        VARCHAR(128) DEFAULT NULL COMMENT '发布部门名快照',
   `visibility_scope`           VARCHAR(20)  NOT NULL DEFAULT 'all' COMMENT 'all/dept/personnel(收窄 D4)',
   `visibility_values`          JSON         DEFAULT NULL COMMENT 'dept/personnel 时的具体范围 id 集',
-  `invited_product_line_ids`   JSON         DEFAULT NULL COMMENT '邀请产品线 id 集',
-  `invited_product_line_names` JSON         DEFAULT NULL COMMENT '邀请产品线名快照(展示免JOIN)',
+  `invited_product_line_names` JSON         DEFAULT NULL COMMENT '邀请产品线名快照(展示免JOIN；关系真相源见 request_product_line)',
   `category_names`             JSON         DEFAULT NULL COMMENT '分类名快照(关系见 request_category)',
   `sla_status`                 VARCHAR(20)  NOT NULL DEFAULT 'normal' COMMENT 'normal/warning/overdue/responded(派生)',
   `escalation_level`           VARCHAR(4)   NOT NULL DEFAULT 'L0' COMMENT 'L0/L1/L2/L3',
@@ -394,6 +398,14 @@ CREATE TABLE `request_category` (
   PRIMARY KEY (`request_id`, `category_id`),
   KEY `idx_rc_category` (`category_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='需求-分类关联';
+
+-- 需求-邀请产品线关联（关系真相源；反查「某产品线被哪些需求邀请」+ §3.2 SLA L1 升级人解析走此表索引）
+CREATE TABLE `request_product_line` (
+  `request_id`      BIGINT NOT NULL COMMENT '需求 FK',
+  `product_line_id` BIGINT NOT NULL COMMENT '产品线 FK',
+  PRIMARY KEY (`request_id`, `product_line_id`),
+  KEY `idx_rpl_pl` (`product_line_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='需求-邀请产品线关联';
 
 -- =============================================================================
 -- 18. alert 运营告警（轻量派生表：低发布量/低触达/SLA 超时）

@@ -67,11 +67,7 @@ public class OpportunityRequestDO extends BaseEntity {
     @TableField(typeHandler = JacksonTypeHandler.class)
     private List<String> visibilityValues;
 
-    /** 邀请产品线 id 集 */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private List<String> invitedProductLineIds;
-
-    /** 邀请产品线名快照(展示免JOIN) */
+    /** 邀请产品线名快照(展示免JOIN；关系真相源见 request_product_line 关联表) */
     @TableField(typeHandler = JacksonTypeHandler.class)
     private List<String> invitedProductLineNames;
 
