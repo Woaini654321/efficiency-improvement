@@ -1,0 +1,148 @@
+{
+  "competitors": {
+    "records": [
+      {
+        "intel_id": "CIN3001",
+        "brand": "Telit",
+        "product": "FN990",
+        "intel_type": "new_product",
+        "title": "Telit 发布 FN990 系列 5G Sub-6/毫米波模组",
+        "summary": "FN990 支持 5G NR Sub-6GHz 与毫米波，面向 FWA 与工业路由，主打高吞吐与低时延。",
+        "source": "Telit 官网新闻",
+        "submitter_name": "张伟",
+        "created_at": "2026-07-11 09:30:00"
+      },
+      {
+        "intel_id": "CIN3002",
+        "brand": "广和通",
+        "product": "FM650",
+        "intel_type": "price_change",
+        "title": "广和通 FM650 5G 模组渠道报价下调约 12%",
+        "summary": "受供应链成本回落影响，广和通对 FM650 渠道价进行下调，进一步压缩中端 5G 模组价格空间。",
+        "source": "渠道商反馈",
+        "submitter_name": "李娜",
+        "created_at": "2026-07-10 14:20:00"
+      },
+      {
+        "intel_id": "CIN3003",
+        "brand": "Sierra Wireless",
+        "product": "EM919x",
+        "intel_type": "customer_case",
+        "title": "Sierra EM919x 在北美工业路由客户批量导入",
+        "summary": "某北美工业路由厂商采用 EM919x 完成量产，主打运营商认证齐全与长期供货。",
+        "source": "行业展会交流",
+        "submitter_name": "王强",
+        "created_at": "2026-07-09 11:00:00"
+      },
+      {
+        "intel_id": "CIN3004",
+        "brand": "u-blox",
+        "product": "LARA-R6",
+        "intel_type": "new_product",
+        "title": "u-blox 推出 LARA-R6 全球 LTE Cat.1 模组",
+        "summary": "LARA-R6 单一硬件覆盖全球频段，主打车规与工业市场，强调长生命周期供货。",
+        "source": "u-blox 产品公告",
+        "submitter_name": "赵敏",
+        "created_at": "2026-07-08 10:15:00"
+      },
+      {
+        "intel_id": "CIN3005",
+        "brand": "Thales",
+        "product": "Cinterion MV32",
+        "intel_type": "other",
+        "title": "Thales MV32 强化 eSIM 与安全能力",
+        "summary": "MV32 集成 IoT SAFE 与 eSIM，面向对安全合规要求高的能源与支付场景。",
+        "source": "厂商白皮书",
+        "submitter_name": "陈涛",
+        "created_at": "2026-07-07 16:40:00"
+      },
+      {
+        "intel_id": "CIN3006",
+        "brand": "Telit",
+        "product": "ME910G1",
+        "intel_type": "price_change",
+        "title": "Telit ME910G1 LTE-M/NB 模组年度框架价上浮",
+        "summary": "受特定料件涨价影响，Telit 对 ME910G1 框架价小幅上浮，NB 市场竞争态势变化。",
+        "source": "客户采购通报",
+        "submitter_name": "刘洋",
+        "created_at": "2026-07-06 09:50:00"
+      },
+      {
+        "intel_id": "CIN3007",
+        "brand": "广和通",
+        "product": "SC138",
+        "intel_type": "customer_case",
+        "title": "广和通 SC138 智能座舱模组拿下车厂定点",
+        "summary": "广和通 SC138 在某自主品牌车厂智能座舱项目获得定点，涉及多车型平台。",
+        "source": "汽车行业媒体",
+        "submitter_name": "周杰",
+        "created_at": "2026-07-05 13:10:00"
+      },
+      {
+        "intel_id": "CIN3008",
+        "brand": "Sierra Wireless",
+        "product": "RC7620",
+        "intel_type": "new_product",
+        "title": "Sierra RC7620 紧凑型 LTE 模组面向可穿戴",
+        "summary": "RC7620 主打小尺寸与低功耗，面向可穿戴与资产追踪场景，强调全球运营商认证。",
+        "source": "厂商新闻稿",
+        "submitter_name": "郑浩",
+        "created_at": "2026-07-04 08:20:00"
+      }
+    ],
+    "total": 8
+  },
+  "industries": {
+    "records": [
+      {
+        "intel_id": "IIN4001",
+        "industry": "trend",
+        "title": "eRedCap 加速轻量 IoT 市场分层，2027 出货预期上调",
+        "summary": "机构预测 eRedCap 将进一步细分中低速 IoT 市场，与 Cat.1 bis 形成互补，出货预期上调。",
+        "source": "第三方市场研究报告",
+        "created_at": "2026-07-11 10:00:00"
+      },
+      {
+        "intel_id": "IIN4002",
+        "industry": "automotive",
+        "title": "车载 5G+C-V2X 前装渗透率持续提升",
+        "summary": "多家车厂将 C-V2X 纳入中高配标配，前装通信模组需求结构向 5G 迁移。",
+        "source": "汽车电子行业周报",
+        "created_at": "2026-07-10 09:15:00"
+      },
+      {
+        "intel_id": "IIN4003",
+        "industry": "policy",
+        "title": "多地出台智慧农业补贴，物联网终端招标增多",
+        "summary": "地方政府智慧农业专项补贴落地，土壤墒情与灌溉监测类项目招标数量明显上升。",
+        "source": "公开招标信息汇总",
+        "created_at": "2026-07-09 14:30:00"
+      },
+      {
+        "intel_id": "IIN4004",
+        "industry": "energy",
+        "title": "新型储能与充电桩通信国标推进，模组需求增长",
+        "summary": "储能与充电基础设施通信接口标准化推进，带动工业级通信模组稳定增长。",
+        "source": "能源行业协会通讯",
+        "created_at": "2026-07-08 11:45:00"
+      },
+      {
+        "intel_id": "IIN4005",
+        "industry": "industrial",
+        "title": "工业 IoT 私有 5G 专网试点扩大",
+        "summary": "制造企业私有 5G 专网试点范围扩大，对高可靠工业模组与定制化需求提升。",
+        "source": "工业互联网联盟简报",
+        "created_at": "2026-07-07 16:00:00"
+      },
+      {
+        "intel_id": "IIN4006",
+        "industry": "smartcity",
+        "title": "智慧城市感知终端集采规模扩大，LoRa/NB 并行",
+        "summary": "多地智慧城市项目扩大感知终端集采，LoRa 与 NB-IoT 技术路线并行推进。",
+        "source": "智慧城市项目公示",
+        "created_at": "2026-07-06 10:20:00"
+      }
+    ],
+    "total": 6
+  }
+}

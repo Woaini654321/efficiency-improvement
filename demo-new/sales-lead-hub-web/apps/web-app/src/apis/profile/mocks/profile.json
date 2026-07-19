@@ -1,0 +1,44 @@
+{
+  "user": {
+    "name": "张伟",
+    "dept_name": "无线模组产品部",
+    "role_name": "产品经理",
+    "employee_no": "QT100237"
+  },
+  "stats": {
+    "collect_count": 18,
+    "comment_count": 42,
+    "publish_count": 9,
+    "solution_count": 5,
+    "draft_count": 3,
+    "view_count": 316
+  },
+  "subscriptions": ["5G模组", "Cat.1", "车载方案", "NB-IoT", "智慧城市"],
+  "collects": [
+    { "collect_id": "COL7001", "title": "5G RedCap 模组 RG200U 产品选型方案", "type": "opportunity", "is_deleted": false, "created_at": "2026-07-16 10:20:00" },
+    { "collect_id": "COL7002", "title": "车载 T-Box 5G 模组选型需求", "type": "requirement", "is_deleted": false, "created_at": "2026-07-14 09:00:00" },
+    { "collect_id": "COL7003", "title": "GNSS 高精度定位模组 LC29H 产品信息", "type": "opportunity", "is_deleted": false, "created_at": "2026-07-10 15:30:00" },
+    { "collect_id": "COL7004", "title": "已被下架的天线方案（示例）", "type": "opportunity", "is_deleted": true, "created_at": "2026-07-05 11:00:00" }
+  ],
+  "publishes": [
+    { "opportunity_id": "OPP1001", "title": "5G RedCap 模组 RG200U 产品选型方案", "status": "published", "view_count": 1280, "like_count": 86, "comment_count": 23, "created_at": "2026-06-20 09:12:00" },
+    { "opportunity_id": "OPP1004", "title": "NB-IoT 智慧水表整体解决方案", "status": "published", "view_count": 720, "like_count": 40, "comment_count": 8, "created_at": "2026-06-12 08:45:00" },
+    { "opportunity_id": "OPP1009", "title": "工业路由 5G CPE 参考设计方案", "status": "archived", "view_count": 233, "like_count": 12, "comment_count": 2, "created_at": "2026-05-28 15:20:00" },
+    { "opportunity_id": "OPP1012", "title": "车规级以太网 T1 模组产品信息（草稿）", "status": "draft", "view_count": 0, "like_count": 0, "comment_count": 0, "created_at": "2026-06-22 17:00:00" }
+  ],
+  "solutions": [
+    { "solution_id": "SOL8001", "title": "面向智慧水表的 BC660K-GL 低功耗方案", "request_title": "智慧水表 NB-IoT 选型需求", "summary": "以 BC660K-GL 为核心，配套 DTU 与云平台对接，典型 5 年续航。", "adopter_name": "赵敏", "adopter_dept_name": "行业解决方案部" },
+    { "solution_id": "SOL8002", "title": "共享设备 Cat.1 bis 批量导入方案", "request_title": "共享两轮车联网模组需求", "summary": "EG912U 批量导入实践，年出货 200 万片落地经验。", "adopter_name": "李娜", "adopter_dept_name": "行业解决方案部" }
+  ],
+  "comments": [
+    { "comment_id": "CMT9001", "content": "这个方案的功耗数据很有参考价值，建议补充低温场景实测。", "source_title": "5G RedCap 模组 RG200U 产品选型方案", "created_at": "2026-07-17 14:20:00" },
+    { "comment_id": "CMT9002", "content": "请问 AG59x 的 C-V2X 直连时延实测大概多少？", "source_title": "车载 4G+C-V2X 通信模组 AG59x 产品信息", "created_at": "2026-07-15 10:05:00" },
+    { "comment_id": "CMT9003", "content": "LoRa 网关规模化部署的运维成本能再展开讲讲吗？", "source_title": "智慧城市 LoRa 网关部署成功案例", "created_at": "2026-07-12 16:40:00" }
+  ],
+  "view_history": [
+    { "history_id": "VH0001", "title": "车载 4G+C-V2X 通信模组 AG59x 产品信息", "type": "opportunity", "viewed_at": "2026-07-18 09:10:00" },
+    { "history_id": "VH0002", "title": "Cat.1 bis 模组在共享设备中的成功案例", "type": "opportunity", "viewed_at": "2026-07-17 17:30:00" },
+    { "history_id": "VH0003", "title": "智慧水表 NB-IoT 选型需求", "type": "requirement", "viewed_at": "2026-07-16 11:00:00" },
+    { "history_id": "VH0004", "title": "GNSS 高精度定位模组 LC29H 产品信息", "type": "opportunity", "viewed_at": "2026-07-15 08:45:00" }
+  ]
+}

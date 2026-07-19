@@ -25,6 +25,8 @@ import { track } from '@q-web-plugin/track'
 import AntdvPro from '@q-web-plugin/antdv-pro'
 import { zh_CN, en_US } from './locale'
 import 'virtual:ai-request-guard/report-sink'
+// 开启 AIRequestGuard mock 模式（DEV），使各模块页面在无后端时即可展示 mock 数据
+import './apis/guard-setup'
 
 i18n.global.setLocaleMessage('zh-CN', zh_CN)
 i18n.global.setLocaleMessage('en-US', en_US)

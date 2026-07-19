@@ -1,0 +1,77 @@
+{
+  "records": [
+    {
+      "announcement_id": "ANN4001",
+      "title": "关于数据隔离配置调整的重要通知",
+      "content": "<h2>调整说明</h2><p>为进一步保障各产品线数据安全，平台将于近期对数据隔离策略进行升级……</p><p>请各位同事知悉并配合。</p>",
+      "type": "policy",
+      "publisher_name": "系统管理员",
+      "is_pinned": true,
+      "priority": "important",
+      "status": "published",
+      "view_count": 1860,
+      "published_at": "2026-07-17 10:00:00"
+    },
+    {
+      "announcement_id": "ANN4002",
+      "title": "平台系统维护公告（本周六 22:00-24:00）",
+      "content": "<h2>维护时间</h2><p>本周六 22:00 至 24:00。</p><h2>影响范围</h2><p>维护期间平台可能短暂不可用，请提前保存工作内容。</p>",
+      "type": "notice",
+      "publisher_name": "运营团队",
+      "is_pinned": true,
+      "priority": "important",
+      "status": "published",
+      "view_count": 1240,
+      "published_at": "2026-07-13 09:00:00"
+    },
+    {
+      "announcement_id": "ANN4003",
+      "title": "「金牌方案」季度评选活动正式启动",
+      "content": "<h2>活动介绍</h2><p>本季度将评选出 10 份金牌方案，入选者可获得平台积分与荣誉徽章……</p>",
+      "type": "activity",
+      "publisher_name": "运营团队",
+      "is_pinned": false,
+      "priority": "normal",
+      "status": "published",
+      "view_count": 980,
+      "published_at": "2026-07-10 14:00:00"
+    },
+    {
+      "announcement_id": "ANN4004",
+      "title": "商机需求响应 SLA 时效规则说明",
+      "content": "<h2>时效规则</h2><p>特急 2 小时、紧急 4 小时、普通 24 小时首响时限，超时将自动升级提醒……</p>",
+      "type": "policy",
+      "publisher_name": "系统管理员",
+      "is_pinned": false,
+      "priority": "important",
+      "status": "published",
+      "view_count": 1520,
+      "published_at": "2026-07-05 11:30:00"
+    },
+    {
+      "announcement_id": "ANN4005",
+      "title": "新版方案库上线，支持封面与附件预览",
+      "content": "<h2>更新内容</h2><p>方案库全新改版，支持封面展示、附件在线预览与关键词标签检索……</p>",
+      "type": "notice",
+      "publisher_name": "产品团队",
+      "is_pinned": false,
+      "priority": "normal",
+      "status": "published",
+      "view_count": 760,
+      "published_at": "2026-07-01 09:00:00"
+    },
+    {
+      "announcement_id": "ANN4006",
+      "title": "平台使用满意度调研邀请",
+      "content": "<h2>调研目的</h2><p>诚邀各位填写满意度问卷，您的反馈将帮助我们持续改进平台体验……</p>",
+      "type": "other",
+      "publisher_name": "运营团队",
+      "is_pinned": false,
+      "priority": "normal",
+      "status": "published",
+      "view_count": 430,
+      "published_at": "2026-06-26 16:00:00"
+    }
+  ],
+  "total": 6
+}

@@ -1,0 +1,37 @@
+{
+  "uv": 3820,
+  "pv": 12460,
+  "uv_mom": 8.6,
+  "pv_mom": 12.3,
+  "active_users": 486,
+  "active_users_mom": 5.2,
+  "week_publish": 37,
+  "week_publish_mom": -3.1,
+  "response_rate": 82.5,
+  "response_rate_mom": 4.7,
+  "adopt_rate": 61.3,
+  "adopt_rate_mom": 2.4,
+  "hot_contents": [
+    { "content_id": "OPP1008", "title": "GNSS 高精度定位模组 LC29H 产品信息", "type": "product_info", "view_count": 1560 },
+    { "content_id": "OPP1001", "title": "5G RedCap 模组 RG200U 产品选型方案", "type": "solution", "view_count": 1280 },
+    { "content_id": "OPP1003", "title": "车载 4G+C-V2X 通信模组 AG59x 产品信息", "type": "product_info", "view_count": 1120 },
+    { "content_id": "OPP1002", "title": "Cat.1 bis 模组在共享设备中的成功案例", "type": "success_case", "view_count": 940 },
+    { "content_id": "OPP1007", "title": "智慧城市 LoRa 网关部署成功案例", "type": "success_case", "view_count": 655 }
+  ],
+  "category_dist": [
+    { "name": "IoT模组", "count": 128, "percent": 34.2 },
+    { "name": "5G模组", "count": 86, "percent": 23.0 },
+    { "name": "行业方案", "count": 64, "percent": 17.1 },
+    { "name": "车载方案", "count": 48, "percent": 12.8 },
+    { "name": "天线产品", "count": 32, "percent": 8.6 },
+    { "name": "其他", "count": 16, "percent": 4.3 }
+  ],
+  "page_heat": [
+    { "page": "查方案", "count": 4820, "percent": 100 },
+    { "page": "提需求", "count": 3260, "percent": 68 },
+    { "page": "方案详情", "count": 2940, "percent": 61 },
+    { "page": "通知中心", "count": 1680, "percent": 35 },
+    { "page": "情报中心", "count": 1120, "percent": 23 }
+  ],
+  "updated_at": "2026-07-18 09:30:00"
+}

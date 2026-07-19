@@ -1,0 +1,170 @@
+{
+  "stats": {
+    "solution_total": 328,
+    "pending_requests": 17,
+    "week_discussions": 46,
+    "active_users": 213
+  },
+  "hot_tags": ["5G模组", "Cat.1", "车载方案", "NB-IoT", "智慧城市", "天线设计"],
+  "quick_tasks": [
+    {
+      "task_id": "TASK2001",
+      "title": "整理 RG200U 竞品功耗对比材料",
+      "meeting_name": "无线模组产品周会",
+      "deadline": "2026-07-16 18:00:00",
+      "priority": "critical",
+      "status": "pending",
+      "is_overdue": true
+    },
+    {
+      "task_id": "TASK2002",
+      "title": "输出车载 AG59x 客户答疑话术",
+      "meeting_name": "车载产品评审会",
+      "deadline": "2026-07-20 18:00:00",
+      "priority": "urgent",
+      "status": "processing",
+      "is_overdue": false
+    },
+    {
+      "task_id": "TASK2003",
+      "title": "补充 NB-IoT 水表方案云平台对接文档",
+      "meeting_name": "行业方案对齐会",
+      "deadline": "2026-07-24 12:00:00",
+      "priority": "normal",
+      "status": "pending",
+      "is_overdue": false
+    },
+    {
+      "task_id": "TASK2004",
+      "title": "回收 LC29H 高精度定位样机测试反馈",
+      "meeting_name": "定位产品双周会",
+      "deadline": "2026-07-22 18:00:00",
+      "priority": "normal",
+      "status": "processing",
+      "is_overdue": false
+    }
+  ],
+  "hot_solutions": [
+    {
+      "opportunity_id": "OPP1003",
+      "rank": 1,
+      "title": "车载 4G+C-V2X 通信模组 AG59x 产品信息",
+      "type": "product_info",
+      "view_count": 1560,
+      "publisher_name": "王强",
+      "is_subscribed": true
+    },
+    {
+      "opportunity_id": "OPP1001",
+      "rank": 2,
+      "title": "5G RedCap 模组 RG200U 产品选型方案",
+      "type": "solution",
+      "view_count": 1280,
+      "publisher_name": "张伟",
+      "is_subscribed": true
+    },
+    {
+      "opportunity_id": "OPP1008",
+      "rank": 3,
+      "title": "GNSS 高精度定位模组 LC29H 产品信息",
+      "type": "product_info",
+      "view_count": 1120,
+      "publisher_name": "周杰",
+      "is_subscribed": false
+    },
+    {
+      "opportunity_id": "OPP1002",
+      "rank": 4,
+      "title": "Cat.1 bis 模组在共享设备中的成功案例",
+      "type": "success_case",
+      "view_count": 940,
+      "publisher_name": "李娜",
+      "is_subscribed": false
+    },
+    {
+      "opportunity_id": "OPP1004",
+      "rank": 5,
+      "title": "NB-IoT 智慧水表整体解决方案",
+      "type": "solution",
+      "view_count": 720,
+      "publisher_name": "赵敏",
+      "is_subscribed": false
+    },
+    {
+      "opportunity_id": "OPP1007",
+      "rank": 6,
+      "title": "智慧城市 LoRa 网关部署成功案例",
+      "type": "success_case",
+      "view_count": 655,
+      "publisher_name": "孙丽",
+      "is_subscribed": true
+    }
+  ],
+  "announcements": [
+    {
+      "announcement_id": "ANN3001",
+      "title": "关于 2026 年 Q3 商机互助平台新功能上线通知",
+      "type": "notice",
+      "publisher_name": "平台运营组",
+      "published_at": "2026-07-15 09:00:00",
+      "view_count": 486,
+      "is_pinned": true
+    },
+    {
+      "announcement_id": "ANN3002",
+      "title": "5G RedCap 产品线季度激励政策发布",
+      "type": "policy",
+      "publisher_name": "市场部",
+      "published_at": "2026-07-12 14:30:00",
+      "view_count": 312,
+      "is_pinned": false
+    },
+    {
+      "announcement_id": "ANN3003",
+      "title": "7 月车载产品技术沙龙活动报名开启",
+      "type": "activity",
+      "publisher_name": "车载产品部",
+      "published_at": "2026-07-10 10:00:00",
+      "view_count": 205,
+      "is_pinned": false
+    }
+  ],
+  "hot_posts": [
+    {
+      "post_id": "POST4001",
+      "topic": "opportunity",
+      "title": "RedCap 与 Cat.4 在工业网关选型上如何取舍？",
+      "author_name": "张伟",
+      "reply_count": 28,
+      "view_count": 640,
+      "created_at": "2026-07-14 16:20:00"
+    },
+    {
+      "post_id": "POST4002",
+      "topic": "solution",
+      "title": "求 NB-IoT 超低功耗休眠策略的实战参数",
+      "author_name": "冯雪",
+      "reply_count": 19,
+      "view_count": 421,
+      "created_at": "2026-07-13 11:05:00"
+    },
+    {
+      "post_id": "POST4003",
+      "topic": "experience",
+      "title": "分享一次 GNSS RTK 收敛异常的排查过程",
+      "author_name": "周杰",
+      "reply_count": 15,
+      "view_count": 388,
+      "created_at": "2026-07-11 09:40:00"
+    },
+    {
+      "post_id": "POST4004",
+      "topic": "industry",
+      "title": "智慧城市 LoRa 与 NB-IoT 的市场趋势讨论",
+      "author_name": "孙丽",
+      "reply_count": 12,
+      "view_count": 297,
+      "created_at": "2026-07-09 15:10:00"
+    }
+  ]
+}

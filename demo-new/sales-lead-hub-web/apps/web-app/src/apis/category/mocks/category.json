@@ -1,0 +1,19 @@
+{
+  "records": [
+    { "category_id": "CAT01", "name": "IoT 模组", "name_en": "IoT Module", "parent_id": null, "sort_order": 1, "is_active": true, "content_count": 128 },
+    { "category_id": "CAT02", "name": "车载方案", "name_en": "Automotive", "parent_id": null, "sort_order": 2, "is_active": true, "content_count": 64 },
+    { "category_id": "CAT03", "name": "行业方案", "name_en": "Industry Solution", "parent_id": null, "sort_order": 3, "is_active": true, "content_count": 96 },
+    { "category_id": "CAT04", "name": "天线产品", "name_en": "Antenna", "parent_id": null, "sort_order": 4, "is_active": false, "content_count": 12 },
+    { "category_id": "CAT0101", "name": "5G 模组", "name_en": "5G Module", "parent_id": "CAT01", "sort_order": 1, "is_active": true, "content_count": 45 },
+    { "category_id": "CAT0102", "name": "NB-IoT 模组", "name_en": "NB-IoT Module", "parent_id": "CAT01", "sort_order": 2, "is_active": true, "content_count": 33 },
+    { "category_id": "CAT0103", "name": "Cat.1 模组", "name_en": "Cat.1 Module", "parent_id": "CAT01", "sort_order": 3, "is_active": true, "content_count": 28 },
+    { "category_id": "CAT0104", "name": "GNSS 定位模组", "name_en": "GNSS Module", "parent_id": "CAT01", "sort_order": 4, "is_active": false, "content_count": 8 },
+    { "category_id": "CAT010101", "name": "5G RedCap", "name_en": "5G RedCap", "parent_id": "CAT0101", "sort_order": 1, "is_active": true, "content_count": 18 },
+    { "category_id": "CAT010102", "name": "5G Sub-6G", "name_en": "5G Sub-6G", "parent_id": "CAT0101", "sort_order": 2, "is_active": true, "content_count": 15 },
+    { "category_id": "CAT0201", "name": "智能座舱", "name_en": "Smart Cockpit", "parent_id": "CAT02", "sort_order": 1, "is_active": true, "content_count": 30 },
+    { "category_id": "CAT0202", "name": "T-Box", "name_en": "T-Box", "parent_id": "CAT02", "sort_order": 2, "is_active": true, "content_count": 22 },
+    { "category_id": "CAT0301", "name": "智慧城市", "name_en": "Smart City", "parent_id": "CAT03", "sort_order": 1, "is_active": true, "content_count": 40 },
+    { "category_id": "CAT0302", "name": "智慧农业", "name_en": "Smart Agriculture", "parent_id": "CAT03", "sort_order": 2, "is_active": false, "content_count": 10 }
+  ],
+  "total": 14
+}

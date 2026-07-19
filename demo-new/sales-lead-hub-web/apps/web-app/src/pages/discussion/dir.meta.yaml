@@ -1,0 +1,5 @@
+layout: default
+order: 30
+title: discussion.DEFAULT
+menu:
+  icon: q-icon:discuss-linear

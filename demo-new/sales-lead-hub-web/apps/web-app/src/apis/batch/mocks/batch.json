@@ -1,0 +1,18 @@
+{
+  "meetings": [
+    { "meeting_id": "MTG5001", "name": "7月产品线周例会", "meeting_date": "2026-07-15", "recorder_name": "张伟" },
+    { "meeting_id": "MTG5002", "name": "5G RedCap 项目专题评审会", "meeting_date": "2026-07-12", "recorder_name": "李娜" },
+    { "meeting_id": "MTG5003", "name": "车载模组季度规划会", "meeting_date": "2026-07-08", "recorder_name": "王强" },
+    { "meeting_id": "MTG5004", "name": "行业方案客户交付复盘会", "meeting_date": "2026-07-05", "recorder_name": "赵敏" }
+  ],
+  "executors": [
+    { "user_id": "U001", "name": "张伟", "dept_name": "无线模组产品部" },
+    { "user_id": "U002", "name": "李娜", "dept_name": "行业解决方案部" },
+    { "user_id": "U003", "name": "王强", "dept_name": "车载产品部" },
+    { "user_id": "U004", "name": "赵敏", "dept_name": "无线模组产品部" },
+    { "user_id": "U005", "name": "陈涛", "dept_name": "短距产品部" },
+    { "user_id": "U006", "name": "刘洋", "dept_name": "天线产品部" },
+    { "user_id": "U007", "name": "孙丽", "dept_name": "行业解决方案部" },
+    { "user_id": "U008", "name": "周杰", "dept_name": "定位产品部" }
+  ]
+}

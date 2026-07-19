@@ -1,0 +1,24 @@
+{
+  "records": [
+    { "announcement_id": "ANN3001", "title": "关于平台商机响应闭环率考核办法的通知", "type": "policy", "status": "published", "priority": "important", "is_pinned": true, "publisher_name": "运营管理员", "view_count": 2340, "created_at": "2026-07-10 09:00:00", "published_at": "2026-07-10 10:00:00", "content": "<p>为提升需求响应闭环率，现发布考核办法……</p>", "banner_enabled": true },
+    { "announcement_id": "ANN3002", "title": "7月产品线技术分享会报名开启", "type": "activity", "status": "published", "priority": "normal", "is_pinned": false, "publisher_name": "运营管理员", "view_count": 1180, "created_at": "2026-07-09 14:00:00", "published_at": "2026-07-09 15:00:00", "content": "<p>本月技术分享会主题为 5G RedCap……</p>", "banner_enabled": false },
+    { "announcement_id": "ANN3003", "title": "平台SLA首响时限规则说明", "type": "notice", "status": "published", "priority": "important", "is_pinned": true, "publisher_name": "运营管理员", "view_count": 3020, "created_at": "2026-07-08 08:30:00", "published_at": "2026-07-08 09:00:00", "content": "<p>特急2h/紧急4h/普通24h……</p>", "banner_enabled": true },
+    { "announcement_id": "ANN3004", "title": "关于清理超期未响应需求的公告", "type": "notice", "status": "draft", "priority": "normal", "is_pinned": false, "publisher_name": "运营管理员", "view_count": 0, "created_at": "2026-07-15 11:20:00", "published_at": null, "content": "<p>草稿整理中……</p>", "banner_enabled": false },
+    { "announcement_id": "ANN3005", "title": "情报中心竞品情报提交激励活动", "type": "activity", "status": "scheduled", "priority": "normal", "is_pinned": false, "publisher_name": "运营管理员", "view_count": 0, "created_at": "2026-07-14 16:00:00", "published_at": null, "content": "<p>提交优质竞品情报可获积分……</p>", "banner_enabled": false },
+    { "announcement_id": "ANN3006", "title": "新版方案库分类标签调整说明", "type": "policy", "status": "published", "priority": "normal", "is_pinned": false, "publisher_name": "运营管理员", "view_count": 860, "created_at": "2026-07-06 10:00:00", "published_at": "2026-07-06 11:00:00", "content": "<p>分类标签体系升级……</p>", "banner_enabled": false },
+    { "announcement_id": "ANN3007", "title": "平台维护升级停机通知", "type": "notice", "status": "withdrawn", "priority": "important", "is_pinned": false, "publisher_name": "运营管理员", "view_count": 540, "created_at": "2026-07-04 18:00:00", "published_at": "2026-07-04 18:30:00", "content": "<p>原定停机窗口调整，本公告已撤回……</p>", "banner_enabled": false },
+    { "announcement_id": "ANN3008", "title": "关于规范需求发布内容的倡议", "type": "other", "status": "published", "priority": "normal", "is_pinned": false, "publisher_name": "运营管理员", "view_count": 420, "created_at": "2026-07-03 09:30:00", "published_at": "2026-07-03 10:00:00", "content": "<p>请发布需求时明确场景与紧急程度……</p>", "banner_enabled": false },
+    { "announcement_id": "ANN3009", "title": "8月运营数据看板指标口径更新", "type": "policy", "status": "draft", "priority": "normal", "is_pinned": false, "publisher_name": "运营管理员", "view_count": 0, "created_at": "2026-07-16 13:40:00", "published_at": null, "content": "<p>口径调整草稿……</p>", "banner_enabled": false },
+    { "announcement_id": "ANN3010", "title": "优质方案作者季度评选启动", "type": "activity", "status": "published", "priority": "normal", "is_pinned": false, "publisher_name": "运营管理员", "view_count": 1560, "created_at": "2026-07-01 09:00:00", "published_at": "2026-07-01 10:00:00", "content": "<p>季度评选正式启动……</p>", "banner_enabled": false },
+    { "announcement_id": "ANN3011", "title": "关于飞书通知渠道接入的说明", "type": "notice", "status": "published", "priority": "normal", "is_pinned": false, "publisher_name": "运营管理员", "view_count": 690, "created_at": "2026-06-28 15:00:00", "published_at": "2026-06-28 16:00:00", "content": "<p>飞书通知渠道已上线……</p>", "banner_enabled": false },
+    { "announcement_id": "ANN3012", "title": "平台使用满意度调研问卷", "type": "other", "status": "scheduled", "priority": "normal", "is_pinned": false, "publisher_name": "运营管理员", "view_count": 0, "created_at": "2026-07-13 11:00:00", "published_at": null, "content": "<p>诚邀参与满意度调研……</p>", "banner_enabled": false },
+    { "announcement_id": "ANN3013", "title": "关于严禁泄露客户敏感信息的红线提醒", "type": "policy", "status": "published", "priority": "important", "is_pinned": true, "publisher_name": "运营管理员", "view_count": 2780, "created_at": "2026-06-25 08:00:00", "published_at": "2026-06-25 08:30:00", "content": "<p>严禁在平台发布客户敏感信息……</p>", "banner_enabled": true }
+  ],
+  "total": 13,
+  "stats": {
+    "total": 13,
+    "published": 8,
+    "draft": 2,
+    "total_views": 16650
+  }
+}

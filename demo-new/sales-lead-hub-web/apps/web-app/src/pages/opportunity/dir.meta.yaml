@@ -1,0 +1,5 @@
+layout: default
+order: 1
+title: opportunity.DEFAULT
+menu:
+  icon: q-icon:bulb-linear

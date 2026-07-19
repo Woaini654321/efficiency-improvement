@@ -1,0 +1,161 @@
+{
+  "records": [
+    {
+      "notification_id": "NTF2001",
+      "type": "response",
+      "channel": "in_app",
+      "title": "您发布的需求「车载 T-Box 5G 模组选型」收到了新的方案响应",
+      "trigger_user_name": "李娜",
+      "is_read": false,
+      "is_force_confirm": false,
+      "target_type": "requirement",
+      "target_id": "REQ3001",
+      "created_at": "2026-07-18 09:20:00"
+    },
+    {
+      "notification_id": "NTF2002",
+      "type": "adopt",
+      "channel": "in_app",
+      "title": "您提交的方案已被采纳为「智慧水表 NB-IoT 方案」的最佳方案",
+      "trigger_user_name": "赵敏",
+      "is_read": false,
+      "is_force_confirm": true,
+      "target_type": "requirement",
+      "target_id": "REQ3002",
+      "created_at": "2026-07-18 08:45:00"
+    },
+    {
+      "notification_id": "NTF2003",
+      "type": "publish",
+      "channel": "feishu",
+      "title": "您订阅的「5G模组」分类发布了新方案「RG200U 产品选型方案」",
+      "trigger_user_name": "张伟",
+      "is_read": false,
+      "is_force_confirm": false,
+      "target_type": "opportunity",
+      "target_id": "OPP1001",
+      "created_at": "2026-07-17 16:30:00"
+    },
+    {
+      "notification_id": "NTF2004",
+      "type": "mention",
+      "channel": "in_app",
+      "title": "王强 在方案「AG59x 产品信息」的评论中 @ 了您",
+      "trigger_user_name": "王强",
+      "is_read": false,
+      "is_force_confirm": false,
+      "target_type": "opportunity",
+      "target_id": "OPP1003",
+      "created_at": "2026-07-17 14:10:00"
+    },
+    {
+      "notification_id": "NTF2005",
+      "type": "force_confirm",
+      "channel": "email",
+      "title": "【重要】数据隔离配置调整通知，请确认知悉后继续使用平台",
+      "trigger_user_name": "系统管理员",
+      "is_read": false,
+      "is_force_confirm": true,
+      "target_type": "announcement",
+      "target_id": "ANN4001",
+      "created_at": "2026-07-17 10:00:00"
+    },
+    {
+      "notification_id": "NTF2006",
+      "type": "subscribe",
+      "channel": "in_app",
+      "title": "您订阅的「行业方案」分类有 3 条内容更新",
+      "trigger_user_name": "孙丽",
+      "is_read": true,
+      "is_force_confirm": false,
+      "target_type": "opportunity",
+      "target_id": "OPP1007",
+      "created_at": "2026-07-16 18:20:00"
+    },
+    {
+      "notification_id": "NTF2007",
+      "type": "system",
+      "channel": "in_app",
+      "title": "您的账号已成功绑定飞书，后续将通过飞书接收重要通知",
+      "trigger_user_name": "系统通知",
+      "is_read": true,
+      "is_force_confirm": false,
+      "target_type": "system",
+      "target_id": "SYS0001",
+      "created_at": "2026-07-16 09:00:00"
+    },
+    {
+      "notification_id": "NTF2008",
+      "type": "response",
+      "channel": "feishu",
+      "title": "您订阅的需求「工业路由 CPE 参考设计」收到了 2 个新方案",
+      "trigger_user_name": "吴敏",
+      "is_read": true,
+      "is_force_confirm": false,
+      "target_type": "requirement",
+      "target_id": "REQ3003",
+      "created_at": "2026-07-15 15:40:00"
+    },
+    {
+      "notification_id": "NTF2009",
+      "type": "publish",
+      "channel": "in_app",
+      "title": "您关注的发布人 陈涛 发布了新方案「FCU630 产品信息」",
+      "trigger_user_name": "陈涛",
+      "is_read": true,
+      "is_force_confirm": false,
+      "target_type": "opportunity",
+      "target_id": "OPP1005",
+      "created_at": "2026-07-15 11:05:00"
+    },
+    {
+      "notification_id": "NTF2010",
+      "type": "adopt",
+      "channel": "email",
+      "title": "您响应的需求「LoRa 网关部署」方案未被采纳，感谢参与",
+      "trigger_user_name": "孙丽",
+      "is_read": true,
+      "is_force_confirm": false,
+      "target_type": "requirement",
+      "target_id": "REQ3004",
+      "created_at": "2026-07-14 17:30:00"
+    },
+    {
+      "notification_id": "NTF2011",
+      "type": "mention",
+      "channel": "in_app",
+      "title": "周杰 在讨论「GNSS 高精度定位选型」中回复并 @ 了您",
+      "trigger_user_name": "周杰",
+      "is_read": true,
+      "is_force_confirm": false,
+      "target_type": "discussion",
+      "target_id": "DIS5001",
+      "created_at": "2026-07-14 10:15:00"
+    },
+    {
+      "notification_id": "NTF2012",
+      "type": "system",
+      "channel": "in_app",
+      "title": "平台将于本周六 22:00-24:00 进行系统维护，届时可能短暂不可用",
+      "trigger_user_name": "系统通知",
+      "is_read": true,
+      "is_force_confirm": false,
+      "target_type": "announcement",
+      "target_id": "ANN4002",
+      "created_at": "2026-07-13 09:00:00"
+    },
+    {
+      "notification_id": "NTF2013",
+      "type": "subscribe",
+      "channel": "feishu",
+      "title": "您订阅的「智慧城市」分类发布了新的成功案例",
+      "trigger_user_name": "刘洋",
+      "is_read": true,
+      "is_force_confirm": false,
+      "target_type": "opportunity",
+      "target_id": "OPP1006",
+      "created_at": "2026-07-12 14:00:00"
+    }
+  ],
+  "total": 13
+}

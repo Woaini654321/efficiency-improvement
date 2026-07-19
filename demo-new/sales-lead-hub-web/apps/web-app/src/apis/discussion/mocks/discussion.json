@@ -1,0 +1,200 @@
+{
+  "records": [
+    {
+      "post_id": "PST2001",
+      "title": "5G RedCap 模组在工业网关的选型讨论，大家怎么看功耗与成本平衡？",
+      "content": "最近在做工业网关项目，客户对功耗和成本都很敏感。RedCap 相比标准 5G 确实降本，但对比 Cat.1 bis 又贵一截。想听听大家在实际项目中的取舍经验。",
+      "topic": "business",
+      "author_name": "张伟",
+      "reply_count": 18,
+      "view_count": 642,
+      "is_hot": true,
+      "created_at": "2026-07-10 09:12:00",
+      "comments": [
+        {
+          "comment_id": "CMT30011",
+          "author_name": "李娜",
+          "content": "我们工业网关最终选了 RedCap，主要是客户后续要上高清视频回传，Cat.1 带宽不够。",
+          "created_at": "2026-07-10 10:02:00",
+          "children": [
+            {
+              "comment_id": "CMT30012",
+              "author_name": "张伟",
+              "content": "视频回传确实是关键，请问你们功耗实测大概什么水平？",
+              "created_at": "2026-07-10 10:20:00",
+              "children": [
+                {
+                  "comment_id": "CMT30013",
+                  "author_name": "李娜",
+                  "content": "常发场景平均 300mA 左右，比标准 5G 省了近一半。",
+                  "created_at": "2026-07-10 10:35:00",
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "comment_id": "CMT30014",
+          "author_name": "王强",
+          "content": "如果只是数据采集类，Cat.1 bis 完全够用，没必要上 RedCap。",
+          "created_at": "2026-07-10 11:00:00",
+          "children": []
+        }
+      ]
+    },
+    {
+      "post_id": "PST2002",
+      "title": "方案互助：NB-IoT 智慧水表低功耗休眠策略求指导",
+      "content": "BC660K 方案里 PSM 和 eDRX 参数怎么配置续航最优？有没有踩过坑的同学分享一下。",
+      "topic": "solution",
+      "author_name": "赵敏",
+      "reply_count": 12,
+      "view_count": 388,
+      "is_hot": true,
+      "created_at": "2026-07-09 14:30:00",
+      "comments": [
+        {
+          "comment_id": "CMT30021",
+          "author_name": "陈涛",
+          "content": "PSM 周期建议按上报频率对齐，避免频繁唤醒，我们做到了 5 年续航。",
+          "created_at": "2026-07-09 15:10:00",
+          "children": []
+        }
+      ]
+    },
+    {
+      "post_id": "PST2003",
+      "title": "经验分享：车载模组 EMC 整改的几个实用技巧",
+      "content": "最近帮客户过 EMC 认证，总结了几个屏蔽和滤波的实战经验，希望对大家有帮助。",
+      "topic": "experience",
+      "author_name": "王强",
+      "reply_count": 25,
+      "view_count": 910,
+      "is_hot": true,
+      "created_at": "2026-07-08 11:20:00",
+      "comments": []
+    },
+    {
+      "post_id": "PST2004",
+      "title": "行业动态：3GPP R18 冻结，RedCap 演进值得关注",
+      "content": "R18 冻结后 eRedCap 进一步降速降本，面向更轻量的 IoT 场景，大家觉得对现有产品线冲击大吗？",
+      "topic": "industry",
+      "author_name": "刘洋",
+      "reply_count": 9,
+      "view_count": 455,
+      "is_hot": false,
+      "created_at": "2026-07-07 08:45:00",
+      "comments": []
+    },
+    {
+      "post_id": "PST2005",
+      "title": "吐槽：这个客户的需求变更也太频繁了吧",
+      "content": "一周改了五版规格，方案还没定型又要推倒重来，有没有同款客户，求安慰。",
+      "topic": "complaint",
+      "author_name": "匿名幽灵",
+      "reply_count": 33,
+      "view_count": 1206,
+      "is_hot": true,
+      "created_at": "2026-07-06 16:00:00",
+      "comments": []
+    },
+    {
+      "post_id": "PST2006",
+      "title": "商机讨论：智慧路灯 LoRa 网关规模化部署的商机分析",
+      "content": "某新区路灯项目落地后，周边区县也在观望，感觉这块市场空间不小，一起聊聊。",
+      "topic": "business",
+      "author_name": "孙丽",
+      "reply_count": 7,
+      "view_count": 320,
+      "is_hot": false,
+      "created_at": "2026-07-05 13:40:00",
+      "comments": []
+    },
+    {
+      "post_id": "PST2007",
+      "title": "方案互助：GNSS 高精度定位漂移问题排查",
+      "content": "LC29H RTK 在城市峡谷场景偶尔漂移，有没有稳定收敛的调优建议？",
+      "topic": "solution",
+      "author_name": "周杰",
+      "reply_count": 14,
+      "view_count": 502,
+      "is_hot": false,
+      "created_at": "2026-07-04 09:00:00",
+      "comments": []
+    },
+    {
+      "post_id": "PST2008",
+      "title": "经验分享：Cat.1 模组批量产测降本的一点心得",
+      "content": "通过优化产测流程和治具复用，我们把单板测试时间缩短了 40%，分享给大家。",
+      "topic": "experience",
+      "author_name": "郑浩",
+      "reply_count": 11,
+      "view_count": 470,
+      "is_hot": false,
+      "created_at": "2026-07-03 11:00:00",
+      "comments": []
+    },
+    {
+      "post_id": "PST2009",
+      "title": "行业动态：农业物联网政策补贴利好，NB-IoT 需求回暖",
+      "content": "多地出台智慧农业补贴，土壤墒情监测这类项目询单明显增多。",
+      "topic": "industry",
+      "author_name": "冯雪",
+      "reply_count": 6,
+      "view_count": 289,
+      "is_hot": false,
+      "created_at": "2026-07-02 10:30:00",
+      "comments": []
+    },
+    {
+      "post_id": "PST2010",
+      "title": "吐槽：内网 Nexus 又抽风了，依赖下不动",
+      "content": "早上构建卡了半小时，运维能不能给力点，影响心情。",
+      "topic": "complaint",
+      "author_name": "匿名幽灵",
+      "reply_count": 21,
+      "view_count": 780,
+      "is_hot": false,
+      "created_at": "2026-07-01 08:20:00",
+      "comments": []
+    },
+    {
+      "post_id": "PST2011",
+      "title": "商机讨论：智能POS 金融支付终端的国密合规要点",
+      "content": "支付终端对安全芯片和国密算法要求高，想了解大家在合规上的对接经验。",
+      "topic": "business",
+      "author_name": "吴敏",
+      "reply_count": 5,
+      "view_count": 233,
+      "is_hot": false,
+      "created_at": "2026-06-30 15:20:00",
+      "comments": []
+    },
+    {
+      "post_id": "PST2012",
+      "title": "方案互助：Wi-Fi 6 + BLE 二合一模组并发调优",
+      "content": "FCU630 双频并发场景下 BLE 偶发断连，有没有共存调优的最佳实践？",
+      "topic": "solution",
+      "author_name": "陈涛",
+      "reply_count": 8,
+      "view_count": 341,
+      "is_hot": false,
+      "created_at": "2026-06-29 16:30:00",
+      "comments": []
+    },
+    {
+      "post_id": "PST2013",
+      "title": "经验分享：天线布局对 5G Sub-6G 增益的影响复盘",
+      "content": "贴片阵列的间距和接地处理对增益影响很大，整理了一份调试记录。",
+      "topic": "experience",
+      "author_name": "刘洋",
+      "reply_count": 4,
+      "view_count": 198,
+      "is_hot": false,
+      "created_at": "2026-06-28 10:10:00",
+      "comments": []
+    }
+  ],
+  "total": 13
+}
