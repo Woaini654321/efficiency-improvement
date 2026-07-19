@@ -13,13 +13,21 @@ spring:
     import: optional:classpath:application-local.yml
   application:
     name: sales-lead-hub-server
-  datasource:
-    # 单体：直接写连接信息（dev MySQL）。createDatabaseIfNotExist 让首次启动自建库，免手工建库。
-    url: jdbc:mysql://192.168.10.28:3306/sales_lead_hub_server?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&createDatabaseIfNotExist=true
-    username: root
-    password: ${DB_PASSWORD:}
 
 quectel:
+  # 数据源必须写在 quectel.mysql 下，不是 spring.datasource。
+  # 取证：mysql-starter 的 MySQLEnvironmentPostProcessor 读 quectel.mysql.{server,port,database,uname,pwd}，
+  # 据此拼 URL 并生成 spring.datasource.dynamic.datasource.mysql_<database> + spring.datasource.dynamic.primary。
+  # 写成标准的 spring.datasource.* 框架完全不读 → 启动后首次访问 DB 报
+  # "dynamic-datasource can not find primary datasource"。
+  # 单体项目（无 cloud-starter）连接信息全部写本文件；微服务才由 Nacos base.yaml 提供。
+  mysql:
+    server: 192.168.10.28
+    port: 3306
+    # 库名约定 = artifactId 的 - 换 _
+    database: sales_lead_hub_server
+    uname: root
+    pwd: ${DB_PASSWORD:}
   web:
     swagger-auth:
       username: admin

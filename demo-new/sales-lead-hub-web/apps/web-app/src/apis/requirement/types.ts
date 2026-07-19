@@ -63,6 +63,8 @@ export interface RequirementDTO {
   adopted_response_id: string | null
   responses?: RequirementResponseDTO[]
   created_at: string
+  /** 乐观锁版本号。仅详情接口下发；列表接口不带，故可选。 */
+  version?: number
 }
 
 // ============ ViewModel（前端视图类型，camelCase）============
@@ -91,6 +93,8 @@ export interface RequirementItem {
   adoptedResponseId: string
   responses: RequirementResponseItem[]
   createdAt: string
+  /** 乐观锁版本号。编辑提交时必须原样回传，否则后端判定为冲突。 */
+  version: number
 }
 
 // ============ 分页 ============
@@ -115,4 +119,6 @@ export type RequirementCreateParams = {
 }
 export type RequirementUpdateParams = RequirementCreateParams & {
   id: string
+  /** 乐观锁版本号，取自详情接口，必传。后端用它做 WHERE version=? 判冲突。 */
+  version: number
 }

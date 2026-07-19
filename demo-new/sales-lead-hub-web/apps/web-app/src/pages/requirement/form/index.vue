@@ -197,6 +197,8 @@ interface FormModel {
   invitedProductLines: any[]
   description: string
   files: any[]
+  /** 乐观锁版本号，编辑态由 populate 从详情接口带回，提交时原样回传 */
+  version: number
 }
 const model = reactive<FormModel>({
   title: '',
@@ -209,7 +211,8 @@ const model = reactive<FormModel>({
   visiblePersonnel: [],
   invitedProductLines: [],
   description: '',
-  files: []
+  files: [],
+  version: 0
 })
 const dirty = ref(false)
 
@@ -328,8 +331,19 @@ async function doPublish() {
     visibilityType: model.visibilityType,
     description: model.description
   }
-  if (isEdit.value) await updateRequirement({ id: editId as string, ...payload })
-  else await createRequirement(payload)
+  // 请求失败时拦截器已弹出 msg 并 reject；这里必须 catch，
+  // 否则会冒泡成未处理的 promise rejection，且确认弹窗停在打开态无法再操作。
+  try {
+    if (isEdit.value) {
+      await updateRequirement({ id: editId as string, version: model.version, ...payload })
+    } else {
+      await createRequirement(payload)
+    }
+  } catch {
+    // 版本冲突等业务失败：关掉确认弹窗，让用户回到表单（数据仍在，可刷新后重试）
+    confirmOpen.value = false
+    return
+  }
   dirty.value = false
   confirmOpen.value = false
   message.success(isEdit.value ? t('requirement.saveOk') : t('requirement.publishSuccess'))
@@ -373,6 +387,8 @@ async function populate(rid: string) {
   model.industry = d.industry
   model.description = d.description
   model.visibilityType = d.visibilityType || 'all'
+  // 乐观锁：提交时必须把这个 version 原样带回，后端据此判断加载后是否已被他人改过
+  model.version = d.version ?? 0
   dirty.value = false
 }
 

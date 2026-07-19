@@ -50,7 +50,9 @@ const toItem = (dto: RequirementDTO): RequirementItem => ({
   collectCount: dto.collect_count ?? 0,
   adoptedResponseId: dto.adopted_response_id ?? '',
   responses: mapResponses(dto.responses),
-  createdAt: dto.created_at ?? ''
+  createdAt: dto.created_at ?? '',
+  // 列表接口不下发 version，落 0 无害：只有详情→编辑这条路径会用到它
+  version: dto.version ?? 0
 })
 
 // ============ 分页列表 adapter ============
@@ -58,8 +60,11 @@ export const getRequirementListAdapter = (raw: unknown): RequirementPageResult =
   const data = raw as { records: RequirementDTO[]; total: number }
   const records = data.records ?? []
   return {
+    // 后端全局 Long→String 序列化会把 total 也转成字符串（实测 "total":"1"），
+    // 而 PaginationResult.total 声明是 number。此处强制收敛，
+    // 否则运行时是 string、类型是 number，Math/加法都会出错。
     records: records.map(toItem),
-    total: data.total ?? 0
+    total: Number(data.total ?? 0)
   }
 }
 

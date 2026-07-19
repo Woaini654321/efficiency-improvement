@@ -1,9 +1,10 @@
 # 复制本文件为 application-local.yml（同目录 .gitignore 已忽略后者，不会提交），填真实开发口令。
 # 生产环境改用环境变量 DB_PASSWORD / SWAGGER_PASSWORD 注入亦可。
-spring:
-  datasource:
-    password: your-dev-db-password
 quectel:
+  # 数据库口令的键路径是 quectel.mysql.pwd（框架 mysql-starter 的命名空间），
+  # 不是 spring.datasource.password —— 写错框架不读，报 "can not find primary datasource"。
+  mysql:
+    pwd: your-dev-db-password
   web:
     swagger-auth:
       password: your-swagger-password

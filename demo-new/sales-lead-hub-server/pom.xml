@@ -21,6 +21,14 @@
     <!-- Java 8 编译、UTF-8 编码均由 quectel-code-parent 统一设定。
          com.quectel.code 组件依赖一律不写 version，由 parent 仲裁。 -->
 
+    <properties>
+        <!-- 硬依赖 MySQL/UAA 的测试打 @Tag("integration")，默认排除在离线门禁之外。
+             用属性而非硬编码，是为了让 -Dsurefire.excludedGroups= 能反选回来；
+             否则 -Dgroups=integration 会被 excludedGroups 无条件压制，
+             跑出 "Tests run: 0 + BUILD SUCCESS" 的假绿。 -->
+        <surefire.excludedGroups>integration</surefire.excludedGroups>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.quectel.code</groupId>
@@ -64,6 +72,14 @@
                 </configuration>
             </plugin>
             <!-- 不声明 maven-compiler-plugin：parent 已统一配置 Java 8 + Lombok/MapStruct 注解处理器路径。 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <!-- version 由 parent 仲裁 -->
+                <configuration>
+                    <excludedGroups>${surefire.excludedGroups}</excludedGroups>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

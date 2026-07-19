@@ -7,40 +7,33 @@
   "stopWords": ["的", "了", "求", "需要", "需求", "方案", "一款", "用于", "支持", "项目", "客户"],
   "categoryTree": [
     {
-      "value": "iot",
+      "value": "1",
       "label": "IoT 模组",
       "children": [
-        { "value": "cat1", "label": "Cat.1 模组" },
-        { "value": "cat4", "label": "Cat.4模组" },
-        { "value": "5g", "label": "5G 模组" },
-        { "value": "nb", "label": "NB-IoT 模组" }
+        {
+          "value": "101",
+          "label": "5G 模组",
+          "children": [
+            { "value": "10101", "label": "5G RedCap" },
+            { "value": "10102", "label": "5G Sub-6G" }
+          ]
+        },
+        { "value": "102", "label": "NB-IoT 模组" },
+        { "value": "103", "label": "Cat.1 模组" }
       ]
     },
     {
-      "value": "antenna",
-      "label": "天线产品",
+      "value": "2",
+      "label": "车载方案",
       "children": [
-        { "value": "gnss", "label": "GNSS天线" },
-        { "value": "lte", "label": "LTE天线" },
-        { "value": "bt-ant", "label": "蓝牙天线" }
+        { "value": "201", "label": "智能座舱" },
+        { "value": "202", "label": "T-Box" }
       ]
     },
     {
-      "value": "solution",
+      "value": "3",
       "label": "行业方案",
-      "children": [
-        { "value": "vehicle", "label": "车载方案" },
-        { "value": "meter", "label": "智慧表计" },
-        { "value": "pos", "label": "支付POS方案" }
-      ]
-    },
-    {
-      "value": "positioning",
-      "label": "定位产品",
-      "children": [
-        { "value": "gnss-module", "label": "GNSS 定位模组" },
-        { "value": "rtk", "label": "RTK高精度模组" }
-      ]
+      "children": [{ "value": "301", "label": "智慧城市" }]
     }
   ],
   "deptTree": [

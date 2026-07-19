@@ -1,0 +1,150 @@
+- generic [ref=f5e173]:
+  - generic [ref=f5e175]:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - navigation:
+              - list
+    - generic [ref=f5e180]:
+      - generic [ref=f5e181]: 中文
+      - button [ref=f5e187] [cursor=pointer]
+      - button [ref=f5e190] [cursor=pointer]
+      - button [ref=f5e193] [cursor=pointer]
+      - generic [ref=f5e196]:
+        - button [ref=f5e197] [cursor=pointer]
+        - superscript [ref=f5e199]
+      - generic [ref=f5e200]: AY
+  - generic [ref=f5e203]:
+    - complementary [ref=f5e204]:
+      - generic [ref=f5e206]:
+        - menu [ref=f5e208]:
+          - menuitem "个人中心" [ref=f5e209] [cursor=pointer]
+          - generic [ref=f5e213] [cursor=pointer]: page.hello.DEFAULT
+          - generic [ref=f5e219] [cursor=pointer]: 运营中心
+          - menuitem "吐槽墙" [ref=f5e225] [cursor=pointer]
+          - menuitem "首页" [ref=f5e229] [cursor=pointer]
+          - menuitem "会议任务管理" [ref=f5e233] [cursor=pointer]
+          - menuitem "我的任务" [ref=f5e237] [cursor=pointer]
+          - menuitem "工具助手" [ref=f5e241] [cursor=pointer]
+        - generic [ref=f5e245]:
+          - button [ref=f5e247] [cursor=pointer]
+          - button [ref=f5e250] [cursor=pointer]
+    - main [ref=f5e3]:
+      - generic [ref=f5e4]:
+        - generic [ref=f5e6]:
+          - generic [ref=f5e7]:
+            - tablist [ref=f5e8]:
+              - tab [selected] [ref=f5e12] [cursor=pointer]
+            - generic:
+              - generic:
+                - tabpanel "个人中心"
+          - generic [ref=f5e16]:
+            - button [ref=f5e17] [cursor=pointer]
+            - button [ref=f5e19] [cursor=pointer]
+            - button [ref=f5e21] [cursor=pointer]
+        - generic [ref=f5e25]:
+          - generic [ref=f5e26]:
+            - button "arrow-left 返回" [ref=f5e27] [cursor=pointer]:
+              - img "arrow-left" [ref=f5e28]
+              - generic [ref=f5e31]: 返回
+            - heading "发布需求" [level=3] [ref=f5e32]
+          - generic [ref=f5e33]:
+            - alert [ref=f5e34]:
+              - img "info-circle" [ref=f5e35]
+              - generic [ref=f5e38]: 销售和产品经理均可发布需求，发布后将通知相关产品线
+            - generic [ref=f5e40]:
+              - generic [ref=f5e41]: 需求基本信息
+              - generic [ref=f5e42]:
+                - generic [ref=f5e43]: "*需求标题"
+                - generic [ref=f5e44]:
+                  - textbox "请输入需求标题（不超过100字）" [ref=f5e45]: 联调验证：5G RedCap 模组选型
+                  - generic [ref=f5e46]: 19 / 100
+              - generic [ref=f5e48]:
+                - generic [ref=f5e49]: "*紧急程度"
+                - generic [ref=f5e51] [cursor=pointer]:
+                  - combobox [ref=f5e53]
+                  - generic [ref=f5e54]: 普通
+              - generic [ref=f5e55]:
+                - generic [ref=f5e56]: 行业场景
+                - generic [ref=f5e57]:
+                  - textbox "如：IoT、车载、智慧城市" [ref=f5e58]: IoT
+                  - generic [ref=f5e59]: 3 / 50
+              - generic [ref=f5e61]:
+                - generic [ref=f5e62]: 关键词标签
+                - generic [ref=f5e64]:
+                  - combobox [ref=f5e68]
+                  - generic: 输入关键词后回车，可添加多个
+              - generic [ref=f5e69]:
+                - generic [ref=f5e70]: "*分类标签"
+                - generic [ref=f5e72] [cursor=pointer]:
+                  - combobox [active] [ref=f5e76]
+                  - generic: 输入分类标签后回车，可添加多个
+                - generic [ref=f5e77]: 请选择 1~5 个分类标签
+            - generic [ref=f5e78]:
+              - generic [ref=f5e79]:
+                - img "eye" [ref=f5e80]
+                - text: 可见范围
+              - generic [ref=f5e83]:
+                - generic [ref=f5e84] [cursor=pointer]:
+                  - generic [ref=f5e85]:
+                    - radio "全部可见" [checked]
+                  - generic [ref=f5e86]: 全部可见
+                - generic [ref=f5e87] [cursor=pointer]:
+                  - generic [ref=f5e88]:
+                    - radio "按部门可见"
+                  - generic [ref=f5e89]: 按部门可见
+                - generic [ref=f5e90] [cursor=pointer]:
+                  - generic [ref=f5e91]:
+                    - radio "指定人员可见"
+                  - generic [ref=f5e92]: 指定人员可见
+              - generic [ref=f5e93]:
+                - img "check-circle" [ref=f5e94]
+                - text: 所有用户均可查看此需求
+            - generic [ref=f5e98]:
+              - generic [ref=f5e99]:
+                - img "usergroup-add" [ref=f5e100]
+                - text: 邀请产品线回答
+              - generic [ref=f5e104] [cursor=pointer]:
+                - combobox [ref=f5e108]
+                - generic: 选择希望参与回答的产品线，不选则自动匹配
+              - generic [ref=f5e109]:
+                - img "info-circle" [ref=f5e110]
+                - text: 留空则由系统根据分类标签自动匹配相关产品线专家
+            - generic [ref=f5e114]:
+              - generic [ref=f5e115]: "*方案详情"
+              - generic [ref=f5e116]:
+                - generic [ref=f5e117]:
+                  - button [ref=f5e118] [cursor=pointer]:
+                    - img "bold" [ref=f5e119]
+                  - button [ref=f5e122] [cursor=pointer]:
+                    - img "italic" [ref=f5e123]
+                  - button [ref=f5e126] [cursor=pointer]:
+                    - img "underline" [ref=f5e127]
+                  - button [ref=f5e130] [cursor=pointer]:
+                    - img "font-size" [ref=f5e131]
+                  - button [ref=f5e134] [cursor=pointer]:
+                    - img "unordered-list" [ref=f5e135]
+                  - button [ref=f5e138] [cursor=pointer]:
+                    - img "ordered-list" [ref=f5e139]
+                - generic [ref=f5e142]: 请输入需求详情描述
+            - generic [ref=f5e143]:
+              - generic [ref=f5e144]:
+                - generic [ref=f5e145]: 附件
+                - generic [ref=f5e146]: 0/10
+              - button "upload upload.acceptAllFileTypeTips" [ref=f5e150] [cursor=pointer]:
+                - generic [ref=f5e151]:
+                  - img "upload" [ref=f5e152]
+                  - generic [ref=f5e155]: upload.acceptAllFileTypeTips
+            - generic [ref=f5e156]:
+              - generic [ref=f5e157]:
+                - img "profile" [ref=f5e158]
+                - text: 相似需求检测
+              - generic [ref=f5e256]:
+                - img "check-circle" [ref=f5e257]
+                - text: 未检测到相似需求，可以放心发布
+          - generic [ref=f5e165]:
+            - button "取 消" [ref=f5e166] [cursor=pointer]
+            - button "send 发布需求" [ref=f5e168] [cursor=pointer]:
+              - img "send" [ref=f5e169]
+              - generic [ref=f5e172]: 发布需求

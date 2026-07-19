@@ -46,12 +46,19 @@ INSERT INTO `product_line` (`id`,`name`,`description`,`is_active`,`version`,`cre
  (505, '定位产品线',     'GNSS/RTK 高精度定位',            1, 0, '2026-07-01 00:00:00','2026-07-01 00:00:00');
 
 -- ---------- 用户（dev 固定 id；正式 id 来自 UAA。角色覆盖 sales/product_manager/admin） ----------
-DELETE FROM `sys_user` WHERE `id` IN (9001,9002,9003,9004);
+-- ⚠️ id 必须等于 UAA 的用户 id：业务角色由本地 sys_user.role 判定，
+--    CurrentUserResolver 用 SecurityUtils.getCurrentUserId() 直接 getById 查本行。
+--    UAA 里没有 sales/product_manager/admin 这些角色（实测返回 100+ 个不透明的全公司级角色 ID），
+--    所以真实账号若不在本表，登录后一切写操作都会被 fail-closed 拒绝。
+-- 9001~9004 是 dev 虚构 id，仅供离线/单测；真实联调账号必须用其真实 UAA id 落一行。
+DELETE FROM `sys_user` WHERE `id` IN (9001,9002,9003,9004,10160);
 INSERT INTO `sys_user` (`id`,`username`,`name`,`employee_id`,`role`,`department_id`,`department_name`,`status`,`email`,`language`,`version`,`create_time`,`update_time`) VALUES
  (9001, 'admin', '运营管理员', 'E0001', 'admin',           NULL, NULL,       'active', 'admin@quectel.com', 'zh-CN', 0, '2026-07-01 00:00:00','2026-07-01 00:00:00'),
  (9002, 'zhangwei', '张伟',   'E1001', 'sales',           1001, '上海销售组', 'active', 'zhangwei@quectel.com', 'zh-CN', 0, '2026-07-01 00:00:00','2026-07-01 00:00:00'),
  (9003, 'lina', '李娜',       'E1002', 'product_manager', 10,   '华东大区',   'active', 'lina@quectel.com', 'zh-CN', 0, '2026-07-01 00:00:00','2026-07-01 00:00:00'),
- (9004, 'wangqiang', '王强',  'E1003', 'sales',           2001, '深圳销售组', 'active', 'wangqiang@quectel.com', 'zh-CN', 0, '2026-07-01 00:00:00','2026-07-01 00:00:00');
+ (9004, 'wangqiang', '王强',  'E1003', 'sales',           2001, '深圳销售组', 'active', 'wangqiang@quectel.com', 'zh-CN', 0, '2026-07-01 00:00:00','2026-07-01 00:00:00'),
+ -- 联调测试账号：id=10160 取自 UAA /me 实测返回值，非虚构
+ (10160, 'atom.ye', 'atom.ye', 'E9999', 'sales',          1001, '上海销售组', 'active', 'atom.ye@quectel.com', 'zh-CN', 0, '2026-07-01 00:00:00','2026-07-01 00:00:00');
 
 -- ---------- 产品线成员（is_owner=1 即 SLA L1 升级人） ----------
 DELETE FROM `product_line_member` WHERE `id` IN (601,602,603,604);
