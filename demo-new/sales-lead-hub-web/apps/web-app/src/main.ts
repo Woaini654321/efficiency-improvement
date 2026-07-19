@@ -24,7 +24,11 @@ import { vxe } from '@q-web-plugin/vxe'
 import { track } from '@q-web-plugin/track'
 import AntdvPro from '@q-web-plugin/antdv-pro'
 import { zh_CN, en_US } from './locale'
-import 'virtual:ai-request-guard/report-sink'
+// report-sink 是 AI 防腐层的「用量上报」虚拟模块，仅 dev 期由 vite 插件提供、生产构建不产出该虚拟模块。
+// 用 import.meta.env.DEV 包裹动态引入，生产构建时该分支被 vite 静态消除，避免 rolldown 解析不到虚拟模块而构建失败。
+if (import.meta.env.DEV) {
+  import('virtual:ai-request-guard/report-sink')
+}
 // 开启 AIRequestGuard mock 模式（DEV），使各模块页面在无后端时即可展示 mock 数据
 import './apis/guard-setup'
 

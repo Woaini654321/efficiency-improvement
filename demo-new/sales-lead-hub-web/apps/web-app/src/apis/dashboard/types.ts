@@ -16,6 +16,17 @@ export interface DashboardPageHeatDTO {
   count: number
   percent: number
 }
+export interface DashboardPieSegDTO {
+  name: string
+  value: number
+  color: string
+}
+export interface DashboardTrendMapDTO {
+  last7d: number[]
+  last4w: number[]
+  last12w: number[]
+  last6m: number[]
+}
 export interface DashboardDTO {
   uv: number
   pv: number
@@ -32,6 +43,11 @@ export interface DashboardDTO {
   hot_contents: DashboardHotContentDTO[]
   category_dist: DashboardCategoryDistDTO[]
   page_heat: DashboardPageHeatDTO[]
+  week_publish_trend: DashboardTrendMapDTO
+  response_rate_trend: DashboardTrendMapDTO
+  opp_category_pie: DashboardPieSegDTO[]
+  demand_category_pie: DashboardPieSegDTO[]
+  hourly_active: number[]
   updated_at: string
 }
 
@@ -52,6 +68,17 @@ export interface DashboardPageHeat {
   count: number
   percent: number
 }
+export interface DashboardPieSeg {
+  label: string
+  value: number
+  color: string
+}
+export interface DashboardTrendMap {
+  last7d: number[]
+  last4w: number[]
+  last12w: number[]
+  last6m: number[]
+}
 export interface DashboardData {
   uv: number
   pv: number
@@ -68,6 +95,11 @@ export interface DashboardData {
   hotContents: DashboardHotContent[]
   categoryDist: DashboardCategoryDist[]
   pageHeat: DashboardPageHeat[]
+  weekPublishTrend: DashboardTrendMap
+  responseRateTrend: DashboardTrendMap
+  oppCategoryPie: DashboardPieSeg[]
+  demandCategoryPie: DashboardPieSeg[]
+  hourlyActive: number[]
   updatedAt: string
 }
 

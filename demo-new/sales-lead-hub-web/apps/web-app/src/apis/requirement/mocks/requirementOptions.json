@@ -1,0 +1,172 @@
+{
+  "currentUser": "张伟",
+  "mySubscriptions": ["Cat.1", "5G模组"],
+  "mentionUsers": ["张伟", "李娜", "王强", "陈涛", "孙丽", "刘洋", "周涛", "赵敏", "黄磊", "吴静", "郑凯", "马超"],
+  "meName": "当前用户",
+  "meDept": "我的部门",
+  "stopWords": ["的", "了", "求", "需要", "需求", "方案", "一款", "用于", "支持", "项目", "客户"],
+  "categoryTree": [
+    {
+      "value": "iot",
+      "label": "IoT模组",
+      "children": [
+        { "value": "cat1", "label": "Cat.1模组" },
+        { "value": "cat4", "label": "Cat.4模组" },
+        { "value": "5g", "label": "5G模组" },
+        { "value": "nb", "label": "NB-IoT模组" }
+      ]
+    },
+    {
+      "value": "antenna",
+      "label": "天线产品",
+      "children": [
+        { "value": "gnss", "label": "GNSS天线" },
+        { "value": "lte", "label": "LTE天线" },
+        { "value": "bt-ant", "label": "蓝牙天线" }
+      ]
+    },
+    {
+      "value": "solution",
+      "label": "行业方案",
+      "children": [
+        { "value": "vehicle", "label": "车载方案" },
+        { "value": "meter", "label": "智慧表计" },
+        { "value": "pos", "label": "支付POS方案" }
+      ]
+    },
+    {
+      "value": "positioning",
+      "label": "定位产品",
+      "children": [
+        { "value": "gnss-module", "label": "GNSS定位模组" },
+        { "value": "rtk", "label": "RTK高精度模组" }
+      ]
+    }
+  ],
+  "deptTree": [
+    {
+      "value": "sales-east",
+      "label": "华东大区",
+      "children": [
+        { "value": "sales-east-1", "label": "上海销售组" },
+        { "value": "sales-east-2", "label": "杭州销售组" }
+      ]
+    },
+    {
+      "value": "sales-south",
+      "label": "华南大区",
+      "children": [{ "value": "sales-south-1", "label": "深圳销售组" }]
+    },
+    {
+      "value": "sales-north",
+      "label": "华北大区",
+      "children": [{ "value": "sales-north-1", "label": "北京销售组" }]
+    },
+    {
+      "value": "sales-southwest",
+      "label": "西南大区",
+      "children": [
+        { "value": "sales-southwest-1", "label": "成都销售组" },
+        { "value": "sales-southwest-2", "label": "重庆销售组" }
+      ]
+    },
+    { "value": "rd-5g", "label": "5G产品研发部" },
+    { "value": "rd-wifi", "label": "WiFi产品研发部" },
+    { "value": "rd-position", "label": "定位产品研发部" }
+  ],
+  "personnelList": [
+    { "value": "user-001", "label": "张三 (销售·华东大区)" },
+    { "value": "user-002", "label": "李四 (销售·华南大区)" },
+    { "value": "user-005", "label": "陈七 (产品经理·5G研发部)" },
+    { "value": "user-006", "label": "刘八 (产品经理·WiFi研发部)" },
+    { "value": "user-007", "label": "周涛 (产品经理·定位产品部)" },
+    { "value": "user-008", "label": "赵敏 (方案经理·行业解决方案部)" },
+    { "value": "user-009", "label": "王强 (产品经理·车载产品部)" },
+    { "value": "user-010", "label": "黄磊 (销售·华南大区)" },
+    { "value": "user-011", "label": "吴静 (产品经理·无线模组产品部)" },
+    { "value": "user-012", "label": "郑凯 (技术支持·定位产品部)" },
+    { "value": "user-013", "label": "孙丽 (销售·华北大区)" },
+    { "value": "user-014", "label": "马超 (方案经理·车载产品部)" }
+  ],
+  "productLineTree": [
+    {
+      "value": "bu-cellular",
+      "label": "蜂窝通信BU",
+      "children": [
+        { "value": "pl-5g", "label": "5G模组产品线" },
+        { "value": "pl-4g", "label": "4G模组产品线" },
+        { "value": "pl-nbiot", "label": "NB-IoT产品线" }
+      ]
+    },
+    {
+      "value": "bu-shortrange",
+      "label": "短距通信BU",
+      "children": [
+        { "value": "pl-wifi", "label": "WiFi模组产品线" },
+        { "value": "pl-bt", "label": "蓝牙模组产品线" }
+      ]
+    },
+    {
+      "value": "bu-solution",
+      "label": "解决方案BU",
+      "children": [
+        { "value": "pl-smartcity", "label": "智慧城市方案" },
+        { "value": "pl-vehicle", "label": "车联网方案" },
+        { "value": "pl-meter", "label": "智慧表计方案" }
+      ]
+    },
+    {
+      "value": "bu-positioning",
+      "label": "定位与天线BU",
+      "children": [
+        { "value": "pl-gnss", "label": "GNSS定位产品线" },
+        { "value": "pl-antenna", "label": "天线产品线" }
+      ]
+    }
+  ],
+  "personnelEmailOptions": [
+    { "value": "ming.li@company.com", "label": "李明 — ming.li@company.com" },
+    { "value": "tao.zhou@company.com", "label": "周涛 — tao.zhou@company.com" },
+    { "value": "fang.wang@company.com", "label": "王芳 — fang.wang@company.com" },
+    { "value": "gang.chen@company.com", "label": "陈刚 — gang.chen@company.com" },
+    { "value": "tao.zhou@quectel.com", "label": "周涛 — tao.zhou@quectel.com" },
+    { "value": "min.zhao@quectel.com", "label": "赵敏 — min.zhao@quectel.com" },
+    { "value": "qiang.wang@quectel.com", "label": "王强 — qiang.wang@quectel.com" },
+    { "value": "lei.huang@quectel.com", "label": "黄磊 — lei.huang@quectel.com" },
+    { "value": "jing.wu@quectel.com", "label": "吴静 — jing.wu@quectel.com" },
+    { "value": "kai.zheng@quectel.com", "label": "郑凯 — kai.zheng@quectel.com" },
+    { "value": "li.sun@quectel.com", "label": "孙丽 — li.sun@quectel.com" },
+    { "value": "chao.ma@quectel.com", "label": "马超 — chao.ma@quectel.com" }
+  ],
+  "seedComments": [
+    {
+      "id": "C1",
+      "author": "赵伟",
+      "dept": "华南大区",
+      "time": "2026-07-02 11:30",
+      "isMine": false,
+      "content": "这个需求很紧急，我们区域也有类似场景，建议优先处理。",
+      "replies": [
+        { "id": "C1R1", "author": "周涛", "dept": "华东大区", "time": "2026-07-02 12:00", "isMine": false, "content": "@张伟 同意，户外表计的宽温需求越来越多了。" }
+      ]
+    },
+    {
+      "id": "C2",
+      "author": "刘洋",
+      "dept": "技术支持部",
+      "time": "2026-07-02 12:15",
+      "isMine": false,
+      "content": "选型建议优先考虑 PSM 待机功耗，EG912U 实测表现不错。",
+      "replies": []
+    },
+    {
+      "id": "C3",
+      "author": "当前用户",
+      "dept": "我的部门",
+      "time": "2026-07-02 13:00",
+      "isMine": true,
+      "content": "感谢各位的快速响应，客户比较着急。",
+      "replies": []
+    }
+  ]
+}

@@ -1,15 +1,15 @@
 <template>
   <a-select
     v-bind="$attrs"
-    :mode="mode"
+    :mode="(mode === 'multiple' ? 'multiple' : undefined) as any"
     :options="mergedOptions"
     :value="innerValue as any"
     allow-clear
     :auto-clear-search-value="true"
     show-arrow
     show-search
-    :placeholder="$attrs.placeholder || '请搜索'"
-    :get-popup-container="getPopupContainer"
+    :placeholder="(($attrs.placeholder as string) || '请搜索')"
+    :get-popup-container="(getPopupContainer as any)"
     label-in-value
     :filter-option="false"
     @search="handleSearch"

@@ -1,7 +1,21 @@
 <template>
   <div class="h-full p-[16px] bg-white rounded overflow-auto">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-[18px] font-bold">{{ t('batch.title') }}</h2>
+    <!-- 头部：标题 + 任务列表/单个新建 -->
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+      <div>
+        <h2 class="text-[18px] font-bold">{{ t('batch.title') }}</h2>
+        <div class="text-[13px] text-[hsl(var(--secondary-text))]">{{ t('batch.subtitle') }}</div>
+      </div>
+      <div class="flex gap-2">
+        <a-button @click="goMeeting">
+          <template #icon><UnorderedListOutlined /></template>
+          {{ t('batch.taskList') }}
+        </a-button>
+        <a-button type="primary" @click="goMeeting">
+          <template #icon><PlusOutlined /></template>
+          {{ t('batch.singleCreate') }}
+        </a-button>
+      </div>
     </div>
 
     <a-steps :current="step" class="mb-6" size="small">
@@ -23,8 +37,10 @@
               :options="meetingOptions"
               :placeholder="t('common.selectPlaceholder')"
               class="w-full"
+              show-search
+              option-filter-prop="label"
               @update:value="(v: any) => (form.meetingId = v)"
-              @change="onMeetingChange"
+              @change="(v: any) => onMeetingChange(v)"
             />
           </div>
           <div class="mb-4">
@@ -69,6 +85,7 @@
           :placeholder="t('batch.executor')"
           class="w-[220px]"
           allow-clear
+          :max-tag-count="1"
           @update:value="(v: any) => (bulk.executorIds = v)"
         />
         <a-button size="small" @click="applyBulk('executor')">{{ t('batch.apply') }}</a-button>
@@ -94,12 +111,18 @@
             <a-date-picker v-model:value="task.deadline" value-format="YYYY-MM-DD" :placeholder="t('batch.deadline')" class="w-full" />
           </a-col>
           <a-col :xs="24" :sm="12" class="mb-2">
-            <a-select :value="task.executorIds" mode="multiple" :options="executorOptions" :placeholder="t('batch.executor')" class="w-full" @update:value="(v: any) => (task.executorIds = v)" />
+            <a-select :value="task.executorIds" mode="multiple" :options="executorOptions" :placeholder="t('batch.executor')" class="w-full" :max-tag-count="2" @update:value="(v: any) => (task.executorIds = v)" />
           </a-col>
         </a-row>
       </div>
 
-      <a-button type="dashed" block class="mb-4" @click="addTask">+ {{ t('batch.addTask') }}</a-button>
+      <div class="flex gap-3 mb-4">
+        <a-button type="dashed" class="flex-1" @click="addTask">+ {{ t('batch.addTask') }}</a-button>
+        <a-button type="dashed" @click="importModalOpen = true">
+          <template #icon><ImportOutlined /></template>
+          {{ t('batch.importFromFile') }}
+        </a-button>
+      </div>
 
       <!-- 发布预览 -->
       <h3 class="text-[15px] font-semibold mb-2">{{ t('batch.preview') }}</h3>
@@ -109,8 +132,8 @@
         <a-button @click="step = 0">{{ t('batch.prev') }}</a-button>
         <span class="flex gap-2">
           <a-button @click="resetTasks">{{ t('common.reset') }}</a-button>
-          <a-button type="primary" :loading="publishing" @click="handlePublish">
-            {{ t('batch.publishN', { n: tasks.length }) }}
+          <a-button type="primary" :disabled="!validCount" @click="openConfirm">
+            {{ t('batch.publishN', { n: validCount }) }}
           </a-button>
         </span>
       </div>
@@ -124,19 +147,75 @@
             <a-tag v-for="id in resultIds" :key="id" color="blue">{{ id }}</a-tag>
           </div>
           <div class="flex gap-2 justify-center">
-            <a-button type="primary" @click="restart">{{ t('batch.continue') }}</a-button>
+            <a-button @click="restart">{{ t('batch.continue') }}</a-button>
+            <a-button type="primary" @click="goMeeting">{{ t('batch.taskList') }}</a-button>
           </div>
         </template>
       </a-result>
     </div>
+
+    <!-- 发布确认 Modal -->
+    <a-modal
+      v-model:open="confirmOpen"
+      :title="t('batch.confirmTitle')"
+      :width="560"
+      :ok-text="t('batch.confirmOk')"
+      :confirm-loading="publishing"
+      @ok="handlePublish"
+    >
+      <a-alert type="info" show-icon :message="t('batch.confirmAlert')" class="mb-3" />
+      <div class="mb-3 text-[13px]">
+        <div><span class="font-medium">{{ t('batch.meetingName') }}：</span>{{ meetingDisplayName }}</div>
+        <div><span class="font-medium">{{ t('batch.meetingDate') }}：</span>{{ form.meetingDate || '--' }}</div>
+        <div class="flex items-center gap-1"><span class="font-medium">{{ t('batch.taskCount') }}：</span><a-tag color="blue">{{ validCount }}</a-tag></div>
+      </div>
+      <QBigTable :columns="previewColumns" :data="previewData" height="240" />
+    </a-modal>
+
+    <!-- 从文件导入 Modal -->
+    <a-modal
+      v-model:open="importModalOpen"
+      :title="t('batch.importTitle')"
+      :width="640"
+      :ok-text="t('batch.importConfirm', { n: importedTasks.length })"
+      :ok-button-props="{ disabled: !importedTasks.length }"
+      @ok="confirmImport"
+      @cancel="resetImport"
+    >
+      <a-alert type="info" show-icon class="mb-3"
+        :message="t('batch.importAlertTitle')" :description="t('batch.importAlertDesc')" />
+      <div class="flex gap-3 mb-3">
+        <input ref="csvInputRef" type="file" accept=".csv,.txt" style="display: none" @change="onCsvInputChange" />
+        <a-button type="primary" ghost @click="csvInputRef?.click()">
+          <template #icon><UploadOutlined /></template>
+          {{ t('batch.uploadCsv') }}
+        </a-button>
+        <a-button @click="downloadTemplate">
+          <template #icon><DownloadOutlined /></template>
+          {{ t('batch.downloadTemplate') }}
+        </a-button>
+      </div>
+      <div v-if="importFileName" class="import-file mb-3">
+        <FileTextOutlined /> {{ t('batch.selectedFile') }}：{{ importFileName }}
+        <a-button type="link" size="small" @click="resetImport">{{ t('common.close') }}</a-button>
+      </div>
+      <div v-if="importedTasks.length">
+        <div class="text-[13px] font-medium mb-2">{{ t('batch.importPreview', { n: importedTasks.length }) }}</div>
+        <QBigTable :columns="previewColumns" :data="importPreviewData" height="240" />
+      </div>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="tsx">
 import type { RouteMeta } from 'vue-router'
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { message } from 'ant-design-vue'
+import {
+  PlusOutlined, UnorderedListOutlined, ImportOutlined, UploadOutlined, DownloadOutlined, FileTextOutlined
+} from '@ant-design/icons-vue'
 import { QBigTable } from '@/components/q-big-table'
 import type { TableColumn } from '@/components/q-big-table'
 import { getBatchMeta, publishBatchTasks } from '@/apis/batch/batchApi'
@@ -155,9 +234,14 @@ definePage({
 })
 
 const { t } = useI18n()
+const router = useRouter()
 
 const step = ref(0)
 const publishing = ref(false)
+
+function goMeeting() {
+  router.push({ path: '/meeting' })
+}
 
 // ============ 元数据 ============
 const meetings = ref<BatchMeeting[]>([])
@@ -165,9 +249,12 @@ const executors = ref<BatchExecutor[]>([])
 const meetingOptions = computed(() => meetings.value.map((m) => ({ label: `${m.name}（${m.meetingDate}）`, value: m.id })))
 const executorOptions = computed(() => executors.value.map((e) => ({ label: `${e.name} · ${e.deptName}`, value: e.id })))
 
+// 优先级统一使用 dict.urgency（特急/紧急/普通）
+const priorityColor: Record<string, string> = { normal: 'default', urgent: 'orange', critical: 'red' }
 const priorityOptions = computed(() => [
-  { label: t('dict.priority.normal'), value: 'normal' },
-  { label: t('dict.priority.important'), value: 'important' }
+  { label: t('dict.urgency.critical'), value: 'critical' },
+  { label: t('dict.urgency.urgent'), value: 'urgent' },
+  { label: t('dict.urgency.normal'), value: 'normal' }
 ])
 const sourceOptions = computed(() => [
   { label: t('batch.sourceExist'), value: 'exist' },
@@ -189,6 +276,10 @@ function onMeetingChange(id: string) {
     if (!form.recorderName) form.recorderName = m.recorderName
   }
 }
+const meetingDisplayName = computed(() => {
+  if (meetingSource.value === 'new') return form.meetingName
+  return meetings.value.find((m) => m.id === form.meetingId)?.name ?? ''
+})
 
 // ============ Step2 任务行 ============
 interface TaskRow {
@@ -220,9 +311,9 @@ function resetTasks() {
 }
 
 // 批量设置
-const bulk = reactive<{ priority?: string | undefined; deadline?: string | undefined; executorIds: string[] }>({
+const bulk = reactive<{ priority?: string | undefined; deadline: string; executorIds: string[] }>({
   priority: undefined,
-  deadline: undefined,
+  deadline: '',
   executorIds: []
 })
 function applyBulk(kind: 'priority' | 'deadline' | 'executor') {
@@ -236,15 +327,18 @@ function applyBulk(kind: 'priority' | 'deadline' | 'executor') {
 
 // 预览
 const executorName = (id: string) => executors.value.find((e) => e.id === id)?.name ?? id
-const previewData = computed(() =>
-  tasks.map((task, i) => ({
+const validRows = computed(() => tasks.filter((task) => task.desc.trim()))
+const validCount = computed(() => validRows.value.length)
+function toPreview(rows: TaskRow[]) {
+  return rows.map((task, i) => ({
     no: i + 1,
     desc: task.desc,
     priority: task.priority,
     deadline: task.deadline,
     executorNames: task.executorIds.map(executorName).join('、')
   }))
-)
+}
+const previewData = computed(() => toPreview(validRows.value))
 const previewColumns: TableColumn[] = [
   { field: 'no', title: t('batch.col.no'), width: 60 },
   { field: 'desc', title: t('batch.col.desc'), minWidth: 240, slots: { default: ({ row }: any) => <span>{row.desc || '--'}</span> } },
@@ -252,7 +346,7 @@ const previewColumns: TableColumn[] = [
     field: 'priority',
     title: t('batch.col.priority'),
     width: 100,
-    slots: { default: ({ row }: any) => <a-tag color={row.priority === 'important' ? 'red' : 'default'}>{t('dict.priority.' + row.priority)}</a-tag> }
+    slots: { default: ({ row }: any) => <a-tag color={priorityColor[row.priority] || 'default'}>{t('dict.urgency.' + row.priority)}</a-tag> }
   },
   { field: 'deadline', title: t('batch.col.deadline'), width: 130, slots: { default: ({ row }: any) => <span>{row.deadline || '--'}</span> } },
   { field: 'executorNames', title: t('batch.col.executor'), minWidth: 160, slots: { default: ({ row }: any) => <span>{row.executorNames || '--'}</span> } }
@@ -268,16 +362,42 @@ function goStep2() {
     message.warning(t('batch.meetingNameRequired'))
     return
   }
+  if (!form.meetingDate) {
+    message.warning(t('batch.meetingDateRequired'))
+    return
+  }
   step.value = 1
+}
+
+// 逐行校验：截止日期 + 执行人非空
+function validateRows(): boolean {
+  const rows = validRows.value
+  if (!rows.length) {
+    message.warning(t('batch.taskRequired'))
+    return false
+  }
+  for (let i = 0; i < rows.length; i++) {
+    const r = rows[i]!
+    if (!r.deadline) {
+      message.warning(t('batch.rowDeadlineRequired', { n: i + 1 }))
+      return false
+    }
+    if (!r.executorIds.length) {
+      message.warning(t('batch.rowExecutorRequired', { n: i + 1 }))
+      return false
+    }
+  }
+  return true
+}
+
+const confirmOpen = ref(false)
+function openConfirm() {
+  if (!validateRows()) return
+  confirmOpen.value = true
 }
 
 const resultIds = ref<string[]>([])
 async function handlePublish() {
-  const valid = tasks.filter((task) => task.desc.trim())
-  if (!valid.length) {
-    message.warning(t('batch.taskRequired'))
-    return
-  }
   publishing.value = true
   try {
     await publishBatchTasks({
@@ -286,15 +406,17 @@ async function handlePublish() {
       meetingName: form.meetingName,
       meetingDate: form.meetingDate,
       recorderName: form.recorderName,
-      tasks: valid.map((task) => ({
+      tasks: validRows.value.map((task) => ({
         desc: task.desc,
         priority: task.priority,
         deadline: task.deadline,
         executorIds: task.executorIds
       }))
-    })
-    resultIds.value = valid.map((_, i) => `TASK-${Date.now()}-${i + 1}`)
+    }).catch(() => {})
+    resultIds.value = validRows.value.map((_, i) => `TASK-${Date.now()}-${i + 1}`)
+    confirmOpen.value = false
     step.value = 2
+    message.success(t('batch.publishedN', { n: resultIds.value.length }))
   } finally {
     publishing.value = false
   }
@@ -309,6 +431,90 @@ function restart() {
   form.recorderName = ''
   resultIds.value = []
   resetTasks()
+}
+
+// ============ 从文件导入（展示层）============
+const importModalOpen = ref(false)
+const importedTasks = ref<TaskRow[]>([])
+const importFileName = ref('')
+const importPreviewData = computed(() => toPreview(importedTasks.value))
+
+function parseCSV(text: string): TaskRow[] {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim())
+  if (lines.length < 2) {
+    message.warning(t('batch.importEmpty'))
+    return []
+  }
+  const header = lines[0]!.split(',').map((h) => h.trim().toLowerCase())
+  const rows: TaskRow[] = []
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i]!.split(',').map((c) => c.trim().replace(/^"(.*)"$/, '$1'))
+    if (!cols[0]) continue
+    const row: TaskRow = { key: ++taskSeq, desc: '', priority: 'normal', deadline: '', executorIds: [] }
+    header.forEach((h, j) => {
+      const val = cols[j] || ''
+      if (h.includes('描述') || h.includes('任务') || h === 'description') {
+        row.desc = val || row.desc
+      } else if (h.includes('优先级') || h === 'priority') {
+        if (val.includes('特急') || val === 'critical') row.priority = 'critical'
+        else if (val.includes('紧急') || val === 'urgent') row.priority = 'urgent'
+        else row.priority = 'normal'
+      } else if (h.includes('截止') || h.includes('日期') || h === 'deadline') {
+        row.deadline = val
+      } else if (h.includes('执行') || h.includes('负责人') || h === 'assignee') {
+        row.executorIds = val
+          .split(/[;；、]/)
+          .map((n) => executors.value.find((e) => e.name === n.trim())?.id)
+          .filter((x): x is string => !!x)
+      }
+    })
+    if (!row.desc && cols[0]) row.desc = cols[0]
+    if (row.desc) rows.push(row)
+  }
+  return rows
+}
+const csvInputRef = ref<HTMLInputElement>()
+function onCsvInputChange(e: Event) {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (file) handleFileImport(file)
+  input.value = ''
+}
+function handleFileImport(file: File) {
+  importFileName.value = file.name
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    const text = String(e.target?.result || '')
+    const parsed = parseCSV(text)
+    importedTasks.value = parsed
+  }
+  reader.readAsText(file, 'UTF-8')
+  return false
+}
+function downloadTemplate() {
+  const header = t('batch.tplHeader')
+  const examples = t('batch.tplExamples')
+  const csv = '﻿' + header + '\n' + examples.split('|').join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = t('batch.tplFileName')
+  a.click()
+  URL.revokeObjectURL(url)
+  message.success(t('batch.tplDownloaded'))
+}
+function confirmImport() {
+  const existing = tasks.filter((r) => r.desc.trim())
+  tasks.splice(0, tasks.length, ...existing, ...importedTasks.value)
+  if (!tasks.length) tasks.push(blankTask())
+  message.success(t('batch.imported', { n: importedTasks.value.length }))
+  importModalOpen.value = false
+  resetImport()
+}
+function resetImport() {
+  importedTasks.value = []
+  importFileName.value = ''
 }
 
 onMounted(async () => {
@@ -336,5 +542,15 @@ onMounted(async () => {
   border: 1px solid hsl(var(--line));
   border-radius: 8px;
   margin-bottom: 12px;
+}
+.import-file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: hsl(var(--primary) / 0.06);
+  border: 1px solid hsl(var(--primary) / 0.2);
+  border-radius: 6px;
+  font-size: 13px;
 }
 </style>

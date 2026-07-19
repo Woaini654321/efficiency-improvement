@@ -6,6 +6,8 @@ import {
   getIndustryListAdapter,
   getIndustryDetailAdapter
 } from './intelAdapter'
+import { mockRequest } from '../_shared/mock-switch'
+import mockData from './mocks/intel.json'
 import type {
   CompetitorIntelPageParams,
   CompetitorIntelPageResult,
@@ -22,14 +24,20 @@ export const getCompetitorList = async (
 ): Promise<CompetitorIntelPageResult> => {
   return (await AIRequestGuard({
     adapter: getCompetitorListAdapter,
-    request: () => request.POST<CompetitorIntelPageResult>({ url: 'intel/competitor/page' }, params)
+    request: mockRequest(
+      { records: mockData.competitors.records, total: mockData.competitors.total },
+      () => request.POST<CompetitorIntelPageResult>({ url: 'intel/competitor/page' }, params)
+    )
   })) as CompetitorIntelPageResult
 }
 
 export const getCompetitorDetail = async (id: string): Promise<CompetitorIntelItem> => {
   return (await AIRequestGuard({
     adapter: getCompetitorDetailAdapter,
-    request: () => request.GET<CompetitorIntelItem>({ url: 'intel/competitor/detail' }, { id })
+    request: mockRequest(
+      mockData.competitors.records[0],
+      () => request.GET<CompetitorIntelItem>({ url: 'intel/competitor/detail' }, { id })
+    )
   })) as CompetitorIntelItem
 }
 
@@ -39,14 +47,20 @@ export const getIndustryList = async (
 ): Promise<IndustryIntelPageResult> => {
   return (await AIRequestGuard({
     adapter: getIndustryListAdapter,
-    request: () => request.POST<IndustryIntelPageResult>({ url: 'intel/industry/page' }, params)
+    request: mockRequest(
+      { records: mockData.industries.records, total: mockData.industries.total },
+      () => request.POST<IndustryIntelPageResult>({ url: 'intel/industry/page' }, params)
+    )
   })) as IndustryIntelPageResult
 }
 
 export const getIndustryDetail = async (id: string): Promise<IndustryIntelItem> => {
   return (await AIRequestGuard({
     adapter: getIndustryDetailAdapter,
-    request: () => request.GET<IndustryIntelItem>({ url: 'intel/industry/detail' }, { id })
+    request: mockRequest(
+      mockData.industries.records[0],
+      () => request.GET<IndustryIntelItem>({ url: 'intel/industry/detail' }, { id })
+    )
   })) as IndustryIntelItem
 }
 

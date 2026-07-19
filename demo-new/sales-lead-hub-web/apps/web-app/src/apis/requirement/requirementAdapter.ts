@@ -16,7 +16,9 @@ const mapResponses = (list: RequirementResponseDTO[] | undefined): RequirementRe
     responderDeptName: r.responder_dept_name ?? '',
     content: r.content ?? '',
     isAdopted: r.is_adopted ?? false,
-    createdAt: r.created_at ?? ''
+    createdAt: r.created_at ?? '',
+    productLineName: r.product_line_name ?? '',
+    files: r.files ?? []
   }))
 
 // 单条 DTO → ViewModel（枚举保留 code，标签在页面用 t('dict.*') 渲染，双语）
@@ -31,12 +33,22 @@ const toItem = (dto: RequirementDTO): RequirementItem => ({
   publisherDeptName: dto.publisher_dept_name ?? '',
   categoryNames: dto.category_names ?? [],
   visibilityType: dto.visibility_type ?? '',
+  visibilityValues: dto.visibility_values ?? [],
   invitedProductLineNames: dto.invited_product_line_names ?? [],
+  invitedProductLines: (dto.invited_product_lines ?? []).map((p) => ({
+    name: p.name ?? '',
+    responded: p.responded ?? false,
+    responderCount: p.responder_count ?? 0
+  })),
   slaStatus: dto.sla_status ?? '',
   escalationLevel: dto.escalation_level ?? '',
   isPinned: dto.is_pinned ?? false,
+  coverUrl: dto.cover_url ?? '',
+  deadline: dto.deadline ?? '',
   viewCount: dto.view_count ?? 0,
   responseCount: dto.response_count ?? 0,
+  likeCount: dto.like_count ?? 0,
+  collectCount: dto.collect_count ?? 0,
   adoptedResponseId: dto.adopted_response_id ?? '',
   responses: mapResponses(dto.responses),
   createdAt: dto.created_at ?? ''

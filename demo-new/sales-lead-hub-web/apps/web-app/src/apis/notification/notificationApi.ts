@@ -1,6 +1,8 @@
 import { request } from '@q-web-plugin/request'
 import AIRequestGuard from '@ai-request-guard/core'
 import { getNotificationListAdapter } from './notificationAdapter'
+import { mockRequest } from '../_shared/mock-switch'
+import mockData from './mocks/notification.json'
 import type {
   NotificationPageParams,
   NotificationPageResult,
@@ -15,7 +17,10 @@ export const getNotificationList = async (
 ): Promise<NotificationPageResult> => {
   return (await AIRequestGuard({
     adapter: getNotificationListAdapter,
-    request: () => request.POST<NotificationPageResult>({ url: 'notification/page' }, params)
+    request: mockRequest(
+      { records: mockData.records, total: mockData.total },
+      () => request.POST<NotificationPageResult>({ url: 'notification/page' }, params)
+    )
   })) as NotificationPageResult
 }
 

@@ -1,0 +1,27 @@
+diff --git a/src/default/src/hooks/useMenuAttrs.ts b/src/default/src/hooks/useMenuAttrs.ts
+index 671c6cdeef1c826cdcd17ecf88a5a0de4e609a79..0713dc8a90c0d0acf12b17f94d72e639cdccd57a 100644
+--- a/src/default/src/hooks/useMenuAttrs.ts
++++ b/src/default/src/hooks/useMenuAttrs.ts
+@@ -1,4 +1,3 @@
+-import type { RouteNamedMap } from 'vue-router/auto-routes'
+ import type { ItemType } from 'ant-design-vue'
+ import { computed, ref, watch } from 'vue'
+ import { type RouteMetaMenu, useRouter } from 'vue-router'
+@@ -56,7 +55,7 @@ export const useMenuAttrs = () => {
+         }
+         activeMenuItem.value = [key]
+         router.push({
+-          name: key as keyof RouteNamedMap
++          name: key as any
+         })
+       },
+       ellipsisLabel: systemInfo.value.ellipsisMenuLabel || true,
+@@ -115,7 +114,7 @@ export const useMenuAttrs = () => {
+         }
+         activeTopLevelMenuItem.value = key
+         router.push({
+-          name: key as keyof RouteNamedMap
++          name: key as any
+         })
+       },
+       'mode': 'horizontal'

@@ -19,7 +19,14 @@ const toCompetitorItem = (dto: CompetitorIntelDTO): CompetitorIntelItem => ({
   summary: dto.summary ?? '',
   source: dto.source ?? '',
   submitterName: dto.submitter_name ?? '',
-  createdAt: dto.created_at ?? ''
+  createdAt: dto.created_at ?? '',
+  overview: dto.overview ?? '',
+  specs: dto.specs ?? [],
+  analysis: dto.analysis ?? '',
+  impact: dto.impact ?? '',
+  likeCount: dto.like_count ?? 0,
+  collectCount: dto.collect_count ?? 0,
+  viewCount: dto.view_count ?? 0
 })
 
 export const getCompetitorListAdapter = (raw: unknown): CompetitorIntelPageResult => {
@@ -37,7 +44,14 @@ const toIndustryItem = (dto: IndustryIntelDTO): IndustryIntelItem => ({
   title: dto.title ?? '',
   summary: dto.summary ?? '',
   source: dto.source ?? '',
-  createdAt: dto.created_at ?? ''
+  createdAt: dto.created_at ?? '',
+  overview: dto.overview ?? '',
+  keyPoints: dto.key_points ?? [],
+  analysis: dto.analysis ?? '',
+  impact: dto.impact ?? '',
+  likeCount: dto.like_count ?? 0,
+  collectCount: dto.collect_count ?? 0,
+  viewCount: dto.view_count ?? 0
 })
 
 export const getIndustryListAdapter = (raw: unknown): IndustryIntelPageResult => {

@@ -1,6 +1,6 @@
 import { defineComponent, ref, computed, unref, nextTick, h, resolveComponent } from 'vue'
 import type { PropType } from 'vue'
-import type { FormSchema, FormLayout, FormMode, QFormExpose } from './types'
+import type { FormSchema, FormLayout, FormMode } from './types'
 import QFormItem from './QFormItem'
 
 export default defineComponent({

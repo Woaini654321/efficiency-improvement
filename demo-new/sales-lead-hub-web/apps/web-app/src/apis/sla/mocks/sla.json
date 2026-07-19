@@ -1,18 +1,297 @@
 {
   "records": [
-    { "request_id": "REQ2001", "title": "求高精度定位模组车规级选型方案", "urgency": "critical", "sla_status": "overdue", "created_at": "2026-07-17 09:00:00", "deadline": "2026-07-17 11:00:00", "remaining_text": "已超时 3h20m", "response_count": 0, "escalation_level": "L2", "publisher_name": "张伟" },
-    { "request_id": "REQ2002", "title": "需要 NB-IoT 智慧燃气表低功耗方案", "urgency": "urgent", "sla_status": "warning", "created_at": "2026-07-18 08:10:00", "deadline": "2026-07-18 12:10:00", "remaining_text": "剩余 0h48m", "response_count": 1, "escalation_level": "L1", "publisher_name": "李娜" },
-    { "request_id": "REQ2003", "title": "5G CPE 整机散热结构参考设计咨询", "urgency": "normal", "sla_status": "normal", "created_at": "2026-07-18 07:30:00", "deadline": "2026-07-19 07:30:00", "remaining_text": "剩余 18h20m", "response_count": 2, "escalation_level": "L0", "publisher_name": "王强" },
-    { "request_id": "REQ2004", "title": "Cat.1 模组金融POS国密支持确认", "urgency": "urgent", "sla_status": "responded", "created_at": "2026-07-17 14:00:00", "deadline": "2026-07-17 18:00:00", "remaining_text": "已响应", "response_count": 3, "escalation_level": "L0", "publisher_name": "赵敏" },
-    { "request_id": "REQ2005", "title": "求 Wi-Fi6 网关模组量产供货周期", "urgency": "normal", "sla_status": "warning", "created_at": "2026-07-17 16:20:00", "deadline": "2026-07-18 16:20:00", "remaining_text": "剩余 2h10m", "response_count": 0, "escalation_level": "L1", "publisher_name": "陈涛" },
-    { "request_id": "REQ2006", "title": "LoRa 网关智慧路灯项目技术支持", "urgency": "critical", "sla_status": "responded", "created_at": "2026-07-16 10:00:00", "deadline": "2026-07-16 12:00:00", "remaining_text": "已响应", "response_count": 4, "escalation_level": "L0", "publisher_name": "孙丽" },
-    { "request_id": "REQ2007", "title": "车载以太网 T1 模组样品申请咨询", "urgency": "normal", "sla_status": "overdue", "created_at": "2026-07-16 09:00:00", "deadline": "2026-07-17 09:00:00", "remaining_text": "已超时 26h", "response_count": 0, "escalation_level": "L3", "publisher_name": "周杰" },
-    { "request_id": "REQ2008", "title": "GNSS RTK 无人机定位方案对比", "urgency": "urgent", "sla_status": "normal", "created_at": "2026-07-18 09:00:00", "deadline": "2026-07-18 13:00:00", "remaining_text": "剩余 3h30m", "response_count": 1, "escalation_level": "L0", "publisher_name": "吴敏" },
-    { "request_id": "REQ2009", "title": "求农业墒情监测终端电池续航测算", "urgency": "normal", "sla_status": "normal", "created_at": "2026-07-18 06:00:00", "deadline": "2026-07-19 06:00:00", "remaining_text": "剩余 16h50m", "response_count": 0, "escalation_level": "L0", "publisher_name": "冯雪" },
-    { "request_id": "REQ2010", "title": "智能座舱 AG59x C-V2X 认证支持", "urgency": "critical", "sla_status": "warning", "created_at": "2026-07-18 08:30:00", "deadline": "2026-07-18 10:30:00", "remaining_text": "剩余 0h20m", "response_count": 0, "escalation_level": "L1", "publisher_name": "郑浩" },
-    { "request_id": "REQ2011", "title": "短距双模模组共存干扰调试咨询", "urgency": "normal", "sla_status": "responded", "created_at": "2026-07-15 11:00:00", "deadline": "2026-07-16 11:00:00", "remaining_text": "已响应", "response_count": 2, "escalation_level": "L0", "publisher_name": "刘洋" },
-    { "request_id": "REQ2012", "title": "天线阵列 5G Sub-6G 增益优化方案", "urgency": "urgent", "sla_status": "overdue", "created_at": "2026-07-16 15:00:00", "deadline": "2026-07-16 19:00:00", "remaining_text": "已超时 14h", "response_count": 0, "escalation_level": "L2", "publisher_name": "钱勇" },
-    { "request_id": "REQ2013", "title": "智慧水表 DTU 与云平台对接指引", "urgency": "normal", "sla_status": "normal", "created_at": "2026-07-18 05:00:00", "deadline": "2026-07-19 05:00:00", "remaining_text": "剩余 15h40m", "response_count": 1, "escalation_level": "L0", "publisher_name": "杨帆" }
+    {
+      "request_id": "REQ2001",
+      "title": "求高精度定位模组车规级选型方案",
+      "urgency": "critical",
+      "sla_status": "overdue",
+      "created_at": "2027-01-15 07:00:00",
+      "deadline": "2027-01-15 09:00:00",
+      "remaining_text": "已超时 3时0分",
+      "response_count": 0,
+      "escalation_level": "L2",
+      "publisher_name": "张伟",
+      "escalation_timeline": [
+        {
+          "time": "01-15 07:00",
+          "desc": "需求发布，计时开始",
+          "notify_to": "发布人 张伟"
+        },
+        {
+          "time": "01-15 09:00",
+          "desc": "已超过首响时限，系统自动升级提醒",
+          "notify_to": "发布人 张伟、直属主管"
+        }
+      ]
+    },
+    {
+      "request_id": "REQ2002",
+      "title": "需要 NB-IoT 智慧燃气表低功耗方案",
+      "urgency": "urgent",
+      "sla_status": "warning",
+      "created_at": "2027-01-15 10:00:00",
+      "deadline": "2027-01-15 14:00:00",
+      "remaining_text": "剩余 2时0分",
+      "response_count": 1,
+      "escalation_level": "L1",
+      "publisher_name": "李娜",
+      "escalation_timeline": [
+        {
+          "time": "01-15 10:00",
+          "desc": "需求发布，计时开始",
+          "notify_to": "发布人 李娜"
+        },
+        {
+          "time": "01-15 14:00",
+          "desc": "临近首响时限，系统预警",
+          "notify_to": "发布人 李娜"
+        }
+      ]
+    },
+    {
+      "request_id": "REQ2003",
+      "title": "5G CPE 整机散热结构参考设计咨询",
+      "urgency": "normal",
+      "sla_status": "normal",
+      "created_at": "2027-01-15 06:00:00",
+      "deadline": "2027-01-16 06:00:00",
+      "remaining_text": "剩余 18时0分",
+      "response_count": 2,
+      "escalation_level": "L0",
+      "publisher_name": "王强",
+      "escalation_timeline": [
+        {
+          "time": "01-15 06:00",
+          "desc": "需求发布，计时开始",
+          "notify_to": "发布人 王强"
+        }
+      ]
+    },
+    {
+      "request_id": "REQ2004",
+      "title": "Cat.1 模组金融POS国密支持确认",
+      "urgency": "urgent",
+      "sla_status": "responded",
+      "created_at": "2027-01-14 14:00:00",
+      "deadline": "2027-01-14 18:00:00",
+      "remaining_text": "已响应",
+      "response_count": 3,
+      "escalation_level": "L0",
+      "publisher_name": "赵敏",
+      "escalation_timeline": [
+        {
+          "time": "01-14 14:00",
+          "desc": "需求发布，计时开始",
+          "notify_to": "发布人 赵敏"
+        },
+        {
+          "time": "01-14 18:00",
+          "desc": "已收到首个方案响应，计时终止",
+          "notify_to": "-"
+        }
+      ]
+    },
+    {
+      "request_id": "REQ2005",
+      "title": "求 Wi-Fi6 网关模组量产供货周期",
+      "urgency": "normal",
+      "sla_status": "overdue",
+      "created_at": "2027-01-13 22:00:00",
+      "deadline": "2027-01-14 22:00:00",
+      "remaining_text": "已超时 14时0分",
+      "response_count": 0,
+      "escalation_level": "L2",
+      "publisher_name": "陈涛",
+      "escalation_timeline": [
+        {
+          "time": "01-13 22:00",
+          "desc": "需求发布，计时开始",
+          "notify_to": "发布人 陈涛"
+        },
+        {
+          "time": "01-14 22:00",
+          "desc": "已超过首响时限，系统自动升级提醒",
+          "notify_to": "发布人 陈涛、直属主管"
+        }
+      ]
+    },
+    {
+      "request_id": "REQ2006",
+      "title": "LoRa 网关智慧路灯项目技术支持",
+      "urgency": "critical",
+      "sla_status": "responded",
+      "created_at": "2027-01-14 10:00:00",
+      "deadline": "2027-01-14 12:00:00",
+      "remaining_text": "已响应",
+      "response_count": 4,
+      "escalation_level": "L0",
+      "publisher_name": "孙丽",
+      "escalation_timeline": [
+        {
+          "time": "01-14 10:00",
+          "desc": "需求发布，计时开始",
+          "notify_to": "发布人 孙丽"
+        },
+        {
+          "time": "01-14 12:00",
+          "desc": "已收到首个方案响应，计时终止",
+          "notify_to": "-"
+        }
+      ]
+    },
+    {
+      "request_id": "REQ2007",
+      "title": "车载以太网 T1 模组样品申请咨询",
+      "urgency": "normal",
+      "sla_status": "overdue",
+      "created_at": "2027-01-13 12:00:00",
+      "deadline": "2027-01-14 12:00:00",
+      "remaining_text": "已超时 24时0分",
+      "response_count": 0,
+      "escalation_level": "L3",
+      "publisher_name": "周杰",
+      "escalation_timeline": [
+        {
+          "time": "01-13 12:00",
+          "desc": "需求发布，计时开始",
+          "notify_to": "发布人 周杰"
+        },
+        {
+          "time": "01-14 12:00",
+          "desc": "已超过首响时限，系统自动升级提醒",
+          "notify_to": "发布人 周杰、直属主管"
+        }
+      ]
+    },
+    {
+      "request_id": "REQ2008",
+      "title": "GNSS RTK 无人机定位方案对比",
+      "urgency": "urgent",
+      "sla_status": "normal",
+      "created_at": "2027-01-15 11:30:00",
+      "deadline": "2027-01-15 15:30:00",
+      "remaining_text": "剩余 3时30分",
+      "response_count": 1,
+      "escalation_level": "L0",
+      "publisher_name": "吴敏",
+      "escalation_timeline": [
+        {
+          "time": "01-15 11:30",
+          "desc": "需求发布，计时开始",
+          "notify_to": "发布人 吴敏"
+        }
+      ]
+    },
+    {
+      "request_id": "REQ2009",
+      "title": "求农业墒情监测终端电池续航测算",
+      "urgency": "normal",
+      "sla_status": "normal",
+      "created_at": "2027-01-15 05:00:00",
+      "deadline": "2027-01-16 05:00:00",
+      "remaining_text": "剩余 17时0分",
+      "response_count": 0,
+      "escalation_level": "L0",
+      "publisher_name": "冯雪",
+      "escalation_timeline": [
+        {
+          "time": "01-15 05:00",
+          "desc": "需求发布，计时开始",
+          "notify_to": "发布人 冯雪"
+        }
+      ]
+    },
+    {
+      "request_id": "REQ2010",
+      "title": "智能座舱 AG59x C-V2X 认证支持",
+      "urgency": "critical",
+      "sla_status": "warning",
+      "created_at": "2027-01-15 10:20:00",
+      "deadline": "2027-01-15 12:20:00",
+      "remaining_text": "剩余 0时20分",
+      "response_count": 0,
+      "escalation_level": "L1",
+      "publisher_name": "郑浩",
+      "escalation_timeline": [
+        {
+          "time": "01-15 10:20",
+          "desc": "需求发布，计时开始",
+          "notify_to": "发布人 郑浩"
+        },
+        {
+          "time": "01-15 12:20",
+          "desc": "临近首响时限，系统预警",
+          "notify_to": "发布人 郑浩"
+        }
+      ]
+    },
+    {
+      "request_id": "REQ2011",
+      "title": "短距双模模组共存干扰调试咨询",
+      "urgency": "normal",
+      "sla_status": "responded",
+      "created_at": "2027-01-13 11:00:00",
+      "deadline": "2027-01-14 11:00:00",
+      "remaining_text": "已响应",
+      "response_count": 2,
+      "escalation_level": "L0",
+      "publisher_name": "刘洋",
+      "escalation_timeline": [
+        {
+          "time": "01-13 11:00",
+          "desc": "需求发布，计时开始",
+          "notify_to": "发布人 刘洋"
+        },
+        {
+          "time": "01-14 11:00",
+          "desc": "已收到首个方案响应，计时终止",
+          "notify_to": "-"
+        }
+      ]
+    },
+    {
+      "request_id": "REQ2012",
+      "title": "天线阵列 5G Sub-6G 增益优化方案",
+      "urgency": "urgent",
+      "sla_status": "overdue",
+      "created_at": "2027-01-14 16:00:00",
+      "deadline": "2027-01-14 20:00:00",
+      "remaining_text": "已超时 16时0分",
+      "response_count": 0,
+      "escalation_level": "L2",
+      "publisher_name": "钱勇",
+      "escalation_timeline": [
+        {
+          "time": "01-14 16:00",
+          "desc": "需求发布，计时开始",
+          "notify_to": "发布人 钱勇"
+        },
+        {
+          "time": "01-14 20:00",
+          "desc": "已超过首响时限，系统自动升级提醒",
+          "notify_to": "发布人 钱勇、直属主管"
+        }
+      ]
+    },
+    {
+      "request_id": "REQ2013",
+      "title": "智慧水表 DTU 与云平台对接指引",
+      "urgency": "normal",
+      "sla_status": "normal",
+      "created_at": "2027-01-15 04:00:00",
+      "deadline": "2027-01-16 04:00:00",
+      "remaining_text": "剩余 16时0分",
+      "response_count": 1,
+      "escalation_level": "L0",
+      "publisher_name": "杨帆",
+      "escalation_timeline": [
+        {
+          "time": "01-15 04:00",
+          "desc": "需求发布，计时开始",
+          "notify_to": "发布人 杨帆"
+        }
+      ]
+    }
   ],
   "total": 13,
   "stats": {
@@ -20,5 +299,71 @@
     "timely_rate": 82.5,
     "responded_count": 128,
     "max_overdue_text": "26h"
+  },
+  "meta": {
+    "product_leads": [
+      {
+        "id": "pl1",
+        "name": "Alice.Wang 王芳",
+        "product": "5G模组",
+        "dept": "产品一部"
+      },
+      {
+        "id": "pl2",
+        "name": "Mark.Zhang 张强",
+        "product": "4G/Cat.1模组",
+        "dept": "产品二部"
+      },
+      {
+        "id": "pl3",
+        "name": "Jing.Chen 陈静",
+        "product": "NB-IoT模组",
+        "dept": "产品三部"
+      },
+      {
+        "id": "pl4",
+        "name": "Mike.Zhao 赵明",
+        "product": "WiFi模组",
+        "dept": "产品四部"
+      },
+      {
+        "id": "pl5",
+        "name": "Owen.Liu 刘洋",
+        "product": "智能模组",
+        "dept": "产品五部"
+      },
+      {
+        "id": "pl6",
+        "name": "Xu.Zhou 周旭",
+        "product": "车载方案",
+        "dept": "解决方案部"
+      }
+    ],
+    "email_contacts": [
+      {
+        "label": "李明 Ming.Li — ming.li@company.com",
+        "value": "ming.li@company.com"
+      },
+      {
+        "label": "周涛 Tao.Zhou — tao.zhou@company.com",
+        "value": "tao.zhou@company.com"
+      },
+      {
+        "label": "赵伟 David.Zhao — david.zhao@company.com",
+        "value": "david.zhao@company.com"
+      },
+      {
+        "label": "张红 Hong.Zhang — hong.zhang@company.com",
+        "value": "hong.zhang@company.com"
+      },
+      {
+        "label": "王芳 Fang.Wang — fang.wang@company.com",
+        "value": "fang.wang@company.com"
+      },
+      {
+        "label": "陈刚 Gang.Chen — gang.chen@company.com",
+        "value": "gang.chen@company.com"
+      }
+    ]
   }
 }

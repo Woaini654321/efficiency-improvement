@@ -4,9 +4,22 @@ import type {
   DashboardData,
   DashboardHotContentDTO,
   DashboardCategoryDistDTO,
-  DashboardPageHeatDTO
+  DashboardPageHeatDTO,
+  DashboardPieSegDTO,
+  DashboardTrendMapDTO,
+  DashboardTrendMap
 } from './types'
 import mockData from './mocks/dashboard.json'
+
+const mapPie = (list: DashboardPieSegDTO[] | undefined) =>
+  (list ?? []).map((d) => ({ label: d.name ?? '', value: d.value ?? 0, color: d.color ?? '#d9d9d9' }))
+
+const mapTrend = (m: DashboardTrendMapDTO | undefined): DashboardTrendMap => ({
+  last7d: m?.last7d ?? [],
+  last4w: m?.last4w ?? [],
+  last12w: m?.last12w ?? [],
+  last6m: m?.last6m ?? []
+})
 
 const mapHot = (list: DashboardHotContentDTO[] | undefined) =>
   (list ?? []).map((d) => ({
@@ -41,6 +54,11 @@ export const getDashboardAdapter = (raw: unknown): DashboardData => {
     hotContents: mapHot(dto.hot_contents),
     categoryDist: mapCategory(dto.category_dist),
     pageHeat: mapPageHeat(dto.page_heat),
+    weekPublishTrend: mapTrend(dto.week_publish_trend),
+    responseRateTrend: mapTrend(dto.response_rate_trend),
+    oppCategoryPie: mapPie(dto.opp_category_pie),
+    demandCategoryPie: mapPie(dto.demand_category_pie),
+    hourlyActive: dto.hourly_active ?? [],
     updatedAt: dto.updated_at ?? ''
   }
 }

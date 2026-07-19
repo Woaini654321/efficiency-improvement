@@ -1,6 +1,8 @@
 import { request } from '@q-web-plugin/request'
 import AIRequestGuard from '@ai-request-guard/core'
 import { getOpportunityListAdapter, getOpportunityDetailAdapter } from './opportunityAdapter'
+import { mockRequest } from '../_shared/mock-switch'
+import mockData from './mocks/opportunity.json'
 import type {
   OpportunityPageParams,
   OpportunityPageResult,
@@ -17,7 +19,10 @@ export const getOpportunityList = async (
 ): Promise<OpportunityPageResult> => {
   return (await AIRequestGuard({
     adapter: getOpportunityListAdapter,
-    request: () => request.POST<OpportunityPageResult>({ url: 'opportunity/page' }, params)
+    request: mockRequest(
+      { records: mockData.records, total: mockData.total },
+      () => request.POST<OpportunityPageResult>({ url: 'opportunity/page' }, params)
+    )
   })) as OpportunityPageResult
 }
 
@@ -25,7 +30,10 @@ export const getOpportunityList = async (
 export const getOpportunityDetail = async (id: string): Promise<OpportunityItem> => {
   return (await AIRequestGuard({
     adapter: getOpportunityDetailAdapter,
-    request: () => request.GET<OpportunityItem>({ url: 'opportunity/detail' }, { id })
+    request: mockRequest(
+      mockData.records[0],
+      () => request.GET<OpportunityItem>({ url: 'opportunity/detail' }, { id })
+    )
   })) as OpportunityItem
 }
 

@@ -1,18 +1,148 @@
 {
   "records": [
-    { "audit_id": "AUD2001", "title": "5G RedCap 模组 RG200U 产品选型方案", "content_type": "opportunity", "publisher_name": "张伟", "status": "published", "is_pinned": true, "published_at": "2026-06-20 10:00:00" },
-    { "audit_id": "AUD2002", "title": "求 NB-IoT 智慧水表低功耗方案（年需求 50 万片）", "content_type": "request", "publisher_name": "李娜", "status": "collecting", "is_pinned": false, "published_at": "2026-06-19 09:30:00" },
-    { "audit_id": "AUD2003", "title": "车载 4G+C-V2X 通信模组 AG59x 产品信息", "content_type": "opportunity", "publisher_name": "王强", "status": "published", "is_pinned": false, "published_at": "2026-06-18 13:00:00" },
-    { "audit_id": "AUD2004", "title": "急需高精度定位 RTK 模组，用于巡检机器人", "content_type": "request", "publisher_name": "赵敏", "status": "pending", "is_pinned": true, "published_at": "2026-06-17 15:20:00" },
-    { "audit_id": "AUD2005", "title": "Wi-Fi 6 + BLE 二合一模组 FCU630 产品信息", "content_type": "opportunity", "publisher_name": "陈涛", "status": "archived", "is_pinned": false, "published_at": "2026-06-16 16:30:00" },
-    { "audit_id": "AUD2006", "title": "寻求智慧路灯 LoRa 网关整体方案", "content_type": "request", "publisher_name": "孙丽", "status": "adopted", "is_pinned": false, "published_at": "2026-06-15 11:00:00" },
-    { "audit_id": "AUD2007", "title": "天线设计——5G Sub-6G 高增益贴片天线方案", "content_type": "opportunity", "publisher_name": "刘洋", "status": "published", "is_pinned": false, "published_at": "2026-06-14 11:00:00" },
-    { "audit_id": "AUD2008", "title": "工业网关 Cat.1 模组批量需求，含定制固件", "content_type": "request", "publisher_name": "周杰", "status": "closed", "is_pinned": false, "published_at": "2026-06-13 09:20:00" },
-    { "audit_id": "AUD2009", "title": "GNSS 高精度定位模组 LC29H 产品信息", "content_type": "opportunity", "publisher_name": "吴敏", "status": "published", "is_pinned": false, "published_at": "2026-06-12 09:00:00" },
-    { "audit_id": "AUD2010", "title": "农业墒情监测终端 NB-IoT 方案征集", "content_type": "request", "publisher_name": "郑浩", "status": "collecting", "is_pinned": false, "published_at": "2026-06-11 10:30:00" },
-    { "audit_id": "AUD2011", "title": "智能POS Cat.1 模组 EG915U 产品信息（涉嫌违规）", "content_type": "opportunity", "publisher_name": "冯雪", "status": "archived", "is_pinned": false, "published_at": "2026-06-10 11:30:00" },
-    { "audit_id": "AUD2012", "title": "求车规级以太网 T1 模组，域控制器项目", "content_type": "request", "publisher_name": "王强", "status": "pending", "is_pinned": true, "published_at": "2026-06-09 17:00:00" },
-    { "audit_id": "AUD2013", "title": "工业路由 5G CPE 参考设计方案", "content_type": "opportunity", "publisher_name": "许静", "status": "published", "is_pinned": false, "published_at": "2026-06-08 14:00:00" }
+    {
+      "audit_id": "AUD2001",
+      "title": "5G RedCap 模组 RG200U 产品选型方案",
+      "content_type": "opportunity",
+      "publisher_name": "张伟",
+      "status": "published",
+      "is_pinned": true,
+      "published_at": "2026-06-20 10:00:00",
+      "sort_no": 1,
+      "urgency": "normal"
+    },
+    {
+      "audit_id": "AUD2002",
+      "title": "求 NB-IoT 智慧水表低功耗方案（年需求 50 万片）",
+      "content_type": "request",
+      "publisher_name": "李娜",
+      "status": "collecting",
+      "is_pinned": false,
+      "published_at": "2026-06-19 09:30:00",
+      "sort_no": 2,
+      "urgency": "urgent"
+    },
+    {
+      "audit_id": "AUD2003",
+      "title": "车载 4G+C-V2X 通信模组 AG59x 产品信息",
+      "content_type": "opportunity",
+      "publisher_name": "王强",
+      "status": "published",
+      "is_pinned": false,
+      "published_at": "2026-06-18 13:00:00",
+      "sort_no": 3,
+      "urgency": "normal"
+    },
+    {
+      "audit_id": "AUD2004",
+      "title": "急需高精度定位 RTK 模组，用于巡检机器人",
+      "content_type": "request",
+      "publisher_name": "赵敏",
+      "status": "pending",
+      "is_pinned": true,
+      "published_at": "2026-06-17 15:20:00",
+      "sort_no": 4,
+      "urgency": "critical"
+    },
+    {
+      "audit_id": "AUD2005",
+      "title": "Wi-Fi 6 + BLE 二合一模组 FCU630 产品信息",
+      "content_type": "opportunity",
+      "publisher_name": "陈涛",
+      "status": "archived",
+      "is_pinned": false,
+      "published_at": "2026-06-16 16:30:00",
+      "sort_no": 5,
+      "urgency": "normal"
+    },
+    {
+      "audit_id": "AUD2006",
+      "title": "寻求智慧路灯 LoRa 网关整体方案",
+      "content_type": "request",
+      "publisher_name": "孙丽",
+      "status": "adopted",
+      "is_pinned": false,
+      "published_at": "2026-06-15 11:00:00",
+      "sort_no": 6,
+      "urgency": "urgent"
+    },
+    {
+      "audit_id": "AUD2007",
+      "title": "天线设计——5G Sub-6G 高增益贴片天线方案",
+      "content_type": "opportunity",
+      "publisher_name": "刘洋",
+      "status": "published",
+      "is_pinned": false,
+      "published_at": "2026-06-14 11:00:00",
+      "sort_no": 7,
+      "urgency": "normal"
+    },
+    {
+      "audit_id": "AUD2008",
+      "title": "工业网关 Cat.1 模组批量需求，含定制固件",
+      "content_type": "request",
+      "publisher_name": "周杰",
+      "status": "closed",
+      "is_pinned": false,
+      "published_at": "2026-06-13 09:20:00",
+      "sort_no": 8,
+      "urgency": "normal"
+    },
+    {
+      "audit_id": "AUD2009",
+      "title": "GNSS 高精度定位模组 LC29H 产品信息",
+      "content_type": "opportunity",
+      "publisher_name": "吴敏",
+      "status": "published",
+      "is_pinned": false,
+      "published_at": "2026-06-12 09:00:00",
+      "sort_no": 9,
+      "urgency": "normal"
+    },
+    {
+      "audit_id": "AUD2010",
+      "title": "农业墒情监测终端 NB-IoT 方案征集",
+      "content_type": "request",
+      "publisher_name": "郑浩",
+      "status": "collecting",
+      "is_pinned": false,
+      "published_at": "2026-06-11 10:30:00",
+      "sort_no": 10,
+      "urgency": "urgent"
+    },
+    {
+      "audit_id": "AUD2011",
+      "title": "智能POS Cat.1 模组 EG915U 产品信息（涉嫌违规）",
+      "content_type": "opportunity",
+      "publisher_name": "冯雪",
+      "status": "archived",
+      "is_pinned": false,
+      "published_at": "2026-06-10 11:30:00",
+      "sort_no": 11,
+      "urgency": "normal"
+    },
+    {
+      "audit_id": "AUD2012",
+      "title": "求车规级以太网 T1 模组，域控制器项目",
+      "content_type": "request",
+      "publisher_name": "王强",
+      "status": "pending",
+      "is_pinned": true,
+      "published_at": "2026-06-09 17:00:00",
+      "sort_no": 12,
+      "urgency": "critical"
+    },
+    {
+      "audit_id": "AUD2013",
+      "title": "工业路由 5G CPE 参考设计方案",
+      "content_type": "opportunity",
+      "publisher_name": "许静",
+      "status": "published",
+      "is_pinned": false,
+      "published_at": "2026-06-08 14:00:00",
+      "sort_no": 13,
+      "urgency": "normal"
+    }
   ],
   "total": 13
 }

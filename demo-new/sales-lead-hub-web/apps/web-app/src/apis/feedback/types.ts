@@ -7,6 +7,8 @@ export interface FeedbackDTO {
   anon_name: string
   like_count: number
   created_at: string
+  emoji: string
+  color: string
 }
 
 // ============ ViewModel（前端视图类型，camelCase）============
@@ -17,6 +19,8 @@ export interface FeedbackItem {
   anonName: string
   likeCount: number
   createdAt: string
+  emoji: string
+  color: string
 }
 
 export type FeedbackListResult = FeedbackItem[]

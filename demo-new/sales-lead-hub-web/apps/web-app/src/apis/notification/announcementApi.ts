@@ -1,6 +1,8 @@
 import { request } from '@q-web-plugin/request'
 import AIRequestGuard from '@ai-request-guard/core'
 import { getAnnouncementListAdapter, getAnnouncementDetailAdapter } from './announcementAdapter'
+import { mockRequest } from '../_shared/mock-switch'
+import mockData from './mocks/announcement.json'
 import type {
   AnnouncementPageParams,
   AnnouncementPageResult,
@@ -15,7 +17,10 @@ export const getAnnouncementList = async (
 ): Promise<AnnouncementPageResult> => {
   return (await AIRequestGuard({
     adapter: getAnnouncementListAdapter,
-    request: () => request.POST<AnnouncementPageResult>({ url: 'announcement/page' }, params)
+    request: mockRequest(
+      { records: mockData.records, total: mockData.total },
+      () => request.POST<AnnouncementPageResult>({ url: 'announcement/page' }, params)
+    )
   })) as AnnouncementPageResult
 }
 
@@ -23,6 +28,9 @@ export const getAnnouncementList = async (
 export const getAnnouncementDetail = async (id: string): Promise<AnnouncementItem> => {
   return (await AIRequestGuard({
     adapter: getAnnouncementDetailAdapter,
-    request: () => request.GET<AnnouncementItem>({ url: 'announcement/detail' }, { id })
+    request: mockRequest(
+      mockData.records[0],
+      () => request.GET<AnnouncementItem>({ url: 'announcement/detail' }, { id })
+    )
   })) as AnnouncementItem
 }

@@ -16,9 +16,15 @@
       "like_count": 86,
       "collect_count": 45,
       "comment_count": 23,
-      "attachments": [{ "name": "RG200U选型手册.pdf", "url": "/files/rg200u.pdf", "size": 2456789 }],
+      "attachments": [
+        { "name": "RG200U选型手册.pdf", "url": "/files/rg200u.pdf", "size": 2456789 },
+        { "name": "RedCap功耗对比.xlsx", "url": "/files/redcap-power.xlsx", "size": 1345678 },
+        { "name": "硬件设计参考指南.pptx", "url": "/files/rg200u-hw.pptx", "size": 5123456 }
+      ],
       "created_at": "2026-06-20 09:12:00",
-      "published_at": "2026-06-20 10:00:00"
+      "published_at": "2026-06-20 10:00:00",
+      "expiry_date": "2026-06-30",
+      "superseded_by": "OPP1003"
     },
     {
       "opportunity_id": "OPP1002",
@@ -38,7 +44,9 @@
       "comment_count": 12,
       "attachments": [],
       "created_at": "2026-06-18 14:30:00",
-      "published_at": "2026-06-18 15:00:00"
+      "published_at": "2026-06-18 15:00:00",
+      "expiry_date": "2026-08-05",
+      "superseded_by": null
     },
     {
       "opportunity_id": "OPP1003",
@@ -58,7 +66,9 @@
       "comment_count": 34,
       "attachments": [{ "name": "AG59x规格书.pdf", "url": "/files/ag59x.pdf", "size": 3987654 }],
       "created_at": "2026-06-15 11:20:00",
-      "published_at": "2026-06-15 13:00:00"
+      "published_at": "2026-06-15 13:00:00",
+      "expiry_date": "2027-06-15",
+      "superseded_by": null
     },
     {
       "opportunity_id": "OPP1004",

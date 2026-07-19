@@ -1,6 +1,8 @@
 import { request } from '@q-web-plugin/request'
 import AIRequestGuard from '@ai-request-guard/core'
 import { getDiscussionListAdapter, getDiscussionDetailAdapter } from './discussionAdapter'
+import { mockRequest } from '../_shared/mock-switch'
+import mockData from './mocks/discussion.json'
 import type {
   DiscussionPageParams,
   DiscussionPageResult,
@@ -16,7 +18,10 @@ export const getDiscussionList = async (
 ): Promise<DiscussionPageResult> => {
   return (await AIRequestGuard({
     adapter: getDiscussionListAdapter,
-    request: () => request.POST<DiscussionPageResult>({ url: 'discussion/page' }, params)
+    request: mockRequest(
+      { records: mockData.records, total: mockData.total },
+      () => request.POST<DiscussionPageResult>({ url: 'discussion/page' }, params)
+    )
   })) as DiscussionPageResult
 }
 
@@ -24,7 +29,10 @@ export const getDiscussionList = async (
 export const getDiscussionDetail = async (id: string): Promise<DiscussionItem> => {
   return (await AIRequestGuard({
     adapter: getDiscussionDetailAdapter,
-    request: () => request.GET<DiscussionItem>({ url: 'discussion/detail' }, { id })
+    request: mockRequest(
+      mockData.records[0],
+      () => request.GET<DiscussionItem>({ url: 'discussion/detail' }, { id })
+    )
   })) as DiscussionItem
 }
 

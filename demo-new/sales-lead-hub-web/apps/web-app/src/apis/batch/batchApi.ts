@@ -1,6 +1,8 @@
 import { request } from '@q-web-plugin/request'
 import AIRequestGuard from '@ai-request-guard/core'
 import { getBatchMetaAdapter } from './batchAdapter'
+import { mockRequest } from '../_shared/mock-switch'
+import mockData from './mocks/batch.json'
 import type { BatchMeta, BatchPublishParams } from './types'
 
 // ============ 查询类（AIRequestGuard 包裹）============
@@ -9,7 +11,10 @@ import type { BatchMeta, BatchPublishParams } from './types'
 export const getBatchMeta = async (): Promise<BatchMeta> => {
   return (await AIRequestGuard({
     adapter: getBatchMetaAdapter,
-    request: () => request.GET<BatchMeta>({ url: 'operation/batch/meta' })
+    request: mockRequest(
+      mockData,
+      () => request.GET<BatchMeta>({ url: 'operation/batch/meta' })
+    )
   })) as BatchMeta
 }
 

@@ -82,7 +82,7 @@ export function resolveComponent(component: string | object | Function | null | 
     return component
   }
 
-  const kebab = component.replace(/([A-Z])/g, (match, letter, offset) =>
+  const kebab = component.replace(/([A-Z])/g, (_match, letter, offset) =>
     offset === 0 ? letter.toLowerCase() : `-${letter.toLowerCase()}`
   )
   return `a-${kebab}`

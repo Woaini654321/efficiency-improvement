@@ -7,7 +7,7 @@
       "type": "policy",
       "publisher_name": "系统管理员",
       "is_pinned": true,
-      "priority": "important",
+      "priority": "high",
       "status": "published",
       "view_count": 1860,
       "published_at": "2026-07-17 10:00:00"
@@ -19,7 +19,7 @@
       "type": "notice",
       "publisher_name": "运营团队",
       "is_pinned": true,
-      "priority": "important",
+      "priority": "high",
       "status": "published",
       "view_count": 1240,
       "published_at": "2026-07-13 09:00:00"
@@ -43,7 +43,7 @@
       "type": "policy",
       "publisher_name": "系统管理员",
       "is_pinned": false,
-      "priority": "important",
+      "priority": "high",
       "status": "published",
       "view_count": 1520,
       "published_at": "2026-07-05 11:30:00"
@@ -71,7 +71,103 @@
       "status": "published",
       "view_count": 430,
       "published_at": "2026-06-26 16:00:00"
+    },
+    {
+      "announcement_id": "ANN4007",
+      "title": "商机信息发布字段规范更新说明",
+      "content": "<h2>更新说明</h2><p>为提升商机信息质量，发布时「产品线」「目标客户行业」「预计规模」将调整为必填项……</p><p>请各位同事按新规范填写。</p>",
+      "type": "policy",
+      "publisher_name": "系统管理员",
+      "is_pinned": false,
+      "priority": "high",
+      "status": "published",
+      "view_count": 1120,
+      "published_at": "2026-06-20 10:30:00"
+    },
+    {
+      "announcement_id": "ANN4008",
+      "title": "「情报之星」月度贡献榜评选启动",
+      "content": "<h2>活动介绍</h2><p>本月起每月评选情报中心贡献榜前 10 名，上榜者可获平台积分与荣誉徽章……</p>",
+      "type": "activity",
+      "publisher_name": "运营团队",
+      "is_pinned": false,
+      "priority": "normal",
+      "status": "published",
+      "view_count": 690,
+      "published_at": "2026-06-15 14:00:00"
+    },
+    {
+      "announcement_id": "ANN4009",
+      "title": "情报中心新增竞品与行业双视图上线",
+      "content": "<h2>更新内容</h2><p>情报中心改版，支持竞品情报与行业情报双视图切换、按品牌/行业标签筛选……</p>",
+      "type": "notice",
+      "publisher_name": "产品团队",
+      "is_pinned": false,
+      "priority": "normal",
+      "status": "published",
+      "view_count": 540,
+      "published_at": "2026-05-28 09:30:00"
+    },
+    {
+      "announcement_id": "ANN4010",
+      "title": "关于统一产品线命名口径的通知",
+      "content": "<h2>调整说明</h2><p>为便于跨部门检索，平台将统一各产品线命名口径，历史数据将平滑迁移……</p>",
+      "type": "policy",
+      "publisher_name": "系统管理员",
+      "is_pinned": false,
+      "priority": "normal",
+      "status": "published",
+      "view_count": 480,
+      "published_at": "2026-05-12 11:00:00"
+    },
+    {
+      "announcement_id": "ANN4011",
+      "title": "平台账号权限年度复核通知",
+      "content": "<h2>复核说明</h2><p>按安全合规要求，平台将于近期开展账号权限年度复核，请各部门配合确认成员权限……</p>",
+      "type": "notice",
+      "publisher_name": "运营团队",
+      "is_pinned": false,
+      "priority": "normal",
+      "status": "expired",
+      "view_count": 350,
+      "published_at": "2026-04-08 10:00:00"
+    },
+    {
+      "announcement_id": "ANN4012",
+      "title": "五一假期需求响应值班安排",
+      "content": "<h2>值班安排</h2><p>五一假期期间商机需求响应实行值班制，特急/紧急需求仍按 SLA 时效处理……</p>",
+      "type": "notice",
+      "publisher_name": "运营团队",
+      "is_pinned": false,
+      "priority": "normal",
+      "status": "expired",
+      "view_count": 610,
+      "published_at": "2026-04-25 15:30:00"
+    },
+    {
+      "announcement_id": "ANN4013",
+      "title": "第一季度优秀方案复盘分享会预告",
+      "content": "<h2>活动预告</h2><p>本次分享会将复盘一季度金牌方案与典型商机闭环案例，欢迎各产品线报名参加……</p>",
+      "type": "activity",
+      "publisher_name": "运营团队",
+      "is_pinned": false,
+      "priority": "normal",
+      "status": "draft",
+      "view_count": 0,
+      "published_at": null
+    },
+    {
+      "announcement_id": "ANN4014",
+      "title": "平台功能改进建议征集",
+      "content": "<h2>征集说明</h2><p>诚邀各位提交对商机发布、需求响应、情报中心等模块的改进建议，优秀建议将纳入下期迭代……</p>",
+      "type": "other",
+      "publisher_name": "产品团队",
+      "is_pinned": false,
+      "priority": "normal",
+      "status": "draft",
+      "view_count": 0,
+      "published_at": null
     }
   ],
-  "total": 6
+  "total": 14
 }

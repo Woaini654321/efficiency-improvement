@@ -5,7 +5,7 @@
     "week_discussions": 46,
     "active_users": 213
   },
-  "hot_tags": ["5G模组", "Cat.1", "车载方案", "NB-IoT", "智慧城市", "天线设计"],
+  "hot_tags": ["5G模组", "Cat.1", "车载方案", "NB-IoT", "智慧城市", "天线设计", "GNSS定位", "WiFi6", "RedCap", "LoRa网关", "智能穿戴", "工业网关"],
   "quick_tasks": [
     {
       "task_id": "TASK2001",
@@ -41,6 +41,78 @@
       "deadline": "2026-07-22 18:00:00",
       "priority": "normal",
       "status": "processing",
+      "is_overdue": false
+    },
+    {
+      "task_id": "TASK2005",
+      "title": "跟进 EC800M Cat.1 模组共享柜量产爬坡问题",
+      "meeting_name": "无线模组产品周会",
+      "deadline": "2026-07-17 10:00:00",
+      "priority": "urgent",
+      "status": "pending",
+      "is_overdue": true
+    },
+    {
+      "task_id": "TASK2006",
+      "title": "汇总 FGH100M WiFi6 模组智能网关兼容性清单",
+      "meeting_name": "宽带产品线例会",
+      "deadline": "2026-07-18 18:00:00",
+      "priority": "normal",
+      "status": "pending",
+      "is_overdue": true
+    },
+    {
+      "task_id": "TASK2007",
+      "title": "整理 BC660K NB-IoT 智慧燃气表现场故障复盘",
+      "meeting_name": "行业方案对齐会",
+      "deadline": "2026-07-21 15:00:00",
+      "priority": "critical",
+      "status": "processing",
+      "is_overdue": false
+    },
+    {
+      "task_id": "TASK2008",
+      "title": "输出 RM520N-GL 5G 模组 FWA CPE 选型建议书",
+      "meeting_name": "5G 产品线双周会",
+      "deadline": "2026-07-25 18:00:00",
+      "priority": "urgent",
+      "status": "processing",
+      "is_overdue": false
+    },
+    {
+      "task_id": "TASK2009",
+      "title": "确认 L76K GNSS 模组车规认证时间表",
+      "meeting_name": "定位产品双周会",
+      "deadline": "2026-07-23 12:00:00",
+      "priority": "normal",
+      "status": "pending",
+      "is_overdue": false
+    },
+    {
+      "task_id": "TASK2010",
+      "title": "归档 AG55xQ 车载智能座舱方案客户评审纪要",
+      "meeting_name": "车载产品评审会",
+      "deadline": "2026-07-15 18:00:00",
+      "priority": "normal",
+      "status": "completed",
+      "is_overdue": false
+    },
+    {
+      "task_id": "TASK2011",
+      "title": "移交 KG100S LoRa 网关智慧路灯项目对接人",
+      "meeting_name": "智慧城市方案组会",
+      "deadline": "2026-07-26 18:00:00",
+      "priority": "normal",
+      "status": "transferred",
+      "is_overdue": false
+    },
+    {
+      "task_id": "TASK2012",
+      "title": "评估 FC41D WiFi 模组智能穿戴样机功耗超标风险",
+      "meeting_name": "智能穿戴产品周会",
+      "deadline": "2026-07-24 18:00:00",
+      "priority": "urgent",
+      "status": "pending",
       "is_overdue": false
     }
   ],
@@ -98,6 +170,60 @@
       "view_count": 655,
       "publisher_name": "孙丽",
       "is_subscribed": true
+    },
+    {
+      "opportunity_id": "OPP1012",
+      "rank": 7,
+      "title": "5G 模组 RM520N-GL 在 FWA CPE 上的选型方案",
+      "type": "solution",
+      "view_count": 612,
+      "publisher_name": "陈明",
+      "is_subscribed": false
+    },
+    {
+      "opportunity_id": "OPP1009",
+      "rank": 8,
+      "title": "EC800M Cat.1 模组产品信息与封装选型",
+      "type": "product_info",
+      "view_count": 588,
+      "publisher_name": "刘洋",
+      "is_subscribed": true
+    },
+    {
+      "opportunity_id": "OPP1015",
+      "rank": 9,
+      "title": "BC660K NB-IoT 模组智慧燃气表落地成功案例",
+      "type": "success_case",
+      "view_count": 534,
+      "publisher_name": "杨帆",
+      "is_subscribed": false
+    },
+    {
+      "opportunity_id": "OPP1011",
+      "rank": 10,
+      "title": "FGH100M WiFi6 模组智能网关整体方案",
+      "type": "solution",
+      "view_count": 497,
+      "publisher_name": "吴婷",
+      "is_subscribed": false
+    },
+    {
+      "opportunity_id": "OPP1006",
+      "rank": 11,
+      "title": "FC41D WiFi 模组智能穿戴产品信息",
+      "type": "product_info",
+      "view_count": 452,
+      "publisher_name": "郑凯",
+      "is_subscribed": false
+    },
+    {
+      "opportunity_id": "OPP1013",
+      "rank": 12,
+      "title": "AG55xQ 车载智能座舱通信方案",
+      "type": "solution",
+      "view_count": 418,
+      "publisher_name": "何静",
+      "is_subscribed": true
     }
   ],
   "announcements": [
@@ -126,6 +252,69 @@
       "publisher_name": "车载产品部",
       "published_at": "2026-07-10 10:00:00",
       "view_count": 205,
+      "is_pinned": false
+    },
+    {
+      "announcement_id": "ANN3004",
+      "title": "关于商机需求首响 SLA 超时升级规则调整的通知",
+      "type": "notice",
+      "publisher_name": "平台运营组",
+      "published_at": "2026-07-16 11:20:00",
+      "view_count": 268,
+      "is_pinned": true
+    },
+    {
+      "announcement_id": "ANN3005",
+      "title": "NB-IoT 行业方案专项奖励申报细则",
+      "type": "policy",
+      "publisher_name": "行业市场部",
+      "published_at": "2026-07-14 16:00:00",
+      "view_count": 197,
+      "is_pinned": false
+    },
+    {
+      "announcement_id": "ANN3006",
+      "title": "8 月 5G 模组产品认证培训直播预告",
+      "type": "activity",
+      "publisher_name": "产品培训中心",
+      "published_at": "2026-07-13 09:30:00",
+      "view_count": 176,
+      "is_pinned": false
+    },
+    {
+      "announcement_id": "ANN3007",
+      "title": "GNSS 定位产品线负责人变更公示",
+      "type": "notice",
+      "publisher_name": "定位产品部",
+      "published_at": "2026-07-11 15:40:00",
+      "view_count": 143,
+      "is_pinned": false
+    },
+    {
+      "announcement_id": "ANN3008",
+      "title": "关于规范商机资料涉密信息发布的管理办法",
+      "type": "policy",
+      "publisher_name": "信息安全部",
+      "published_at": "2026-07-09 10:15:00",
+      "view_count": 231,
+      "is_pinned": false
+    },
+    {
+      "announcement_id": "ANN3009",
+      "title": "智慧城市方案交流月度线下沙龙报名",
+      "type": "activity",
+      "publisher_name": "智慧城市方案组",
+      "published_at": "2026-07-08 14:00:00",
+      "view_count": 158,
+      "is_pinned": false
+    },
+    {
+      "announcement_id": "ANN3010",
+      "title": "平台 7 月 20 日凌晨系统维护停机说明",
+      "type": "other",
+      "publisher_name": "平台运维组",
+      "published_at": "2026-07-17 18:30:00",
+      "view_count": 289,
       "is_pinned": false
     }
   ],
@@ -165,6 +354,78 @@
       "reply_count": 12,
       "view_count": 297,
       "created_at": "2026-07-09 15:10:00"
+    },
+    {
+      "post_id": "POST4005",
+      "topic": "opportunity",
+      "title": "车载 AG59x 项目里 C-V2X 天线布局有没有踩过坑？",
+      "author_name": "王强",
+      "reply_count": 24,
+      "view_count": 573,
+      "created_at": "2026-07-15 10:30:00"
+    },
+    {
+      "post_id": "POST4006",
+      "topic": "solution",
+      "title": "EC800M Cat.1 共享柜方案的断电重连怎么优化？",
+      "author_name": "刘洋",
+      "reply_count": 17,
+      "view_count": 402,
+      "created_at": "2026-07-14 09:15:00"
+    },
+    {
+      "post_id": "POST4007",
+      "topic": "experience",
+      "title": "RM520N-GL 5G 模组过热降频的实测排查笔记",
+      "author_name": "陈明",
+      "reply_count": 21,
+      "view_count": 466,
+      "created_at": "2026-07-12 14:50:00"
+    },
+    {
+      "post_id": "POST4008",
+      "topic": "industry",
+      "title": "WiFi6 模组在智能网关市场的价格战怎么看？",
+      "author_name": "吴婷",
+      "reply_count": 14,
+      "view_count": 335,
+      "created_at": "2026-07-10 16:40:00"
+    },
+    {
+      "post_id": "POST4009",
+      "topic": "solution",
+      "title": "BC660K NB-IoT 燃气表方案的 PSM 参数怎么配才稳？",
+      "author_name": "杨帆",
+      "reply_count": 18,
+      "view_count": 379,
+      "created_at": "2026-07-13 08:25:00"
+    },
+    {
+      "post_id": "POST4010",
+      "topic": "opportunity",
+      "title": "智能穿戴选 FC41D 还是外挂蓝牙，续航差多少？",
+      "author_name": "郑凯",
+      "reply_count": 11,
+      "view_count": 288,
+      "created_at": "2026-07-11 13:05:00"
+    },
+    {
+      "post_id": "POST4011",
+      "topic": "experience",
+      "title": "LC29H 高精度定位天线选型的一些踩坑总结",
+      "author_name": "何静",
+      "reply_count": 16,
+      "view_count": 351,
+      "created_at": "2026-07-12 10:20:00"
+    },
+    {
+      "post_id": "POST4012",
+      "topic": "industry",
+      "title": "5G RedCap 今年在 FWA 上的出货预期讨论",
+      "author_name": "赵敏",
+      "reply_count": 13,
+      "view_count": 310,
+      "created_at": "2026-07-08 17:30:00"
     }
   ]
 }

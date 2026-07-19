@@ -8,12 +8,13 @@ export interface CommentDTO {
   created_at: string
   children?: CommentDTO[]
 }
-export interface CommentItem {
+// 递归评论节点（前端视图类型）
+export interface CommentNode {
   id: string
   authorName: string
   content: string
   createdAt: string
-  children: CommentItem[]
+  children: CommentNode[]
 }
 
 // ============ DTO（后端原始类型，snake_case）============
@@ -27,6 +28,7 @@ export interface DiscussionDTO {
   view_count: number
   is_hot: boolean
   created_at: string
+  tags?: string[]
   comments?: CommentDTO[]
 }
 
@@ -41,7 +43,8 @@ export interface DiscussionItem {
   viewCount: number
   isHot: boolean
   createdAt: string
-  comments: CommentItem[]
+  tags: string[]
+  comments: CommentNode[]
 }
 
 // ============ 分页 ============

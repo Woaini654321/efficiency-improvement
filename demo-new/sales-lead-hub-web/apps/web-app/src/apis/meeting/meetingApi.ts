@@ -1,6 +1,8 @@
 import { request } from '@q-web-plugin/request'
 import AIRequestGuard from '@ai-request-guard/core'
 import { getMeetingListAdapter } from './meetingAdapter'
+import { mockRequest } from '../_shared/mock-switch'
+import mockData from './mocks/meeting.json'
 import type {
   MeetingTaskPageParams,
   MeetingTaskPageResult,
@@ -15,7 +17,10 @@ export const getMeetingList = async (
 ): Promise<MeetingTaskPageResult> => {
   return (await AIRequestGuard({
     adapter: getMeetingListAdapter,
-    request: () => request.POST<MeetingTaskPageResult>({ url: 'meeting/page' }, params)
+    request: mockRequest(
+      { records: mockData.records, total: mockData.total },
+      () => request.POST<MeetingTaskPageResult>({ url: 'meeting/page' }, params)
+    )
   })) as MeetingTaskPageResult
 }
 

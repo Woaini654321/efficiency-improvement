@@ -10,7 +10,7 @@ export interface MeetingTaskDTO {
   priority: string // normal | urgent | critical
   deadline: string
   assignee_names: string[]
-  status: string // pending | processing | done | transferred | cancelled
+  status: string // pending | processing | completed | transferred | cancelled
   created_at: string
 }
 

@@ -65,6 +65,9 @@
       "typescript": "5.9.3",
       "vue-tsc": "3.1.5",
       "unocss": "66.5.10"
+    },
+    "patchedDependencies": {
+      "@q-web-plugin/layouts@0.7.2": "patches/@q-web-plugin__layouts@0.7.2.patch"
     }
   }
 }

@@ -1,0 +1,337 @@
+{
+  "comments": [
+    {
+      "interaction_id": "CMT2001",
+      "target_type": "Opportunity",
+      "target_id": "OPP1001",
+      "author_name": "张伟",
+      "author_dept": "无线模组产品部",
+      "content": "这份 RedCap 选型对比很实用，功耗数据是实测还是规格书标称？",
+      "like_count": 12,
+      "parent_id": null,
+      "created_at": "2026-06-21 09:30:00",
+      "replies": [
+        {
+          "interaction_id": "CMT2002",
+          "target_type": "Opportunity",
+          "target_id": "OPP1001",
+          "author_name": "李娜",
+          "author_dept": "行业解决方案部",
+          "content": "功耗为实验室实测，测试条件见附件手册第 12 页。",
+          "like_count": 5,
+          "parent_id": "CMT2001",
+          "created_at": "2026-06-21 10:05:00",
+          "replies": []
+        },
+        {
+          "interaction_id": "CMT2003",
+          "target_type": "Opportunity",
+          "target_id": "OPP1001",
+          "author_name": "王强",
+          "author_dept": "车载产品部",
+          "content": "补充一下，车载场景高温下功耗会再上浮约 8%。",
+          "like_count": 3,
+          "parent_id": "CMT2001",
+          "created_at": "2026-06-21 11:20:00",
+          "replies": []
+        }
+      ]
+    },
+    {
+      "interaction_id": "CMT2004",
+      "target_type": "Opportunity",
+      "target_id": "OPP1001",
+      "author_name": "赵敏",
+      "author_dept": "无线模组产品部",
+      "content": "客户已经在评估同类方案，能否提供一份简版的商务报价参考？",
+      "like_count": 8,
+      "parent_id": null,
+      "created_at": "2026-06-21 14:12:00",
+      "replies": [
+        {
+          "interaction_id": "CMT2005",
+          "target_type": "Opportunity",
+          "target_id": "OPP1001",
+          "author_name": "张伟",
+          "author_dept": "无线模组产品部",
+          "content": "报价我私信你，量级不同价格差异较大。",
+          "like_count": 2,
+          "parent_id": "CMT2004",
+          "created_at": "2026-06-21 15:00:00",
+          "replies": []
+        }
+      ]
+    },
+    {
+      "interaction_id": "CMT2006",
+      "target_type": "Opportunity",
+      "target_id": "OPP1001",
+      "author_name": "陈涛",
+      "author_dept": "短距产品部",
+      "content": "方案写得很清晰，收藏了，后面网关项目会参考。",
+      "like_count": 15,
+      "parent_id": null,
+      "created_at": "2026-06-22 08:40:00",
+      "replies": []
+    },
+    {
+      "interaction_id": "CMT2007",
+      "target_type": "Request",
+      "target_id": "REQ3001",
+      "author_name": "刘洋",
+      "author_dept": "天线产品部",
+      "content": "这个需求我们产品线可以响应，天线部分有现成参考设计。",
+      "like_count": 6,
+      "parent_id": null,
+      "created_at": "2026-06-19 16:30:00",
+      "replies": [
+        {
+          "interaction_id": "CMT2008",
+          "target_type": "Request",
+          "target_id": "REQ3001",
+          "author_name": "孙丽",
+          "author_dept": "行业解决方案部",
+          "content": "太好了，麻烦尽快提交方案，客户催得比较急。",
+          "like_count": 1,
+          "parent_id": "CMT2007",
+          "created_at": "2026-06-19 17:10:00",
+          "replies": []
+        }
+      ]
+    },
+    {
+      "interaction_id": "CMT2009",
+      "target_type": "Request",
+      "target_id": "REQ3001",
+      "author_name": "周杰",
+      "author_dept": "定位产品部",
+      "content": "请问对定位精度有硬性要求吗？RTK 和普通 GNSS 成本差很多。",
+      "like_count": 9,
+      "parent_id": null,
+      "created_at": "2026-06-20 09:15:00",
+      "replies": [
+        {
+          "interaction_id": "CMT2010",
+          "target_type": "Request",
+          "target_id": "REQ3001",
+          "author_name": "冯雪",
+          "author_dept": "行业解决方案部",
+          "content": "亚米级即可，暂时不需要 RTK。",
+          "like_count": 4,
+          "parent_id": "CMT2009",
+          "created_at": "2026-06-20 10:00:00",
+          "replies": []
+        },
+        {
+          "interaction_id": "CMT2011",
+          "target_type": "Request",
+          "target_id": "REQ3001",
+          "author_name": "郑浩",
+          "author_dept": "无线模组产品部",
+          "content": "那 L1 单频模组就够了，成本更友好。",
+          "like_count": 2,
+          "parent_id": "CMT2009",
+          "created_at": "2026-06-20 10:45:00",
+          "replies": []
+        }
+      ]
+    },
+    {
+      "interaction_id": "CMT2012",
+      "target_type": "Request",
+      "target_id": "REQ3001",
+      "author_name": "吴敏",
+      "author_dept": "无线模组产品部",
+      "content": "关注这个需求，方案落地后希望能同步一份复盘。",
+      "like_count": 7,
+      "parent_id": null,
+      "created_at": "2026-06-20 13:50:00",
+      "replies": []
+    },
+    {
+      "interaction_id": "CMT2013",
+      "target_type": "Opportunity",
+      "target_id": "OPP1001",
+      "author_name": "孙丽",
+      "author_dept": "行业解决方案部",
+      "content": "有没有配套的云平台对接文档？客户比较关心整体集成成本。",
+      "like_count": 4,
+      "parent_id": null,
+      "created_at": "2026-06-22 11:05:00",
+      "replies": []
+    },
+    {
+      "interaction_id": "CMT2014",
+      "target_type": "Opportunity",
+      "target_id": "OPP1002",
+      "author_name": "许晴",
+      "author_dept": "无线模组产品部",
+      "content": "EC200A 在这个电表项目的低功耗表现如何？客户对待机电流很敏感。",
+      "like_count": 11,
+      "parent_id": null,
+      "created_at": "2026-06-24 09:20:00",
+      "replies": [
+        {
+          "interaction_id": "CMT2015",
+          "target_type": "Opportunity",
+          "target_id": "OPP1002",
+          "author_name": "范文博",
+          "author_dept": "行业解决方案部",
+          "content": "PSM 模式下待机电流可做到微安级，具体数值以实测报告为准。",
+          "like_count": 4,
+          "parent_id": "CMT2014",
+          "created_at": "2026-06-24 10:15:00",
+          "replies": []
+        },
+        {
+          "interaction_id": "CMT2016",
+          "target_type": "Opportunity",
+          "target_id": "OPP1002",
+          "author_name": "何俊",
+          "author_dept": "无线模组产品部",
+          "content": "补充：eDRX 周期建议按抄表频率配置，能进一步省电。",
+          "like_count": 2,
+          "parent_id": "CMT2014",
+          "created_at": "2026-06-24 11:00:00",
+          "replies": []
+        }
+      ]
+    },
+    {
+      "interaction_id": "CMT2017",
+      "target_type": "Opportunity",
+      "target_id": "OPP1002",
+      "author_name": "邓超",
+      "author_dept": "定位产品部",
+      "content": "这个方案如果叠加 LC29H 做定位，整体 BOM 会增加多少？",
+      "like_count": 6,
+      "parent_id": null,
+      "created_at": "2026-06-25 14:30:00",
+      "replies": [
+        {
+          "interaction_id": "CMT2018",
+          "target_type": "Opportunity",
+          "target_id": "OPP1002",
+          "author_name": "李娜",
+          "author_dept": "行业解决方案部",
+          "content": "定位为可选模块，纯抄表场景可不集成，成本更优。",
+          "like_count": 3,
+          "parent_id": "CMT2017",
+          "created_at": "2026-06-25 15:10:00",
+          "replies": []
+        }
+      ]
+    },
+    {
+      "interaction_id": "CMT2019",
+      "target_type": "Opportunity",
+      "target_id": "OPP1003",
+      "author_name": "曾磊",
+      "author_dept": "车载产品部",
+      "content": "RG500Q 在这个车载网关项目有没有过车规认证？客户要看 AEC-Q100。",
+      "like_count": 13,
+      "parent_id": null,
+      "created_at": "2026-06-26 10:40:00",
+      "replies": [
+        {
+          "interaction_id": "CMT2020",
+          "target_type": "Opportunity",
+          "target_id": "OPP1003",
+          "author_name": "王强",
+          "author_dept": "车载产品部",
+          "content": "车规版本已过 AEC-Q100 Grade 2，认证报告可提供给客户。",
+          "like_count": 5,
+          "parent_id": "CMT2019",
+          "created_at": "2026-06-26 11:25:00",
+          "replies": []
+        }
+      ]
+    },
+    {
+      "interaction_id": "CMT2021",
+      "target_type": "Opportunity",
+      "target_id": "OPP1003",
+      "author_name": "宋佳",
+      "author_dept": "行业解决方案部",
+      "content": "整理得很全面，已收藏，下周车厂交流会用到。",
+      "like_count": 9,
+      "parent_id": null,
+      "created_at": "2026-06-27 08:50:00",
+      "replies": []
+    },
+    {
+      "interaction_id": "CMT2022",
+      "target_type": "Request",
+      "target_id": "REQ3002",
+      "author_name": "冯雪",
+      "author_dept": "短距产品部",
+      "content": "这个 Wi-Fi/BLE 组合需求我们产品线可以响应，FC41D 有现成参考设计。",
+      "like_count": 7,
+      "parent_id": null,
+      "created_at": "2026-06-28 16:20:00",
+      "replies": [
+        {
+          "interaction_id": "CMT2023",
+          "target_type": "Request",
+          "target_id": "REQ3002",
+          "author_name": "吴敏",
+          "author_dept": "行业解决方案部",
+          "content": "太好了，客户还关心 BLE 的最大连接数，麻烦一并说明。",
+          "like_count": 2,
+          "parent_id": "CMT2022",
+          "created_at": "2026-06-28 17:05:00",
+          "replies": []
+        },
+        {
+          "interaction_id": "CMT2024",
+          "target_type": "Request",
+          "target_id": "REQ3002",
+          "author_name": "陈涛",
+          "author_dept": "短距产品部",
+          "content": "FC41D 典型可支持多个 BLE 从连接，具体上限我补一份说明。",
+          "like_count": 1,
+          "parent_id": "CMT2022",
+          "created_at": "2026-06-28 17:40:00",
+          "replies": []
+        }
+      ]
+    },
+    {
+      "interaction_id": "CMT2025",
+      "target_type": "Request",
+      "target_id": "REQ3003",
+      "author_name": "郑浩",
+      "author_dept": "无线模组产品部",
+      "content": "这个海外 Cat.1 出海需求关注下，目标区域的运营商认证清单能否先同步？",
+      "like_count": 8,
+      "parent_id": null,
+      "created_at": "2026-06-29 09:35:00",
+      "replies": [
+        {
+          "interaction_id": "CMT2026",
+          "target_type": "Request",
+          "target_id": "REQ3003",
+          "author_name": "孙丽",
+          "author_dept": "行业解决方案部",
+          "content": "主要是东南亚几国，认证清单我整理后发到需求附件。",
+          "like_count": 3,
+          "parent_id": "CMT2025",
+          "created_at": "2026-06-29 10:20:00",
+          "replies": []
+        }
+      ]
+    },
+    {
+      "interaction_id": "CMT2027",
+      "target_type": "Request",
+      "target_id": "REQ3003",
+      "author_name": "周杰",
+      "author_dept": "无线模组产品部",
+      "content": "同关注，出海项目的功耗与认证材料建议一并整理成标准包，后续复用。",
+      "like_count": 5,
+      "parent_id": null,
+      "created_at": "2026-06-30 09:10:00",
+      "replies": []
+    }
+  ]
+}

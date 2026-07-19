@@ -132,7 +132,6 @@ const props = withDefaults(defineProps<{
   value: () => [],
   maxCount: 1,
   maxFileSize: 20,
-  maxTotalSize: undefined,
   accept: '',
   showUploadTips: true,
 })
@@ -192,7 +191,7 @@ watch(
         url: e.link || e.url,
         size: e.fileSize || e.size,
       }
-    })
+    }) as FileItem[]
   },
 )
 
@@ -245,7 +244,7 @@ function manualRequest(option: { file: any; onSuccess: (body: any) => void; onEr
   onSuccess({ name: nativeFile.name, url: blobUrl })
 }
 
-function handleUploadChange({ file, fileList: innerFileList }: any) {
+function handleUploadChange({ fileList: innerFileList }: any) {
   if (props.manual) {
     fileList.value = innerFileList.map((f: any) => {
       const nativeFile = (f.originFileObj ?? f) as File | undefined
@@ -307,7 +306,7 @@ function pictureCardPreview(file: FileItem) {
       const lastSegment = (u.pathname || '').split('/').pop() || ''
       return isImg(lastSegment)
     } catch {
-      const pure = String(url).split('#')[0].split('?')[0]
+      const pure = (String(url).split('#')[0] ?? '').split('?')[0] ?? ''
       const lastSegment = pure.split('/').pop() || ''
       return isImg(lastSegment)
     }

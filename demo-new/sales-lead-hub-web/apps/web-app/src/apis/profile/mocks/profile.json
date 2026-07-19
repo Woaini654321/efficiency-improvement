@@ -13,32 +13,436 @@
     "draft_count": 3,
     "view_count": 316
   },
-  "subscriptions": ["5G模组", "Cat.1", "车载方案", "NB-IoT", "智慧城市"],
+  "subscription_tree": {
+    "opportunity": [
+      {
+        "title": "IoT模组",
+        "value": "iot-module",
+        "key": "iot-module",
+        "children": [
+          { "title": "5G模组", "value": "5g", "key": "5g" },
+          { "title": "4G模组", "value": "4g", "key": "4g" },
+          { "title": "WiFi模组", "value": "wifi", "key": "wifi" },
+          { "title": "NB-IoT", "value": "nb", "key": "nb" }
+        ]
+      },
+      {
+        "title": "天线产品",
+        "value": "antenna",
+        "key": "antenna",
+        "children": [
+          { "title": "GNSS天线", "value": "gnss", "key": "gnss" },
+          { "title": "LTE天线", "value": "lte", "key": "lte" },
+          { "title": "WiFi天线", "value": "wifi-ant", "key": "wifi-ant" }
+        ]
+      },
+      {
+        "title": "行业方案",
+        "value": "industry-solution",
+        "key": "industry-solution",
+        "children": [
+          { "title": "车载方案", "value": "vehicle", "key": "vehicle" },
+          { "title": "智慧表计", "value": "smart-meter", "key": "smart-meter" },
+          { "title": "支付POS", "value": "pos", "key": "pos" }
+        ]
+      },
+      {
+        "title": "成功案例",
+        "value": "success-case",
+        "key": "success-case",
+        "children": [
+          { "title": "运营商", "value": "operator", "key": "operator" },
+          { "title": "企业客户", "value": "enterprise", "key": "enterprise" }
+        ]
+      }
+    ],
+    "requirement": [
+      {
+        "title": "需求类型",
+        "value": "req-type",
+        "key": "req-type",
+        "children": [
+          { "title": "硬件采购", "value": "hw-proc", "key": "hw-proc" },
+          { "title": "方案定制", "value": "sol-custom", "key": "sol-custom" },
+          { "title": "技术支持", "value": "tech-support", "key": "tech-support" },
+          { "title": "样品申请", "value": "sample", "key": "sample" }
+        ]
+      },
+      {
+        "title": "应用领域",
+        "value": "app-field",
+        "key": "app-field",
+        "children": [
+          { "title": "智慧城市", "value": "smart-city", "key": "smart-city" },
+          { "title": "车联网", "value": "vehicle-net", "key": "vehicle-net" },
+          { "title": "工业物联网", "value": "industrial", "key": "industrial" },
+          { "title": "智慧农业", "value": "smart-agri", "key": "smart-agri" }
+        ]
+      }
+    ]
+  },
+  "subscribed_keys": {
+    "opportunity": ["5g", "vehicle"],
+    "requirement": []
+  },
   "collects": [
-    { "collect_id": "COL7001", "title": "5G RedCap 模组 RG200U 产品选型方案", "type": "opportunity", "is_deleted": false, "created_at": "2026-07-16 10:20:00" },
-    { "collect_id": "COL7002", "title": "车载 T-Box 5G 模组选型需求", "type": "requirement", "is_deleted": false, "created_at": "2026-07-14 09:00:00" },
-    { "collect_id": "COL7003", "title": "GNSS 高精度定位模组 LC29H 产品信息", "type": "opportunity", "is_deleted": false, "created_at": "2026-07-10 15:30:00" },
-    { "collect_id": "COL7004", "title": "已被下架的天线方案（示例）", "type": "opportunity", "is_deleted": true, "created_at": "2026-07-05 11:00:00" }
+    { "collect_id": "COL7001", "title": "5G RedCap 模组 RG200U 产品选型方案", "type": "opportunity", "is_deleted": false, "created_at": "2026-07-16 10:20" },
+    { "collect_id": "COL7003", "title": "GNSS 高精度定位模组 LC29H 产品信息", "type": "opportunity", "is_deleted": false, "created_at": "2026-07-10 15:30" },
+    { "collect_id": "COL7005", "title": "深圳智慧交通 5G 模组采购项目", "type": "opportunity", "is_deleted": false, "created_at": "2026-07-08 14:30" },
+    { "collect_id": "COL7004", "title": "已被下架的天线方案（示例）", "type": "opportunity", "is_deleted": true, "created_at": "2026-07-05 11:00" },
+    { "collect_id": "COL7002", "title": "车载 T-Box 5G 模组选型需求", "type": "requirement", "is_deleted": false, "created_at": "2026-07-14 09:00" },
+    { "collect_id": "COL7006", "title": "4G Cat.1 模组低功耗定制需求", "type": "requirement", "is_deleted": false, "created_at": "2026-07-11 10:00" },
+    { "collect_id": "COL7007", "title": "智慧城市边缘计算模组需求（已删除）", "type": "requirement", "is_deleted": true, "created_at": "2026-07-04 09:10" },
+    { "collect_id": "COL7008", "title": "GNSS 高精度定位模组 LC29H RTK 差分方案", "type": "opportunity", "is_deleted": false, "created_at": "2026-06-28 16:40" },
+    { "collect_id": "COL7009", "title": "EG25-G 全球通 4G 模组产品选型方案", "type": "opportunity", "is_deleted": false, "created_at": "2026-06-15 11:25" },
+    { "collect_id": "COL7010", "title": "智慧农业 NB-IoT 土壤墒情网关采集需求", "type": "requirement", "is_deleted": false, "created_at": "2026-05-20 09:35" },
+    { "collect_id": "COL7011", "title": "FGx 系列 WiFi 6 模组参考方案（已下架示例）", "type": "opportunity", "is_deleted": true, "created_at": "2026-05-10 14:15" },
+    { "collect_id": "COL7012", "title": "车载 GNSS 有源天线 YEGN044AA 批量采购需求", "type": "requirement", "is_deleted": false, "created_at": "2026-04-22 10:50" }
   ],
   "publishes": [
-    { "opportunity_id": "OPP1001", "title": "5G RedCap 模组 RG200U 产品选型方案", "status": "published", "view_count": 1280, "like_count": 86, "comment_count": 23, "created_at": "2026-06-20 09:12:00" },
-    { "opportunity_id": "OPP1004", "title": "NB-IoT 智慧水表整体解决方案", "status": "published", "view_count": 720, "like_count": 40, "comment_count": 8, "created_at": "2026-06-12 08:45:00" },
-    { "opportunity_id": "OPP1009", "title": "工业路由 5G CPE 参考设计方案", "status": "archived", "view_count": 233, "like_count": 12, "comment_count": 2, "created_at": "2026-05-28 15:20:00" },
-    { "opportunity_id": "OPP1012", "title": "车规级以太网 T1 模组产品信息（草稿）", "status": "draft", "view_count": 0, "like_count": 0, "comment_count": 0, "created_at": "2026-06-22 17:00:00" }
+    {
+      "opportunity_id": "OPP1001",
+      "title": "5G RedCap 模组 RG200U 产品选型方案",
+      "type": "opportunity",
+      "status": "published",
+      "view_count": 1280,
+      "like_count": 86,
+      "comment_count": 23,
+      "collect_count": 42,
+      "created_at": "2026-06-20 09:12",
+      "edited_at": "2026-06-20 09:10",
+      "is_adopted": true,
+      "replies": [
+        { "reply_id": "RP01", "content": "这个方案目前还有效吗？我们团队可以提供 5G 模组技术支持。", "from_name": "李四 Si.Li", "replied_at": "2026-06-25 09:20" },
+        { "reply_id": "RP02", "content": "已联系客户，正在跟进选型细节。", "from_name": "王五 Wu.Wang", "replied_at": "2026-06-26 14:30" }
+      ]
+    },
+    {
+      "opportunity_id": "OPP1004",
+      "title": "NB-IoT 智慧水表整体解决方案",
+      "type": "opportunity",
+      "status": "published",
+      "view_count": 720,
+      "like_count": 40,
+      "comment_count": 8,
+      "collect_count": 18,
+      "created_at": "2026-06-12 08:45",
+      "edited_at": "2026-06-12 08:40",
+      "is_adopted": false,
+      "replies": [
+        { "reply_id": "RP03", "content": "低温续航实测数据能补充下吗？华北客户很关注。", "from_name": "赵六 Liu.Zhao", "replied_at": "2026-06-18 11:00" }
+      ]
+    },
+    {
+      "opportunity_id": "OPP1006",
+      "title": "武汉车联网模组集成需求",
+      "type": "requirement",
+      "status": "published",
+      "view_count": 156,
+      "like_count": 8,
+      "comment_count": 3,
+      "collect_count": 5,
+      "created_at": "2026-06-10 14:20",
+      "edited_at": "2026-06-10 14:10",
+      "is_adopted": false,
+      "replies": []
+    },
+    {
+      "opportunity_id": "OPP1009",
+      "title": "工业路由 5G CPE 参考设计方案",
+      "type": "opportunity",
+      "status": "archived",
+      "view_count": 233,
+      "like_count": 12,
+      "comment_count": 2,
+      "collect_count": 6,
+      "created_at": "2026-05-28 15:20",
+      "edited_at": "2026-05-28 15:10",
+      "is_adopted": false,
+      "replies": []
+    },
+    {
+      "opportunity_id": "OPP1012",
+      "title": "车规级以太网 T1 模组产品信息",
+      "type": "opportunity",
+      "status": "draft",
+      "view_count": 0,
+      "like_count": 0,
+      "comment_count": 0,
+      "collect_count": 0,
+      "created_at": "2026-06-22 17:00",
+      "edited_at": "2026-07-09 17:22",
+      "is_adopted": false,
+      "replies": []
+    },
+    {
+      "opportunity_id": "OPP1014",
+      "title": "重庆 WiFi 模组批量采购方案",
+      "type": "opportunity",
+      "status": "draft",
+      "view_count": 0,
+      "like_count": 0,
+      "comment_count": 0,
+      "collect_count": 0,
+      "created_at": "2026-05-13 08:00",
+      "edited_at": "2026-07-08 15:10",
+      "is_adopted": false,
+      "replies": []
+    },
+    {
+      "opportunity_id": "OPP1016",
+      "title": "GNSS 高精度定位模组 LC29H RTK 差分方案",
+      "type": "opportunity",
+      "status": "published",
+      "view_count": 964,
+      "like_count": 58,
+      "comment_count": 14,
+      "collect_count": 31,
+      "created_at": "2026-06-30 10:15",
+      "edited_at": "2026-06-30 10:12",
+      "is_adopted": true,
+      "replies": [
+        { "reply_id": "RP04", "content": "定位精度厘米级实测能提供报告吗？测绘客户很关注收敛时间。", "from_name": "周涛 Tao.Zhou", "replied_at": "2026-07-03 09:40" },
+        { "reply_id": "RP05", "content": "已同步 RTK 收敛测试数据，冷启动约 30s，可私信详聊。", "from_name": "郑凯 Kai.Zheng", "replied_at": "2026-07-04 15:10" }
+      ]
+    },
+    {
+      "opportunity_id": "OPP1018",
+      "title": "EC800M Cat.1 模组智能表计整体方案",
+      "type": "opportunity",
+      "status": "published",
+      "view_count": 542,
+      "like_count": 33,
+      "comment_count": 6,
+      "collect_count": 15,
+      "created_at": "2026-06-05 14:30",
+      "edited_at": "2026-06-05 14:22",
+      "is_adopted": false,
+      "replies": [
+        { "reply_id": "RP06", "content": "华南水司项目也在选型，能否约个技术交流？", "from_name": "黄磊 Lei.Huang", "replied_at": "2026-06-12 11:20" }
+      ]
+    },
+    {
+      "opportunity_id": "OPP1020",
+      "title": "车载 4G+C-V2X 通信模组 AG59x 产品信息",
+      "type": "opportunity",
+      "status": "published",
+      "view_count": 1120,
+      "like_count": 74,
+      "comment_count": 19,
+      "collect_count": 37,
+      "created_at": "2026-05-22 09:00",
+      "edited_at": "2026-05-22 08:55",
+      "is_adopted": true,
+      "replies": [
+        { "reply_id": "RP07", "content": "C-V2X 直连时延实测在 20ms 内，符合车企 T-Box 要求。", "from_name": "马超 Chao.Ma", "replied_at": "2026-05-28 16:00" }
+      ]
+    },
+    {
+      "opportunity_id": "OPP1022",
+      "title": "智慧城市 LoRa 网关部署成功案例",
+      "type": "opportunity",
+      "status": "archived",
+      "view_count": 388,
+      "like_count": 21,
+      "comment_count": 4,
+      "collect_count": 9,
+      "created_at": "2026-04-18 15:40",
+      "edited_at": "2026-04-18 15:30",
+      "is_adopted": false,
+      "replies": []
+    },
+    {
+      "opportunity_id": "OPP1024",
+      "title": "深圳 POS 支付模组批量采购需求",
+      "type": "requirement",
+      "status": "published",
+      "view_count": 276,
+      "like_count": 15,
+      "comment_count": 5,
+      "collect_count": 8,
+      "created_at": "2026-05-08 10:20",
+      "edited_at": "2026-05-08 10:10",
+      "is_adopted": false,
+      "replies": [
+        { "reply_id": "RP08", "content": "EG915U 支持金融级安全认证，可对接这个 POS 需求。", "from_name": "吴静 Jing.Wu", "replied_at": "2026-05-14 13:45" }
+      ]
+    },
+    {
+      "opportunity_id": "OPP1026",
+      "title": "蓝牙 5.3 模组 FCM360W 产品信息",
+      "type": "opportunity",
+      "status": "draft",
+      "view_count": 0,
+      "like_count": 0,
+      "comment_count": 0,
+      "collect_count": 0,
+      "created_at": "2026-06-25 16:30",
+      "edited_at": "2026-07-11 09:15",
+      "is_adopted": false,
+      "replies": []
+    }
   ],
   "solutions": [
-    { "solution_id": "SOL8001", "title": "面向智慧水表的 BC660K-GL 低功耗方案", "request_title": "智慧水表 NB-IoT 选型需求", "summary": "以 BC660K-GL 为核心，配套 DTU 与云平台对接，典型 5 年续航。", "adopter_name": "赵敏", "adopter_dept_name": "行业解决方案部" },
-    { "solution_id": "SOL8002", "title": "共享设备 Cat.1 bis 批量导入方案", "request_title": "共享两轮车联网模组需求", "summary": "EG912U 批量导入实践，年出货 200 万片落地经验。", "adopter_name": "李娜", "adopter_dept_name": "行业解决方案部" }
+    {
+      "solution_id": "SOL8001",
+      "title": "面向智慧水表的 BC660K-GL 低功耗方案",
+      "request_title": "智慧水表 NB-IoT 选型需求",
+      "request_id": "REQ2001",
+      "summary": "以 BC660K-GL 为核心，配套 DTU 与云平台对接，PSM 深度休眠下典型 5 年续航，已在华东某智能电表客户批量落地，功耗指标符合客户预期，方案含完整硬件设计参考指南与全球频段适配说明。",
+      "adopter_name": "赵敏 Min.Zhao",
+      "adopter_dept_name": "行业解决方案部",
+      "adopted_at": "2026-06-10 15:30",
+      "is_best": true
+    },
+    {
+      "solution_id": "SOL8002",
+      "title": "共享设备 Cat.1 bis 批量导入方案",
+      "request_title": "共享两轮车联网模组需求",
+      "request_id": "REQ2002",
+      "summary": "EG912U 批量导入实践，年出货 200 万片落地经验，含 OTA 升级与远程运维策略。",
+      "adopter_name": "李娜 Na.Li",
+      "adopter_dept_name": "西南大区",
+      "adopted_at": "2026-06-05 11:20",
+      "is_best": true
+    },
+    {
+      "solution_id": "SOL8003",
+      "title": "车载 T-Box 5G+C-V2X 双模通信方案",
+      "request_title": "车载 T-Box 5G 模组选型需求",
+      "request_id": "REQ2005",
+      "summary": "以 AG59x 为核心的车规级 5G+C-V2X 双模方案，直连时延实测 20ms 内，通过 AEC-Q100 车规认证，已在华东某新能源车企前装量产，含天线布局与散热设计参考。",
+      "adopter_name": "王强 Qiang.Wang",
+      "adopter_dept_name": "车载产品部",
+      "adopted_at": "2026-06-18 14:10",
+      "is_best": true
+    },
+    {
+      "solution_id": "SOL8004",
+      "title": "高精度定位 LC29H RTK 差分方案",
+      "request_title": "测绘无人机厘米级定位需求",
+      "request_id": "REQ2006",
+      "summary": "LC29H 支持双频 RTK，冷启动收敛约 30s，厘米级定位精度，配套差分播发服务对接指南，已在测绘无人机客户小批量验证。",
+      "adopter_name": "郑凯 Kai.Zheng",
+      "adopter_dept_name": "定位产品部",
+      "adopted_at": "2026-06-22 10:30",
+      "is_best": false
+    },
+    {
+      "solution_id": "SOL8005",
+      "title": "智能电表 EC800M Cat.1 通信方案",
+      "request_title": "智能电表 Cat.1 通信选型需求",
+      "request_id": "REQ2007",
+      "summary": "EC800M Cat.1 模组替代 Cat.4 降本方案，支持 VoLTE 回落，典型场景续航优化，已在华南电网表计项目落地。",
+      "adopter_name": "黄磊 Lei.Huang",
+      "adopter_dept_name": "无线模组产品部",
+      "adopted_at": "2026-05-28 16:20",
+      "is_best": false
+    },
+    {
+      "solution_id": "SOL8006",
+      "title": "支付 POS EG915U 金融级安全方案",
+      "request_title": "深圳 POS 支付模组批量需求",
+      "request_id": "REQ2008",
+      "summary": "EG915U 通过金融级安全认证，支持国密算法，配套 SIM 卡热插拔与防拆检测，已在移动支付客户批量出货。",
+      "adopter_name": "吴静 Jing.Wu",
+      "adopter_dept_name": "无线模组产品部",
+      "adopted_at": "2026-05-15 11:40",
+      "is_best": false
+    },
+    {
+      "solution_id": "SOL8007",
+      "title": "工业网关 WiFi 6 FGx 抗干扰方案",
+      "request_title": "工厂产线 WiFi 6 模组需求",
+      "request_id": "REQ2009",
+      "summary": "FGx 系列 WiFi 6 模组针对工厂多径与强干扰环境优化，支持 OFDMA 与 MU-MIMO，实测产线环境吞吐稳定，含天线选型建议。",
+      "adopter_name": "刘八 Ba.Liu",
+      "adopter_dept_name": "短距产品部",
+      "adopted_at": "2026-05-06 09:50",
+      "is_best": false
+    },
+    {
+      "solution_id": "SOL8008",
+      "title": "智慧农业 NB-IoT 墒情采集方案",
+      "request_title": "智慧农业土壤墒情网关需求",
+      "request_id": "REQ2010",
+      "summary": "BC660K-GL 配合太阳能供电与 PSM 深休眠，田间无人值守长续航，支持多路传感器接入，已在西北农业示范区部署。",
+      "adopter_name": "赵敏 Min.Zhao",
+      "adopter_dept_name": "行业解决方案部",
+      "adopted_at": "2026-04-28 15:00",
+      "is_best": false
+    },
+    {
+      "solution_id": "SOL8009",
+      "title": "全球通 4G EG25-G 出海方案",
+      "request_title": "跨境物流追踪器全球通需求",
+      "request_id": "REQ2011",
+      "summary": "EG25-G 覆盖全球主流频段，一号通全球漫游，配套证书认证清单（CE/FCC/PTCRB），已在跨境物流追踪器客户量产。",
+      "adopter_name": "孙丽 Li.Sun",
+      "adopter_dept_name": "无线模组产品部",
+      "adopted_at": "2026-04-20 10:15",
+      "is_best": false
+    },
+    {
+      "solution_id": "SOL8010",
+      "title": "车载 GNSS 有源天线选型方案",
+      "request_title": "车载定位天线批量采购需求",
+      "request_id": "REQ2012",
+      "summary": "YEGN044AA 有源天线适配 L1+L5 双频，抗多径能力强，含车顶与埋入式安装的辐射方向图对比，已在车队管理客户验证。",
+      "adopter_name": "陈涛 Tao.Chen",
+      "adopter_dept_name": "天线产品部",
+      "adopted_at": "2026-03-25 14:30",
+      "is_best": false
+    },
+    {
+      "solution_id": "SOL8011",
+      "title": "共享充电柜 Cat.1 bis 低成本方案",
+      "request_title": "共享充电柜联网模组需求",
+      "request_id": "REQ2013",
+      "summary": "EG912U Cat.1 bis 低成本联网方案，支持 OTA 批量升级与远程运维，配套云平台对接与心跳保活策略，已规模落地。",
+      "adopter_name": "李娜 Na.Li",
+      "adopter_dept_name": "行业解决方案部",
+      "adopted_at": "2026-03-12 11:00",
+      "is_best": false
+    },
+    {
+      "solution_id": "SOL8012",
+      "title": "蓝牙 5.3 FCM360W 室内定位方案",
+      "request_title": "商场室内蓝牙定位需求",
+      "request_id": "REQ2014",
+      "summary": "FCM360W 蓝牙 5.3 模组支持 AoA 到达角测向，米级室内定位，含信标部署密度与后端算法对接建议，处于客户 POC 阶段。",
+      "adopter_name": "刘洋 Yang.Liu",
+      "adopter_dept_name": "短距产品部",
+      "adopted_at": "2026-02-28 16:45",
+      "is_best": false
+    }
   ],
   "comments": [
-    { "comment_id": "CMT9001", "content": "这个方案的功耗数据很有参考价值，建议补充低温场景实测。", "source_title": "5G RedCap 模组 RG200U 产品选型方案", "created_at": "2026-07-17 14:20:00" },
-    { "comment_id": "CMT9002", "content": "请问 AG59x 的 C-V2X 直连时延实测大概多少？", "source_title": "车载 4G+C-V2X 通信模组 AG59x 产品信息", "created_at": "2026-07-15 10:05:00" },
-    { "comment_id": "CMT9003", "content": "LoRa 网关规模化部署的运维成本能再展开讲讲吗？", "source_title": "智慧城市 LoRa 网关部署成功案例", "created_at": "2026-07-12 16:40:00" }
+    { "comment_id": "CMT9001", "content": "这个方案的功耗数据很有参考价值，我在华东某智能电表客户项目中正好需要 Cat.1 低功耗方案，已下载规格书给客户参考，客户反馈功耗指标符合预期，建议再补充一下低温场景（-20℃）的实测曲线，这样在北方客户推广时更有说服力。", "source_title": "5G RedCap 模组 RG200U 产品选型方案", "source_type": "opportunity", "source_id": "OPP1001", "is_deleted": false, "created_at": "2026-07-17 14:20" },
+    { "comment_id": "CMT9002", "content": "请问 AG59x 的 C-V2X 直连时延实测大概多少？客户需要做对比选型。", "source_title": "车载 4G+C-V2X 通信模组 AG59x 产品信息", "source_type": "opportunity", "source_id": "OPP1020", "is_deleted": false, "created_at": "2026-07-15 10:05" },
+    { "comment_id": "CMT9003", "content": "海外市场对低功耗模组需求很大，这个方案能否补充全球频段适配信息？", "source_title": "智慧城市 LoRa 网关部署成功案例", "source_type": "opportunity", "source_id": "OPP1022", "is_deleted": true, "created_at": "2026-07-12 16:40" },
+    { "comment_id": "CMT9004", "content": "附件里的硬件设计参考指南非常详细，已经在客户项目中参考使用了，建议补充 PCB 布局注意事项。", "source_title": "面向智慧水表的 BC660K-GL 低功耗方案", "source_type": "opportunity", "source_id": "OPP1004", "is_deleted": false, "created_at": "2026-07-07 09:20" },
+    { "comment_id": "CMT9005", "content": "感谢产品线快速响应！方案中的 Cat.1 bis 支持确实是选型关键优势。", "source_title": "智慧城市边缘计算模组需求", "source_type": "requirement", "source_id": "REQ2003", "is_deleted": false, "created_at": "2026-07-05 11:00" },
+    { "comment_id": "CMT9006", "content": "WiFi 6 模组在工业场景下的抗干扰能力如何？有没有在工厂产线环境下的实测数据？", "source_title": "WiFi 6 模组小型化需求", "source_type": "requirement", "source_id": "REQ2004", "is_deleted": false, "created_at": "2026-07-03 15:30" },
+    { "comment_id": "CMT9007", "content": "LC29H 的 RTK 收敛时间和差分播发服务如何对接？测绘客户需要厘米级精度的完整链路说明。", "source_title": "GNSS 高精度定位模组 LC29H RTK 差分方案", "source_type": "opportunity", "source_id": "OPP1016", "is_deleted": false, "created_at": "2026-06-30 17:20" },
+    { "comment_id": "CMT9008", "content": "EC800M 用 Cat.1 替换 Cat.4 降本效果不错，想确认下 VoLTE 回落在弱网下的稳定性。", "source_title": "EC800M Cat.1 模组智能表计整体方案", "source_type": "opportunity", "source_id": "OPP1018", "is_deleted": false, "created_at": "2026-06-08 10:40" },
+    { "comment_id": "CMT9009", "content": "这条评论内容已由作者删除（示例）。", "source_title": "深圳 POS 支付模组批量采购需求", "source_type": "requirement", "source_id": "OPP1024", "is_deleted": true, "created_at": "2026-05-16 09:00" },
+    { "comment_id": "CMT9010", "content": "EG25-G 出海认证清单很实用，已转给跨境物流客户，麻烦补充下 PTCRB 的最新版本号。", "source_title": "全球通 4G EG25-G 出海方案", "source_type": "opportunity", "source_id": "OPP1030", "is_deleted": false, "created_at": "2026-04-22 14:10" },
+    { "comment_id": "CMT9011", "content": "车载 GNSS 有源天线的埋入式安装辐射方向图能否再补充侧向增益数据？车顶造型受限。", "source_title": "车载 GNSS 有源天线 YEGN044AA 批量采购需求", "source_type": "requirement", "source_id": "REQ2012", "is_deleted": false, "created_at": "2026-04-24 11:35" },
+    { "comment_id": "CMT9012", "content": "FGx WiFi 6 在工厂产线实测吞吐很稳，抗干扰确实强，建议补充 2.4G/5G 双频并发下的功耗对比。", "source_title": "工业网关 WiFi 6 FGx 抗干扰方案", "source_type": "opportunity", "source_id": "OPP1032", "is_deleted": false, "created_at": "2026-05-08 10:20" }
   ],
   "view_history": [
-    { "history_id": "VH0001", "title": "车载 4G+C-V2X 通信模组 AG59x 产品信息", "type": "opportunity", "viewed_at": "2026-07-18 09:10:00" },
-    { "history_id": "VH0002", "title": "Cat.1 bis 模组在共享设备中的成功案例", "type": "opportunity", "viewed_at": "2026-07-17 17:30:00" },
-    { "history_id": "VH0003", "title": "智慧水表 NB-IoT 选型需求", "type": "requirement", "viewed_at": "2026-07-16 11:00:00" },
-    { "history_id": "VH0004", "title": "GNSS 高精度定位模组 LC29H 产品信息", "type": "opportunity", "viewed_at": "2026-07-15 08:45:00" }
+    { "history_id": "VH0001", "title": "车载 4G+C-V2X 通信模组 AG59x 产品信息", "type": "opportunity", "viewed_at": "2026-07-18 09:10" },
+    { "history_id": "VH0002", "title": "Cat.1 bis 模组在共享设备中的成功案例", "type": "opportunity", "viewed_at": "2026-07-17 17:30" },
+    { "history_id": "VH0003", "title": "智慧水表 NB-IoT 选型需求", "type": "requirement", "viewed_at": "2026-07-16 11:00" },
+    { "history_id": "VH0004", "title": "GNSS 高精度定位模组 LC29H 产品信息", "type": "opportunity", "viewed_at": "2026-07-15 08:45" },
+    { "history_id": "VH0005", "title": "工业网关多协议支持需求", "type": "requirement", "viewed_at": "2026-07-14 16:20" },
+    { "history_id": "VH0006", "title": "GNSS 高精度定位模组 LC29H RTK 差分方案", "type": "opportunity", "viewed_at": "2026-07-13 10:05" },
+    { "history_id": "VH0007", "title": "EC800M Cat.1 模组智能表计整体方案", "type": "opportunity", "viewed_at": "2026-07-12 15:45" },
+    { "history_id": "VH0008", "title": "深圳 POS 支付模组批量采购需求", "type": "requirement", "viewed_at": "2026-07-11 09:30" },
+    { "history_id": "VH0009", "title": "全球通 4G EG25-G 出海方案", "type": "opportunity", "viewed_at": "2026-07-10 14:00" },
+    { "history_id": "VH0010", "title": "智慧农业 NB-IoT 土壤墒情网关采集需求", "type": "requirement", "viewed_at": "2026-07-09 11:20" },
+    { "history_id": "VH0011", "title": "蓝牙 5.3 模组 FCM360W 产品信息", "type": "opportunity", "viewed_at": "2026-07-08 16:50" },
+    { "history_id": "VH0012", "title": "车载 GNSS 有源天线 YEGN044AA 批量采购需求", "type": "requirement", "viewed_at": "2026-07-07 08:40" }
   ]
 }

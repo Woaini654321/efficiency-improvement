@@ -3,7 +3,15 @@
     { "meeting_id": "MTG5001", "name": "7月产品线周例会", "meeting_date": "2026-07-15", "recorder_name": "张伟" },
     { "meeting_id": "MTG5002", "name": "5G RedCap 项目专题评审会", "meeting_date": "2026-07-12", "recorder_name": "李娜" },
     { "meeting_id": "MTG5003", "name": "车载模组季度规划会", "meeting_date": "2026-07-08", "recorder_name": "王强" },
-    { "meeting_id": "MTG5004", "name": "行业方案客户交付复盘会", "meeting_date": "2026-07-05", "recorder_name": "赵敏" }
+    { "meeting_id": "MTG5004", "name": "行业方案客户交付复盘会", "meeting_date": "2026-07-05", "recorder_name": "赵敏" },
+    { "meeting_id": "MTG5005", "name": "5G CPE 产品定义研讨会", "meeting_date": "2026-07-16", "recorder_name": "陈涛" },
+    { "meeting_id": "MTG5006", "name": "海外市场拓展战略会", "meeting_date": "2026-07-14", "recorder_name": "孙丽" },
+    { "meeting_id": "MTG5007", "name": "GNSS 定位模组技术评审会", "meeting_date": "2026-07-10", "recorder_name": "周杰" },
+    { "meeting_id": "MTG5008", "name": "供应链交期与产能协调会", "meeting_date": "2026-07-09", "recorder_name": "刘洋" },
+    { "meeting_id": "MTG5009", "name": "重点客户季度商务复盘会", "meeting_date": "2026-07-03", "recorder_name": "李娜" },
+    { "meeting_id": "MTG5010", "name": "NB-IoT 表计方案联调会", "meeting_date": "2026-06-28", "recorder_name": "张伟" },
+    { "meeting_id": "MTG5011", "name": "天线匹配与射频优化专题会", "meeting_date": "2026-06-24", "recorder_name": "刘洋" },
+    { "meeting_id": "MTG5012", "name": "下半年产品路线图规划会", "meeting_date": "2026-06-20", "recorder_name": "王强" }
   ],
   "executors": [
     { "user_id": "U001", "name": "张伟", "dept_name": "无线模组产品部" },
@@ -13,6 +21,10 @@
     { "user_id": "U005", "name": "陈涛", "dept_name": "短距产品部" },
     { "user_id": "U006", "name": "刘洋", "dept_name": "天线产品部" },
     { "user_id": "U007", "name": "孙丽", "dept_name": "行业解决方案部" },
-    { "user_id": "U008", "name": "周杰", "dept_name": "定位产品部" }
+    { "user_id": "U008", "name": "周杰", "dept_name": "定位产品部" },
+    { "user_id": "U009", "name": "吴敏", "dept_name": "行业解决方案部" },
+    { "user_id": "U010", "name": "郑凯", "dept_name": "无线模组产品部" },
+    { "user_id": "U011", "name": "冯雪", "dept_name": "供应链管理部" },
+    { "user_id": "U012", "name": "许峰", "dept_name": "车载产品部" }
   ]
 }

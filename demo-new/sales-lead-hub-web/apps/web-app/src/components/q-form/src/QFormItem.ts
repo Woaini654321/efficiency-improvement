@@ -1,6 +1,6 @@
 import { defineComponent, computed, ref, resolveComponent as vueResolveComponent, h } from 'vue'
 import type { PropType } from 'vue'
-import type { FormSchema, FormLayout, FormMode, SetFormModel } from './types'
+import type { FormSchema, FormMode, SetFormModel } from './types'
 import { isFunction, resolveComponent } from './utils'
 
 export default defineComponent({
@@ -48,7 +48,7 @@ export default defineComponent({
 
       if (on) {
         for (const [event, handler] of Object.entries(on)) {
-          const emitKey = `on${event[0].toUpperCase()}${event.slice(1)}`
+          const emitKey = `on${event.charAt(0).toUpperCase()}${event.slice(1)}`
           resolvedProps[emitKey] = (...args: any[]) => {
             if (isFunction(handler)) handler(props.formModel, ...args)
             emit('form-event', {
@@ -128,7 +128,7 @@ export default defineComponent({
 
     function renderFieldContent() {
       const { schema, formModel, disabled, mode } = props
-      const { render, slot, component } = schema
+      const { render, slot } = schema
 
       if (isFunction(render)) {
         return h(

@@ -1,6 +1,8 @@
 import { request } from '@q-web-plugin/request'
 import AIRequestGuard from '@ai-request-guard/core'
 import { getCategoryListAdapter } from './categoryAdapter'
+import { mockRequest } from '../_shared/mock-switch'
+import mockData from './mocks/category.json'
 import type {
   CategoryPageParams,
   CategoryPageResult,
@@ -15,7 +17,10 @@ import type {
 export const getCategoryList = async (params: CategoryPageParams): Promise<CategoryPageResult> => {
   return (await AIRequestGuard({
     adapter: getCategoryListAdapter,
-    request: () => request.POST<CategoryPageResult>({ url: 'category/list' }, params)
+    request: mockRequest(
+      { records: mockData.records, total: mockData.total },
+      () => request.POST<CategoryPageResult>({ url: 'category/list' }, params)
+    )
   })) as CategoryPageResult
 }
 

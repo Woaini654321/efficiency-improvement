@@ -35,6 +35,9 @@ export interface OpportunityDTO {
   attachments: AttachmentDTO[]
   created_at: string
   published_at?: string
+  // 过期/临期治理冗余快照列（落 opportunities 单表）
+  expiry_date?: string | null
+  superseded_by?: string | null
 }
 
 // ============ ViewModel（前端视图类型，camelCase）============
@@ -57,6 +60,9 @@ export interface OpportunityItem {
   attachments: AttachmentItem[]
   createdAt: string
   publishedAt: string
+  // 过期日期与「已被替代」的新版本 id（空则未过期/无新版本）
+  expiryDate: string
+  supersededBy: string
 }
 
 // ============ 分页 ============

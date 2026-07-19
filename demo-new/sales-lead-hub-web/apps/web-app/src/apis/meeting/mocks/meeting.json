@@ -33,7 +33,7 @@
       "priority": "critical",
       "deadline": "2026-07-06 12:00:00",
       "assignee_names": ["周杰", "刘洋"],
-      "status": "done",
+      "status": "completed",
       "created_at": "2026-07-03 09:15:00"
     },
     {
@@ -81,7 +81,7 @@
       "priority": "urgent",
       "deadline": "2026-07-02 18:00:00",
       "assignee_names": ["郑浩", "吴敏"],
-      "status": "done",
+      "status": "completed",
       "created_at": "2026-06-25 09:00:00"
     },
     {
@@ -93,7 +93,7 @@
       "priority": "normal",
       "deadline": "2026-06-30 18:00:00",
       "assignee_names": ["孙丽"],
-      "status": "done",
+      "status": "completed",
       "created_at": "2026-06-22 13:40:00"
     },
     {

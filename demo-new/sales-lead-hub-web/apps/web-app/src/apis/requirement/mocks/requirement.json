@@ -11,12 +11,21 @@
       "publisher_dept_name": "华东销售一部",
       "category_names": ["Cat.1", "低功耗"],
       "visibility_type": "all",
+      "visibility_values": [],
       "invited_product_line_names": ["无线模组产品线", "低功耗产品线"],
+      "invited_product_lines": [
+        { "name": "无线模组产品线", "responded": true, "responder_count": 2 },
+        { "name": "低功耗产品线", "responded": true, "responder_count": 1 }
+      ],
       "sla_status": "responded",
       "escalation_level": "L0",
       "is_pinned": true,
+      "cover_url": "",
+      "deadline": "2026-07-06 18:00:00",
       "view_count": 486,
       "response_count": 3,
+      "like_count": 42,
+      "collect_count": 18,
       "adopted_response_id": "RSP30011",
       "responses": [
         {
@@ -25,7 +34,9 @@
           "responder_dept_name": "无线模组产品部",
           "content": "推荐 EG912U-GL，宽温 -40~85℃，PSM 待机 < 3uA，已在户外表计批量落地。附选型手册。",
           "is_adopted": true,
-          "created_at": "2026-07-02 10:20:00"
+          "created_at": "2026-07-02 10:20:00",
+          "product_line_name": "无线模组产品线",
+          "files": ["EG912U-GL选型手册.pdf", "户外表计功耗测试报告.xlsx"]
         },
         {
           "response_id": "RSP30012",
@@ -33,7 +44,9 @@
           "responder_dept_name": "低功耗产品部",
           "content": "可考虑 BC660K-GL（NB-IoT），若网络覆盖满足，功耗更优。",
           "is_adopted": false,
-          "created_at": "2026-07-02 14:05:00"
+          "created_at": "2026-07-02 14:05:00",
+          "product_line_name": "低功耗产品线",
+          "files": ["BC660K-GL规格书.pdf"]
         },
         {
           "response_id": "RSP30013",
@@ -41,7 +54,9 @@
           "responder_dept_name": "无线模组产品部",
           "content": "补充 EG915U-EU 欧洲频段版本，供出口项目参考。",
           "is_adopted": false,
-          "created_at": "2026-07-03 09:30:00"
+          "created_at": "2026-07-03 09:30:00",
+          "product_line_name": "无线模组产品线",
+          "files": []
         }
       ],
       "created_at": "2026-07-01 09:12:00"
@@ -57,12 +72,21 @@
       "publisher_dept_name": "车载行业部",
       "category_names": ["车载方案", "5G模组"],
       "visibility_type": "dept",
+      "visibility_values": ["华东大区", "车载行业部"],
       "invited_product_line_names": ["车载产品线", "天线产品线"],
+      "invited_product_lines": [
+        { "name": "车载产品线", "responded": true, "responder_count": 1 },
+        { "name": "天线产品线", "responded": true, "responder_count": 1 }
+      ],
       "sla_status": "warning",
       "escalation_level": "L1",
       "is_pinned": false,
+      "cover_url": "",
+      "deadline": "2026-07-20 18:00:00",
       "view_count": 312,
       "response_count": 2,
+      "like_count": 27,
+      "collect_count": 11,
       "adopted_response_id": null,
       "responses": [
         {
@@ -71,7 +95,9 @@
           "responder_dept_name": "车载产品部",
           "content": "AG59x 系列支持 5G + C-V2X，附参考设计与散热建议。",
           "is_adopted": false,
-          "created_at": "2026-07-10 11:00:00"
+          "created_at": "2026-07-10 11:00:00",
+          "product_line_name": "车载产品线",
+          "files": ["AG59x参考设计.pdf"]
         },
         {
           "response_id": "RSP30022",
@@ -79,7 +105,9 @@
           "responder_dept_name": "天线产品部",
           "content": "配套 5G Sub-6G + V2X 组合天线布局，附仿真报告。",
           "is_adopted": false,
-          "created_at": "2026-07-11 15:20:00"
+          "created_at": "2026-07-11 15:20:00",
+          "product_line_name": "天线产品线",
+          "files": ["天线布局仿真报告.pdf", "天线选型清单.xlsx"]
         }
       ],
       "created_at": "2026-07-08 14:30:00"
@@ -95,12 +123,18 @@
       "publisher_dept_name": "华北销售二部",
       "category_names": ["NB-IoT"],
       "visibility_type": "all",
+      "visibility_values": [],
       "invited_product_line_names": [],
+      "invited_product_lines": [],
       "sla_status": "normal",
       "escalation_level": "L0",
       "is_pinned": false,
+      "cover_url": "",
+      "deadline": "2026-07-25 18:00:00",
       "view_count": 98,
       "response_count": 0,
+      "like_count": 6,
+      "collect_count": 3,
       "adopted_response_id": null,
       "responses": [],
       "created_at": "2026-07-15 08:45:00"
@@ -116,12 +150,20 @@
       "publisher_dept_name": "华南销售一部",
       "category_names": ["Cat.1", "安全"],
       "visibility_type": "personnel",
+      "visibility_values": ["李明", "王芳"],
       "invited_product_line_names": ["无线模组产品线"],
+      "invited_product_lines": [
+        { "name": "无线模组产品线", "responded": true, "responder_count": 1 }
+      ],
       "sla_status": "responded",
       "escalation_level": "L0",
       "is_pinned": false,
+      "cover_url": "",
+      "deadline": "2026-07-01 18:00:00",
       "view_count": 205,
       "response_count": 1,
+      "like_count": 9,
+      "collect_count": 4,
       "adopted_response_id": null,
       "responses": [
         {
@@ -130,7 +172,9 @@
           "responder_dept_name": "无线模组产品部",
           "content": "EG915U 支持国密 SM 系列算法，可满足金融合规要求。",
           "is_adopted": false,
-          "created_at": "2026-06-28 16:00:00"
+          "created_at": "2026-06-28 16:00:00",
+          "product_line_name": "无线模组产品线",
+          "files": ["EG915U国密认证说明.pdf"]
         }
       ],
       "created_at": "2026-06-25 11:00:00"
@@ -146,12 +190,20 @@
       "publisher_dept_name": "华东销售二部",
       "category_names": ["5G模组", "RedCap"],
       "visibility_type": "all",
+      "visibility_values": [],
       "invited_product_line_names": ["无线模组产品线"],
+      "invited_product_lines": [
+        { "name": "无线模组产品线", "responded": true, "responder_count": 1 }
+      ],
       "sla_status": "overdue",
       "escalation_level": "L2",
       "is_pinned": true,
+      "cover_url": "",
+      "deadline": "2026-07-19 23:59:00",
       "view_count": 420,
       "response_count": 1,
+      "like_count": 33,
+      "collect_count": 15,
       "adopted_response_id": null,
       "responses": [
         {
@@ -160,7 +212,9 @@
           "responder_dept_name": "无线模组产品部",
           "content": "RG200U-CN 基于 RedCap，成本较完整 5G 下降约 30%，附对比表。",
           "is_adopted": false,
-          "created_at": "2026-07-14 09:10:00"
+          "created_at": "2026-07-14 09:10:00",
+          "product_line_name": "无线模组产品线",
+          "files": ["RedCap成本对比表.xlsx"]
         }
       ],
       "created_at": "2026-07-12 10:20:00"
@@ -176,12 +230,20 @@
       "publisher_dept_name": "华中销售部",
       "category_names": ["Cat.1"],
       "visibility_type": "dept",
+      "visibility_values": ["华中销售部"],
       "invited_product_line_names": ["无线模组产品线"],
+      "invited_product_lines": [
+        { "name": "无线模组产品线", "responded": false, "responder_count": 0 }
+      ],
       "sla_status": "warning",
       "escalation_level": "L1",
       "is_pinned": false,
+      "cover_url": "",
+      "deadline": "2026-07-22 18:00:00",
       "view_count": 156,
       "response_count": 0,
+      "like_count": 12,
+      "collect_count": 7,
       "adopted_response_id": null,
       "responses": [],
       "created_at": "2026-07-14 13:40:00"
@@ -197,12 +259,20 @@
       "publisher_dept_name": "华东销售一部",
       "category_names": ["GNSS", "高精度定位"],
       "visibility_type": "all",
+      "visibility_values": [],
       "invited_product_line_names": ["定位产品线"],
+      "invited_product_lines": [
+        { "name": "定位产品线", "responded": true, "responder_count": 2 }
+      ],
       "sla_status": "responded",
       "escalation_level": "L0",
       "is_pinned": false,
+      "cover_url": "",
+      "deadline": "2026-07-10 18:00:00",
       "view_count": 278,
       "response_count": 2,
+      "like_count": 21,
+      "collect_count": 9,
       "adopted_response_id": "RSP30071",
       "responses": [
         {
@@ -211,7 +281,9 @@
           "responder_dept_name": "定位产品部",
           "content": "LC29H 双频 RTK，收敛快、体积小，已在无人机批量验证，推荐。",
           "is_adopted": true,
-          "created_at": "2026-07-05 10:00:00"
+          "created_at": "2026-07-05 10:00:00",
+          "product_line_name": "定位产品线",
+          "files": ["LC29H规格书.pdf", "RTK收敛测试报告.pdf"]
         },
         {
           "response_id": "RSP30072",
@@ -219,7 +291,9 @@
           "responder_dept_name": "定位产品部",
           "content": "如需更高动态性能可评估 LG69T，供参考。",
           "is_adopted": false,
-          "created_at": "2026-07-05 14:30:00"
+          "created_at": "2026-07-05 14:30:00",
+          "product_line_name": "定位产品线",
+          "files": []
         }
       ],
       "created_at": "2026-07-03 09:00:00"
@@ -235,12 +309,20 @@
       "publisher_dept_name": "华南销售二部",
       "category_names": ["Wi-Fi", "短距"],
       "visibility_type": "all",
+      "visibility_values": [],
       "invited_product_line_names": ["短距产品线"],
+      "invited_product_lines": [
+        { "name": "短距产品线", "responded": true, "responder_count": 1 }
+      ],
       "sla_status": "normal",
       "escalation_level": "L0",
       "is_pinned": false,
+      "cover_url": "",
+      "deadline": "2026-07-28 18:00:00",
       "view_count": 134,
       "response_count": 1,
+      "like_count": 14,
+      "collect_count": 6,
       "adopted_response_id": null,
       "responses": [
         {
@@ -249,7 +331,9 @@
           "responder_dept_name": "短距产品部",
           "content": "FCU630 支持 Wi-Fi 6 + BLE 5.2 双频并发，附方案文档。",
           "is_adopted": false,
-          "created_at": "2026-07-13 11:20:00"
+          "created_at": "2026-07-13 11:20:00",
+          "product_line_name": "短距产品线",
+          "files": ["FCU630方案文档.pdf"]
         }
       ],
       "created_at": "2026-07-11 16:00:00"
@@ -265,12 +349,21 @@
       "publisher_dept_name": "华北销售一部",
       "category_names": ["LoRa", "智慧城市"],
       "visibility_type": "all",
+      "visibility_values": [],
       "invited_product_line_names": ["短距产品线", "行业方案产品线"],
+      "invited_product_lines": [
+        { "name": "短距产品线", "responded": false, "responder_count": 0 },
+        { "name": "行业方案产品线", "responded": false, "responder_count": 0 }
+      ],
       "sla_status": "overdue",
       "escalation_level": "L3",
       "is_pinned": false,
+      "cover_url": "",
+      "deadline": "2026-07-18 18:00:00",
       "view_count": 189,
       "response_count": 0,
+      "like_count": 18,
+      "collect_count": 8,
       "adopted_response_id": null,
       "responses": [],
       "created_at": "2026-07-13 10:30:00"
@@ -286,12 +379,20 @@
       "publisher_dept_name": "华东销售二部",
       "category_names": ["5G模组"],
       "visibility_type": "dept",
+      "visibility_values": ["华东销售二部"],
       "invited_product_line_names": ["无线模组产品线"],
+      "invited_product_lines": [
+        { "name": "无线模组产品线", "responded": true, "responder_count": 1 }
+      ],
       "sla_status": "responded",
       "escalation_level": "L0",
       "is_pinned": false,
+      "cover_url": "",
+      "deadline": "2026-06-30 18:00:00",
       "view_count": 143,
       "response_count": 1,
+      "like_count": 8,
+      "collect_count": 3,
       "adopted_response_id": null,
       "responses": [
         {
@@ -300,7 +401,9 @@
           "responder_dept_name": "无线模组产品部",
           "content": "建议加导热垫 + 金属屏蔽罩，附整机散热参考设计。",
           "is_adopted": false,
-          "created_at": "2026-06-20 15:20:00"
+          "created_at": "2026-06-20 15:20:00",
+          "product_line_name": "无线模组产品线",
+          "files": ["整机散热参考设计.pdf"]
         }
       ],
       "created_at": "2026-06-18 15:20:00"
@@ -316,12 +419,18 @@
       "publisher_dept_name": "华南销售一部",
       "category_names": [],
       "visibility_type": "personnel",
+      "visibility_values": ["林芳", "陈刚"],
       "invited_product_line_names": [],
+      "invited_product_lines": [],
       "sla_status": "normal",
       "escalation_level": "L0",
       "is_pinned": false,
+      "cover_url": "",
+      "deadline": "2026-07-30 18:00:00",
       "view_count": 67,
       "response_count": 0,
+      "like_count": 4,
+      "collect_count": 2,
       "adopted_response_id": null,
       "responses": [],
       "created_at": "2026-07-16 10:30:00"
@@ -337,12 +446,20 @@
       "publisher_dept_name": "车载行业部",
       "category_names": ["车载方案"],
       "visibility_type": "all",
+      "visibility_values": [],
       "invited_product_line_names": ["车载产品线"],
+      "invited_product_lines": [
+        { "name": "车载产品线", "responded": false, "responder_count": 0 }
+      ],
       "sla_status": "normal",
       "escalation_level": "L0",
       "is_pinned": false,
+      "cover_url": "",
+      "deadline": "2026-08-01 18:00:00",
       "view_count": 52,
       "response_count": 0,
+      "like_count": 3,
+      "collect_count": 1,
       "adopted_response_id": null,
       "responses": [],
       "created_at": "2026-07-17 17:00:00"

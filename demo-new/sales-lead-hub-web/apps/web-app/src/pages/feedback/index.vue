@@ -17,10 +17,12 @@
 
     <!-- 2 列吐槽卡网格 -->
     <a-row :gutter="16">
-      <a-col v-for="(item, idx) in sortedList" :key="item.id" :xs="24" :md="12">
+      <a-col v-for="item in sortedList" :key="item.id" :xs="24" :md="12">
         <a-card size="small" class="mb-4 fb-card">
           <div class="flex items-start gap-3">
-            <span class="emoji">{{ emojiOf(idx) }}</span>
+            <span class="fb-avatar" :style="{ background: `linear-gradient(135deg, ${item.color}, #ff85c0)` }">
+              {{ item.emoji }}
+            </span>
             <div class="min-w-0 flex-1">
               <div class="font-semibold mb-1">{{ item.title }}</div>
               <div class="text-[hsl(var(--text))] mb-2 fb-content">{{ item.content }}</div>
@@ -89,9 +91,6 @@ definePage({
 
 const { t } = useI18n()
 
-const EMOJIS = ['😤', '🙄', '😭', '🤔', '😮‍💨', '🥲', '😅', '🫠', '🤯', '😶', '🙃', '😔', '👀']
-const emojiOf = (idx: number) => EMOJIS[idx % EMOJIS.length]
-
 const list = ref<FeedbackItem[]>([])
 const liked = ref<Set<string>>(new Set())
 
@@ -149,7 +148,9 @@ async function handleSubmit() {
       content: formModel.content,
       anonName: t('feedback.anonSelf'),
       likeCount: 0,
-      createdAt: new Date().toISOString().slice(0, 19).replace('T', ' ')
+      createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      emoji: '💬',
+      color: '#eb2f96'
     })
     message.success(t('feedback.postSuccess'))
     modalOpen.value = false
@@ -175,9 +176,15 @@ onMounted(async () => {
 .fb-card {
   border-left: 3px solid #ffadd2;
 }
-.emoji {
-  font-size: 28px;
-  line-height: 1.2;
+.fb-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  line-height: 1;
   flex-shrink: 0;
 }
 .fb-content {

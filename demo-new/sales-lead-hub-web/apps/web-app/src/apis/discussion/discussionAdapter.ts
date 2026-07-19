@@ -1,7 +1,7 @@
 import AIRequestGuard from '@ai-request-guard/core'
 import type {
   CommentDTO,
-  CommentItem,
+  CommentNode,
   DiscussionDTO,
   DiscussionItem,
   DiscussionPageResult
@@ -9,7 +9,7 @@ import type {
 import mockData from './mocks/discussion.json'
 
 // 评论树递归映射
-const mapComments = (list: CommentDTO[] | undefined): CommentItem[] =>
+const mapComments = (list: CommentDTO[] | undefined): CommentNode[] =>
   (list ?? []).map((c) => ({
     id: String(c.comment_id),
     authorName: c.author_name ?? '',
@@ -29,6 +29,7 @@ const toItem = (dto: DiscussionDTO): DiscussionItem => ({
   viewCount: dto.view_count ?? 0,
   isHot: dto.is_hot ?? false,
   createdAt: dto.created_at ?? '',
+  tags: dto.tags ?? [],
   comments: mapComments(dto.comments)
 })
 

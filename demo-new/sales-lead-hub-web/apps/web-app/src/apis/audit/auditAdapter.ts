@@ -10,7 +10,13 @@ const toItem = (dto: ContentAuditDTO): AuditItem => ({
   publisherName: dto.publisher_name ?? '',
   status: dto.status ?? '',
   isPinned: dto.is_pinned ?? false,
-  publishedAt: dto.published_at ?? ''
+  publishedAt: dto.published_at ?? '',
+  sortNo: dto.sort_no ?? 0,
+  urgency: dto.urgency ?? 'normal',
+  industry: dto.industry ?? '',
+  tags: dto.tags ?? [],
+  categoryPath: dto.category_path ?? [],
+  description: dto.description ?? ''
 })
 
 // ============ 分页列表 adapter ============

@@ -6,8 +6,8 @@ export interface AnnounceDTO {
   announcement_id: string
   title: string
   type: string // notice | policy | activity | other
-  status: string // draft | scheduled | published | withdrawn
-  priority: string // normal | important
+  status: string // draft | published | expired
+  priority: string // high | normal
   is_pinned: boolean
   publisher_name: string
   view_count: number

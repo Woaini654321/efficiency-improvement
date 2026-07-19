@@ -1,7 +1,9 @@
 import { request } from '@q-web-plugin/request'
 import AIRequestGuard from '@ai-request-guard/core'
-import { getSlaListAdapter, getSlaStatsAdapter } from './slaAdapter'
-import type { SlaPageParams, SlaPageResult, SlaStats, SlaUrgeParams } from './types'
+import { getSlaListAdapter, getSlaStatsAdapter, getSlaMetaAdapter } from './slaAdapter'
+import { mockRequest } from '../_shared/mock-switch'
+import mockData from './mocks/sla.json'
+import type { SlaPageParams, SlaPageResult, SlaStats, SlaUrgeParams, SlaMeta } from './types'
 
 // ============ 查询类（AIRequestGuard 包裹）============
 
@@ -9,7 +11,10 @@ import type { SlaPageParams, SlaPageResult, SlaStats, SlaUrgeParams } from './ty
 export const getSlaList = async (params: SlaPageParams): Promise<SlaPageResult> => {
   return (await AIRequestGuard({
     adapter: getSlaListAdapter,
-    request: () => request.POST<SlaPageResult>({ url: 'operation/sla/page' }, params)
+    request: mockRequest(
+      { records: mockData.records, total: mockData.total },
+      () => request.POST<SlaPageResult>({ url: 'operation/sla/page' }, params)
+    )
   })) as SlaPageResult
 }
 
@@ -17,8 +22,22 @@ export const getSlaList = async (params: SlaPageParams): Promise<SlaPageResult> 
 export const getSlaStats = async (): Promise<SlaStats> => {
   return (await AIRequestGuard({
     adapter: getSlaStatsAdapter,
-    request: () => request.GET<SlaStats>({ url: 'operation/sla/stats' })
+    request: mockRequest(
+      mockData.stats,
+      () => request.GET<SlaStats>({ url: 'operation/sla/stats' })
+    )
   })) as SlaStats
+}
+
+/** 查询催办元数据（产品线负责人 / 邮件通知人候选） */
+export const getSlaMeta = async (): Promise<SlaMeta> => {
+  return (await AIRequestGuard({
+    adapter: getSlaMetaAdapter,
+    request: mockRequest(
+      mockData.meta,
+      () => request.GET<SlaMeta>({ url: 'operation/sla/meta' })
+    )
+  })) as SlaMeta
 }
 
 // ============ 写操作（直接 request）============

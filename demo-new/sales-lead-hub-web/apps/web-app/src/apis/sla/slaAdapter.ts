@@ -1,5 +1,8 @@
 import AIRequestGuard from '@ai-request-guard/core'
-import type { SlaRequestDTO, SlaRequestItem, SlaPageResult, SlaStatsDTO, SlaStats } from './types'
+import type {
+  SlaRequestDTO, SlaRequestItem, SlaPageResult, SlaStatsDTO, SlaStats,
+  SlaMetaDTO, SlaMeta
+} from './types'
 import mockData from './mocks/sla.json'
 
 const toItem = (dto: SlaRequestDTO): SlaRequestItem => ({
@@ -12,7 +15,12 @@ const toItem = (dto: SlaRequestDTO): SlaRequestItem => ({
   remainingText: dto.remaining_text ?? '',
   responseCount: dto.response_count ?? 0,
   escalationLevel: dto.escalation_level ?? '',
-  publisherName: dto.publisher_name ?? ''
+  publisherName: dto.publisher_name ?? '',
+  escalationTimeline: (dto.escalation_timeline ?? []).map((e) => ({
+    time: e.time ?? '',
+    desc: e.desc ?? '',
+    notifyTo: e.notify_to ?? ''
+  }))
 })
 
 // ============ 分页列表 adapter ============
@@ -36,6 +44,17 @@ export const getSlaStatsAdapter = (raw: unknown): SlaStats => {
   }
 }
 
+// ============ 元数据 adapter（产品线负责人 / 邮件通知人）============
+export const getSlaMetaAdapter = (raw: unknown): SlaMeta => {
+  const dto = (raw ?? {}) as SlaMetaDTO
+  return {
+    productLeads: (dto.product_leads ?? []).map((l) => ({
+      id: l.id ?? '', name: l.name ?? '', product: l.product ?? '', dept: l.dept ?? ''
+    })),
+    emailContacts: (dto.email_contacts ?? []).map((c) => ({ label: c.label ?? '', value: c.value ?? '' }))
+  }
+}
+
 // ============ register ============
 AIRequestGuard.register({
   viewSchema: () => getSlaListAdapter({ records: mockData.records, total: mockData.total }),
@@ -45,4 +64,9 @@ AIRequestGuard.register({
 AIRequestGuard.register({
   viewSchema: () => getSlaStatsAdapter(mockData.stats),
   adapter: getSlaStatsAdapter
+})
+
+AIRequestGuard.register({
+  viewSchema: () => getSlaMetaAdapter(mockData.meta),
+  adapter: getSlaMetaAdapter
 })

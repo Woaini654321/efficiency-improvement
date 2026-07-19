@@ -101,7 +101,7 @@ export default defineComponent({
       { deep: true }
     )
 
-    if (props.autoLoad && !props.showSearchActions && props.queryApi) {
+    if (props.autoLoad && !props.showSearchActions && props.queryApi != null) {
       onMounted(() => {
         nextTick(() => {
           tableRef.value?.commitProxy('query')
@@ -333,7 +333,7 @@ export default defineComponent({
         )
       })
 
-      if (props.selectable && props.onBatchDelete) {
+      if (props.selectable && props.onBatchDelete != null) {
         toolbarButtons.push(
           h(
             AButton,
@@ -389,7 +389,7 @@ export default defineComponent({
       const pageSizeOptions = (
         props.paginationConfig?.pageSizes ?? [30, 50, 100, 200]
       ).map(String)
-      const pagination = props.queryApi
+      const pagination = props.queryApi != null
         ? h(
             'div',
             {

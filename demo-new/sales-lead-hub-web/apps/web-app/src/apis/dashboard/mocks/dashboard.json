@@ -16,7 +16,14 @@
     { "content_id": "OPP1001", "title": "5G RedCap 模组 RG200U 产品选型方案", "type": "solution", "view_count": 1280 },
     { "content_id": "OPP1003", "title": "车载 4G+C-V2X 通信模组 AG59x 产品信息", "type": "product_info", "view_count": 1120 },
     { "content_id": "OPP1002", "title": "Cat.1 bis 模组在共享设备中的成功案例", "type": "success_case", "view_count": 940 },
-    { "content_id": "OPP1007", "title": "智慧城市 LoRa 网关部署成功案例", "type": "success_case", "view_count": 655 }
+    { "content_id": "OPP1007", "title": "智慧城市 LoRa 网关部署成功案例", "type": "success_case", "view_count": 655 },
+    { "content_id": "OPP1010", "title": "5G CPE 家宽 FWA 模组 RM520N 选型指南", "type": "solution", "view_count": 612 },
+    { "content_id": "OPP1005", "title": "EG25-G LTE Cat.4 全网通模组产品信息", "type": "product_info", "view_count": 588 },
+    { "content_id": "OPP1012", "title": "储能 BMS 远程监控通信方案", "type": "solution", "view_count": 520 },
+    { "content_id": "OPP1009", "title": "智能POS Cat.1 模组银联入网案例", "type": "success_case", "view_count": 476 },
+    { "content_id": "OPP1004", "title": "NB-IoT 模组 BC260Y 多省表计适配信息", "type": "product_info", "view_count": 432 },
+    { "content_id": "OPP1011", "title": "无人机图传 5G 低时延模组方案", "type": "solution", "view_count": 398 },
+    { "content_id": "OPP1006", "title": "BG95-M3 智能穿戴海外部署成功案例", "type": "success_case", "view_count": 356 }
   ],
   "category_dist": [
     { "name": "IoT模组", "count": 128, "percent": 34.2 },
@@ -31,7 +38,41 @@
     { "page": "提需求", "count": 3260, "percent": 68 },
     { "page": "方案详情", "count": 2940, "percent": 61 },
     { "page": "通知中心", "count": 1680, "percent": 35 },
-    { "page": "情报中心", "count": 1120, "percent": 23 }
+    { "page": "情报中心", "count": 1120, "percent": 23 },
+    { "page": "工具助手", "count": 980, "percent": 20 },
+    { "page": "需求详情", "count": 860, "percent": 18 },
+    { "page": "我的任务", "count": 740, "percent": 15 },
+    { "page": "会议任务", "count": 620, "percent": 13 },
+    { "page": "批量发布", "count": 480, "percent": 10 },
+    { "page": "运营后台", "count": 360, "percent": 7 },
+    { "page": "个人中心", "count": 240, "percent": 5 }
   ],
+  "week_publish_trend": {
+    "last7d": [3, 5, 4, 6, 5, 7, 7],
+    "last4w": [20, 15, 18, 15],
+    "last12w": [18, 22, 19, 25, 17, 21, 16, 23, 20, 15, 18, 15],
+    "last6m": [12, 15, 18, 20, 22, 19, 25, 17, 21, 16, 23, 20, 15, 18, 15, 22, 19, 14, 20, 17, 23, 18, 21, 16, 19, 15]
+  },
+  "response_rate_trend": {
+    "last7d": [74, 75, 73, 76, 77, 78, 78],
+    "last4w": [76, 73, 75, 78],
+    "last12w": [65, 68, 70, 72, 69, 73, 71, 74, 76, 73, 75, 78],
+    "last6m": [55, 58, 60, 62, 65, 63, 68, 70, 72, 69, 73, 71, 74, 76, 73, 75, 78, 72, 74, 70, 76, 73, 77, 75, 78, 78]
+  },
+  "opp_category_pie": [
+    { "name": "5G模组", "value": 32, "color": "#1677ff" },
+    { "name": "4G模组", "value": 22, "color": "#52c41a" },
+    { "name": "WiFi模组", "value": 18, "color": "#faad14" },
+    { "name": "NB-IoT", "value": 15, "color": "#722ed1" },
+    { "name": "其他", "value": 13, "color": "#d9d9d9" }
+  ],
+  "demand_category_pie": [
+    { "name": "硬件采购", "value": 38, "color": "#1677ff" },
+    { "name": "方案定制", "value": 26, "color": "#52c41a" },
+    { "name": "技术支持", "value": 20, "color": "#faad14" },
+    { "name": "样品申请", "value": 10, "color": "#722ed1" },
+    { "name": "其他", "value": 6, "color": "#d9d9d9" }
+  ],
+  "hourly_active": [1, 0, 0, 0, 1, 2, 5, 12, 28, 42, 48, 45, 30, 32, 38, 44, 50, 40, 28, 22, 18, 12, 8, 3],
   "updated_at": "2026-07-18 09:30:00"
 }

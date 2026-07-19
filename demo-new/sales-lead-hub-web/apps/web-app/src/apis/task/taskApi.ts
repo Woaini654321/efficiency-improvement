@@ -1,6 +1,8 @@
 import { request } from '@q-web-plugin/request'
 import AIRequestGuard from '@ai-request-guard/core'
 import { getTaskListAdapter } from './taskAdapter'
+import { mockRequest } from '../_shared/mock-switch'
+import mockData from './mocks/task.json'
 import type { TaskPageParams, TaskPageResult, TaskTransferParams } from './types'
 
 // ============ 查询类（AIRequestGuard 包裹）============
@@ -9,7 +11,10 @@ import type { TaskPageParams, TaskPageResult, TaskTransferParams } from './types
 export const getTaskList = async (params: TaskPageParams): Promise<TaskPageResult> => {
   return (await AIRequestGuard({
     adapter: getTaskListAdapter,
-    request: () => request.POST<TaskPageResult>({ url: 'task/page' }, params)
+    request: mockRequest(
+      { records: mockData.records, total: mockData.total },
+      () => request.POST<TaskPageResult>({ url: 'task/page' }, params)
+    )
   })) as TaskPageResult
 }
 

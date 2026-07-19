@@ -36,7 +36,9 @@ const toItem = (dto: OpportunityDTO): OpportunityItem => ({
   commentCount: dto.comment_count ?? 0,
   attachments: mapAttachments(dto.attachments),
   createdAt: dto.created_at ?? '',
-  publishedAt: dto.published_at ?? ''
+  publishedAt: dto.published_at ?? '',
+  expiryDate: dto.expiry_date ?? '',
+  supersededBy: dto.superseded_by ?? ''
 })
 
 // ============ 分页列表 adapter ============

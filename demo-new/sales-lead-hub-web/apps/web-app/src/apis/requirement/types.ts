@@ -9,6 +9,8 @@ export interface RequirementResponseDTO {
   content: string
   is_adopted: boolean
   created_at: string
+  product_line_name?: string
+  files?: string[]
 }
 export interface RequirementResponseItem {
   id: string
@@ -17,6 +19,20 @@ export interface RequirementResponseItem {
   content: string
   isAdopted: boolean
   createdAt: string
+  productLineName: string
+  files: string[]
+}
+
+// ============ 邀请产品线（含响应进度）============
+export interface InvitedProductLineDTO {
+  name: string
+  responded: boolean
+  responder_count: number
+}
+export interface InvitedProductLineItem {
+  name: string
+  responded: boolean
+  responderCount: number
 }
 
 // ============ DTO（后端原始类型，snake_case）============
@@ -33,12 +49,18 @@ export interface RequirementDTO {
   publisher_dept_name: string
   category_names: string[]
   visibility_type: string // all | dept | personnel
+  visibility_values?: string[]
   invited_product_line_names: string[]
+  invited_product_lines?: InvitedProductLineDTO[]
   sla_status: string // normal | warning | overdue | responded
   escalation_level: string // L0 | L1 | L2 | L3
   is_pinned: boolean
+  cover_url?: string
+  deadline?: string
   view_count: number
   response_count: number
+  like_count?: number
+  collect_count?: number
   adopted_response_id: string | null
   responses?: RequirementResponseDTO[]
   created_at: string
@@ -56,12 +78,18 @@ export interface RequirementItem {
   publisherDeptName: string
   categoryNames: string[]
   visibilityType: string
+  visibilityValues: string[]
   invitedProductLineNames: string[]
+  invitedProductLines: InvitedProductLineItem[]
   slaStatus: string
   escalationLevel: string
   isPinned: boolean
+  coverUrl: string
+  deadline: string
   viewCount: number
   responseCount: number
+  likeCount: number
+  collectCount: number
   adoptedResponseId: string
   responses: RequirementResponseItem[]
   createdAt: string

@@ -1,6 +1,8 @@
 import { request } from '@q-web-plugin/request'
 import AIRequestGuard from '@ai-request-guard/core'
 import { getFeedbackListAdapter } from './feedbackAdapter'
+import { mockRequest } from '../_shared/mock-switch'
+import mockData from './mocks/feedback.json'
 import type { FeedbackCreateParams, FeedbackListResult } from './types'
 
 // ============ 查询类（AIRequestGuard 包裹）============
@@ -9,7 +11,10 @@ import type { FeedbackCreateParams, FeedbackListResult } from './types'
 export const getFeedbackList = async (): Promise<FeedbackListResult> => {
   return (await AIRequestGuard({
     adapter: getFeedbackListAdapter,
-    request: () => request.GET<FeedbackListResult>({ url: 'feedback/list' })
+    request: mockRequest(
+      { records: mockData.records },
+      () => request.GET<FeedbackListResult>({ url: 'feedback/list' })
+    )
   })) as FeedbackListResult
 }
 

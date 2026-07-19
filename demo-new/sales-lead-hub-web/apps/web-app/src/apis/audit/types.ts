@@ -10,6 +10,12 @@ export interface ContentAuditDTO {
   status: string // published | archived | pending | collecting | adopted | closed
   is_pinned: boolean
   published_at?: string
+  sort_no: number
+  urgency: string // normal | urgent | critical
+  industry?: string
+  tags?: string[]
+  category_path?: string[][]
+  description?: string
 }
 
 // ============ ViewModel（前端视图类型，camelCase）============
@@ -21,6 +27,12 @@ export interface AuditItem {
   status: string
   isPinned: boolean
   publishedAt: string
+  sortNo: number
+  urgency: string
+  industry: string
+  tags: string[]
+  categoryPath: string[][]
+  description: string
 }
 
 // ============ 分页 ============

@@ -6,6 +6,7 @@ export interface ToolbarButton {
   danger?: boolean
   disabled?: boolean | (() => boolean)
   icon?: string
+  iconRender?: () => any
   onClick?: () => void
   permission?: string
 }

@@ -9,7 +9,9 @@ const toItem = (dto: FeedbackDTO): FeedbackItem => ({
   content: dto.content ?? '',
   anonName: dto.anon_name ?? '',
   likeCount: dto.like_count ?? 0,
-  createdAt: dto.created_at ?? ''
+  createdAt: dto.created_at ?? '',
+  emoji: dto.emoji ?? '😐',
+  color: dto.color ?? '#eb2f96'
 })
 
 // ============ 列表 adapter ============

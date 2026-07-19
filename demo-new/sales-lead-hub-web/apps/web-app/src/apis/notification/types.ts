@@ -37,8 +37,8 @@ export interface AnnouncementDTO {
   type: string // notice | policy | activity | other
   publisher_name: string
   is_pinned: boolean
-  priority: string // normal | important
-  status: string // draft | scheduled | published | withdrawn
+  priority: string // high | normal
+  status: string // draft | published | expired
   view_count: number
   published_at?: string
 }

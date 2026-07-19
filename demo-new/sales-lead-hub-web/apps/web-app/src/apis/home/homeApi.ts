@@ -1,6 +1,8 @@
 import { request } from '@q-web-plugin/request'
 import AIRequestGuard from '@ai-request-guard/core'
 import { getHomeDashboardAdapter } from './homeAdapter'
+import { mockRequest } from '../_shared/mock-switch'
+import mockData from './mocks/home.json'
 import type { HomeDashboard } from './types'
 
 // ============ 查询类（AIRequestGuard 包裹）============
@@ -9,6 +11,9 @@ import type { HomeDashboard } from './types'
 export const getHomeDashboard = async (): Promise<HomeDashboard> => {
   return (await AIRequestGuard({
     adapter: getHomeDashboardAdapter,
-    request: () => request.GET<HomeDashboard>({ url: 'home/dashboard' })
+    request: mockRequest(
+      mockData,
+      () => request.GET<HomeDashboard>({ url: 'home/dashboard' })
+    )
   })) as HomeDashboard
 }

@@ -8,7 +8,7 @@
       <section class="flex items-center flex-1 overflow-hidden pr-4">
         <img class="w-6 h-6 mr-[6px] flex-shrink-0" :src="getFileIconPath(file.name)" alt="">
         <span class="flex-1 truncate" :title="file.name">{{ file.name }}</span>
-        <span v-if="!simple" class="px-2 ml-[6px] rounded-full text-xs text-primary bg-primary/10">{{ formatFileSize(file.size || file.fileSize) }}</span>
+        <span v-if="!simple" class="px-2 ml-[6px] rounded-full text-xs text-primary bg-primary/10">{{ formatFileSize(file.size || file.fileSize || 0) }}</span>
       </section>
       <section v-if="file.status !== 'uploading'" class="flex-shrink-0 file-action flex items-center">
         <template v-if="isImg(file.name)">
@@ -121,7 +121,8 @@ function getFileIconPath(fileName: string) {
 }
 
 function handleRemove(index: number) {
-  emit('remove', props.fileList![index])
+  const item = props.fileList?.[index]
+  if (item) emit('remove', item)
 }
 
 const previewImgUrl = ref('')

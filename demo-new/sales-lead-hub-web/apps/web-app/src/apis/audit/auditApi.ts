@@ -1,6 +1,8 @@
 import { request } from '@q-web-plugin/request'
 import AIRequestGuard from '@ai-request-guard/core'
 import { getAuditListAdapter } from './auditAdapter'
+import { mockRequest } from '../_shared/mock-switch'
+import mockData from './mocks/audit.json'
 import type { AuditPageParams, AuditPageResult, AuditStatusParams, AuditPinParams } from './types'
 
 // ============ 查询类（AIRequestGuard 包裹）============
@@ -9,7 +11,10 @@ import type { AuditPageParams, AuditPageResult, AuditStatusParams, AuditPinParam
 export const getAuditList = async (params: AuditPageParams): Promise<AuditPageResult> => {
   return (await AIRequestGuard({
     adapter: getAuditListAdapter,
-    request: () => request.POST<AuditPageResult>({ url: 'audit/page' }, params)
+    request: mockRequest(
+      { records: mockData.records, total: mockData.total },
+      () => request.POST<AuditPageResult>({ url: 'audit/page' }, params)
+    )
   })) as AuditPageResult
 }
 
