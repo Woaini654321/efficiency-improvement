@@ -1,0 +1,176 @@
+<!DOCTYPE html><html><head>
+      <title>用 Claude Code 做契约收口与数据库从 0→1 · 方法论复盘</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+      code[class*=language-],pre[class*=language-]{color:#333;background:0 0;font-family:Consolas,"Liberation Mono",Menlo,Courier,monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.4;-moz-tab-size:8;-o-tab-size:8;tab-size:8;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:.8em;overflow:auto;border-radius:3px;background:#f5f5f5}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal;background:#f5f5f5}html body{font-family:'Helvetica Neue',Helvetica,'Segoe UI',Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em;border-bottom:1px solid #eaecef}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em;border-bottom:1px solid #eaecef}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body strong{color:#000}html body del{color:#5c5c5c}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ol,html body>ul{margin-bottom:16px}html body ol,html body ul{padding-left:2em}html body li{margin-bottom:0}html body li>p{margin-top:0;margin-bottom:0}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:700;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em .4em}html body pre>code{padding:0;margin:0;word-break:normal;white-space:pre;background:0 0;border:0}html body .highlight pre,html body pre{padding:1em;overflow:auto;line-height:1.45;border:1px solid #eaecef;border-radius:3px;background-color:#f6f8fa}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0;color:#24292e;font-size:.85em}html body blockquote,html body dl,html body ol,html body p,html body pre,html body ul{margin-top:0;margin-bottom:16px}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview ul{list-style:disc}.markdown-preview ul ul{list-style:circle}.markdown-preview ol{list-style:decimal}html body[for=html-export]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0;min-height:100vh}@media screen and (min-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{font-size:14px!important;padding:1em}}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}
+      </style>
+    </head>
+    <body for="html-export">
+      <div class="crossnote markdown-preview">
+      <div>
+<h1>用 Claude Code 做契约收口与数据库从 0→1（框架黑盒下的建库落地）· 方法论复盘</h1>
+<blockquote>
+<p>一次真实会话的复盘：<strong>在"前端高保真已交付、黑盒缺陷已排障"之后，把项目继续往下推——先从被压缩的会话里恢复丢失的任务定义续跑；再把跨表分裂的枚举/SSOT/PRD 明文修正在前端一次性"收口"，为建库扫雷；然后从 0→1 落数据库——选型、按 PRD ER 写 DDL、反编译框架 starter 定审计/主键/逻辑删除约定、种子数据、MyBatis-Plus 实体与配置；最后用"架构师 + 后端工程师"双角色评审→取共识→修复→复验编译。</strong><br>
+载体仍是「销售商机互助平台」（Quectel-code 企业框架 + QMonoX 前端 + Spring Boot 2.7 + MyBatis-Plus + UAA SSO）。本文是 0→1 系列的<strong>第六篇</strong>，与《AI 全程搭建 0→1 方法论》《Quectel-code AI 开发正确姿势》《用 Claude Code 做 PRD 评审与产品文档方法论》《用 Claude Code 打造项目 AI 配置三件套方法论》《用 Claude Code 排障黑盒缺陷与评审需求还原度方法论》配套——<strong>前五篇讲"做出来、验证对、修好环境"，这一篇讲"把前端契约收口干净，再从零把数据层稳稳建起来"</strong>，让整条 0→1 链路不断档。</p>
+</blockquote>
+<hr>
+<h2>一、结论先行（TL;DR）</h2>
+<p><strong>从"页面能跑"到"库能建"，中间横着一道最贵的坎：契约不收口就建库，等于给自己埋返工。而建库本身在企业黑盒框架下，最大的风险是"按开源惯例猜框架约定"。</strong></p>
+<ul>
+<li>🧭 <strong>续跑先恢复任务定义，别猜</strong>：新窗口只知道"继续 A+C"，可 A/C 的确切含义在被压缩的会话里丢了。不臆断——<strong>从会话记录（transcript）里把当时用户的选择抠回来</strong>，锁死 A=契约收口、C=PRD 明文修正，再动手。</li>
+<li>🧹 <strong>前端先收口，再建库（扫雷）</strong>：枚举跨表分裂（公告 <code>expired</code> vs 基线 <code>archived</code>）、SSOT 多副本（分类/产品线字典分叉）、PRD 明文点未落地（残留 <code>deadline</code>）——<strong>这些在前端一次对齐，后端建表直接照字段落库，避免"建完表再改字段"的雪崩。</strong></li>
+<li>🔬 <strong>框架约定靠证据，不靠经验</strong>：审计列名、主键类型、逻辑删除写法，不拍脑袋——<strong>反编译 starter 字节码</strong>看它到底填哪几个字段、<code>createBy</code> 填的是不是 <code>Long</code>；这连锁定死"主键 BIGINT + 前端 Long→String"。这与上一篇"最小复现钉黑盒"是同一硬核。</li>
+<li>🧑‍⚖️ <strong>双角色评审→共识→修复→知道何时停</strong>：架构师看 ER 对齐/范式，后端工程师看注解/类型；两方 PASS 后只修<strong>真结构问题</strong>，把结论分成"改结构 / 写入纪律 / 运行时自证"三层；当剩余风险只能运行时验证时，<strong>不再空转评审</strong>。</li>
+</ul>
+<blockquote>
+<p>一句话方法论：<strong>契约在最上游对齐（前端收口为建库扫雷）；框架约定用字节码/文档钉死、绝不按开源惯例猜；建库以 PRD ER 为唯一权威、以门禁/编译为验收；真岔路停下让人拍板，双角色评审取共识只修真结构，剩余只能运行时验的就别再照静态一遍。</strong></p>
+</blockquote>
+<hr>
+<h2>二、正确的主线流程（可照抄）</h2>
+<pre><code>续跑线（会话压缩后继续任务）
+  1. 新窗口先验工具：跑 skill 前置体检 + self-check，确认 vue-coding 恢复可用
+  2. 任务定义丢了不猜：从 .claude/projects/*.jsonl 抠出当时的 AskUserQuestion 选项与用户回答
+  3. 锁死语义再动手（本次发现"最初4选、后收窄成 A+C"，以最后一次指令为准）
+
+收口线（前端契约/SSOT/PRD 修正，为建库扫雷）
+  4. 分层清单：A 建库硬冲突（枚举/SSOT）/ C PRD 明文修正（deadline/频控/软删/拖拽）
+  5. 真岔路先问人：枚举二选一、SSOT 收敛"轻/重"——影响建表列值/会级联改表单，交人拍板
+  6. 多子代理并行按"文件互斥"切分；共享文件（locale）不并行改 → 回传片段 → 主控中心化合并
+  7. 中心化跑门禁到绿（typecheck:all + self-check 0/0），残留全局抽查清零
+
+建库线（数据库从 0→1）
+  8. 选型：识别"被框架+基础设施+数据模型三层锁定"→ 讲清为什么没得选（MySQL）
+  9. DDL 以 PRD §4 ER + §10 枚举为唯一权威，逐表逐字段逐枚举对齐
+  10. 框架约定反编译 starter 拿 ground truth（审计列名/主键 Long/逻辑删除 deleted 'Y'/'N'/禁定义 Config&amp;Handler）
+  11. 种子 data.sql（分类树照前端权威 SSOT）+ MyBatis-Plus 实体&amp;配置 → mvn compile 复验绿
+  12. 依赖触红线先问（Lombok）→ 同意后再装
+
+评审线（数据库产物双角色把关）
+  13. 架构师（ER 对齐/范式/约束）+ 后端工程师（注解/类型/框架约定）并行只读评审
+  14. 交叉取共识：只修真结构问题；结论分三层（改结构 / 写入纪律 / 运行时自证）
+  15. 判断是否再评审：边际递减 + 剩余只能运行时验 → 停，转去跑起来验</code></pre>
+<hr>
+<h2>三、关键方法与技巧复盘（本文精华）</h2>
+<h3>技巧 1 · 会话被压缩后，任务定义从"记录"里抠回来，绝不猜</h3>
+<p>新窗口开局只有一句"继续帮我实现 A+C"，而 A/C 的确切含义在上一段被上下文压缩吃掉了。<strong>错误做法是按字面猜一个 A/C 硬着头皮做</strong>；正确做法是把它当"取证"：直接读 <code>~/.claude/projects/&lt;项目&gt;/*.jsonl</code> 会话记录，用一段 Python 把历史里的 <code>AskUserQuestion</code> 选项与用户的回答抠出来——一眼定位到当时那道"打磨范围/收口清单"多选题，甚至还原出"用户最初四项全选、后来在某条指令里收窄成 A+C"的演化。<strong>续跑的第一原则：任务定义以记录为准，恢复不了就问用户，绝不猜着往下做</strong>——猜错方向的返工，比花五分钟抠记录贵得多。</p>
+<h3>技巧 2 · 前端先收口，再建库——把契约对齐做在最上游（"建库前扫雷"）</h3>
+<p>建库最贵的返工是"表建完了才发现字段口径不对"。所以正确顺序是：<strong>在写第一行 DDL 之前，先把前端里所有会影响建表的契约分裂一次收口</strong>——</p>
+<ul>
+<li><strong>枚举跨表分裂</strong>：公告状态前端用了 <code>expired</code>，而 PRD 基线是 <code>archived</code>；需求 <code>status</code> 在需求模块是 <code>Pending/…</code>(PascalCase)、在审核模块却是小写——<strong>同一后端字段两套口径，建库即撞</strong>。</li>
+<li><strong>SSOT 多副本</strong>：分类/产品线的"选项字典"散在多个 mock 且命名分叉（<code>5G模组</code> vs <code>5G 模组</code>）；公告实体前后端两套互不相干的数据。</li>
+<li><strong>PRD 明文点未落地</strong>：残留已删的 <code>deadline</code> 字段（违背决策 D2）、催办频控写成 10 秒（应 ≥10 分钟）、评论硬删（应软删占位保留子回复）。</li>
+</ul>
+<p>把这些在前端对齐后，<strong>后端 ER/建表直接照收口后的字段落库，一步到位</strong>。方法论：<strong>数据契约在数据流最上游对齐，成本最低；越往下游（建表、联调）改，波及面越大。</strong></p>
+<h3>技巧 3 · 多子代理并行的正确姿势——"文件互斥"切分 + 共享文件回传片段、主控中心化合并</h3>
+<p>约 25 个文件的契约级改动，用 5+3 路 subagent 并行。并行不翻车的核心不是"人多"，而是<strong>切分纪律</strong>：</p>
+<ul>
+<li><strong>按文件互斥分派</strong>：每个 agent 只碰自己模块的文件（公告 / 审核 / 需求 / 分类 / SLA…），彼此零重叠，可放心并发。</li>
+<li><strong>共享文件绝不并行改</strong>：两份 <code>locale/*.ts</code> 几乎每个任务都要碰——<strong>让 agent 一律不直接改 locale，只在报告里回传"locale 片段"，由主控中心化合并</strong>，规避并发写同一文件的冲突。</li>
+<li><strong>中心化门禁</strong>：所有 agent 只产出、不各自跑全局门禁（会互相干扰）；主控合并后统一跑 <code>typecheck:all + self-check</code> 到绿。</li>
+</ul>
+<p>这套"并行取证/生产、主控整合裁决"，与上一篇评审的多角色打法同源——<strong>并发提速，串行收口</strong>。</p>
+<h3>技巧 4 · 选型不是选择题——被约束锁定时，讲清"为什么没得选"比罗列优劣有用</h3>
+<p>"MySQL 还是 PostgreSQL"看似开放，实则<strong>三层锁定，没有选择空间</strong>：① <strong>框架层</strong>——<code>quectel-code-mysql-starter</code> 提供 MyBatis-Plus，而 <code>security-starter</code> 的审计填充强绑它，换 PG 等于弃用整套企业脚手架；② <strong>基础设施层</strong>——<code>datasource</code> 的 JDBC URL 已写死 MySQL 实例、<code>createDatabaseIfNotExist=true</code>；③ <strong>数据模型层</strong>——关系型 + JSON 列，PG 的独门优势（复杂 GIS/数组/物化视图/内建全文检索）本项目一个都不触发（要全文检索也是走 <code>elasticsearch-starter</code>）。<strong>好的技术回答不是甩一张优劣对比表，而是识别出"这是被约束决定的"，把约束讲透，省掉无谓比较。</strong></p>
+<h3>技巧 5 · 框架约定靠"字节码/源码"取证，不靠开源惯例猜（本篇最硬核）</h3>
+<p>建库最容易翻车的地方是"按通用 MyBatis-Plus 经验猜这套企业框架的约定"。审计列名、主键类型、逻辑删除写法，<strong>全部反编译 starter 拿 ground truth</strong>：</p>
+<ul>
+<li><code>javap</code> 反编译 <code>SecurityMetaObjectHandler</code>：看到它 <code>strictInsertFill</code> 的真实字段名是 <code>createTime/updateTime/createBy/updateBy</code>，且 <code>createBy</code> 填的是 <code>getCurrentUserId():Long</code>——<strong>"当前用户 id 是 Long"这一条，连锁定死了"全表主键 BIGINT + 雪花，前端 ID 全 string 由 Jackson Long→String 满足"</strong>。</li>
+<li><code>mysql-starter</code> 规范文档定死两条硬红线：<strong>逻辑删除字段名是 <code>deleted</code>、值 <code>'Y'/'N'</code></strong>（不是想当然的 <code>is_deleted</code> TINYINT）；<strong>业务侧禁止定义 <code>MyBatisPlusConfig</code> 和任何 <code>MetaObjectHandler</code></strong>（会 Bean 冲突）。</li>
+<li>由此还揪出一个语义 bug：评论 D7 软删是"行保留、内容转占位、留子回复"，与框架 <code>deleted</code>"隐藏整行"语义<strong>冲突</strong>——必须拆出独立业务字段 <code>content_deleted</code>。</li>
+</ul>
+<p>这与上一篇"用最小复现把黑盒真因钉在某一行"是<strong>同一方法论</strong>：<strong>黑盒行为靠证据，不靠直觉。</strong> 甚至诚实到——文档说 starter 的配置"含乐观锁"、但我反编译的那份字节码只见分页拦截器，就把它明确标为"运行时自证点"，而不是假装已验证。</p>
+<h3>技巧 6 · 遇真岔路停下让人拍板——枚举 / 范围 / 依赖</h3>
+<p>AI 不该在<strong>真正的设计岔路</strong>上擅自定方向。本次三次停下问用户，判据一致：</p>
+<ul>
+<li><strong>公告枚举</strong>：PRD 两处自相矛盾（<code>archived</code> vs <code>withdrawn</code>）——<strong>它决定建表那一列的取值</strong>，交人定（选 <code>archived</code>）。</li>
+<li><strong>SSOT 收敛"轻/重"</strong>：值对齐（低风险、观感不变）vs id 级单源重构（<strong>会级联改两个表单的存储值</strong>、观感变、风险高）——交人选（选"轻"）。</li>
+<li><strong>装不装 Lombok</strong>：触碰"禁未批准新依赖"红线——<strong>先问再装</strong>，同意后才加 pom。</li>
+</ul>
+<p>判据可复用：<strong>当答案会改变产物、触碰红线、或 PRD 自相矛盾时，停下问；有惯例默认值的自己定、说明即可。</strong> 别把"该问的"擅自定了，也别把"该定的"都推给用户。</p>
+<h3>技巧 7 · 双角色评审→共识→修复，且把结论分成"能修的"与"只能运行时验的"</h3>
+<p>数据库产物用两个 lens 并行只读评审——<strong>架构师</strong>（ER 对齐/范式一致/约束落实/索引/SSOT）+ <strong>后端工程师</strong>（MyBatis-Plus 注解/类型映射/框架约定/编译与运行时坑）。两方都给 PASS 后，交叉取共识<strong>只修真结构问题</strong>，并把结论<strong>分三层</strong>处置：</p>
+<ul>
+<li><strong>改结构（当场修）</strong>：补 <code>request_product_line</code> 关联表——原设计里"分类走关联表、邀请产品线却只有 JSON"是唯一的范式不一致，且导致"某产品线被哪些需求邀请"的反查（SLA 升级人解析要用）无法走索引；顺手加 <code>category</code> 同级名唯一约束、种子补"产品管理部"。</li>
+<li><strong>写入纪律（注释即可）</strong>：聚合计数/批次已读率的同事务维护、SLA 升级幂等——不改结构，写进 DDL 注释。</li>
+<li><strong>运行时自证（静态照不出）</strong>：乐观锁拦截器是否真装、下划线转驼峰开关、雪花 workerId——<strong>只能跑起来验</strong>。</li>
+</ul>
+<p>分层的价值：<strong>让"评审结论"变成"可执行的分工"，而不是一堆等价的问题。</strong></p>
+<h3>技巧 8 · 知道何时停止评审——边际价值递减 + 剩余风险只能运行时验时，别再空转</h3>
+<p>用户问"还要不要再来一轮多角色评审"，诚实的答案是<strong>不要</strong>，判据三条：① 上一轮双 PASS、本次修复是小增量且 <code>mvn compile</code> 复验绿，再照一遍大概率只复述同样几条已归档 Minor；② 剩余没闭合的全是<strong>运行时自证项</strong>，再多轮静态评审也变不成"已验证"；③ 又一轮多代理是实打实的成本换重复结论。<strong>真正降风险的下一步是"跑起来"——起库 + 首个模块读写用例 + 一个 <code>@Version</code> 并发用例 + 一个"无权限角色应 403"用例，而不是再静态照一遍。</strong> 知道何时停，和知道何时评审，同样是本事。</p>
+<hr>
+<h2>四、给"收口 + 建库 + 评审"的协作姿势</h2>
+<table>
+<thead><tr><th>姿势</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><strong>续跑先取证</strong></td><td>任务定义被压缩丢了，从 transcript 抠回用户当时的选择；恢复不了就问，绝不猜。</td></tr>
+<tr><td><strong>契约收口在上游</strong></td><td>枚举/SSOT/PRD 修正在前端一次对齐，为建库扫雷；越往下游改越贵。</td></tr>
+<tr><td><strong>并行按文件互斥</strong></td><td>子代理各改各文件；共享文件不并行改、回传片段主控合并；中心化门禁。</td></tr>
+<tr><td><strong>选型讲约束</strong></td><td>被框架+基建+模型锁定时，讲清"为什么没得选"，别罗列无关优劣。</td></tr>
+<tr><td><strong>框架约定靠字节码</strong></td><td>审计/主键/逻辑删除反编译 starter 取证；文档与字节码不符就诚实标为运行时自证点。</td></tr>
+<tr><td><strong>真岔路停下问</strong></td><td>改产物/触红线/PRD 自相矛盾 → 交人拍板；有默认的自己定并说明。</td></tr>
+<tr><td><strong>双角色取共识</strong></td><td>架构+后端并行只读评审；只修真结构；结论分"改结构/写入纪律/运行时自证"三层。</td></tr>
+<tr><td><strong>知道何时停评审</strong></td><td>边际递减 + 剩余只能运行时验 → 停，转去跑起来验。</td></tr>
+<tr><td><strong>产物以门禁/编译验收</strong></td><td>前端 self-check 0/0 + typecheck 绿；后端 <code>mvn -o compile</code> 绿，才算交付。</td></tr>
+</tbody>
+</table>
+<hr>
+<h2>五、可复用检查清单（开工即用）</h2>
+<p><strong>续跑阶段</strong></p>
+<ul>
+<li>[ ] 新窗口先验工具（skill 前置体检 + self-check 可用）</li>
+<li>[ ] 任务定义丢了 → 读 <code>.claude/projects/*.jsonl</code> 抠历史选择，锁死语义再动手</li>
+</ul>
+<p><strong>收口阶段（建库前扫雷）</strong></p>
+<ul>
+<li>[ ] 分层清单：建库硬冲突（枚举/SSOT）/ PRD 明文修正</li>
+<li>[ ] 真岔路先问：枚举二选一、SSOT 轻/重、装不装依赖</li>
+<li>[ ] 多子代理按文件互斥切分；共享文件回传片段中心化合并</li>
+<li>[ ] 中心化门禁到绿 + 全局残留抽查清零</li>
+</ul>
+<p><strong>建库阶段</strong></p>
+<ul>
+<li>[ ] 选型讲清被锁定的三层原因</li>
+<li>[ ] DDL 以 PRD §ER + §枚举为唯一权威，逐表/字段/枚举对齐</li>
+<li>[ ] 框架约定反编译 starter 取证（审计列名/主键类型/逻辑删除字段与值/禁定义的 Bean）</li>
+<li>[ ] 种子照前端权威 SSOT（分类树）；实体 <code>mvn -o compile</code> 绿</li>
+<li>[ ] 新依赖触红线先问后装</li>
+</ul>
+<p><strong>评审阶段</strong></p>
+<ul>
+<li>[ ] 架构 + 后端双 lens 并行只读评审</li>
+<li>[ ] 交叉取共识，只修真结构；结论分三层（改结构/写入纪律/运行时自证）</li>
+<li>[ ] 判断是否再评审：边际递减 + 剩余只能运行时验 → 停</li>
+</ul>
+<p><strong>红线自问</strong></p>
+<ul>
+<li>[ ] 这个任务定义是我"记得"的，还是从记录里"证实"的？</li>
+<li>[ ] 这个字段口径，前端收口过没？建表会不会返工？</li>
+<li>[ ] 这条框架约定，是我"按经验猜"的，还是"反编译/文档证实"的？</li>
+<li>[ ] 这个岔路，是该我定的默认、还是该交人拍板的红线？</li>
+<li>[ ] 我要的"再评审"，照得出剩余风险吗？还是其实该去跑起来验？</li>
+</ul>
+<hr>
+<h2>六、效率与成本的诚实备注</h2>
+<ul>
+<li><strong>成本主要花在四处</strong>：① 从 transcript 恢复任务定义 + 前端约 25 文件契约收口（5+3 路并行 subagent）；② 反编译 starter 字节码定框架约定（一次性、但决定成败）；③ 生成 18 表 DDL + 种子 + 全套实体/Mapper/config；④ 双角色评审（各独立 Opus 上下文并行）。</li>
+<li><strong>省钱要点</strong>：
+<ul>
+<li><strong>上游收口省下游返工</strong>：契约在前端对齐一次，胜过建表后逐字段回改——最贵的是返工，不是收口。</li>
+<li><strong>并行生产、主控整合</strong>：子代理 background 并行、墙钟＝最慢一路；共享文件不并行改，避免"合并冲突"这种隐性重做。</li>
+<li><strong>一次取证胜过反复猜</strong>：反编译一次 starter，把审计/主键/逻辑删除约定全定死，省掉"猜错约定→编译/运行报错→再改"的多轮。</li>
+<li><strong>知道何时停</strong>：评审到"剩余只能运行时验"就停，不为一份重复结论再烧一轮多代理。</li>
+<li><strong>坑与决策升格记忆</strong>：框架约定（deleted='Y'、禁定义 Config/Handler、createBy 是 Long）、SSOT 收口口径写进项目记忆，后续会话直接命中。</li>
+</ul>
+</li>
+<li><strong>可推广性</strong>：这套"续跑先取证→上游收口→反编译定框架约定→PRD 为权威建库→双角色取共识→知道何时停"的主线，适用于<strong>任何"在企业黑盒框架下、从已有前端契约往下落数据层/后端"</strong>的场景，可作团队 SOP。</li>
+</ul>
+<hr>
+<h2>七、一页纸总纲</h2>
+<blockquote>
+<p><strong>续跑先从记录里恢复任务定义、绝不猜；契约/枚举/SSOT 在前端最上游一次收口，为建库扫雷；选型识别被三层锁定的必然、把约束讲透；框架约定反编译 starter 用字节码钉死、不按开源惯例猜；建库以 PRD ER 为唯一权威、以编译/门禁为验收；真岔路（改产物/触红线/PRD 矛盾）停下让人拍板；双角色评审取共识只修真结构，把结论分"改结构/写入纪律/运行时自证"三层；当剩余风险只能运行时验证，就停止空转评审、转去跑起来。</strong></p>
+<p>从"页面能跑"到"库能建"，真正的功夫在两处：<strong>把契约在上游收干净，别把返工留给建表；把框架约定用证据钉死，别把黑盒当成想当然。</strong> 把每一步都钉在可复现的记录、字节码与门禁上，而不是"看起来对了就落库"。</p>
+</blockquote>
+      </div>
+      </div>
+    </body></html>
