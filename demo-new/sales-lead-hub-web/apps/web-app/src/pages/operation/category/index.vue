@@ -294,6 +294,12 @@ function onDrop(info: any) {
   const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1])
 
   const newParentId = info.dropToGap ? dropNode.parentId : dropKey
+  // C-5：仅允许同级排序，不允许跨父级改变层级。
+  // 放入他节点成为其子级（!dropToGap），或落到不同父级的相邻位（parentId 不一致）→ 阻止本次拖拽。
+  if (!info.dropToGap || String(dragged.parentId || '') !== String(newParentId || '')) {
+    message.warning(t('category.dragSameLevelOnly'))
+    return
+  }
   dragged.parentId = newParentId
   const siblings = listData.value.filter((i) => i.parentId === newParentId && i.id !== dragKey)
   if (!info.dropToGap) {
@@ -395,7 +401,9 @@ const schemas = computed(() => [
           component: 'TreeSelect',
           componentProps: {
             placeholder: t('category.parentPlaceholder'),
-            allowClear: true,
+            // C-5：编辑时不允许改上级分类（跨级移动），置为只读展示；仅新增时可选父级
+            disabled: modalMode.value === 'edit',
+            allowClear: modalMode.value !== 'edit',
             style: 'width:100%',
             treeData: parentTreeData.value,
             fieldNames: { label: 'name', value: 'id', children: 'children' },

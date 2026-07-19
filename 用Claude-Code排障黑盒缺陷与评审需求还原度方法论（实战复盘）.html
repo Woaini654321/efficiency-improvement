@@ -1,0 +1,145 @@
+<!DOCTYPE html><html><head>
+      <title>用 Claude Code 排障框架黑盒缺陷、评审需求还原度与自愈开发环境 · 方法论复盘</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+      code[class*=language-],pre[class*=language-]{color:#333;background:0 0;font-family:Consolas,"Liberation Mono",Menlo,Courier,monospace;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.4;-moz-tab-size:8;-o-tab-size:8;tab-size:8;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:.8em;overflow:auto;border-radius:3px;background:#f5f5f5}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal;background:#f5f5f5}html body{font-family:'Helvetica Neue',Helvetica,'Segoe UI',Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em;border-bottom:1px solid #eaecef}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em;border-bottom:1px solid #eaecef}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body strong{color:#000}html body del{color:#5c5c5c}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ol,html body>ul{margin-bottom:16px}html body ol,html body ul{padding-left:2em}html body li{margin-bottom:0}html body li>p{margin-top:0;margin-bottom:0}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:700;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em .4em}html body pre>code{padding:0;margin:0;word-break:normal;white-space:pre;background:0 0;border:0}html body .highlight pre,html body pre{padding:1em;overflow:auto;line-height:1.45;border:1px solid #eaecef;border-radius:3px;background-color:#f6f8fa}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0;color:#24292e;font-size:.85em}html body blockquote,html body dl,html body ol,html body p,html body pre,html body ul{margin-top:0;margin-bottom:16px}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview ul{list-style:disc}.markdown-preview ul ul{list-style:circle}.markdown-preview ol{list-style:decimal}html body[for=html-export]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0;min-height:100vh}@media screen and (min-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for=html-export]:not([data-presentation-mode]) .markdown-preview{font-size:14px!important;padding:1em}}html body[for=html-export]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}
+      </style>
+    </head>
+    <body for="html-export">
+      <div class="crossnote markdown-preview">
+      <div>
+<h1>用 Claude Code 排障框架黑盒缺陷、评审需求还原度与自愈开发环境 · 方法论复盘</h1>
+<blockquote>
+<p>一次真实会话的复盘：<strong>高保真页面交付之后，发现"数据看板 / 吐槽墙全空" → 用系统化排障把根因钉死在框架黑盒里并修复；再用"多角色专家团队"对 PRD 决策基线核对需求还原度与遗漏；中途 <code>vue-coding</code> skill 突然加载不了，顺手定位并修复了损坏的插件注册表。</strong><br>
+载体是「销售商机互助平台」（Quectel-code 企业框架 + QMonoX + AIRequestGuard 防腐层 + UAA SSO）。本文与《AI 全程搭建 0→1 方法论》《Quectel-code AI 开发正确姿势》《用 Claude Code 做 PRD 评审与产品文档方法论》《用 Claude Code 打造项目 AI 配置三件套方法论》配套——前四份讲"从 0 到 1 把东西做出来"，<strong>这份讲"东西做出来之后，怎么验证它对、纠正它错、以及修好会坏的开发环境本身"</strong>。</p>
+</blockquote>
+<hr>
+<h2>一、结论先行（TL;DR）</h2>
+<p><strong>"高保真、看起来对"绝不等于"对"。交付之后真正的风险藏在三处：现象级 bug 的根因埋在框架黑盒里、还原度对错了基准、开发环境本身会悄悄坏。</strong></p>
+<ul>
+<li>🐞 <strong>现象不等于根因</strong>：页面全空最容易的反应是"图表组件坏了"。真因却在防腐层库的 mock 分支——它把已是 ViewModel 的数据又跑了一遍 adapter（snake 读 camel），字段全落默认值。<strong>不最小复现锁死，就会去改根本没错的组件。</strong></li>
+<li>📐 <strong>还原度要比基线、不是比原型</strong>：原型是"长什么样"，PRD 决策基线（42 FEAT + 决策纪要）才是"该有什么"。静态原型天然覆盖不到<strong>规则/流程型需求</strong>（SLA 计时升级、响应闭环率、超期自动关闭）——恰恰是最容易漏的。</li>
+<li>🧰 <strong>开发环境会悄悄坏</strong>：<code>vue-coding</code> 突然报 <code>Unknown skill</code>。第一反应不该是重装，而是查<strong>插件注册表</strong>——真因是一次批量注册脚本的路径拼接 bug 把 <code>installPath</code> 写成了坏模板串。</li>
+<li>🔑 让这三件事可靠落地的，是四条：<strong>现象不猜根因用真实运行时复现 + 还原度对基线做多角色交叉验证 + 环境先诊断状态再动手 + 全程门禁兜底（skill 不在也合规）。</strong></li>
+</ul>
+<blockquote>
+<p>一句话方法论：<strong>现象不猜根因、根因用最小复现钉死在黑盒某一行；还原度不比原型比基线、多角色交叉验证分层遗漏；工具失灵先诊断注册表再修、改前备份改后校验；而这一切的底线是门禁，不是 skill 在不在。</strong></p>
+</blockquote>
+<hr>
+<h2>二、正确的主线流程（可照抄）</h2>
+<p>三条线各一条流水线，可分别照抄：</p>
+<pre><code>排障线（定位框架黑盒缺陷）
+  1. 现象出现 → 先声明"未找根因前不改任何代码"（系统化排障铁律）
+  2. 先证伪最可疑对象：图表空≠组件坏——独立渲染测试证明组件对，把嫌疑往数据链路上游赶
+  3. 读黑盒库真实实现（.d.ts + 编译产物），别靠文档/直觉猜其 mock/契约行为
+  4. 写 20 行"真实运行时最小复现"：import 真库 + 真 mock，跑多个配置场景，用输出钉死真因
+  5. 改在"正确的层"，让修复同时是未来的正确形态 → 跑门禁（typecheck/self-check/build）验证
+
+评审线（核对需求还原度与遗漏）
+  6. 选对基准：以 PRD 决策基线（FEAT + 决策纪要）为轴，不比原型
+  7. 多角色并行 subagent（PM 范围闭环 / 架构 数据契约SSOT / 前端 交互还原），各自独立取证
+  8. 交叉验证定可信度：多角色独立命中＝高可信；分层遗漏（建库硬冲突 / 真缺页 / 规则偏差 / 范围待拍板 / 下阶段）
+  9. 区分"真缺陷"与"范围内骨架"，冲突点与范围决策交人拍板
+
+环境线（自愈开发环境）
+  10. 工具失灵 → 先诊断"状态/注册表"（installed_plugins.json / known_marketplaces.json / .orphaned_at），别乱重装
+  11. 备份 → 修坏路径 → node 校验 JSON 合法 → 认清"注册表仅启动时读、必须真重启"</code></pre>
+<hr>
+<h2>三、关键方法与技巧复盘（本文精华）</h2>
+<h3>技巧 1 · 现象不猜根因——先证伪最可疑对象，把嫌疑往上游赶</h3>
+<p>"图表全空"最省事的假设是"图表组件坏了"，而这几乎总是错的入口。正确做法是<strong>先证伪</strong>：把 SVG/CSS 图表组件抽出来做一次<strong>独立渲染测试</strong>（喂真数据、截图确认），证明组件完全正常。嫌疑随即被赶到上游——"数据根本没到组件"。系统化排障的铁律是 <strong>NO FIXES WITHOUT ROOT CAUSE</strong>：没锁死根因前，一行业务代码都不改。</p>
+<h3>技巧 2 · 用"真实运行时最小复现"钉死黑盒真因（本文最硬核）</h3>
+<p>黑盒框架的行为<strong>别靠读文档或直觉猜</strong>。本次真因在防腐层库 <code>AIRequestGuard</code> 的 mock 分支：它对已注册的 <code>viewSchema()</code>（本项目注册的是 <strong>ViewModel</strong>）<strong>再跑一次 adapter</strong>——adapter 按 <code>snake_case</code>（<code>uv_mom/hot_contents</code>）去读一个 <code>camelCase</code> 对象，字段全落默认值 <code>0/[]</code>，于是图表/列表全空。锁死它的方式不是读源码猜，而是写一个 <strong>20 行脚本 import 真实库运行时 + 真 mock</strong>，跑四个配置场景，用输出定案：</p>
+<table>
+<thead><tr><th>场景</th><th>模式</th><th>viewSchema</th><th>request</th><th>结果</th></tr></thead>
+<tbody>
+<tr><td>当前配置</td><td>mock</td><td>ViewModel</td><td>—</td><td>❌ 全空（双重转换吞数据）</td></tr>
+<tr><td>改 viewSchema</td><td>mock</td><td>原始 DTO</td><td>—</td><td>❌ 另一层 <code>pickBySchema</code> 裁掉</td></tr>
+<tr><td><strong>正解</strong></td><td><strong>real</strong></td><td>ViewModel</td><td><strong>返回 mock DTO</strong></td><td>✅ 数据全对</td></tr>
+</tbody>
+</table>
+<p>一次复现胜过十次猜测——它同时<strong>证明了真因、证伪了另外两种改法、并指出唯一正解</strong>。</p>
+<h3>技巧 3 · 改在"正确的层"——让修复同时是未来的正确形态</h3>
+<p>定位到真因后，最忌"在库的 mock 模式里绕来绕去打补丁"。正解是把"后端未就位"这件事<strong>下沉到 request 层</strong>：库保持 <code>real</code> 模式，用一个 <code>mockRequest(&lt;DTO切片&gt;, () =&gt; 真实请求)</code> 包裹——mock 时直接返回 DTO，adapter 只转一次即正确；<strong>且这正是后端就绪后的正确形态</strong>（届时一个 <code>MOCK_ENABLED=false</code> 开关全量切回真实接口）。好的修复不是"能跑就行"，而是<strong>让当下的修复恰好落在未来正确架构的位置上</strong>。</p>
+<h3>技巧 4 · 还原度别比原型、要比基线——评审的第一原则</h3>
+<p>交付页面"照原型还原度高"是一回事，"符合需求"是另一回事。<strong>原型只说"长什么样"，PRD 决策基线才定"该有什么"。</strong> 静态原型天然覆盖不到<strong>规则型/流程型需求</strong>——SLA 首响计时与三级升级、需求响应闭环率（北极星）、超期 7 天自动关闭、状态流转完整性——而这些恰是最容易整块漏掉的。评审的轴必须钉在<strong>决策基线（FEAT 台账 + 决策纪要）</strong>，不是原型。</p>
+<h3>技巧 5 · 多角色并行 + 交叉验证定可信度（评审核心）</h3>
+<p>沿用 PRD 评审那套"多角色专家团队"，评审对象换成"已实现前端 vs 需求基线"：<strong>三个 subagent 各一 lens（PM 范围与闭环 / 架构 数据契约与 SSOT / 前端 交互还原与状态流转），独立并行、各自去源码＋基线取证</strong>。可信度由交叉验证决定：</p>
+<ul>
+<li><strong>三方独立命中＝高可信</strong>：<code>PC-09 用户权限页</code> 与 <code>PC-26 产品线维护页</code>整页缺失、需求残留已删的 <code>deadline</code> 字段（违背决策 D2）——三个角色不约而同点到，几乎必真。</li>
+<li><strong>单方但源码坐实＝采纳</strong>：架构独查出公告状态 <code>expired</code> 与基线 <code>archived</code> 冲突、需求 <code>status</code> 大小写在两个模块分裂——建库即撞，采纳。</li>
+<li><strong>分歧点交主控裁</strong>：PM 说"6 个下期模块进了 v1.0 导航是越界"，前端说"作为展示骨架合规"——真相是<strong>本轮用户有意做的预览页</strong>，是范围决策、不是 bug。</li>
+</ul>
+<h3>技巧 6 · 分层遗漏、区分"真缺陷"与"范围内骨架"</h3>
+<p>一份能落地的评审结论不是"一堆问题"，而是<strong>按对目标的影响分层</strong>：① 建库/契约硬冲突（服务"建表"目标，最先修）② 真缺页/真遗漏 FEAT ③ PRD 明文修正点未落地 ④ 范围纪律（需人拍板）⑤ 交互硬规则（下阶段）。同时<strong>严格区分</strong>：既定"只做展示层 + mock 骨架"范围下，缺角色门禁/不可逆逻辑<strong>不算 bug</strong>；但缺页、枚举冲突、决策明文点没落地是<strong>真缺陷</strong>。别一刀切算遗漏，也别拿"骨架"豁免真缺页。</p>
+<h3>技巧 7 · 开发环境会悄悄坏——先诊断注册表，别乱重装</h3>
+<p><code>vue-coding</code> 突然 <code>Unknown skill</code>，"重装一遍"是最贵也最可能无效的反应。正确顺序是<strong>先诊断状态文件</strong>：本次一眼看到缓存目录里冒出 <code>.orphaned_at</code> 标记，再查 <code>installed_plugins.json</code> —— 三个插件的 <code>installPath</code> 全被写成坏模板串 <code>C:Users...cache...${p}${v}</code>（<strong>模板变量 <code>${p}/${v}</code> 未展开 + 反斜杠被吞</strong>），<code>known_marketplaces.json</code> 的 <code>installLocation</code> 同样坏。真因是一次批量注册脚本的路径拼接 bug，<strong>文件其实都好好在缓存里，纯粹是注册表指错了</strong>。修复三步走：<strong>改前备份两个 JSON → 改回真实路径 + 删 <code>.orphaned_at</code> → <code>node -e require()</code> 校验 JSON 合法</strong>。并认清一条硬事实：<strong>注册表只在 CLI 进程启动那一刻读入，<code>/plugin</code> 不重启进程，必须完全退出再启才生效。</strong></p>
+<h3>技巧 8 · 门禁是最终真相，skill 只是助手</h3>
+<p>一个反直觉但关键的观察：这套 <code>vue-coding</code> skill <strong>整个会话其实都处于 orphaned、根本没加载</strong>，可所有前端改动（含 19 个文件的 mock 修复）<strong>self-check 全 <code>0/0</code>、typecheck/build 全绿</strong>。结论：<strong>合规是靠门禁强制的，不是靠 skill 在不在。</strong> 所以工具链临时失灵时，不必卡死等修好——以门禁（self-check CLI / typecheck / build）为准照常推进，环境择机再修。这也反过来说明：<strong>把约束固化进门禁，比固化进"某个必须在场的工具"更鲁棒。</strong></p>
+<hr>
+<h2>四、给"交付后验证与纠偏"的协作姿势</h2>
+<table>
+<thead><tr><th>姿势</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><strong>现象不猜根因</strong></td><td>全空先证伪组件、把嫌疑赶到数据链路上游；没锁根因不改代码。</td></tr>
+<tr><td><strong>真实运行时最小复现</strong></td><td>黑盒行为写 20 行脚本 import 真库＋真数据、跑多场景钉死，别读文档猜。</td></tr>
+<tr><td><strong>改在正确的层</strong></td><td>让修复恰好落在未来正确架构的位置（mock 下沉 request 层＝后端就绪的切换点）。</td></tr>
+<tr><td><strong>还原度比基线不比原型</strong></td><td>评审轴钉在 PRD 决策基线；规则/流程型需求是原型盲区，重点查。</td></tr>
+<tr><td><strong>多角色交叉验证</strong></td><td>三 lens 独立并行取证；多方命中＝高可信、单方源码坐实＝采纳、分歧交人裁。</td></tr>
+<tr><td><strong>分层遗漏、区分真缺陷</strong></td><td>按对目标影响分层；范围内骨架不算 bug、缺页/契约冲突是真缺陷。</td></tr>
+<tr><td><strong>环境先诊断再动手</strong></td><td>工具失灵先查注册表/状态文件；改前备份、改后校验、认清"必须真重启"。</td></tr>
+<tr><td><strong>门禁兜底</strong></td><td>以 self-check/typecheck/build 为最终真相；skill/工具不在也照常合规推进。</td></tr>
+<tr><td><strong>决策留给人</strong></td><td>scope（全量高保真 vs 骨架）、评审深度、下期模块入口——给推荐问用户。</td></tr>
+</tbody>
+</table>
+<hr>
+<h2>五、可复用检查清单（开工即用）</h2>
+<p><strong>排障阶段</strong></p>
+<ul>
+<li>☐ 先声明"未找根因不改代码"；把最可疑对象<strong>证伪</strong>（如独立渲染测试证明组件对）</li>
+<li>☐ 读黑盒库真实实现（<code>.d.ts</code>＋编译产物），别靠文档/直觉猜其行为</li>
+<li>☐ 写"真实运行时最小复现"，多场景对照，钉死真因＋证伪其他改法</li>
+<li>☐ 改在正确的层；跑 typecheck/self-check/build 验证到全绿</li>
+</ul>
+<p><strong>评审阶段</strong></p>
+<ul>
+<li>☐ 基准选 PRD 决策基线（FEAT＋决策纪要），<strong>不比原型</strong></li>
+<li>☐ 每角色一个 subagent（PM/架构/前端…）独立并行、各自取证</li>
+<li>☐ 交叉验证定可信度；结论<strong>分层</strong>（建库硬冲突 / 缺页 / 规则偏差 / 范围待拍板 / 下阶段）</li>
+<li>☐ 区分"真缺陷"与"范围内骨架"；分歧与范围决策交人拍板</li>
+</ul>
+<p><strong>环境阶段</strong></p>
+<ul>
+<li>☐ 工具失灵先诊断注册表/状态（<code>installed_plugins.json</code> / <code>known_marketplaces.json</code> / <code>.orphaned_at</code>）</li>
+<li>☐ 改前备份 → 修坏路径 → <code>node -e require()</code> 校验 JSON → <strong>完全重启</strong>（非 <code>/plugin</code>）</li>
+</ul>
+<p><strong>红线自问</strong></p>
+<ul>
+<li>☐ 这是根因还是现象？我最小复现锁死过吗，还是"觉得"是它？</li>
+<li>☐ 我在比原型还是比基线？规则/流程型需求核过没？</li>
+<li>☐ 工具没生效，是逻辑错还是"没真重启/注册表坏"？门禁绿了吗？</li>
+</ul>
+<hr>
+<h2>六、效率与成本的诚实备注</h2>
+<ul>
+<li><strong>成本主要花在三处</strong>：① 定位黑盒真因的读源码＋写复现脚本（一次性，但值）；② 3 个评审 subagent（各独立 Opus 上下文、并行取证）；③ 逐文件精确回改（mock 修复 19 个 api 文件）。</li>
+<li><strong>省钱要点</strong>：
+<ul>
+<li><strong>一次复现胜过反复试</strong>：与其"改一版试一版"猜库行为，不如花 20 行脚本把真因＋正解一次钉死——查一次比错三版便宜。</li>
+<li><strong>评审并行、主控整合</strong>：3 份评审 background 并行，墙钟＝最慢一份；可信度由主控交叉核对，不让 agent 互聊发散。</li>
+<li><strong>门禁兜底省掉"等环境"</strong>：skill 加载不了时不空等，以 self-check 为准继续推进，环境择机修——避免工具故障阻塞交付。</li>
+<li><strong>坑升格记忆＝长期资产</strong>：把"mock 双重转换""注册表坏路径必须真重启"写进项目记忆库，后续会话直接命中，省下重新踩坑的开销。</li>
+</ul>
+</li>
+<li><strong>可推广性</strong>：这套"证伪→最小复现→改对层"的排障主线、"对基线多角色交叉验证分层"的评审主线、"先诊断注册表再修"的环境自愈主线，适用于<strong>任何"交付后发现现象级 bug / 需要核对还原度与遗漏 / 工具链临时失灵"</strong>的场景，可作团队 SOP。</li>
+</ul>
+<hr>
+<h2>七、一页纸总纲</h2>
+<blockquote>
+<p><strong>现象不猜根因，用真实运行时最小复现把 bug 钉死在黑盒某一行；还原度不比原型比基线，多角色交叉验证、分层遗漏、区分真缺陷与范围内骨架；工具失灵先诊断注册表再修、改前备份改后校验、必须真重启；而这一切的底线是门禁，不是某个必须在场的 skill。</strong><br>
+交付之后的"验证与纠偏"<strong>同样是硬功夫、且价值极高</strong>，前提是：<strong>别拿现象当根因、别拿原型当基线、别拿重装当诊断、别拿 skill 当门禁</strong>——把每一步都钉在可复现的事实与门禁上，而不是"看起来对了就交差"。</p>
+</blockquote>
+      </div>
+      </div>
+    </body></html>

@@ -5,7 +5,7 @@
     "week_discussions": 46,
     "active_users": 213
   },
-  "hot_tags": ["5G模组", "Cat.1", "车载方案", "NB-IoT", "智慧城市", "天线设计", "GNSS定位", "WiFi6", "RedCap", "LoRa网关", "智能穿戴", "工业网关"],
+  "hot_tags": ["5G 模组", "Cat.1 模组", "车载方案", "NB-IoT 模组", "智慧城市", "天线设计", "GNSS 定位模组", "WiFi6", "5G RedCap", "LoRa网关", "智能穿戴", "工业网关"],
   "quick_tasks": [
     {
       "task_id": "TASK2001",

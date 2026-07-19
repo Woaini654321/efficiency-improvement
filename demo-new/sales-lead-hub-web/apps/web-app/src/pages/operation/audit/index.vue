@@ -240,7 +240,7 @@ const router = useRouter()
 
 const urgencyColor: Record<string, string> = { normal: 'default', urgent: 'orange', critical: 'red' }
 const statusColor: Record<string, string> = {
-  published: 'green', archived: 'red', pending: 'orange', collecting: 'blue', adopted: 'green', closed: 'default'
+  published: 'green', archived: 'red', Pending: 'orange', Collecting: 'blue', Adopted: 'green', Closed: 'default'
 }
 
 // 分类树（label 走 i18n，避免硬编码中文）
@@ -295,7 +295,7 @@ const gridConfig = computed(() => ({
 const allItems = ref<AuditItem[]>([])
 
 const opportunityStatus = ['published', 'archived']
-const requestStatus = ['pending', 'collecting', 'adopted', 'closed']
+const requestStatus = ['Pending', 'Collecting', 'Adopted', 'Closed']
 const statusOptions = computed(() =>
   (segType.value === 'opportunity' ? opportunityStatus : requestStatus).map((s) => ({
     label: t('dict.auditStatus.' + s), value: s

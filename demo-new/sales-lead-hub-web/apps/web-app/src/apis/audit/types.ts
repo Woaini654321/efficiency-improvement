@@ -7,7 +7,7 @@ export interface ContentAuditDTO {
   title: string
   content_type: string // opportunity | request
   publisher_name: string
-  status: string // published | archived | pending | collecting | adopted | closed
+  status: string // published | archived | Pending | Collecting | Adopted | Closed
   is_pinned: boolean
   published_at?: string
   sort_no: number

@@ -174,7 +174,7 @@
 
       <div v-else class="comment-list">
         <div v-for="(c, i) in displayComments" :key="c.id" class="comment-card">
-          <button v-if="isMine(c)" class="del-btn" :title="t('common.delete')" @click="confirmDelete(c.id, false)">
+          <button v-if="isMine(c) && !deletedMap[c.id]" class="del-btn" :title="t('common.delete')" @click="confirmDelete(c.id, false)">
             <DeleteOutlined />
           </button>
           <div class="cmt-head">
@@ -185,16 +185,19 @@
                 <a-tag v-if="c.authorDept" class="dept-tag">{{ c.authorDept }}</a-tag>
                 <span class="cmt-time">{{ relativeTime(c.createdAt) }}</span>
               </div>
-              <div class="cmt-content">{{ c.content }}</div>
-              <div class="cmt-ops">
-                <button class="cmt-op" :class="{ liked: likedMap[c.id] }" @click="toggleCommentLike(c)">
-                  <LikeFilled v-if="likedMap[c.id]" /><LikeOutlined v-else />
-                  {{ c.likeCount > 0 ? c.likeCount : '' }}
-                </button>
-                <button class="cmt-op" @click="toggleReply(c.id)">
-                  <MessageOutlined /> {{ t('comment.reply') }}
-                </button>
-              </div>
+              <div v-if="deletedMap[c.id]" class="cmt-content cmt-deleted">{{ t('comment.deletedPlaceholder') }}</div>
+              <template v-else>
+                <div class="cmt-content">{{ c.content }}</div>
+                <div class="cmt-ops">
+                  <button class="cmt-op" :class="{ liked: likedMap[c.id] }" @click="toggleCommentLike(c)">
+                    <LikeFilled v-if="likedMap[c.id]" /><LikeOutlined v-else />
+                    {{ c.likeCount > 0 ? c.likeCount : '' }}
+                  </button>
+                  <button class="cmt-op" @click="toggleReply(c.id)">
+                    <MessageOutlined /> {{ t('comment.reply') }}
+                  </button>
+                </div>
+              </template>
 
               <!-- 回复输入 -->
               <div v-if="replyingId === c.id" class="reply-input">
@@ -220,15 +223,18 @@
                 <a-tag v-if="r.authorDept" class="dept-tag">{{ r.authorDept }}</a-tag>
                 <span class="cmt-time">{{ relativeTime(r.createdAt) }}</span>
               </div>
-              <div class="reply-content">{{ r.content }}</div>
-              <div class="reply-ops">
-                <button class="cmt-op" @click="toggleReply(c.id)">
-                  <MessageOutlined /> {{ t('comment.reply') }}
-                </button>
-                <button v-if="isMine(r)" class="cmt-op danger" @click="confirmDelete(r.id, true)">
-                  <DeleteOutlined /> {{ t('common.delete') }}
-                </button>
-              </div>
+              <div v-if="deletedMap[r.id]" class="reply-content cmt-deleted">{{ t('comment.deletedPlaceholder') }}</div>
+              <template v-else>
+                <div class="reply-content">{{ r.content }}</div>
+                <div class="reply-ops">
+                  <button class="cmt-op" @click="toggleReply(c.id)">
+                    <MessageOutlined /> {{ t('comment.reply') }}
+                  </button>
+                  <button v-if="isMine(r)" class="cmt-op danger" @click="confirmDelete(r.id, true)">
+                    <DeleteOutlined /> {{ t('common.delete') }}
+                  </button>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -438,6 +444,8 @@ const replyText = ref('')
 const replyingId = ref('')
 const showAll = ref(false)
 const likedMap = ref<Record<string, boolean>>({})
+// 软删占位标记（PRD D7）：删除只置标记、保留节点与其子回复
+const deletedMap = ref<Record<string, boolean>>({})
 const mentionOpen = ref(false)
 const mentionSearch = ref('')
 
@@ -559,9 +567,8 @@ function confirmDelete(targetId: string, isReply: boolean) {
     cancelText: t('common.cancel'),
     okButtonProps: { danger: true },
     onOk: () => {
-      comments.value = comments.value
-        .filter((c) => c.id !== targetId)
-        .map((c) => (c.replies.length ? { ...c, replies: c.replies.filter((r) => r.id !== targetId) } : c))
+      // 软删：仅置占位标记，保留评论/回复节点及其子回复继续渲染
+      deletedMap.value[targetId] = true
       message.success(t(isReply ? 'comment.deleteReplySuccess' : 'comment.deleteSuccess'))
     }
   })
@@ -996,6 +1003,10 @@ onMounted(async () => {
   margin-bottom: 6px;
   white-space: pre-wrap;
   word-break: break-word;
+}
+.cmt-deleted {
+  color: hsl(var(--secondary-text));
+  font-style: italic;
 }
 .cmt-ops {
   display: flex;

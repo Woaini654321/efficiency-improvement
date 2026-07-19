@@ -38,7 +38,7 @@ export interface AnnouncementDTO {
   publisher_name: string
   is_pinned: boolean
   priority: string // high | normal
-  status: string // draft | published | expired
+  status: string // draft | published | archived
   view_count: number
   published_at?: string
 }

@@ -12,7 +12,7 @@
       "created_at": "2026-07-10 09:12:00",
       "tags": [
         "5G",
-        "RedCap",
+        "5G RedCap",
         "工业网关"
       ],
       "comments": [
@@ -83,7 +83,7 @@
       "is_hot": true,
       "created_at": "2026-07-09 14:30:00",
       "tags": [
-        "NB-IoT",
+        "NB-IoT 模组",
         "智慧水表",
         "低功耗"
       ],
@@ -126,7 +126,7 @@
       "created_at": "2026-07-07 08:45:00",
       "tags": [
         "3GPP",
-        "RedCap",
+        "5G RedCap",
         "行业趋势"
       ],
       "comments": []
@@ -175,7 +175,7 @@
       "is_hot": false,
       "created_at": "2026-07-04 09:00:00",
       "tags": [
-        "GNSS",
+        "GNSS 定位模组",
         "高精度定位",
         "RTK"
       ],
@@ -192,7 +192,7 @@
       "is_hot": false,
       "created_at": "2026-07-03 11:00:00",
       "tags": [
-        "Cat.1",
+        "Cat.1 模组",
         "产测",
         "降本"
       ],
@@ -210,7 +210,7 @@
       "created_at": "2026-07-02 10:30:00",
       "tags": [
         "农业物联网",
-        "NB-IoT",
+        "NB-IoT 模组",
         "政策"
       ],
       "comments": []

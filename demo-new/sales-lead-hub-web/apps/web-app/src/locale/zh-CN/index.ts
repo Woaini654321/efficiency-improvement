@@ -174,7 +174,7 @@ export const zh_CN = {
     announceStatus: {
       draft: '草稿',
       published: '已发布',
-      expired: '已过期'
+      archived: '已下架'
     },
     // 优先级（公告）
     priority: {
@@ -229,8 +229,8 @@ export const zh_CN = {
     },
     auditContentType: { opportunity: '方案信息', request: '方案需求' },
     auditStatus: {
-      published: '已发布', archived: '已下架', pending: '待响应',
-      collecting: '收集中', adopted: '已采纳', closed: '已关闭'
+      published: '已发布', archived: '已下架', Pending: '待响应',
+      Collecting: '收集中', Adopted: '已采纳', Closed: '已关闭'
     }
   },
   // ==== opportunity 业务文案 ====
@@ -396,6 +396,9 @@ export const zh_CN = {
     inviteProgress: '邀请回答进度',
     responded: '已响应',
     respondedN: '已响应 · {n}个方案',
+    slaRemain: '首响剩余 {h}小时{m}分{s}秒',
+    slaOverdue: '首响已超时',
+    slaClosed: '已闭环',
     waitResponse: '待响应',
     nudge: '催促回答',
     submitSolution: '提交方案',
@@ -853,6 +856,7 @@ export const zh_CN = {
   category: {
     addRoot: '新增分类',
     addChild: '新增子级',
+    dragSameLevelOnly: '仅支持同级排序，不能跨层级移动',
     dictType: {
       solutionCategory: '方案分类', solutionType: '方案类型',
       requirementCategory: '需求分类', announceType: '公告类型'
@@ -925,6 +929,7 @@ export const zh_CN = {
     overdueBy: '已超时 {t}',
     responded: '已响应',
     urgeCooldown: '{s}s 后可催办',
+    urgeCooldownMin: '{m} 分钟后可催办',
     urgeTooFast: '催办过于频繁，请稍后再试',
     unit: { day: '天', hour: '时', minute: '分' },
     pageTitle: '需求时效监控',
@@ -1170,6 +1175,7 @@ export const zh_CN = {
   },
   comment: {
     section: '评论区',
+    deletedPlaceholder: '[该评论已被作者删除]',
     placeholder: '写下你的评论...',
     publish: '发布',
     reply: '回复',

@@ -60,7 +60,6 @@
         <a-select-option value="latest">{{ t('requirement.sortLatest') }}</a-select-option>
         <a-select-option value="urgency">{{ t('requirement.sortUrgency') }}</a-select-option>
         <a-select-option value="responses">{{ t('requirement.sortResponses') }}</a-select-option>
-        <a-select-option value="deadline">{{ t('requirement.sortDeadline') }}</a-select-option>
       </a-select>
       <a-input-search :value="keyword" :placeholder="t('requirement.searchPlaceholder')" allow-clear class="w-[220px]"
         @update:value="(v: any) => (keyword = v ?? '')" @search="page = 1" />
@@ -98,11 +97,6 @@
               <span class="ind-tag">{{ item.industry }}</span>
               <span v-for="c in item.categoryNames.slice(0, 2)" :key="c" class="cat-tag">{{ c }}</span>
             </div>
-            <div class="card-deadline" :class="deadlineStatus(item.deadline).type">
-              <ClockCircleOutlined />
-              <span v-if="deadlineStatus(item.deadline).type !== 'normal'">{{ deadlineStatus(item.deadline).label }}</span>
-              <span>{{ t('requirement.deadlineShort') }} {{ shortTime(item.deadline) }}</span>
-            </div>
             <div class="card-foot">
               <span class="card-author">
                 <a-avatar :size="20" class="mini-avatar">{{ firstChar(item.publisherName) }}</a-avatar>
@@ -138,12 +132,6 @@
               <span>{{ t('requirement.industry') }}：{{ item.industry }}</span>
               <span class="sep">|</span>
               <span v-for="c in item.categoryNames.slice(0, 3)" :key="c" class="cat-tag">{{ c }}</span>
-              <span class="sep">|</span>
-              <span class="row-deadline" :class="deadlineStatus(item.deadline).type">
-                <ClockCircleOutlined />
-                <span v-if="deadlineStatus(item.deadline).type !== 'normal'">{{ deadlineStatus(item.deadline).label }}</span>
-                {{ t('requirement.deadlineShort') }} {{ shortTime(item.deadline) }}
-              </span>
             </div>
             <div class="row-line3">
               <span class="row-author">
@@ -177,7 +165,7 @@ import { useI18n } from 'vue-i18n'
 import {
   PlusOutlined, AppstoreOutlined, BarsOutlined, EyeOutlined, FileTextOutlined,
   StarOutlined, StarFilled, InboxOutlined, ClockCircleOutlined, ThunderboltOutlined,
-  CheckCircleOutlined, FilterOutlined, UserOutlined, BellOutlined, AlertOutlined
+  CheckCircleOutlined, FilterOutlined, UserOutlined, BellOutlined
 } from '@ant-design/icons-vue'
 import Empty from '@q-web-plugin/empty'
 import StatCard from '@/components/stat-card/index.vue'
@@ -212,7 +200,7 @@ const categoryFilter = ref('')
 const industryFilter = ref('')
 const statusFilter = ref('')
 const dateRange = ref<string[]>([])
-const sortKey = ref<'latest' | 'urgency' | 'responses' | 'deadline'>('latest')
+const sortKey = ref<'latest' | 'urgency' | 'responses'>('latest')
 const quickTab = ref('all')
 const viewMode = ref<'card' | 'list'>('list')
 const page = ref(1)
@@ -224,8 +212,7 @@ const quickTabs = computed(() => [
   { key: 'mine', label: t('requirement.tabMine'), icon: UserOutlined, count: allItems.value.filter((d) => d.publisherName === CURRENT_USER).length },
   { key: 'subscribed', label: t('requirement.tabSubscribed'), icon: BellOutlined, count: allItems.value.filter((d) => d.categoryNames.some((c) => MY_SUBSCRIPTIONS.includes(c))).length },
   { key: 'bookmarked', label: t('requirement.tabBookmarked'), icon: StarOutlined, count: bookmarks.value.length },
-  { key: 'latest', label: t('requirement.tabLatest'), icon: ClockCircleOutlined, count: null },
-  { key: 'deadline', label: t('requirement.tabDeadline'), icon: AlertOutlined, count: allItems.value.filter((d) => deadlineStatus(d.deadline).type !== 'normal').length }
+  { key: 'latest', label: t('requirement.tabLatest'), icon: ClockCircleOutlined, count: null }
 ])
 
 const categoryOptions = computed(() => {
@@ -255,7 +242,6 @@ const filtered = computed(() => {
   if (quickTab.value === 'mine') list = list.filter((d) => d.publisherName === CURRENT_USER)
   else if (quickTab.value === 'subscribed') list = list.filter((d) => d.categoryNames.some((c) => MY_SUBSCRIPTIONS.includes(c)))
   else if (quickTab.value === 'bookmarked') list = list.filter((d) => bookmarks.value.includes(d.id))
-  else if (quickTab.value === 'deadline') list = list.filter((d) => deadlineStatus(d.deadline).type !== 'normal')
 
   if (kw) list = list.filter((i) => (i.title + i.industry).toLowerCase().includes(kw))
   if (categoryFilter.value) list = list.filter((i) => i.categoryNames.includes(categoryFilter.value))
@@ -270,10 +256,9 @@ const filtered = computed(() => {
     })
   }
 
-  const effectiveSort = quickTab.value === 'latest' ? 'latest' : quickTab.value === 'deadline' ? 'deadline' : sortKey.value
+  const effectiveSort = quickTab.value === 'latest' ? 'latest' : sortKey.value
   const sorted = [...list]
-  if (effectiveSort === 'deadline') sorted.sort((a, b) => dl(a.deadline) - dl(b.deadline))
-  else if (effectiveSort === 'urgency') sorted.sort((a, b) => (urgencyOrder[a.urgency] ?? 9) - (urgencyOrder[b.urgency] ?? 9))
+  if (effectiveSort === 'urgency') sorted.sort((a, b) => (urgencyOrder[a.urgency] ?? 9) - (urgencyOrder[b.urgency] ?? 9))
   else if (effectiveSort === 'responses') sorted.sort((a, b) => b.responseCount - a.responseCount)
   else sorted.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
   // 置顶优先
@@ -285,23 +270,6 @@ const paginated = computed(() =>
   filtered.value.slice((page.value - 1) * pageSize, page.value * pageSize)
 )
 
-function dl(s: string): number {
-  const t2 = new Date((s || '').replace(/-/g, '/')).getTime()
-  return Number.isNaN(t2) ? Number.MAX_SAFE_INTEGER : t2
-}
-
-function deadlineStatus(s: string): { type: 'normal' | 'expiring' | 'expired'; label: string } {
-  const time = dl(s)
-  if (time === Number.MAX_SAFE_INTEGER) return { type: 'normal', label: '' }
-  const diffH = (time - Date.now()) / 3600000
-  if (diffH < 0) return { type: 'expired', label: t('requirement.expired') }
-  if (diffH < 24) return { type: 'expiring', label: t('requirement.expiring') }
-  return { type: 'normal', label: '' }
-}
-
-function shortTime(s: string): string {
-  return s ? s.slice(0, 16) : '--'
-}
 function fmtCount(n: number): string {
   return n >= 1000 ? (n / 1000).toFixed(1) + 'k' : String(n)
 }
@@ -559,24 +527,6 @@ onMounted(load)
   border-radius: 6px;
   padding: 2px 6px;
 }
-.card-deadline {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  color: hsl(var(--secondary-text));
-  margin-bottom: 10px;
-}
-.card-deadline.expiring,
-.row-deadline.expiring {
-  color: #fa8c16;
-  font-weight: 600;
-}
-.card-deadline.expired,
-.row-deadline.expired {
-  color: hsl(var(--error));
-  font-weight: 600;
-}
 .card-foot {
   display: flex;
   align-items: center;
@@ -669,11 +619,6 @@ onMounted(load)
 }
 .row-line2 .sep {
   color: hsl(var(--line));
-}
-.row-deadline {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
 }
 .row-line3 {
   display: flex;

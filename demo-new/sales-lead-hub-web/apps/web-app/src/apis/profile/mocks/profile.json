@@ -16,14 +16,14 @@
   "subscription_tree": {
     "opportunity": [
       {
-        "title": "IoT模组",
+        "title": "IoT 模组",
         "value": "iot-module",
         "key": "iot-module",
         "children": [
-          { "title": "5G模组", "value": "5g", "key": "5g" },
+          { "title": "5G 模组", "value": "5g", "key": "5g" },
           { "title": "4G模组", "value": "4g", "key": "4g" },
           { "title": "WiFi模组", "value": "wifi", "key": "wifi" },
-          { "title": "NB-IoT", "value": "nb", "key": "nb" }
+          { "title": "NB-IoT 模组", "value": "nb", "key": "nb" }
         ]
       },
       {

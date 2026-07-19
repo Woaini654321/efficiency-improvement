@@ -306,10 +306,10 @@ const categoryTree = [
     value: 'product-line',
     label: t('opportunity.catProductLine'),
     children: [
-      { value: '5g-module', label: '5G模组' },
+      { value: '5g-module', label: '5G 模组' },
       { value: '4g-module', label: '4G模组' },
       { value: 'wifi-module', label: 'WiFi模组' },
-      { value: 'nbiot', label: 'NB-IoT' }
+      { value: 'nbiot', label: 'NB-IoT 模组' }
     ]
   },
   {

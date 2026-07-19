@@ -28,14 +28,6 @@
         </div>
 
         <div class="field">
-          <label>{{ t('requirement.deadline') }}</label>
-          <a-date-picker :value="(model.deadline as any)" show-time value-format="YYYY-MM-DD HH:mm:ss" class="w-full"
-            :placeholder="t('requirement.deadlinePlaceholder')" :disabled-date="disabledDate"
-            @update:value="(v: any) => (model.deadline = v)" @change="dirty = true" />
-          <div class="field-extra">{{ t('requirement.deadlineExtra') }}</div>
-        </div>
-
-        <div class="field">
           <label>{{ t('requirement.industry') }}</label>
           <a-input :value="model.industry" :maxlength="50" show-count :placeholder="t('requirement.industryPlaceholder')"
             @update:value="(v: any) => { model.industry = v ?? ''; dirty = true }" />
@@ -196,7 +188,6 @@ const isEdit = computed(() => !!editId)
 interface FormModel {
   title: string
   urgency: string
-  deadline: string | null
   industry: string
   keywords: string[]
   categoryIds: any[]
@@ -210,7 +201,6 @@ interface FormModel {
 const model = reactive<FormModel>({
   title: '',
   urgency: 'normal',
-  deadline: null,
   industry: '',
   keywords: [],
   categoryIds: [],
@@ -235,9 +225,6 @@ const deptTree = options.deptTree
 const personnelList = options.personnelList
 const productLineTree = options.productLineTree
 
-function disabledDate(current: any): boolean {
-  return !!current && current.isBefore(new Date(), 'day')
-}
 function filterOption(input: string, option: any): boolean {
   return String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
 }
@@ -385,7 +372,6 @@ async function populate(rid: string) {
   model.urgency = d.urgency
   model.industry = d.industry
   model.description = d.description
-  if (d.deadline) model.deadline = d.deadline
   model.visibilityType = d.visibilityType || 'all'
   dirty.value = false
 }

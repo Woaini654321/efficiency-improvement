@@ -44,7 +44,6 @@ const toItem = (dto: RequirementDTO): RequirementItem => ({
   escalationLevel: dto.escalation_level ?? '',
   isPinned: dto.is_pinned ?? false,
   coverUrl: dto.cover_url ?? '',
-  deadline: dto.deadline ?? '',
   viewCount: dto.view_count ?? 0,
   responseCount: dto.response_count ?? 0,
   likeCount: dto.like_count ?? 0,

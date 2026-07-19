@@ -26,8 +26,8 @@
     { "content_id": "OPP1006", "title": "BG95-M3 智能穿戴海外部署成功案例", "type": "success_case", "view_count": 356 }
   ],
   "category_dist": [
-    { "name": "IoT模组", "count": 128, "percent": 34.2 },
-    { "name": "5G模组", "count": 86, "percent": 23.0 },
+    { "name": "IoT 模组", "count": 128, "percent": 34.2 },
+    { "name": "5G 模组", "count": 86, "percent": 23.0 },
     { "name": "行业方案", "count": 64, "percent": 17.1 },
     { "name": "车载方案", "count": 48, "percent": 12.8 },
     { "name": "天线产品", "count": 32, "percent": 8.6 },
@@ -60,10 +60,10 @@
     "last6m": [55, 58, 60, 62, 65, 63, 68, 70, 72, 69, 73, 71, 74, 76, 73, 75, 78, 72, 74, 70, 76, 73, 77, 75, 78, 78]
   },
   "opp_category_pie": [
-    { "name": "5G模组", "value": 32, "color": "#1677ff" },
+    { "name": "5G 模组", "value": 32, "color": "#1677ff" },
     { "name": "4G模组", "value": 22, "color": "#52c41a" },
     { "name": "WiFi模组", "value": 18, "color": "#faad14" },
-    { "name": "NB-IoT", "value": 15, "color": "#722ed1" },
+    { "name": "NB-IoT 模组", "value": 15, "color": "#722ed1" },
     { "name": "其他", "value": 13, "color": "#d9d9d9" }
   ],
   "demand_category_pie": [

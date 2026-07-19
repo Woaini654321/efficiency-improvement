@@ -229,14 +229,18 @@ function renderRemaining(row: SlaRequestItem): { text: string; cls: string } {
   return { text: t('sla.remainingLive', { t: formatDur(remaining) }), cls }
 }
 
-// ============ 催办频率限制（demo 10s）============
-const URGE_COOLDOWN_MS = 10_000
+// ============ 催办频率限制（PRD C-3：≥10 分钟）============
+const URGE_COOLDOWN_MS = 600_000
 const urgeCooldownMap = reactive(new Map<string, number>())
 function cooldownLeft(id: string): number {
   const until = urgeCooldownMap.get(id)
   if (until === undefined) return 0
   const left = Math.ceil((until - now.value) / 1000)
   return left > 0 ? left : 0
+}
+// 剩余冷却按分钟展示（向上取整）
+function cooldownLeftMin(id: string): number {
+  return Math.ceil(cooldownLeft(id) / 60)
 }
 
 // ============ 筛选 ============
@@ -306,7 +310,7 @@ function renderRowAction(row: SlaRequestItem) {
     <span class="flex gap-1">
       <a-button type="link" size="small" onClick={() => openDetail(row)}>{t('common.detail')}</a-button>
       {cooldownLeft(row.id) > 0
-        ? <a-button type="link" size="small" disabled>{t('sla.urgeCooldown', { s: cooldownLeft(row.id) })}</a-button>
+        ? <a-button type="link" size="small" disabled>{t('sla.urgeCooldownMin', { m: cooldownLeftMin(row.id) })}</a-button>
         : <a-button type="link" size="small" onClick={() => openUrge([row.id])}>{t('sla.urge')}</a-button>}
     </span>
   )

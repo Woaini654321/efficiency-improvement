@@ -175,7 +175,7 @@ definePage({
 const { t } = useI18n()
 
 const typeColor: Record<string, string> = { notice: 'blue', policy: 'purple', activity: 'green', other: 'default' }
-const statusColor: Record<string, string> = { draft: 'default', published: 'green', expired: 'orange' }
+const statusColor: Record<string, string> = { draft: 'default', published: 'green', archived: 'orange' }
 
 const allItems = ref<AnnounceItem[]>([])
 const keyword = ref('')
@@ -202,7 +202,7 @@ const typeOptions = computed(() => [
 const statusOptions = computed(() => [
   { label: t('dict.announceStatus.draft'), value: 'draft' },
   { label: t('dict.announceStatus.published'), value: 'published' },
-  { label: t('dict.announceStatus.expired'), value: 'expired' }
+  { label: t('dict.announceStatus.archived'), value: 'archived' }
 ])
 
 function renderTitle(row: AnnounceItem) {
@@ -221,8 +221,8 @@ function renderAction(row: AnnounceItem) {
       {row.status === 'draft'
         ? <a-button type="link" size="small" style={{ color: 'hsl(var(--primary))' }} onClick={() => requestPublish(row)}>{t('common.publish')}</a-button>
         : row.status === 'published'
-          ? <a-button type="link" size="small" danger onClick={() => changeStatus(row, 'expired')}>{t('announce.withdraw')}</a-button>
-          : row.status === 'expired'
+          ? <a-button type="link" size="small" danger onClick={() => changeStatus(row, 'archived')}>{t('announce.withdraw')}</a-button>
+          : row.status === 'archived'
             ? <a-button type="link" size="small" style={{ color: 'hsl(var(--primary))' }} onClick={() => changeStatus(row, 'published')}>{t('announce.republish')}</a-button>
             : null}
       <a-popconfirm title={t('announce.deleteConfirm')} onConfirm={() => handleDelete(row.id)}>

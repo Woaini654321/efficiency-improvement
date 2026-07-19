@@ -56,7 +56,6 @@ export interface RequirementDTO {
   escalation_level: string // L0 | L1 | L2 | L3
   is_pinned: boolean
   cover_url?: string
-  deadline?: string
   view_count: number
   response_count: number
   like_count?: number
@@ -85,7 +84,6 @@ export interface RequirementItem {
   escalationLevel: string
   isPinned: boolean
   coverUrl: string
-  deadline: string
   viewCount: number
   responseCount: number
   likeCount: number

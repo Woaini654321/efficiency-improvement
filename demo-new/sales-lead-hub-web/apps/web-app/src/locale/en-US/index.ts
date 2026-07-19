@@ -126,7 +126,7 @@ export const en_US = {
     slaStatus: { normal: 'Normal', warning: 'Approaching', overdue: 'Overdue', responded: 'Responded' },
     taskStatus: { pending: 'Pending', processing: 'Processing', completed: 'Completed', transferred: 'Transferred', cancelled: 'Cancelled' },
     announceType: { notice: 'Notice', policy: 'Policy', activity: 'Activity', other: 'Other' },
-    announceStatus: { draft: 'Draft', published: 'Published', expired: 'Expired' },
+    announceStatus: { draft: 'Draft', published: 'Published', archived: 'Archived' },
     priority: { high: 'High', normal: 'Normal' },
     notifyType: {
       publish: 'Solution Published', response: 'Requirement Response', adopt: 'Solution Adopted',
@@ -144,8 +144,8 @@ export const en_US = {
     result: { success: 'Success', failure: 'Failure' },
     auditContentType: { opportunity: 'Opportunity', request: 'Request' },
     auditStatus: {
-      published: 'Published', archived: 'Archived', pending: 'Pending',
-      collecting: 'Collecting', adopted: 'Adopted', closed: 'Closed'
+      published: 'Published', archived: 'Archived', Pending: 'Pending',
+      Collecting: 'Collecting', Adopted: 'Adopted', Closed: 'Closed'
     }
   },
   opportunity: {
@@ -310,6 +310,9 @@ export const en_US = {
     inviteProgress: 'Invitation Progress',
     responded: 'responded',
     respondedN: 'Responded · {n} solution(s)',
+    slaRemain: 'First response due in {h}h {m}m {s}s',
+    slaOverdue: 'First response overdue',
+    slaClosed: 'Closed',
     waitResponse: 'Awaiting',
     nudge: 'Nudge',
     submitSolution: 'Submit Solution',
@@ -767,6 +770,7 @@ export const en_US = {
   category: {
     addRoot: 'Add Category',
     addChild: 'Add Sub-category',
+    dragSameLevelOnly: 'Only reordering within the same level is allowed',
     dictType: {
       solutionCategory: 'Solution Category', solutionType: 'Solution Type',
       requirementCategory: 'Request Category', announceType: 'Announcement Type'
@@ -839,6 +843,7 @@ export const en_US = {
     overdueBy: 'Overdue {t}',
     responded: 'Responded',
     urgeCooldown: 'Urge in {s}s',
+    urgeCooldownMin: 'Urge in {m}m',
     urgeTooFast: 'Reminders too frequent, please retry later',
     unit: { day: 'd', hour: 'h', minute: 'm' },
     pageTitle: 'SLA Monitor',
@@ -1084,6 +1089,7 @@ export const en_US = {
   },
   comment: {
     section: 'Comments',
+    deletedPlaceholder: '[This comment was deleted by its author]',
     placeholder: 'Write a comment...',
     publish: 'Post',
     reply: 'Reply',

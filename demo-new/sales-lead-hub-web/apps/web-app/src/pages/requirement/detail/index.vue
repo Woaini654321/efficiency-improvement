@@ -22,7 +22,7 @@
             <h2 class="detail-title">{{ detail.title }}</h2>
             <a-tag :color="urgencyColor[detail.urgency] || 'default'" class="font-semibold">{{ t('dict.urgency.' + detail.urgency) }}</a-tag>
             <a-tag :color="statusColor[detail.status] || 'default'">{{ t('dict.reqStatus.' + detail.status) }}</a-tag>
-            <a-tag :color="countdown.color">{{ countdown.label }}</a-tag>
+            <a-tag v-if="countdown.label" :color="countdown.color">{{ countdown.label }}</a-tag>
           </div>
           <div class="meta-line">
             <span><UserOutlined /> {{ detail.publisherName }} · {{ detail.publisherDeptName }}</span>
@@ -168,15 +168,18 @@
                 <a-tag>{{ c.dept }}</a-tag>
                 <span class="text-[12px] text-[hsl(var(--secondary-text))] ml-auto">{{ c.time }}</span>
               </div>
-              <div class="comment-content">
-                <template v-for="(seg, i) in splitMentions(c.content)" :key="i">
-                  <span v-if="seg.mention" class="mention">{{ seg.text }}</span><template v-else>{{ seg.text }}</template>
-                </template>
-              </div>
-              <div class="comment-ops">
-                <span class="op" @click="toggleReply(c.id)"><MessageOutlined /> {{ t('comment.reply') }}</span>
-                <span v-if="c.isMine" class="op danger" @click="deleteComment(c.id)"><DeleteOutlined /> {{ t('common.delete') }}</span>
-              </div>
+              <div v-if="c.deleted" class="comment-content text-[hsl(var(--secondary-text))] italic">{{ t('comment.deletedPlaceholder') }}</div>
+              <template v-else>
+                <div class="comment-content">
+                  <template v-for="(seg, i) in splitMentions(c.content)" :key="i">
+                    <span v-if="seg.mention" class="mention">{{ seg.text }}</span><template v-else>{{ seg.text }}</template>
+                  </template>
+                </div>
+                <div class="comment-ops">
+                  <span class="op" @click="toggleReply(c.id)"><MessageOutlined /> {{ t('comment.reply') }}</span>
+                  <span v-if="c.isMine" class="op danger" @click="deleteComment(c.id)"><DeleteOutlined /> {{ t('common.delete') }}</span>
+                </div>
+              </template>
 
               <div v-if="replyingId === c.id" class="reply-input">
                 <a-textarea :value="replyDraft" :rows="2" :maxlength="500" :placeholder="t('comment.replyPlaceholder')"
@@ -194,14 +197,17 @@
                     <a-tag>{{ r.dept }}</a-tag>
                     <span class="text-[11px] text-[hsl(var(--secondary-text))] ml-auto">{{ r.time }}</span>
                   </div>
-                  <div class="comment-content text-[13px]">
-                    <template v-for="(seg, i) in splitMentions(r.content)" :key="i">
-                      <span v-if="seg.mention" class="mention">{{ seg.text }}</span><template v-else>{{ seg.text }}</template>
-                    </template>
-                  </div>
-                  <div v-if="r.isMine" class="comment-ops">
-                    <span class="op danger" @click="deleteReply(c.id, r.id)"><DeleteOutlined /> {{ t('common.delete') }}</span>
-                  </div>
+                  <div v-if="r.deleted" class="comment-content text-[13px] text-[hsl(var(--secondary-text))] italic">{{ t('comment.deletedPlaceholder') }}</div>
+                  <template v-else>
+                    <div class="comment-content text-[13px]">
+                      <template v-for="(seg, i) in splitMentions(r.content)" :key="i">
+                        <span v-if="seg.mention" class="mention">{{ seg.text }}</span><template v-else>{{ seg.text }}</template>
+                      </template>
+                    </div>
+                    <div v-if="r.isMine" class="comment-ops">
+                      <span class="op danger" @click="deleteReply(c.id, r.id)"><DeleteOutlined /> {{ t('common.delete') }}</span>
+                    </div>
+                  </template>
                 </div>
               </div>
             </div>
@@ -331,22 +337,30 @@ const ME_NAME = options.meName
 const ME_DEPT = options.meDept
 const AVATAR_COLORS = ['#1890ff', '#52c41a', '#fa8c16', '#722ed1', '#eb2f96', '#13c2c2']
 
-// ===== 截止倒计时（每秒 tick） =====
+// ===== SLA 首响倒计时（每秒 tick，仅待响应状态显示） =====
+// 剩余 = createdAt + slaHours(urgency) - now；首响时限：critical 2h / urgent 4h / normal 24h
+const SLA_HOURS: Record<string, number> = { critical: 2, urgent: 4, normal: 24 }
 const now = ref(Date.now())
 let timer: ReturnType<typeof setInterval> | null = null
 const countdown = computed<{ label: string; color: string }>(() => {
-  const s = detail.value?.deadline || ''
-  const time = new Date(s.replace(/-/g, '/')).getTime()
-  if (!s || Number.isNaN(time)) return { label: '--', color: 'default' }
-  const diff = time - now.value
-  if (diff <= 0) return { label: t('requirement.expired'), color: 'red' }
-  const hours = Math.floor(diff / 3600000)
-  if (hours < 24) {
-    const mins = Math.floor((diff % 3600000) / 60000)
-    const secs = Math.floor((diff % 60000) / 1000)
-    return { label: t('requirement.remainHms', { h: hours, m: mins, s: secs }), color: 'red' }
+  const d = detail.value
+  if (!d) return { label: '', color: 'default' }
+  // 非待响应状态不显示倒计时，改显已响应/已闭环
+  if (d.status !== 'Pending') {
+    if (d.status === 'Closed') return { label: t('requirement.slaClosed'), color: 'default' }
+    return { label: t('requirement.responded'), color: 'green' }
   }
-  return { label: t('requirement.remainDays', { n: Math.ceil(hours / 24) }), color: 'orange' }
+  const start = new Date((d.createdAt || '').replace(/-/g, '/')).getTime()
+  if (Number.isNaN(start)) return { label: '', color: 'default' }
+  const slaH = SLA_HOURS[d.urgency] ?? 24
+  const diff = start + slaH * 3600000 - now.value
+  if (diff <= 0) return { label: t('requirement.slaOverdue'), color: 'red' }
+  const h = Math.floor(diff / 3600000)
+  const m = Math.floor((diff % 3600000) / 60000)
+  const s = Math.floor((diff % 60000) / 1000)
+  // 变色阈值：临近(剩余<1h) 橙色告警，正常绿色
+  const color = diff < 3600000 ? 'orange' : 'green'
+  return { label: t('requirement.slaRemain', { h, m, s }), color }
 })
 
 // ===== 互动状态 =====
@@ -456,7 +470,7 @@ function splitMentions(text: string): { text: string; mention: boolean }[] {
 }
 
 // ===== 评论区（本地 mock） =====
-interface ReplyVM { id: string; author: string; dept: string; content: string; time: string; isMine: boolean }
+interface ReplyVM { id: string; author: string; dept: string; content: string; time: string; isMine: boolean; deleted: boolean }
 interface CommentVM extends ReplyVM { replies: ReplyVM[] }
 const comments = ref<CommentVM[]>([])
 const commentDraft = ref('')
@@ -466,8 +480,8 @@ const commentTotal = computed(() => comments.value.reduce((n, c) => n + 1 + c.re
 
 function seedComments() {
   comments.value = options.seedComments.map((c) => ({
-    id: c.id, author: c.author, dept: c.dept, content: c.content, time: c.time, isMine: c.isMine,
-    replies: c.replies.map((r) => ({ id: r.id, author: r.author, dept: r.dept, content: r.content, time: r.time, isMine: r.isMine }))
+    id: c.id, author: c.author, dept: c.dept, content: c.content, time: c.time, isMine: c.isMine, deleted: false,
+    replies: c.replies.map((r) => ({ id: r.id, author: r.author, dept: r.dept, content: r.content, time: r.time, isMine: r.isMine, deleted: false }))
   }))
 }
 
@@ -476,7 +490,7 @@ function submitComment() {
   if (!content) { message.warning(t('requirement.commentRequired')); return }
   comments.value.unshift({
     id: `local-${Date.now()}`, author: ME_NAME, dept: ME_DEPT,
-    content, time: nowStr(), isMine: true, replies: []
+    content, time: nowStr(), isMine: true, deleted: false, replies: []
   })
   commentDraft.value = ''
   message.success(t('comment.submitSuccess'))
@@ -493,7 +507,7 @@ function submitReply(cid: string) {
   const content = replyDraft.value.trim()
   if (!content) return
   const parent = comments.value.find((c) => c.id === cid)
-  if (parent) parent.replies.push({ id: `local-${Date.now()}`, author: ME_NAME, dept: ME_DEPT, content, time: nowStr(), isMine: true })
+  if (parent) parent.replies.push({ id: `local-${Date.now()}`, author: ME_NAME, dept: ME_DEPT, content, time: nowStr(), isMine: true, deleted: false })
   cancelReply()
   message.success(t('comment.submitSuccess'))
 }
@@ -501,7 +515,11 @@ function deleteComment(cid: string) {
   Modal.confirm({
     title: t('requirement.delCommentTitle'),
     okText: t('common.delete'), okButtonProps: { danger: true }, cancelText: t('common.cancel'),
-    onOk: () => { comments.value = comments.value.filter((c) => c.id !== cid); message.success(t('requirement.delOk')) }
+    onOk: () => {
+      const target = comments.value.find((c) => c.id === cid)
+      if (target) target.deleted = true
+      message.success(t('requirement.delOk'))
+    }
   })
 }
 function deleteReply(cid: string, rid: string) {
@@ -510,7 +528,8 @@ function deleteReply(cid: string, rid: string) {
     okText: t('common.delete'), okButtonProps: { danger: true }, cancelText: t('common.cancel'),
     onOk: () => {
       const parent = comments.value.find((c) => c.id === cid)
-      if (parent) parent.replies = parent.replies.filter((r) => r.id !== rid)
+      const target = parent?.replies.find((r) => r.id === rid)
+      if (target) target.deleted = true
       message.success(t('requirement.delOk'))
     }
   })

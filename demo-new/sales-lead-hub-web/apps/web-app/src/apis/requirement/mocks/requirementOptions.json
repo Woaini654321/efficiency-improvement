@@ -1,6 +1,6 @@
 {
   "currentUser": "张伟",
-  "mySubscriptions": ["Cat.1", "5G模组"],
+  "mySubscriptions": ["Cat.1 模组", "5G 模组"],
   "mentionUsers": ["张伟", "李娜", "王强", "陈涛", "孙丽", "刘洋", "周涛", "赵敏", "黄磊", "吴静", "郑凯", "马超"],
   "meName": "当前用户",
   "meDept": "我的部门",
@@ -8,12 +8,12 @@
   "categoryTree": [
     {
       "value": "iot",
-      "label": "IoT模组",
+      "label": "IoT 模组",
       "children": [
-        { "value": "cat1", "label": "Cat.1模组" },
+        { "value": "cat1", "label": "Cat.1 模组" },
         { "value": "cat4", "label": "Cat.4模组" },
-        { "value": "5g", "label": "5G模组" },
-        { "value": "nb", "label": "NB-IoT模组" }
+        { "value": "5g", "label": "5G 模组" },
+        { "value": "nb", "label": "NB-IoT 模组" }
       ]
     },
     {
@@ -38,7 +38,7 @@
       "value": "positioning",
       "label": "定位产品",
       "children": [
-        { "value": "gnss-module", "label": "GNSS定位模组" },
+        { "value": "gnss-module", "label": "GNSS 定位模组" },
         { "value": "rtk", "label": "RTK高精度模组" }
       ]
     }
