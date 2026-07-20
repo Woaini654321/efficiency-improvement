@@ -45,7 +45,15 @@ public class OpportunityRequestDO extends BaseEntity {
     /** Pending/Collecting/Adopted/Closed */
     private String status;
 
-    /** 采纳方案 FK(采纳单一真相源) */
+    /**
+     * 采纳方案 FK(采纳单一真相源)。
+     *
+     * <p>{@code updateStrategy = ALWAYS}：采纳/撤销采纳都要能把该列写成非默认值——
+     * 撤销时需显式置 NULL。默认 NOT_NULL 策略会把 null 从 SET 中剔除，导致撤销采纳
+     * 无法清空该列。评审预埋要求：即便本期只做「采纳」正向写入，也先固定 ALWAYS 策略，
+     * 避免下期做撤销时踩「null 被静默跳过」的坑。</p>
+     */
+    @TableField(updateStrategy = com.baomidou.mybatisplus.annotation.FieldStrategy.ALWAYS)
     private Long adoptedResponseId;
 
     /** 发布人 FK */
@@ -66,6 +74,12 @@ public class OpportunityRequestDO extends BaseEntity {
     /** dept/personnel 时的具体范围 id 集 */
     @TableField(typeHandler = JacksonTypeHandler.class)
     private List<String> visibilityValues;
+
+    /** 是否置顶(运营审核 changePin 写入；2026-07-19 ALTER 补列) */
+    private Boolean isPinned;
+
+    /** 运营排序号(运营审核排序用；2026-07-19 ALTER 补列) */
+    private Integer sortNo;
 
     /** 邀请产品线名快照(展示免JOIN；关系真相源见 request_product_line 关联表) */
     @TableField(typeHandler = JacksonTypeHandler.class)

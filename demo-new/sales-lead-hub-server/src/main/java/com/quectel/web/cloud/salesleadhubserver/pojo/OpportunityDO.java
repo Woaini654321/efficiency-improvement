@@ -1,5 +1,6 @@
 package com.quectel.web.cloud.salesleadhubserver.pojo;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -41,9 +42,9 @@ public class OpportunityDO extends BaseEntity {
     /** product_info/solution/success_case */
     private String type;
 
-    /** 附件[{name,url,size}]（JSON 数组，暂以 List<String> 占位承载） */
+    /** 附件[{name,url,size}]（JSON 数组） */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private List<String> attachments;
+    private List<Attachment> attachments;
 
     /** draft/published/archived */
     private String status;
@@ -60,8 +61,21 @@ public class OpportunityDO extends BaseEntity {
     /** 发布部门名快照 */
     private String publisherDeptName;
 
-    /** 下架人 FK(谁下架谁恢复) */
+    /**
+     * 下架人 FK(谁下架谁恢复)。
+     *
+     * <p>{@code updateStrategy = ALWAYS}：恢复上架要把本列清回 NULL，而 MP 默认
+     * NOT_NULL 策略会静默跳过 null 字段（实测恢复后库里残留旧下架人）。ALWAYS
+     * 使 update 恒写本列；正常 update 流程 DO 从库加载、原值回写，无副作用。</p>
+     */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private Long archivedBy;
+
+    /** 是否置顶(运营审核 changePin 写入；2026-07-19 ALTER 补列) */
+    private Boolean isPinned;
+
+    /** 运营排序号(运营审核排序用；2026-07-19 ALTER 补列) */
+    private Integer sortNo;
 
     /** 分类名快照(展示免JOIN，关系见 opportunity_category) */
     @TableField(typeHandler = JacksonTypeHandler.class)
