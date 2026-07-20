@@ -196,7 +196,7 @@ export const zh_CN = {
       archive: '内容下架',
       category_change: '分类变更',
       announcement: '公告推送',
-      mention: '@提及',
+      mention: "{'@'}提及",
       subscribe: '订阅更新'
     },
     // 通知渠道
@@ -449,7 +449,7 @@ export const zh_CN = {
     emailSent: '已发送邮件通知',
     feishuSent: '已同步至飞书机器人',
     mention: '提及',
-    commentPlaceholder: '支持 @提及用户，输入评论...',
+    commentPlaceholder: "支持 {'@'}提及用户，输入评论...",
     commentRequired: '请输入评论内容',
     delCommentTitle: '确认删除此评论？',
     delReplyTitle: '确认删除此回复？',
@@ -529,7 +529,7 @@ export const zh_CN = {
     hotPosts: '讨论热帖',
     replies: '回复',
     topic: {
-      opportunity: '商机讨论',
+      business: '商机讨论',
       solution: '方案互助',
       experience: '经验分享',
       industry: '行业动态',
@@ -710,7 +710,7 @@ export const zh_CN = {
     matrixTitle: '通知类型与渠道',
     inAppLockedTip: '站内信为默认通知渠道，不可关闭',
     restoredTip: '已恢复默认设置，点击保存生效',
-    typeDesc: { publish: '新方案上线通知', response: '你的需求收到新方案响应', adopt: '你的方案被标记为最佳或采纳', mention: '评论或讨论中被 @ 提及', subscribe: '你订阅的分类/方案有新内容', system: 'SLA告警、平台维护、运营报告' }
+    typeDesc: { publish: '新方案上线通知', response: '你的需求收到新方案响应', adopt: '你的方案被标记为最佳或采纳', mention: "评论或讨论中被 {'@'} 提及", subscribe: '你订阅的分类/方案有新内容', system: 'SLA告警、平台维护、运营报告' }
   },
   profile: {
     employeeNo: '工号',
@@ -967,6 +967,7 @@ export const zh_CN = {
     publishConfirmTitle: '确认发布公告',
     publishConfirmContent: '发布后公告将对所有用户可见，确认发布？',
     publishConfirmHint: '已发布公告可在列表中随时下架。',
+    publishDraftSaved: '已存为草稿，发布未成功，请在列表中重试发布。',
     batchDeleteConfirm: '确认删除选中的 {n} 条公告？此操作不可恢复。'
   },
   batch: {
@@ -1189,9 +1190,9 @@ export const zh_CN = {
     hoursAgo: '{n} 小时前',
     daysAgo: '{n} 天前',
     headerLabel: '评论',
-    composePlaceholder: '写下你的评论，输入 @ 提及其他用户...',
+    composePlaceholder: "写下你的评论，输入 {'@'} 提及其他用户...",
     publishComment: '发表评论',
-    mentionHint: '支持 @提及用户',
+    mentionHint: "支持 {'@'}提及用户",
     mentionEmpty: '无匹配用户',
     inputWarning: '请输入评论内容',
     replySuccess: '回复成功',

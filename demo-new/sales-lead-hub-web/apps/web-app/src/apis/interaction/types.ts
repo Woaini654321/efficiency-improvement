@@ -40,3 +40,11 @@ export type AddCommentParams = {
   content: string
   parentId?: string
 }
+
+// 对内容主体（商机/需求）点赞或收藏的切换入参：
+// id=目标 id；targetType='Opportunity'|'Request'；type='like'|'collect'
+export type LikeTargetParams = {
+  id: string
+  targetType: string
+  type: string
+}

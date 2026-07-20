@@ -24,7 +24,7 @@ export const getCompetitorList = async (
 ): Promise<CompetitorIntelPageResult> => {
   return (await AIRequestGuard({
     adapter: getCompetitorListAdapter,
-    request: mockRequest(
+    request: mockRequest('intel',
       { records: mockData.competitors.records, total: mockData.competitors.total },
       () => request.POST<CompetitorIntelPageResult>({ url: 'intel/competitor/page' }, params)
     )
@@ -34,7 +34,7 @@ export const getCompetitorList = async (
 export const getCompetitorDetail = async (id: string): Promise<CompetitorIntelItem> => {
   return (await AIRequestGuard({
     adapter: getCompetitorDetailAdapter,
-    request: mockRequest(
+    request: mockRequest('intel',
       mockData.competitors.records[0],
       () => request.GET<CompetitorIntelItem>({ url: 'intel/competitor/detail' }, { id })
     )
@@ -47,7 +47,7 @@ export const getIndustryList = async (
 ): Promise<IndustryIntelPageResult> => {
   return (await AIRequestGuard({
     adapter: getIndustryListAdapter,
-    request: mockRequest(
+    request: mockRequest('intel',
       { records: mockData.industries.records, total: mockData.industries.total },
       () => request.POST<IndustryIntelPageResult>({ url: 'intel/industry/page' }, params)
     )
@@ -57,7 +57,7 @@ export const getIndustryList = async (
 export const getIndustryDetail = async (id: string): Promise<IndustryIntelItem> => {
   return (await AIRequestGuard({
     adapter: getIndustryDetailAdapter,
-    request: mockRequest(
+    request: mockRequest('intel',
       mockData.industries.records[0],
       () => request.GET<IndustryIntelItem>({ url: 'intel/industry/detail' }, { id })
     )

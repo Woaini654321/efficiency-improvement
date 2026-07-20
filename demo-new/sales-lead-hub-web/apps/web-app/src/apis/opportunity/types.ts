@@ -34,6 +34,7 @@ export interface OpportunityDTO {
   comment_count: number
   attachments: AttachmentDTO[]
   created_at: string
+  version?: number
   published_at?: string
   // 过期/临期治理冗余快照列（落 opportunities 单表）
   expiry_date?: string | null
@@ -59,6 +60,7 @@ export interface OpportunityItem {
   commentCount: number
   attachments: AttachmentItem[]
   createdAt: string
+  version: number
   publishedAt: string
   // 过期日期与「已被替代」的新版本 id（空则未过期/无新版本）
   expiryDate: string
@@ -76,6 +78,8 @@ export type OpportunityPageResult = PaginationResult<OpportunityItem>
 
 // ============ 增删改参数（用 type 别名，满足 request BodyArg 的 Record<string,JsonValue> 索引签名）============
 export type OpportunityCreateParams = {
+  /** draft=存草稿 published=发布；后端按状态条件校验（发布须分类1~5+正文） */
+  status: string
   publisherId?: string
   title: string
   type: string
@@ -87,4 +91,6 @@ export type OpportunityCreateParams = {
 }
 export type OpportunityUpdateParams = OpportunityCreateParams & {
   id: string
+  /** 读详情时拿到的 version，参与后端 WHERE version=? 乐观锁冲突检测 */
+  version: number
 }

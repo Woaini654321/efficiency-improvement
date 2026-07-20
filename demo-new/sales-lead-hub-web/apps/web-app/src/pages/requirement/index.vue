@@ -171,7 +171,8 @@ import Empty from '@q-web-plugin/empty'
 import StatCard from '@/components/stat-card/index.vue'
 import { getRequirementList } from '@/apis/requirement/requirementApi'
 import type { RequirementItem } from '@/apis/requirement/types'
-import options from '@/apis/requirement/mocks/requirementOptions.json'
+import { getProfile } from '@/apis/profile/profileApi'
+import type { SubscriptionNode } from '@/apis/profile/types'
 
 defineOptions({ name: 'RequirementList' })
 definePage({
@@ -186,9 +187,9 @@ definePage({
 const { t } = useI18n()
 const router = useRouter()
 
-// 展示层：本期以固定当前用户模拟「我发布的」；上线后换 SecurityUtils.getCurrentUser
-const CURRENT_USER = options.currentUser
-const MY_SUBSCRIPTIONS = options.mySubscriptions
+// 当前登录用户 + 我的订阅：均取自 profile/center（真实登录态与订阅段），不再用本地 mock
+const currentUser = ref('')
+const mySubscriptions = ref<string[]>([])
 
 const urgencyColor: Record<string, string> = { critical: 'red', urgent: 'orange', normal: 'green' }
 const statusColor: Record<string, string> = { Pending: 'orange', Collecting: 'blue', Adopted: 'green', Closed: 'default' }
@@ -209,8 +210,8 @@ const bookmarks = ref<string[]>([])
 
 const quickTabs = computed(() => [
   { key: 'all', label: t('requirement.tabAll'), icon: InboxOutlined, count: allItems.value.length },
-  { key: 'mine', label: t('requirement.tabMine'), icon: UserOutlined, count: allItems.value.filter((d) => d.publisherName === CURRENT_USER).length },
-  { key: 'subscribed', label: t('requirement.tabSubscribed'), icon: BellOutlined, count: allItems.value.filter((d) => d.categoryNames.some((c) => MY_SUBSCRIPTIONS.includes(c))).length },
+  { key: 'mine', label: t('requirement.tabMine'), icon: UserOutlined, count: allItems.value.filter((d) => d.publisherName === currentUser.value).length },
+  { key: 'subscribed', label: t('requirement.tabSubscribed'), icon: BellOutlined, count: allItems.value.filter((d) => d.categoryNames.some((c) => mySubscriptions.value.includes(c))).length },
   { key: 'bookmarked', label: t('requirement.tabBookmarked'), icon: StarOutlined, count: bookmarks.value.length },
   { key: 'latest', label: t('requirement.tabLatest'), icon: ClockCircleOutlined, count: null }
 ])
@@ -239,8 +240,8 @@ const filtered = computed(() => {
   const kw = keyword.value.trim().toLowerCase()
   let list = allItems.value.slice()
 
-  if (quickTab.value === 'mine') list = list.filter((d) => d.publisherName === CURRENT_USER)
-  else if (quickTab.value === 'subscribed') list = list.filter((d) => d.categoryNames.some((c) => MY_SUBSCRIPTIONS.includes(c)))
+  if (quickTab.value === 'mine') list = list.filter((d) => d.publisherName === currentUser.value)
+  else if (quickTab.value === 'subscribed') list = list.filter((d) => d.categoryNames.some((c) => mySubscriptions.value.includes(c)))
   else if (quickTab.value === 'bookmarked') list = list.filter((d) => bookmarks.value.includes(d.id))
 
   if (kw) list = list.filter((i) => (i.title + i.industry).toLowerCase().includes(kw))
@@ -312,8 +313,25 @@ function goForm(id?: string) {
 async function load() {
   loading.value = true
   try {
-    const res = await getRequirementList({ pageNumber: 1, pageSize: 999 })
+    const [res, profile] = await Promise.all([
+      getRequirementList({ pageNumber: 1, pageSize: 999 }),
+      getProfile()
+    ])
     allItems.value = res.records
+    currentUser.value = profile.user.name
+    // 订阅段：subscribedKeys.requirement 是分类 key，经 subscriptionTree.requirement 映射回分类名
+    // （列表按 categoryNames 名称过滤，故需 key→name）
+    const nameByKey = new Map<string, string>()
+    const walk = (nodes: SubscriptionNode[]) => {
+      nodes.forEach((n) => {
+        nameByKey.set(n.value, n.title)
+        if (n.children?.length) walk(n.children)
+      })
+    }
+    walk(profile.subscriptionTree.requirement)
+    mySubscriptions.value = profile.subscribedKeys.requirement
+      .map((k) => nameByKey.get(k))
+      .filter((x): x is string => !!x)
   } finally {
     loading.value = false
   }

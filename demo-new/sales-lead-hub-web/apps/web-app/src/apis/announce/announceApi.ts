@@ -18,7 +18,7 @@ import type {
 export const getAnnounceList = async (params: AnnouncePageParams): Promise<AnnouncePageResult> => {
   return (await AIRequestGuard({
     adapter: getAnnounceListAdapter,
-    request: mockRequest(
+    request: mockRequest('announce',
       { records: mockData.records, total: mockData.total },
       () => request.POST<AnnouncePageResult>({ url: 'operation/announce/page' }, params)
     )
@@ -29,7 +29,7 @@ export const getAnnounceList = async (params: AnnouncePageParams): Promise<Annou
 export const getAnnounceDetail = async (id: string): Promise<AnnounceItem> => {
   return (await AIRequestGuard({
     adapter: getAnnounceDetailAdapter,
-    request: mockRequest(
+    request: mockRequest('announce',
       mockData.records[0],
       () => request.GET<AnnounceItem>({ url: 'operation/announce/detail' }, { id })
     )
@@ -40,7 +40,7 @@ export const getAnnounceDetail = async (id: string): Promise<AnnounceItem> => {
 export const getAnnounceStats = async (): Promise<AnnounceStats> => {
   return (await AIRequestGuard({
     adapter: getAnnounceStatsAdapter,
-    request: mockRequest(
+    request: mockRequest('announce',
       mockData.stats,
       () => request.GET<AnnounceStats>({ url: 'operation/announce/stats' })
     )
@@ -49,9 +49,10 @@ export const getAnnounceStats = async (): Promise<AnnounceStats> => {
 
 // ============ 增删改（直接 request）============
 
-/** 创建公告 */
-export const createAnnounce = async (params: AnnounceCreateParams): Promise<void> => {
-  await request.POST({ url: 'operation/announce/create' }, params)
+/** 创建公告（后端一律落草稿，返回新建 id；发布走 changeStatus 两步串联） */
+export const createAnnounce = async (params: AnnounceCreateParams): Promise<string> => {
+  const raw = await request.POST<string>({ url: 'operation/announce/create' }, params)
+  return String(raw)
 }
 
 /** 更新公告 */

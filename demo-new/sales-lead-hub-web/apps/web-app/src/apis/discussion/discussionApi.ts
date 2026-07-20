@@ -1,13 +1,15 @@
 import { request } from '@q-web-plugin/request'
 import AIRequestGuard from '@ai-request-guard/core'
-import { getDiscussionListAdapter, getDiscussionDetailAdapter } from './discussionAdapter'
+import { getDiscussionListAdapter, getDiscussionDetailAdapter, toCommentNode } from './discussionAdapter'
 import { mockRequest } from '../_shared/mock-switch'
 import mockData from './mocks/discussion.json'
 import type {
   DiscussionPageParams,
   DiscussionPageResult,
   DiscussionItem,
-  DiscussionCreateParams
+  DiscussionCreateParams,
+  DiscussionReplyParams,
+  CommentNode
 } from './types'
 
 // ============ 查询类（AIRequestGuard 包裹）============
@@ -18,7 +20,7 @@ export const getDiscussionList = async (
 ): Promise<DiscussionPageResult> => {
   return (await AIRequestGuard({
     adapter: getDiscussionListAdapter,
-    request: mockRequest(
+    request: mockRequest('discussion',
       { records: mockData.records, total: mockData.total },
       () => request.POST<DiscussionPageResult>({ url: 'discussion/page' }, params)
     )
@@ -29,7 +31,7 @@ export const getDiscussionList = async (
 export const getDiscussionDetail = async (id: string): Promise<DiscussionItem> => {
   return (await AIRequestGuard({
     adapter: getDiscussionDetailAdapter,
-    request: mockRequest(
+    request: mockRequest('discussion',
       mockData.records[0],
       () => request.GET<DiscussionItem>({ url: 'discussion/detail' }, { id })
     )
@@ -41,4 +43,10 @@ export const getDiscussionDetail = async (id: string): Promise<DiscussionItem> =
 /** 发布讨论帖 */
 export const createDiscussion = async (params: DiscussionCreateParams): Promise<void> => {
   await request.POST({ url: 'discussion/create' }, params)
+}
+
+/** 回帖：返回新建评论节点（{ comment_id, author_name, content, created_at, children:[] }），供页面插入评论树 */
+export const replyDiscussion = async (params: DiscussionReplyParams): Promise<CommentNode> => {
+  const raw = await request.POST<CommentNode>({ url: 'discussion/reply' }, params)
+  return toCommentNode(raw)
 }

@@ -176,6 +176,9 @@
                   </template>
                 </div>
                 <div class="comment-ops">
+                  <span class="op" :class="{ active: likedMap[c.id] }" @click="toggleCommentLike(c)">
+                    <LikeFilled v-if="likedMap[c.id]" /><LikeOutlined v-else /> {{ c.likeCount > 0 ? c.likeCount : t('common.like') }}
+                  </span>
                   <span class="op" @click="toggleReply(c.id)"><MessageOutlined /> {{ t('comment.reply') }}</span>
                   <span v-if="c.isMine" class="op danger" @click="deleteComment(c.id)"><DeleteOutlined /> {{ t('common.delete') }}</span>
                 </div>
@@ -309,9 +312,12 @@ import {
 import Empty from '@q-web-plugin/empty'
 import RichEditor from '@/components/rich-editor/index.vue'
 import QUpload from '@/components/q-upload/index.vue'
-import { getRequirementDetail } from '@/apis/requirement/requirementApi'
+import { getRequirementDetail, submitResponse, adoptResponse, closeRequirement } from '@/apis/requirement/requirementApi'
+import { likeTarget, getComments, addComment, likeComment } from '@/apis/interaction/interactionApi'
+import { getEmployeePage } from '@/apis/employee/employeeApi'
+import { getProfile } from '@/apis/profile/profileApi'
 import type { RequirementItem, RequirementResponseItem } from '@/apis/requirement/types'
-import options from '@/apis/requirement/mocks/requirementOptions.json'
+import type { Comment } from '@/apis/interaction/types'
 
 defineOptions({ name: 'RequirementDetail' })
 definePage({
@@ -332,9 +338,9 @@ const detail = ref<RequirementItem | null>(null)
 const urgencyColor: Record<string, string> = { critical: 'red', urgent: 'orange', normal: 'green' }
 const statusColor: Record<string, string> = { Pending: 'orange', Collecting: 'blue', Adopted: 'green', Closed: 'default' }
 
-const mentionUsers = options.mentionUsers
-const ME_NAME = options.meName
-const ME_DEPT = options.meDept
+// @提及候选来自 employee/page；当前登录用户来自 profile/center（isMine 判定用）
+const mentionUsers = ref<string[]>([])
+const ME_NAME = ref('')
 const AVATAR_COLORS = ['#1890ff', '#52c41a', '#fa8c16', '#722ed1', '#eb2f96', '#13c2c2']
 
 // ===== SLA 首响倒计时（每秒 tick，仅待响应状态显示） =====
@@ -371,15 +377,31 @@ const likeCount = ref(0)
 const collectCount = ref(0)
 const shareOpen = ref(false)
 
-function onLike() {
-  liked.value = !liked.value
-  likeCount.value += liked.value ? 1 : -1
-  message.success(liked.value ? t('requirement.likeOk') : t('requirement.likeCancel'))
+const TARGET_TYPE = 'Request'
+async function onLike() {
+  const next = !liked.value
+  liked.value = next
+  likeCount.value += next ? 1 : -1
+  try {
+    await likeTarget({ id, targetType: TARGET_TYPE, type: 'like' })
+    message.success(next ? t('requirement.likeOk') : t('requirement.likeCancel'))
+  } catch {
+    // 失败回滚 UI 状态（拦截器已弹错误 message）
+    liked.value = !next
+    likeCount.value += next ? -1 : 1
+  }
 }
-function onCollect() {
-  collected.value = !collected.value
-  collectCount.value += collected.value ? 1 : -1
-  message.success(collected.value ? t('requirement.collectOk') : t('requirement.collectCancel'))
+async function onCollect() {
+  const next = !collected.value
+  collected.value = next
+  collectCount.value += next ? 1 : -1
+  try {
+    await likeTarget({ id, targetType: TARGET_TYPE, type: 'collect' })
+    message.success(next ? t('requirement.collectOk') : t('requirement.collectCancel'))
+  } catch {
+    collected.value = !next
+    collectCount.value += next ? -1 : 1
+  }
 }
 function onFollow() {
   followed.value = !followed.value
@@ -395,15 +417,29 @@ function doShare(kind: 'feishu' | 'link') {
 const solutions = ref<RequirementResponseItem[]>([])
 const respondedCount = computed(() => detail.value?.invitedProductLines.filter((p) => p.responded).length ?? 0)
 
+// 回读详情：方案区/邀请进度/计数均以后端 detail 为准（SSOT）
+async function reloadDetail() {
+  const d = await getRequirementDetail(id)
+  detail.value = d
+  solutions.value = d.responses.map((r) => ({ ...r }))
+  likeCount.value = d.likeCount
+  collectCount.value = d.collectCount
+}
+
 function handleAdopt(sid: string) {
   Modal.confirm({
     title: t('requirement.adoptConfirmTitle'),
     content: t('requirement.adoptConfirmContent'),
     okText: t('requirement.adoptConfirmOk'),
     cancelText: t('common.cancel'),
-    onOk: () => {
-      solutions.value = solutions.value.map((s) => ({ ...s, isAdopted: s.id === sid }))
+    onOk: async () => {
+      try {
+        await adoptResponse({ id, responseId: sid })
+      } catch {
+        return
+      }
       message.success(t('requirement.adoptOk'))
+      await reloadDetail()
     }
   })
 }
@@ -423,7 +459,15 @@ function handleClose() {
     okText: t('requirement.closeOk'),
     okButtonProps: { danger: true },
     cancelText: t('common.cancel'),
-    onOk: () => message.success(t('requirement.closeOk'))
+    onOk: async () => {
+      try {
+        await closeRequirement({ id })
+      } catch {
+        return
+      }
+      message.success(t('requirement.closeOk'))
+      await reloadDetail()
+    }
   })
 }
 
@@ -440,19 +484,27 @@ const emailOptions = computed(() => [
   { label: t('requirement.emailResponders'), value: 'responders' },
   { label: t('requirement.emailFollowers'), value: 'followers' }
 ])
-const personnelEmailOptions = options.personnelEmailOptions
+// 自定义邮件为自由输入（employee/page 出参不含 email，故不提供预设候选）
+const personnelEmailOptions = ref<{ value: string; label: string }[]>([])
 
-function submitSolution() {
+async function submitSolution() {
   const text = solutionContent.value.replace(/<[^>]+>/g, '').trim()
   if (!text) { message.warning(t('requirement.solutionRequired')); return }
   if (!solutionFiles.value.length) { message.warning(t('requirement.attachRequired')); return }
-  const parts = [t('requirement.solutionSubmitted')]
-  if (emailRecipients.value.length || customEmails.value.length) parts.push(t('requirement.emailSent'))
-  if (feishuSync.value) parts.push(t('requirement.feishuSent'))
-  message.success(parts.join('；'))
+  try {
+    await submitResponse({
+      requestId: id,
+      content: solutionContent.value,
+      files: solutionFiles.value.map((f: any) => f?.name ?? f).filter(Boolean)
+    })
+  } catch {
+    return
+  }
+  message.success(t('requirement.solutionSubmitted'))
   drawerOpen.value = false
   solutionContent.value = ''
   solutionFiles.value = []
+  await reloadDetail()
 }
 
 // ===== @提及插入 =====
@@ -465,34 +517,52 @@ function splitMentions(text: string): { text: string; mention: boolean }[] {
   const parts = text.split(/(@\S+)/g)
   return parts.filter((p) => p !== '').map((p) => ({
     text: p,
-    mention: p.charAt(0) === '@' && mentionUsers.some((u) => `@${u}` === p)
+    mention: p.charAt(0) === '@' && mentionUsers.value.some((u) => `@${u}` === p)
   }))
 }
 
-// ===== 评论区（本地 mock） =====
-interface ReplyVM { id: string; author: string; dept: string; content: string; time: string; isMine: boolean; deleted: boolean }
+// ===== 评论区（interaction 真实接口，≤2级；删除为本地软删占位，点赞走 likeComment） =====
+interface ReplyVM { id: string; author: string; dept: string; content: string; time: string; isMine: boolean; deleted: boolean; likeCount: number }
 interface CommentVM extends ReplyVM { replies: ReplyVM[] }
 const comments = ref<CommentVM[]>([])
 const commentDraft = ref('')
 const replyDraft = ref('')
 const replyingId = ref('')
+// 本地软删占位标记 + 本地点赞态（均按 id 记录，回读后仍能保持）
+const deletedMap = ref<Record<string, boolean>>({})
+const likedMap = ref<Record<string, boolean>>({})
 const commentTotal = computed(() => comments.value.reduce((n, c) => n + 1 + c.replies.length, 0))
 
-function seedComments() {
-  comments.value = options.seedComments.map((c) => ({
-    id: c.id, author: c.author, dept: c.dept, content: c.content, time: c.time, isMine: c.isMine, deleted: false,
-    replies: c.replies.map((r) => ({ id: r.id, author: r.author, dept: r.dept, content: r.content, time: r.time, isMine: r.isMine, deleted: false }))
-  }))
+function mapReply(c: Comment): ReplyVM {
+  return {
+    id: c.id,
+    author: c.authorName,
+    dept: c.authorDept,
+    content: c.content,
+    time: relativeTime(c.createdAt),
+    isMine: !!ME_NAME.value && c.authorName === ME_NAME.value,
+    deleted: deletedMap.value[c.id] ?? false,
+    likeCount: c.likeCount
+  }
+}
+function mapComments(list: Comment[]): CommentVM[] {
+  return list.map((c) => ({ ...mapReply(c), replies: (c.replies ?? []).map(mapReply) }))
+}
+// 回读评论：拿后端真实 id/作者/时间，杜绝本地假 id 与假 parentId
+async function reloadComments() {
+  comments.value = mapComments(await getComments('Request', id))
 }
 
-function submitComment() {
+async function submitComment() {
   const content = commentDraft.value.trim()
   if (!content) { message.warning(t('requirement.commentRequired')); return }
-  comments.value.unshift({
-    id: `local-${Date.now()}`, author: ME_NAME, dept: ME_DEPT,
-    content, time: nowStr(), isMine: true, deleted: false, replies: []
-  })
+  try {
+    await addComment({ targetType: 'Request', targetId: id, content })
+  } catch {
+    return
+  }
   commentDraft.value = ''
+  await reloadComments()
   message.success(t('comment.submitSuccess'))
 }
 function toggleReply(cid: string) {
@@ -503,33 +573,50 @@ function cancelReply() {
   replyingId.value = ''
   replyDraft.value = ''
 }
-function submitReply(cid: string) {
+async function submitReply(cid: string) {
   const content = replyDraft.value.trim()
   if (!content) return
-  const parent = comments.value.find((c) => c.id === cid)
-  if (parent) parent.replies.push({ id: `local-${Date.now()}`, author: ME_NAME, dept: ME_DEPT, content, time: nowStr(), isMine: true, deleted: false })
+  try {
+    // parentId 用真实评论 id（回读保证 cid 非 local- 假 id）
+    await addComment({ targetType: 'Request', targetId: id, content, parentId: cid })
+  } catch {
+    return
+  }
   cancelReply()
+  await reloadComments()
   message.success(t('comment.submitSuccess'))
+}
+async function toggleCommentLike(vm: ReplyVM) {
+  if (likedMap.value[vm.id]) return // 无取消点赞接口，已赞不重复提交
+  try {
+    await likeComment(vm.id)
+  } catch {
+    return
+  }
+  likedMap.value[vm.id] = true
+  vm.likeCount += 1
+}
+function markDeleted(targetId: string) {
+  deletedMap.value[targetId] = true
+  const hit = comments.value.find((c) => c.id === targetId) ?? comments.value.flatMap((c) => c.replies).find((r) => r.id === targetId)
+  if (hit) hit.deleted = true
 }
 function deleteComment(cid: string) {
   Modal.confirm({
     title: t('requirement.delCommentTitle'),
     okText: t('common.delete'), okButtonProps: { danger: true }, cancelText: t('common.cancel'),
     onOk: () => {
-      const target = comments.value.find((c) => c.id === cid)
-      if (target) target.deleted = true
+      markDeleted(cid)
       message.success(t('requirement.delOk'))
     }
   })
 }
-function deleteReply(cid: string, rid: string) {
+function deleteReply(_cid: string, rid: string) {
   Modal.confirm({
     title: t('requirement.delReplyTitle'),
     okText: t('common.delete'), okButtonProps: { danger: true }, cancelText: t('common.cancel'),
     onOk: () => {
-      const parent = comments.value.find((c) => c.id === cid)
-      const target = parent?.replies.find((r) => r.id === rid)
-      if (target) target.deleted = true
+      markDeleted(rid)
       message.success(t('requirement.delOk'))
     }
   })
@@ -539,10 +626,18 @@ function deleteReply(cid: string, rid: string) {
 function firstChar(name: string): string { return name ? name.charAt(0) : '?' }
 function avatarColor(i: number): string { return AVATAR_COLORS[i % AVATAR_COLORS.length] || '#1890ff' }
 function ellipsis(s: string, n: number): string { return s.length > n ? s.slice(0, n) + '...' : s }
-function nowStr(): string {
-  const d = new Date()
-  const p = (x: number) => String(x).padStart(2, '0')
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
+function relativeTime(dateStr: string): string {
+  if (!dateStr) return '--'
+  const time = new Date(dateStr.replace(/-/g, '/')).getTime()
+  if (Number.isNaN(time)) return dateStr
+  const min = Math.floor((Date.now() - time) / 60000)
+  if (min < 1) return t('comment.justNow')
+  if (min < 60) return t('comment.minutesAgo', { n: min })
+  const hour = Math.floor(min / 60)
+  if (hour < 24) return t('comment.hoursAgo', { n: hour })
+  const day = Math.floor(hour / 24)
+  if (day < 30) return t('comment.daysAgo', { n: day })
+  return dateStr.slice(0, 10)
 }
 
 onMounted(async () => {
@@ -550,7 +645,14 @@ onMounted(async () => {
   solutions.value = detail.value.responses.map((r) => ({ ...r }))
   likeCount.value = detail.value.likeCount
   collectCount.value = detail.value.collectCount
-  seedComments()
+  // 当前登录用户（isMine 判定）+ @提及候选（employee/page）
+  const [profile, emp] = await Promise.all([
+    getProfile(),
+    getEmployeePage({ pageNumber: 1, pageSize: 50 })
+  ])
+  ME_NAME.value = profile.user.name
+  mentionUsers.value = emp.records.map((e) => e.name).filter(Boolean)
+  await reloadComments()
   timer = setInterval(() => { now.value = Date.now() }, 1000)
 })
 onUnmounted(() => { if (timer) clearInterval(timer) })
@@ -758,6 +860,9 @@ onUnmounted(() => { if (timer) clearInterval(timer) })
   cursor: pointer;
 }
 .op:hover {
+  color: hsl(var(--primary));
+}
+.op.active {
   color: hsl(var(--primary));
 }
 .op.danger:hover {

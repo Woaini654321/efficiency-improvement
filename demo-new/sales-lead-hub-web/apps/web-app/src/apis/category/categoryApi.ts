@@ -17,7 +17,7 @@ import type {
 export const getCategoryList = async (params: CategoryPageParams): Promise<CategoryPageResult> => {
   return (await AIRequestGuard({
     adapter: getCategoryListAdapter,
-    request: mockRequest(
+    request: mockRequest('category',
       { records: mockData.records, total: mockData.total },
       () => request.POST<CategoryPageResult>({ url: 'category/list' }, params)
     )

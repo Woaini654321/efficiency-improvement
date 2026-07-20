@@ -311,13 +311,16 @@ const formModel = reactive<{
   isPinned: boolean
   bannerEnabled: boolean
   content: string
+  // 乐观锁版本号：编辑态由 openEdit 从行数据回填，随 update 提交
+  version: number
 }>({
   title: '',
   type: 'notice',
   priority: 'normal',
   isPinned: false,
   bannerEnabled: false,
-  content: ''
+  content: '',
+  version: 0
 })
 
 function resetForm() {
@@ -328,6 +331,7 @@ function resetForm() {
   formModel.isPinned = false
   formModel.bannerEnabled = false
   formModel.content = ''
+  formModel.version = 0
 }
 function openCreate() {
   resetForm()
@@ -341,6 +345,8 @@ function openEdit(row: AnnounceItem) {
   formModel.isPinned = row.isPinned
   formModel.bannerEnabled = row.bannerEnabled
   formModel.content = row.content
+  // 乐观锁：回填行数据的 version，随 update 原样提交
+  formModel.version = row.version
   formOpen.value = true
 }
 function closeForm() {
@@ -359,49 +365,34 @@ function validForm(): boolean {
   return true
 }
 
-function now(): string {
-  return new Date().toISOString().slice(0, 16).replace('T', ' ')
-}
-
-function persist(status: string) {
-  if (isEdit.value) {
-    const c = allItems.value.find((i) => i.id === editId.value)
-    if (c) {
-      c.title = formModel.title
-      c.type = formModel.type
-      c.priority = formModel.priority
-      c.isPinned = formModel.isPinned
-      c.bannerEnabled = formModel.bannerEnabled
-      c.content = formModel.content
-      c.status = status
-      if (status === 'published' && !c.publishedAt) c.publishedAt = now()
-    }
-    updateAnnounce({ id: editId.value as string, ...formModel }).catch(() => {})
-  } else {
-    allItems.value.unshift({
-      id: 'ANN-' + Date.now(),
-      title: formModel.title,
-      type: formModel.type,
-      status,
-      priority: formModel.priority,
-      isPinned: formModel.isPinned,
-      publisherName: t('announce.defaultPublisher'),
-      viewCount: 0,
-      createdAt: now(),
-      publishedAt: status === 'published' ? now() : '',
-      content: formModel.content,
-      bannerEnabled: formModel.bannerEnabled
-    })
-    createAnnounce({ ...formModel }).catch(() => {})
+// 抽取当前表单的创建入参（不含 id/version，供 create 与 update 共用）
+function buildCreateParams() {
+  return {
+    title: formModel.title,
+    type: formModel.type,
+    priority: formModel.priority,
+    isPinned: formModel.isPinned,
+    bannerEnabled: formModel.bannerEnabled,
+    content: formModel.content
   }
-  allItems.value = [...allItems.value]
 }
 
-function saveDraft() {
+async function saveDraft() {
   if (!validForm()) return
-  persist('draft')
-  message.success(t('common.success'))
+  try {
+    if (isEdit.value) {
+      await updateAnnounce({ id: editId.value as string, version: formModel.version, ...buildCreateParams() })
+    } else {
+      // 后端 create 一律落草稿，存草稿即普通新建
+      await createAnnounce(buildCreateParams())
+    }
+  } catch {
+    // 请求失败（含版本冲突）：拦截器已弹 message，保留抽屉让用户重试
+    return
+  }
   formOpen.value = false
+  message.success(t('common.success'))
+  await load()
 }
 
 // ============ 发布确认 ============
@@ -419,45 +410,86 @@ function requestPublish(row: AnnounceItem) {
   publishTargetId.value = row.id
   publishModalOpen.value = true
 }
-function confirmPublish() {
+async function confirmPublish() {
   if (publishFromForm.value) {
-    persist('published')
+    // 后端 create/update 只落草稿，发布须紧跟 changeStatus(published)——两步串联
+    let targetId: string
+    // 第一步：落库（create/update）。失败则保留抽屉重试；create 失败时 editId 仍为 null，重试仍是 create（正确）。
+    try {
+      if (isEdit.value) {
+        await updateAnnounce({ id: editId.value as string, version: formModel.version, ...buildCreateParams() })
+        targetId = editId.value as string
+      } else {
+        targetId = await createAnnounce(buildCreateParams())
+        // 关键：create 成功立即切编辑态，杜绝 changeStatus 失败后重试造成重复 create
+        editId.value = targetId
+      }
+    } catch {
+      publishModalOpen.value = false
+      return
+    }
+    // 第二步：发布。此时草稿已落库，失败则切回列表并提示去列表重试，避免重复 create。
+    try {
+      await changeAnnounceStatus(targetId, 'published')
+    } catch {
+      publishModalOpen.value = false
+      formOpen.value = false
+      message.warning(t('announce.publishDraftSaved'))
+      await load()
+      return
+    }
+    publishModalOpen.value = false
     formOpen.value = false
   } else if (publishTargetId.value) {
-    const row = allItems.value.find((i) => i.id === publishTargetId.value)
-    if (row) applyStatus(row, 'published')
+    try {
+      await changeAnnounceStatus(publishTargetId.value, 'published')
+    } catch {
+      publishModalOpen.value = false
+      return
+    }
+    publishModalOpen.value = false
+  } else {
+    publishModalOpen.value = false
+    return
   }
-  publishModalOpen.value = false
   message.success(t('announce.publishSuccess'))
+  await load()
 }
 
 // ============ 状态 / 删除 ============
-function applyStatus(row: AnnounceItem, status: string) {
-  row.status = status
-  if (status === 'published' && !row.publishedAt) row.publishedAt = now()
-  allItems.value = [...allItems.value]
-  changeAnnounceStatus(row.id, status).catch(() => {})
-}
-function changeStatus(row: AnnounceItem, status: string) {
-  applyStatus(row, status)
+async function changeStatus(row: AnnounceItem, status: string) {
+  try {
+    await changeAnnounceStatus(row.id, status)
+  } catch {
+    return
+  }
   message.success(t('common.success'))
+  await load()
 }
-function handleDelete(id: string) {
-  allItems.value = allItems.value.filter((i) => i.id !== id)
-  deleteAnnounce(id).catch(() => {})
+async function handleDelete(id: string) {
+  try {
+    await deleteAnnounce(id)
+  } catch {
+    return
+  }
   message.success(t('common.success'))
+  await load()
 }
 function handleBatchDelete() {
   if (!selectedRows.value.length) return
   Modal.confirm({
     title: t('announce.batchDeleteConfirm', { n: selectedRows.value.length }),
     okType: 'danger',
-    onOk: () => {
-      const ids = new Set(selectedRows.value.map((r) => r.id))
-      allItems.value = allItems.value.filter((i) => !ids.has(i.id))
-      ids.forEach((id) => deleteAnnounce(id).catch(() => {}))
+    onOk: async () => {
+      const ids = [...new Set(selectedRows.value.map((r) => r.id))]
+      try {
+        await Promise.all(ids.map((id) => deleteAnnounce(id)))
+      } catch {
+        return
+      }
       clearSelection()
       message.success(t('common.success'))
+      await load()
     }
   })
 }

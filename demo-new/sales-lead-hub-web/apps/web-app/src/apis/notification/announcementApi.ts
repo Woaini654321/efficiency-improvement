@@ -17,7 +17,7 @@ export const getAnnouncementList = async (
 ): Promise<AnnouncementPageResult> => {
   return (await AIRequestGuard({
     adapter: getAnnouncementListAdapter,
-    request: mockRequest(
+    request: mockRequest('announce',
       { records: mockData.records, total: mockData.total },
       () => request.POST<AnnouncementPageResult>({ url: 'announcement/page' }, params)
     )
@@ -28,7 +28,7 @@ export const getAnnouncementList = async (
 export const getAnnouncementDetail = async (id: string): Promise<AnnouncementItem> => {
   return (await AIRequestGuard({
     adapter: getAnnouncementDetailAdapter,
-    request: mockRequest(
+    request: mockRequest('announce',
       mockData.records[0],
       () => request.GET<AnnouncementItem>({ url: 'announcement/detail' }, { id })
     )

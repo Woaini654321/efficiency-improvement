@@ -239,7 +239,7 @@ function handleArchive(id: string) {
 async function load() {
   loading.value = true
   try {
-    const res = await getOpportunityList({ pageNumber: 1, pageSize: 999 })
+    const res = await getOpportunityList({ pageNumber: 1, pageSize: 500 })
     allItems.value = res.records
   } finally {
     loading.value = false

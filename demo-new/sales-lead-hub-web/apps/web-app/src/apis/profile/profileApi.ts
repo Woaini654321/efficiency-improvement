@@ -11,7 +11,7 @@ import type { ProfileAggregate } from './types'
 export const getProfile = async (): Promise<ProfileAggregate> => {
   return (await AIRequestGuard({
     adapter: getProfileAdapter,
-    request: mockRequest(
+    request: mockRequest('profile',
       mockData,
       () => request.GET<ProfileAggregate>({ url: 'profile/center' }, {})
     )

@@ -272,6 +272,8 @@ import {
   CalculatorOutlined, TableOutlined, FileTextOutlined, FileOutlined, MailOutlined,
   BulbOutlined, MessageOutlined, EditOutlined, ThunderboltOutlined, CopyOutlined
 } from '@ant-design/icons-vue'
+// tool 是纯前端工具页（话术/邮件/参数计算等本地生成），无对应后端端点，
+// 本期刻意保留本地 JSON 作数据源，不纳入 mock→真实切换范围。
 import toolMock from '@/apis/tool/mocks/tool.json'
 import type { ToolMock, SceneItem, ScriptResult } from '@/apis/tool/types'
 

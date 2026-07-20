@@ -164,6 +164,10 @@ import {
 import RichEditor from '@/components/rich-editor/index.vue'
 import QUpload from '@/components/q-upload/index.vue'
 import { getRequirementList, getRequirementDetail, createRequirement, updateRequirement } from '@/apis/requirement/requirementApi'
+import { fetchCategoryTree, type CategoryTreeNode } from '@/apis/category/categoryTree'
+import { getEmployeePage } from '@/apis/employee/employeeApi'
+import { fetchDepartmentTree, type DeptTreeNode } from '@/apis/department/departmentApi'
+import { fetchProductLineOptions, type ProductLineOption } from '@/apis/productLine/productLineApi'
 import type { RequirementItem } from '@/apis/requirement/types'
 import options from '@/apis/requirement/mocks/requirementOptions.json'
 
@@ -222,11 +226,13 @@ const urgencyOptions = computed(() => [
   { label: t('dict.urgency.critical'), value: 'critical' }
 ])
 
-// ===== 选项 mock（UI 目录，集中在 requirementOptions.json） =====
-const categoryTree = options.categoryTree
-const deptTree = options.deptTree
-const personnelList = options.personnelList
-const productLineTree = options.productLineTree
+// ===== 选项来源（全部远程，SSOT 在后端）=====
+// category 树 = DB category 表；personnel = employee/page；dept = department/tree；
+// productLine = productLine/list（平铺单层）。均在 onMounted 加载，失败兜底空数组不阻塞表单。
+const categoryTree = ref<CategoryTreeNode[]>([])
+const deptTree = ref<DeptTreeNode[]>([])
+const personnelList = ref<{ value: string; label: string }[]>([])
+const productLineTree = ref<ProductLineOption[]>([])
 
 function filterOption(input: string, option: any): boolean {
   return String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
@@ -293,7 +299,7 @@ const notifyEmail = ref(true)
 const visibilityLabel = computed(() =>
   model.visibilityType === 'all' ? t('requirement.visibilityType.all')
     : model.visibilityType === 'dept' ? t('requirement.visibleByDept') : t('requirement.visibleByPerson'))
-const invitedLeafLabels = computed(() => model.invitedProductLines.map((p) => leafLabel(productLineTree, p)).join('、'))
+const invitedLeafLabels = computed(() => model.invitedProductLines.map((p) => leafLabel(productLineTree.value, p)).join('、'))
 
 function leafLabel(tree: any[], path: string[]): string {
   let nodes = tree
@@ -392,7 +398,20 @@ async function populate(rid: string) {
   dirty.value = false
 }
 
+// 各选择器数据源独立加载、互不阻塞：任一失败兜底空数组，不影响表单其余部分
+async function loadSelectors() {
+  categoryTree.value = await fetchCategoryTree().catch(() => [])
+  deptTree.value = await fetchDepartmentTree().catch(() => [])
+  productLineTree.value = await fetchProductLineOptions().catch(() => [])
+  const emp = await getEmployeePage({ pageNumber: 1, pageSize: 500 }).catch(() => null)
+  personnelList.value = (emp?.records ?? []).map((e) => ({
+    value: e.id,
+    label: e.departmentName ? `${e.name}（${e.departmentName}）` : e.name
+  }))
+}
+
 onMounted(async () => {
+  await loadSelectors()
   await loadPool()
   if (editId) await populate(editId)
 })

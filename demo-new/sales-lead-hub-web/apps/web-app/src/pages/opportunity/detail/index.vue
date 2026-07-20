@@ -301,7 +301,7 @@ import Empty from '@q-web-plugin/empty'
 import QFileList from '@/components/q-file-list/index.vue'
 import SocialStats from '@/components/social-stats/index.vue'
 import { getOpportunityDetail, getOpportunityList, changeOpportunityStatus } from '@/apis/opportunity/opportunityApi'
-import { getComments, addComment, likeComment } from '@/apis/interaction/interactionApi'
+import { getComments, addComment, likeComment, likeTarget } from '@/apis/interaction/interactionApi'
 import type { OpportunityItem } from '@/apis/opportunity/types'
 import type { Comment } from '@/apis/interaction/types'
 
@@ -363,15 +363,30 @@ const collected = ref(false)
 const followed = ref(false)
 const shareOpen = ref(false)
 
-function toggleLike() {
-  liked.value = !liked.value
-  likeCount.value += liked.value ? 1 : -1
-  message.success(liked.value ? t('opportunity.liked') : t('common.success'))
+async function toggleLike() {
+  const next = !liked.value
+  liked.value = next
+  likeCount.value += next ? 1 : -1
+  try {
+    await likeTarget({ id, targetType: TARGET_TYPE, type: 'like' })
+    message.success(next ? t('opportunity.liked') : t('common.success'))
+  } catch {
+    // 失败回滚 UI 状态（拦截器已弹错误 message）
+    liked.value = !next
+    likeCount.value += next ? -1 : 1
+  }
 }
-function toggleCollect() {
-  collected.value = !collected.value
-  collectCount.value += collected.value ? 1 : -1
-  message.success(collected.value ? t('opportunity.collected') : t('common.success'))
+async function toggleCollect() {
+  const next = !collected.value
+  collected.value = next
+  collectCount.value += next ? 1 : -1
+  try {
+    await likeTarget({ id, targetType: TARGET_TYPE, type: 'collect' })
+    message.success(next ? t('opportunity.collected') : t('common.success'))
+  } catch {
+    collected.value = !next
+    collectCount.value += next ? -1 : 1
+  }
 }
 function toggleFollow() {
   followed.value = !followed.value
@@ -509,15 +524,8 @@ async function handlePostComment() {
     return
   }
   await addComment({ targetType: TARGET_TYPE, targetId: id, content })
-  comments.value.unshift({
-    id: `local-${Date.now()}`,
-    authorName: myName.value,
-    authorDept: '',
-    content,
-    likeCount: 0,
-    createdAt: new Date().toISOString(),
-    replies: []
-  })
+  // 回读评论列表，拿后端真实 id/作者/时间，杜绝 local- 假 id
+  comments.value = await getComments(TARGET_TYPE, id)
   commentText.value = ''
   mentionOpen.value = false
   message.success(t('comment.submitSuccess'))
@@ -534,16 +542,9 @@ function cancelReply() {
 async function submitReply(parent: Comment) {
   const content = replyText.value.trim()
   if (!content) return
+  // parentId 用真实评论 id（回读保证 parent.id 不再是 local- 假 id）
   await addComment({ targetType: TARGET_TYPE, targetId: id, content, parentId: parent.id })
-  parent.replies.push({
-    id: `local-${Date.now()}`,
-    authorName: myName.value,
-    authorDept: '',
-    content,
-    likeCount: 0,
-    createdAt: new Date().toISOString(),
-    replies: []
-  })
+  comments.value = await getComments(TARGET_TYPE, id)
   cancelReply()
   message.success(t('comment.replySuccess'))
 }
@@ -583,7 +584,7 @@ onMounted(async () => {
 
   comments.value = await getComments(TARGET_TYPE, id)
 
-  const list = await getOpportunityList({ pageNumber: 1, pageSize: 999 })
+  const list = await getOpportunityList({ pageNumber: 1, pageSize: 500 })
   related.value = list.records
     .filter((it) => it.type === d.type && it.id !== d.id && it.status === 'published')
     .slice(0, 4)

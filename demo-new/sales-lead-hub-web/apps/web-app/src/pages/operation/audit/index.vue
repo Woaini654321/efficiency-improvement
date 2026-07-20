@@ -222,7 +222,7 @@ import RichEditor from '@/components/rich-editor/index.vue'
 import QUpload from '@/components/q-upload/index.vue'
 import { QBigTable } from '@/components/q-big-table'
 import type { TableColumn, QBigTableExpose } from '@/components/q-big-table'
-import { getAuditList } from '@/apis/audit/auditApi'
+import { getAuditList, changeAuditPin, changeAuditStatus, deleteAudit } from '@/apis/audit/auditApi'
 import type { AuditItem } from '@/apis/audit/types'
 
 defineOptions({ name: 'OperationAudit' })
@@ -500,28 +500,44 @@ function batchOffline() {
   offlineReason.value = ''
   offlineOpen.value = true
 }
-function confirmOffline() {
+async function confirmOffline() {
   if (!offlineReason.value.trim()) {
     message.warning(t('audit.offlineReasonRequired'))
     return
   }
   const ids = offlineTargets.value
-  allItems.value.forEach((r) => {
-    if (ids.includes(r.id)) r.status = 'archived'
-  })
+  try {
+    // 商机下架 → archived；需求关闭 → Closed（按每条 contentType 决定目标状态）
+    await Promise.all(
+      ids.map((id) => {
+        const item = allItems.value.find((r) => r.id === id)
+        const status = item?.contentType === 'request' ? 'Closed' : 'archived'
+        return changeAuditStatus({ id, status })
+      })
+    )
+  } catch {
+    // 拦截器已弹错误 message；保留弹窗与本地态供重试
+    return
+  }
   message.success(t('audit.offlineDone', { n: ids.length }))
   offlineOpen.value = false
   clearSelection()
+  await load()
 }
 
 // ============ 删除 ============
 function handleDelete(record: AuditItem) {
   Modal.confirm({
     title: t('audit.deleteConfirm'),
-    onOk: () => {
-      allItems.value = allItems.value.filter((r) => r.id !== record.id)
+    onOk: async () => {
+      try {
+        await deleteAudit(record.id)
+      } catch {
+        return
+      }
       clearSelection()
       message.success(t('common.success'))
+      await load()
     }
   })
 }
@@ -532,18 +548,31 @@ function batchDelete() {
   }
   Modal.confirm({
     title: t('audit.batchDeleteConfirm', { n: selectedRows.value.length }),
-    onOk: () => {
-      const ids = new Set(selectedRows.value.map((r) => r.id))
-      allItems.value = allItems.value.filter((r) => !ids.has(r.id))
+    onOk: async () => {
+      const ids = [...new Set(selectedRows.value.map((r) => r.id))]
+      try {
+        await Promise.all(ids.map((id) => deleteAudit(id)))
+      } catch {
+        return
+      }
       clearSelection()
       message.success(t('common.success'))
+      await load()
     }
   })
 }
 
-function togglePin(record: AuditItem) {
-  record.isPinned = !record.isPinned
-  message.success(record.isPinned ? t('audit.pinDone') : t('audit.unpinDone'))
+async function togglePin(record: AuditItem) {
+  const nextPinned = !record.isPinned
+  record.isPinned = nextPinned // 乐观翻转
+  try {
+    await changeAuditPin({ id: record.id, isPinned: nextPinned })
+  } catch {
+    record.isPinned = !nextPinned // 失败还原；拦截器已弹错误 message
+    return
+  }
+  message.success(nextPinned ? t('audit.pinDone') : t('audit.unpinDone'))
+  await load()
 }
 
 // ============ 查看 / 编辑 ============

@@ -254,10 +254,10 @@ const keyword = ref('')
 const dashboard = ref<HomeDashboard | null>(null)
 
 const priorityColor: Record<string, string> = { critical: 'red', urgent: 'orange', normal: 'default' }
-const taskStatusColor: Record<string, string> = { pending: 'blue', processing: 'orange', done: 'green', transferred: 'default' }
+const taskStatusColor: Record<string, string> = { pending: 'blue', processing: 'orange', completed: 'green', transferred: 'default', cancelled: 'default' }
 const typeColor: Record<string, string> = { product_info: 'blue', solution: 'green', success_case: 'orange' }
 const announceColor: Record<string, string> = { notice: 'blue', policy: 'default', activity: 'green', other: 'default' }
-const topicColor: Record<string, string> = { opportunity: 'blue', solution: 'orange', experience: 'green', industry: 'default', complaint: 'red' }
+const topicColor: Record<string, string> = { business: 'blue', solution: 'orange', experience: 'green', industry: 'default', complaint: 'red' }
 
 const STAT_KEYS = ['solutionTotal', 'pendingRequests', 'weekDiscussions', 'activeUsers'] as const
 type StatKey = (typeof STAT_KEYS)[number]

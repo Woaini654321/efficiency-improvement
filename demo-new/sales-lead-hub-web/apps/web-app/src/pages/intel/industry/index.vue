@@ -190,21 +190,8 @@ async function onCommentSubmit(payload: { content: string; parentId?: string }) 
     content: payload.content,
     ...(payload.parentId ? { parentId: payload.parentId } : {})
   })
-  const fresh: Comment = {
-    id: `local-${Date.now()}`,
-    authorName: t('comment.me'),
-    authorDept: '',
-    content: payload.content,
-    likeCount: 0,
-    createdAt: new Date().toISOString(),
-    replies: []
-  }
-  if (payload.parentId) {
-    const parent = comments.value.find((c) => c.id === payload.parentId)
-    if (parent) parent.replies.push(fresh)
-  } else {
-    comments.value.unshift(fresh)
-  }
+  // 回读评论列表，拿后端真实 id/作者/时间，杜绝 local- 假 id 与假 parentId
+  comments.value = await getComments(TARGET_TYPE, id)
   message.success(t('comment.submitSuccess'))
 }
 

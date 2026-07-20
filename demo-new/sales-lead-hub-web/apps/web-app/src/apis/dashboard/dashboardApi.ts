@@ -9,7 +9,7 @@ import type { DashboardData, DashboardQueryParams } from './types'
 export const getDashboard = async (params: DashboardQueryParams = {}): Promise<DashboardData> => {
   return (await AIRequestGuard({
     adapter: getDashboardAdapter,
-    request: mockRequest(
+    request: mockRequest('dashboard',
       mockData,
       () => request.POST<DashboardData>({ url: 'operation/dashboard' }, params)
     )

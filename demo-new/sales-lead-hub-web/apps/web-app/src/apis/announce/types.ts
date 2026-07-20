@@ -15,6 +15,8 @@ export interface AnnounceDTO {
   published_at?: string
   content?: string
   banner_enabled?: boolean
+  // 乐观锁版本号：编辑回填后随 update 提交，后端 @NotNull 校验（不带会 400）
+  version?: number
 }
 
 export interface AnnounceStatsDTO {
@@ -38,6 +40,8 @@ export interface AnnounceItem {
   publishedAt: string
   content: string
   bannerEnabled: boolean
+  // 乐观锁版本号，编辑提交时原样回传
+  version: number
 }
 
 export interface AnnounceStats {
@@ -66,4 +70,6 @@ export type AnnounceCreateParams = {
 }
 export type AnnounceUpdateParams = AnnounceCreateParams & {
   id: string
+  // 后端 update 要求 @NotNull version，参与 WHERE version=? 乐观锁冲突检测
+  version: number
 }

@@ -17,7 +17,7 @@ export const getMeetingList = async (
 ): Promise<MeetingTaskPageResult> => {
   return (await AIRequestGuard({
     adapter: getMeetingListAdapter,
-    request: mockRequest(
+    request: mockRequest('meeting',
       { records: mockData.records, total: mockData.total },
       () => request.POST<MeetingTaskPageResult>({ url: 'meeting/page' }, params)
     )

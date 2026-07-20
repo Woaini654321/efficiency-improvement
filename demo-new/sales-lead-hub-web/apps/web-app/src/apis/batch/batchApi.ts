@@ -11,7 +11,7 @@ import type { BatchMeta, BatchPublishParams } from './types'
 export const getBatchMeta = async (): Promise<BatchMeta> => {
   return (await AIRequestGuard({
     adapter: getBatchMetaAdapter,
-    request: mockRequest(
+    request: mockRequest('batch',
       mockData,
       () => request.GET<BatchMeta>({ url: 'operation/batch/meta' })
     )

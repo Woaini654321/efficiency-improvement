@@ -22,7 +22,8 @@ export const getNotificationListAdapter = (raw: unknown): NotificationPageResult
   const records = data.records ?? []
   return {
     records: records.map(toItem),
-    total: data.total ?? 0
+    // 后端全局 Long→String 会把分页 total 也序列化成字符串（实测 "total":"1"），强制收敛为 number
+    total: Number(data.total ?? 0)
   }
 }
 

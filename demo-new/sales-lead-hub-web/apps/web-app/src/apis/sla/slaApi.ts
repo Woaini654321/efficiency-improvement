@@ -11,7 +11,7 @@ import type { SlaPageParams, SlaPageResult, SlaStats, SlaUrgeParams, SlaMeta } f
 export const getSlaList = async (params: SlaPageParams): Promise<SlaPageResult> => {
   return (await AIRequestGuard({
     adapter: getSlaListAdapter,
-    request: mockRequest(
+    request: mockRequest('sla',
       { records: mockData.records, total: mockData.total },
       () => request.POST<SlaPageResult>({ url: 'operation/sla/page' }, params)
     )
@@ -22,7 +22,7 @@ export const getSlaList = async (params: SlaPageParams): Promise<SlaPageResult> 
 export const getSlaStats = async (): Promise<SlaStats> => {
   return (await AIRequestGuard({
     adapter: getSlaStatsAdapter,
-    request: mockRequest(
+    request: mockRequest('sla',
       mockData.stats,
       () => request.GET<SlaStats>({ url: 'operation/sla/stats' })
     )
@@ -33,7 +33,7 @@ export const getSlaStats = async (): Promise<SlaStats> => {
 export const getSlaMeta = async (): Promise<SlaMeta> => {
   return (await AIRequestGuard({
     adapter: getSlaMetaAdapter,
-    request: mockRequest(
+    request: mockRequest('sla',
       mockData.meta,
       () => request.GET<SlaMeta>({ url: 'operation/sla/meta' })
     )

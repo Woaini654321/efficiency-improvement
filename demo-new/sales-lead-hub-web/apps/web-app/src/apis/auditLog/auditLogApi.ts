@@ -11,7 +11,7 @@ import type { AuditLogPageParams, AuditLogPageResult } from './types'
 export const getAuditLogList = async (params: AuditLogPageParams): Promise<AuditLogPageResult> => {
   return (await AIRequestGuard({
     adapter: getAuditLogListAdapter,
-    request: mockRequest(
+    request: mockRequest('auditLog',
       { records: mockData.records, total: mockData.total },
       () => request.POST<AuditLogPageResult>({ url: 'auditLog/page' }, params)
     )

@@ -17,7 +17,7 @@ export const getNotificationList = async (
 ): Promise<NotificationPageResult> => {
   return (await AIRequestGuard({
     adapter: getNotificationListAdapter,
-    request: mockRequest(
+    request: mockRequest('notification',
       { records: mockData.records, total: mockData.total },
       () => request.POST<NotificationPageResult>({ url: 'notification/page' }, params)
     )

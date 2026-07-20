@@ -39,12 +39,25 @@ export const getDiscussionListAdapter = (raw: unknown): DiscussionPageResult => 
   const records = data.records ?? []
   return {
     records: records.map(toItem),
-    total: data.total ?? 0
+    // 后端全局 Long→String 会把分页 total 也序列化成字符串（实测 "total":"1"），强制收敛为 number
+    total: Number(data.total ?? 0)
   }
 }
 
 // ============ 详情 adapter ============
 export const getDiscussionDetailAdapter = (raw: unknown): DiscussionItem => toItem(raw as DiscussionDTO)
+
+// ============ 回帖单节点 adapter（discussion/reply 返回新建评论节点）============
+export const toCommentNode = (raw: unknown): CommentNode => {
+  const c = raw as CommentDTO
+  return {
+    id: String(c.comment_id),
+    authorName: c.author_name ?? '',
+    content: c.content ?? '',
+    createdAt: c.created_at ?? '',
+    children: mapComments(c.children)
+  }
+}
 
 // ============ register ============
 AIRequestGuard.register({

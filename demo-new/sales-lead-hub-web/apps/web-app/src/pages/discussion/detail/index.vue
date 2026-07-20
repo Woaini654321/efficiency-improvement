@@ -62,7 +62,7 @@ import {
 } from '@ant-design/icons-vue'
 import Empty from '@q-web-plugin/empty'
 import CommentTree from '@/components/comment-tree/index.vue'
-import { getDiscussionDetail } from '@/apis/discussion/discussionApi'
+import { getDiscussionDetail, replyDiscussion } from '@/apis/discussion/discussionApi'
 import type { DiscussionItem, CommentNode } from '@/apis/discussion/types'
 
 defineOptions({ name: 'DiscussionDetail' })
@@ -114,17 +114,16 @@ const insertReply = (nodes: CommentNode[], parentId: string, node: CommentNode):
   return false
 }
 
-const onReply = ({ parentId, content }: { parentId: string; content: string }) => {
+const onReply = async ({ parentId, content }: { parentId: string; content: string }) => {
   if (!detail.value) return
-  const node: CommentNode = {
-    id: `LOCAL-${Date.now()}`,
-    authorName: t('comment.me'),
-    content,
-    createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
-    children: []
-  }
-  if (insertReply(detail.value.comments, parentId, node)) {
-    message.success(t('discussion.replySuccess'))
+  try {
+    // 回帖持久化：后端返回带真实 id 的新节点，再插入评论树（复用 insertReply）
+    const node = await replyDiscussion({ postId: id, parentId, content })
+    if (insertReply(detail.value.comments, parentId, node)) {
+      message.success(t('discussion.replySuccess'))
+    }
+  } catch {
+    // 请求失败：拦截器已弹 message，不插入节点
   }
 }
 

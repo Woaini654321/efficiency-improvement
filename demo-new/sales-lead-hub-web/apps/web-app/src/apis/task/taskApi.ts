@@ -11,7 +11,7 @@ import type { TaskPageParams, TaskPageResult, TaskTransferParams } from './types
 export const getTaskList = async (params: TaskPageParams): Promise<TaskPageResult> => {
   return (await AIRequestGuard({
     adapter: getTaskListAdapter,
-    request: mockRequest(
+    request: mockRequest('task',
       { records: mockData.records, total: mockData.total },
       () => request.POST<TaskPageResult>({ url: 'task/page' }, params)
     )

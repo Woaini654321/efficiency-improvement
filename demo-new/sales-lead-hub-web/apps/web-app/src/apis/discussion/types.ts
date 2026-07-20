@@ -60,3 +60,10 @@ export type DiscussionCreateParams = {
   topic: string
   content: string
 }
+
+// 回帖入参：postId=帖子 id；parentId=被回复的评论 id（顶层回帖可空）；content=正文
+export type DiscussionReplyParams = {
+  postId: string
+  parentId?: string
+  content: string
+}

@@ -250,6 +250,8 @@ import {
 import RichEditor from '@/components/rich-editor/index.vue'
 import QUpload from '@/components/q-upload/index.vue'
 import { getOpportunityDetail, createOpportunity, updateOpportunity } from '@/apis/opportunity/opportunityApi'
+import { fetchCategoryTree, type CategoryTreeNode } from '@/apis/category/categoryTree'
+import { getEmployeePage } from '@/apis/employee/employeeApi'
 import type { OpportunityCreateParams } from '@/apis/opportunity/types'
 
 defineOptions({ name: 'OpportunityForm' })
@@ -278,58 +280,36 @@ const headerTitle = computed(() =>
   isEdit.value ? t('opportunity.editTitle') : isCopy.value ? t('opportunity.copyAsNew') : t('opportunity.add')
 )
 
-// ======== 代发布（展示层 mock 人员）========
+// ======== 代发布（PM 人员选择器切远程 employee/page）========
 const currentUser = { id: 'U-SELF', name: 'San.Zhang 张三', dept: '销售部' }
-const PM_LIST: PmUser[] = [
-  { id: 'PM-01', name: 'Alice.Wang 王芳', dept: '产品一部' },
-  { id: 'PM-02', name: 'Mark.Zhang 张强', dept: '产品二部' },
-  { id: 'PM-03', name: 'Jing.Chen 陈静', dept: '产品三部' },
-  { id: 'PM-04', name: 'David.Zhao 赵伟', dept: '华南大区产品线' }
-]
+// PM 列表来自 employee/page（id = 后端真实用户 id，resolvePublisher 按 id 查本地档案）。
+// 代发布要求操作人是产品经理/管理员，销售账号选别人会被后端 403（fail-closed，符合预期）。
+// onMounted 加载，失败兜底空数组（选择器只剩「本人」，不阻塞发布）。
+const pmList = ref<PmUser[]>([])
 const publisherId = ref(currentUser.id)
 const publisherOptions = computed(() => [
   { label: `${currentUser.name}（${t('opportunity.self')}）`, value: currentUser.id },
-  ...PM_LIST.map((p) => ({ label: `${p.name}（${p.dept}）`, value: p.id }))
+  ...pmList.value.map((p) => ({ label: `${p.name}（${p.dept}）`, value: p.id }))
 ])
 const isProxyPublish = computed(() => publisherId.value !== currentUser.id)
 const publisherLabel = computed(() => {
-  const pm = PM_LIST.find((p) => p.id === publisherId.value)
+  const pm = pmList.value.find((p) => p.id === publisherId.value)
   return pm ? `${pm.name}（${pm.dept}）` : currentUser.name
 })
+async function loadPmList() {
+  const emp = await getEmployeePage({ pageNumber: 1, pageSize: 500 }).catch(() => null)
+  pmList.value = (emp?.records ?? []).map((e) => ({
+    id: e.id,
+    name: e.name,
+    dept: e.departmentName
+  }))
+}
 function filterPublisher(input: string, option: any): boolean {
   return (option.label || '').toLowerCase().includes(input.toLowerCase())
 }
 
-// ======== 分类树（mock）========
-const categoryTree = [
-  {
-    value: 'product-line',
-    label: t('opportunity.catProductLine'),
-    children: [
-      { value: '5g-module', label: '5G 模组' },
-      { value: '4g-module', label: '4G模组' },
-      { value: 'wifi-module', label: 'WiFi模组' },
-      { value: 'nbiot', label: 'NB-IoT 模组' }
-    ]
-  },
-  {
-    value: 'solution',
-    label: t('opportunity.catSolution'),
-    children: [
-      { value: 'smart-city', label: '智慧城市' },
-      { value: 'vehicle', label: '车联网' },
-      { value: 'iiot', label: '工业物联网' }
-    ]
-  },
-  {
-    value: 'case',
-    label: t('opportunity.catCase'),
-    children: [
-      { value: 'carrier', label: '运营商' },
-      { value: 'enterprise', label: '企业客户' }
-    ]
-  }
-]
+// ======== 分类树（远程，SSOT = DB category 表） ========
+const categoryTree = ref<CategoryTreeNode[]>([])
 
 const typeOptions = computed(() => [
   { label: t('dict.oppType.product_info'), value: 'product_info' },
@@ -357,6 +337,8 @@ const formModel = reactive<{
   keywords: string[]
   summary: string
   content: string
+  /** 编辑回填的乐观锁版本，随 update 提交；新建/复制恒为 0 */
+  version: number
 }>({
   title: '',
   type: '',
@@ -364,7 +346,8 @@ const formModel = reactive<{
   industry: '',
   keywords: [],
   summary: '',
-  content: ''
+  content: '',
+  version: 0
 })
 
 // ======== 附件 ========
@@ -409,11 +392,14 @@ const notify = reactive({
 })
 const emailRecipients = ref<string[]>([])
 
-function buildParams(): OpportunityCreateParams {
+function buildParams(status: 'draft' | 'published'): OpportunityCreateParams {
   const categoryIds = formModel.categoryIds
     .map((path) => path[path.length - 1])
     .filter((v): v is string => !!v)
   return {
+    // 存草稿/发布共用一套字段，靠 status 区分——后端按状态条件校验
+    // （draft 只要标题；published 须分类 1~5 + 正文）
+    status,
     title: formModel.title,
     type: formModel.type,
     categoryIds,
@@ -432,8 +418,8 @@ async function handleSaveDraft() {
   }
   saving.value = true
   try {
-    const params = buildParams()
-    if (isEdit.value) await updateOpportunity({ id: editId as string, ...params })
+    const params = buildParams('draft')
+    if (isEdit.value) await updateOpportunity({ id: editId as string, version: formModel.version, ...params })
     else await createOpportunity(params)
     dirty.value = false
     autoSaveStatus.value = 'saved'
@@ -467,8 +453,8 @@ function handlePublishClick() {
 async function handlePublishConfirm() {
   publishing.value = true
   try {
-    const params = buildParams()
-    if (isEdit.value) await updateOpportunity({ id: editId as string, ...params })
+    const params = buildParams('published')
+    if (isEdit.value) await updateOpportunity({ id: editId as string, version: formModel.version, ...params })
     else await createOpportunity(params)
     dirty.value = false
     publishConfirmOpen.value = false
@@ -516,9 +502,13 @@ async function loadForPopulate(sourceId: string, keepTitle: boolean) {
   formModel.type = d.type
   formModel.summary = d.summary
   formModel.content = d.content
+  // 编辑带走 version 参与乐观锁；复制是新建，version 归零
+  formModel.version = keepTitle ? d.version : 0
 }
 
 onMounted(async () => {
+  categoryTree.value = await fetchCategoryTree()
+  await loadPmList()
   if (editId) await loadForPopulate(editId, true)
   else if (copyId) {
     await loadForPopulate(copyId, false)

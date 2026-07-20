@@ -122,3 +122,21 @@ export type RequirementUpdateParams = RequirementCreateParams & {
   /** 乐观锁版本号，取自详情接口，必传。后端用它做 WHERE version=? 判冲突。 */
   version: number
 }
+
+// ============ 方案响应 / 采纳 / 关闭参数 ============
+// 提交方案响应：requestId + 表单实发字段（正文 content、附件名 files）
+export type ResponseCreateParams = {
+  requestId: string
+  content: string
+  files?: string[]
+}
+// 采纳方案：需求 id + 被采纳方案 responseId
+export type RequirementAdoptParams = {
+  id: string
+  responseId: string
+}
+// 关闭需求：需求 id + 可选关闭原因
+export type RequirementCloseParams = {
+  id: string
+  reason?: string
+}

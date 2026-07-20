@@ -14,7 +14,9 @@ const toItem = (dto: AnnounceDTO): AnnounceItem => ({
   createdAt: dto.created_at ?? '',
   publishedAt: dto.published_at ?? '',
   content: dto.content ?? '',
-  bannerEnabled: dto.banner_enabled ?? false
+  bannerEnabled: dto.banner_enabled ?? false,
+  // 全局 Long→String 不影响 Integer version，稳妥 Number() 收敛
+  version: Number(dto.version ?? 0)
 })
 
 // ============ 分页列表 adapter ============
@@ -23,7 +25,8 @@ export const getAnnounceListAdapter = (raw: unknown): AnnouncePageResult => {
   const records = data.records ?? []
   return {
     records: records.map(toItem),
-    total: data.total ?? 0
+    // 后端全局 Long→String 会把分页 total 也序列化成字符串（实测 "total":"1"），强制收敛为 number
+    total: Number(data.total ?? 0)
   }
 }
 

@@ -11,7 +11,7 @@ import type { HomeDashboard } from './types'
 export const getHomeDashboard = async (): Promise<HomeDashboard> => {
   return (await AIRequestGuard({
     adapter: getHomeDashboardAdapter,
-    request: mockRequest(
+    request: mockRequest('home',
       mockData,
       () => request.GET<HomeDashboard>({ url: 'home/dashboard' })
     )

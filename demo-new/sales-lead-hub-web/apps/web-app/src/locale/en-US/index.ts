@@ -363,7 +363,7 @@ export const en_US = {
     emailSent: 'Email notification sent',
     feishuSent: 'Synced to Feishu bot',
     mention: 'Mention',
-    commentPlaceholder: 'Use @ to mention, type a comment...',
+    commentPlaceholder: "Use {'@'} to mention, type a comment...",
     commentRequired: 'Please enter a comment',
     delCommentTitle: 'Delete this comment?',
     delReplyTitle: 'Delete this reply?',
@@ -443,7 +443,7 @@ export const en_US = {
     hotPosts: 'Hot Posts',
     replies: 'Replies',
     topic: {
-      opportunity: 'Leads',
+      business: 'Leads',
       solution: 'Solution Help',
       experience: 'Experience',
       industry: 'Industry',
@@ -624,7 +624,7 @@ export const en_US = {
     matrixTitle: 'Types & Channels',
     inAppLockedTip: 'In-app is the default channel and cannot be turned off',
     restoredTip: 'Defaults restored, click Save to apply',
-    typeDesc: { publish: 'New solution published', response: 'Your requirement received a new response', adopt: 'Your solution was marked best or adopted', mention: 'You were @mentioned in a comment or discussion', subscribe: 'New content in categories/solutions you follow', system: 'SLA alerts, maintenance, operation reports' }
+    typeDesc: { publish: 'New solution published', response: 'Your requirement received a new response', adopt: 'Your solution was marked best or adopted', mention: "You were {'@'}mentioned in a comment or discussion", subscribe: 'New content in categories/solutions you follow', system: 'SLA alerts, maintenance, operation reports' }
   },
   profile: {
     employeeNo: 'Employee No.',
@@ -881,6 +881,7 @@ export const en_US = {
     publishConfirmTitle: 'Confirm Publish',
     publishConfirmContent: 'Once published the announcement is visible to all users. Publish now?',
     publishConfirmHint: 'A published announcement can be taken down anytime.',
+    publishDraftSaved: 'Saved as draft but publish failed. Please retry publishing from the list.',
     batchDeleteConfirm: 'Delete the selected {n} announcements? This cannot be undone.'
   },
   batch: {
@@ -1103,9 +1104,9 @@ export const en_US = {
     hoursAgo: '{n} h ago',
     daysAgo: '{n} d ago',
     headerLabel: 'Comments',
-    composePlaceholder: 'Write a comment, type @ to mention someone...',
+    composePlaceholder: "Write a comment, type {'@'} to mention someone...",
     publishComment: 'Post Comment',
-    mentionHint: 'Type @ to mention users',
+    mentionHint: "Type {'@'} to mention users",
     mentionEmpty: 'No matching users',
     inputWarning: 'Please enter comment content',
     replySuccess: 'Reply posted',

@@ -14,7 +14,7 @@ export interface HomeTaskDTO {
   meeting_name: string
   deadline: string
   priority: string // normal | urgent | critical
-  status: string // pending | processing | done | transferred
+  status: string // pending | processing | completed | transferred | cancelled
   is_overdue: boolean
 }
 
@@ -40,7 +40,7 @@ export interface HomeAnnouncementDTO {
 
 export interface HomePostDTO {
   post_id: string
-  topic: string // opportunity | solution | experience | industry | complaint
+  topic: string // business | solution | experience | industry | complaint
   title: string
   author_name: string
   reply_count: number

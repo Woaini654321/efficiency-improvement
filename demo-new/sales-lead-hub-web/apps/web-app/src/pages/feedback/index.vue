@@ -110,16 +110,22 @@ const sortedList = computed(() => {
   return arr
 })
 
-function toggleLike(id: string) {
+async function toggleLike(id: string) {
   const next = new Set(liked.value)
-  if (next.has(id)) {
-    next.delete(id)
-  } else {
-    next.add(id)
-    // 乐观点赞，后端接入后由该接口回写计数
-    likeFeedback(id)
-  }
+  const adding = !next.has(id)
+  if (adding) next.add(id)
+  else next.delete(id)
   liked.value = next
+  // 仅新增点赞打接口；失败回滚计数（拦截器已弹错误 message）
+  if (adding) {
+    try {
+      await likeFeedback(id)
+    } catch {
+      const rollback = new Set(liked.value)
+      rollback.delete(id)
+      liked.value = rollback
+    }
+  }
 }
 
 // ==== Modal ====
@@ -141,27 +147,20 @@ async function handleSubmit() {
   submitting.value = true
   try {
     await createFeedback({ title: formModel.title, content: formModel.content })
-    // 本地插入，展示效果（后端接入后改为重新拉取列表）
-    list.value.unshift({
-      id: `local-${Date.now()}`,
-      title: formModel.title,
-      content: formModel.content,
-      anonName: t('feedback.anonSelf'),
-      likeCount: 0,
-      createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
-      emoji: '💬',
-      color: '#eb2f96'
-    })
     message.success(t('feedback.postSuccess'))
     modalOpen.value = false
+    // 回读列表，拿后端真实 id/匿名昵称/时间，避免假 id 与伪造行
+    await load()
   } finally {
     submitting.value = false
   }
 }
 
-onMounted(async () => {
+async function load() {
   list.value = await getFeedbackList()
-})
+}
+
+onMounted(load)
 </script>
 
 <style scoped>

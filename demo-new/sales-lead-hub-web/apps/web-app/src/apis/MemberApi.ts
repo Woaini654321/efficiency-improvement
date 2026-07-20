@@ -1,3 +1,4 @@
+// 后端 member/* 已实现（product_line_member），页面 PC-26 未建，本文件待页面落地时对齐真实契约。
 /**
  * 仅 Demo 展示 Request 实例方法如何使用
  *

@@ -11,7 +11,7 @@ import type { FeedbackCreateParams, FeedbackListResult } from './types'
 export const getFeedbackList = async (): Promise<FeedbackListResult> => {
   return (await AIRequestGuard({
     adapter: getFeedbackListAdapter,
-    request: mockRequest(
+    request: mockRequest('feedback',
       { records: mockData.records },
       () => request.GET<FeedbackListResult>({ url: 'feedback/list' })
     )

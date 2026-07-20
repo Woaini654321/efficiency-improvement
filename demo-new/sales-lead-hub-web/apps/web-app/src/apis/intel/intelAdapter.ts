@@ -32,7 +32,7 @@ const toCompetitorItem = (dto: CompetitorIntelDTO): CompetitorIntelItem => ({
 export const getCompetitorListAdapter = (raw: unknown): CompetitorIntelPageResult => {
   const data = raw as { records: CompetitorIntelDTO[]; total: number }
   const records = data.records ?? []
-  return { records: records.map(toCompetitorItem), total: data.total ?? 0 }
+  return { records: records.map(toCompetitorItem), total: Number(data.total ?? 0) }
 }
 export const getCompetitorDetailAdapter = (raw: unknown): CompetitorIntelItem =>
   toCompetitorItem(raw as CompetitorIntelDTO)
@@ -57,7 +57,7 @@ const toIndustryItem = (dto: IndustryIntelDTO): IndustryIntelItem => ({
 export const getIndustryListAdapter = (raw: unknown): IndustryIntelPageResult => {
   const data = raw as { records: IndustryIntelDTO[]; total: number }
   const records = data.records ?? []
-  return { records: records.map(toIndustryItem), total: data.total ?? 0 }
+  return { records: records.map(toIndustryItem), total: Number(data.total ?? 0) }
 }
 export const getIndustryDetailAdapter = (raw: unknown): IndustryIntelItem =>
   toIndustryItem(raw as IndustryIntelDTO)
