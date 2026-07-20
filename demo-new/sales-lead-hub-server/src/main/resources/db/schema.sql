@@ -154,6 +154,8 @@ CREATE TABLE `opportunity` (
   `department_id`       BIGINT        DEFAULT NULL COMMENT '发布部门 FK',
   `publisher_dept_name` VARCHAR(128)  DEFAULT NULL COMMENT '发布部门名快照',
   `archived_by`         BIGINT        DEFAULT NULL COMMENT '下架人 FK(谁下架谁恢复)',
+  `is_pinned`           TINYINT(1)    NOT NULL DEFAULT 0 COMMENT '是否置顶(运营审核 changePin；2026-07-19 ALTER 补列)',
+  `sort_no`             INT           NOT NULL DEFAULT 0 COMMENT '运营排序号(升序，越小越前，对齐前端 a.sortNo-b.sortNo；2026-07-19 ALTER 补列)',
   `category_names`      JSON          DEFAULT NULL COMMENT '分类名快照(展示免JOIN，关系见 opportunity_category)',
   `view_count`          INT           NOT NULL DEFAULT 0 COMMENT '浏览数(去重后自增)',
   `like_count`          INT           NOT NULL DEFAULT 0 COMMENT '点赞数',
@@ -189,6 +191,8 @@ CREATE TABLE `opportunity_request` (
   `publisher_dept_name`        VARCHAR(128) DEFAULT NULL COMMENT '发布部门名快照',
   `visibility_scope`           VARCHAR(20)  NOT NULL DEFAULT 'all' COMMENT 'all/dept/personnel(收窄 D4)',
   `visibility_values`          JSON         DEFAULT NULL COMMENT 'dept/personnel 时的具体范围 id 集',
+  `is_pinned`                  TINYINT(1)   NOT NULL DEFAULT 0 COMMENT '是否置顶(运营审核 changePin；2026-07-19 ALTER 补列)',
+  `sort_no`                    INT          NOT NULL DEFAULT 0 COMMENT '运营排序号(升序，越小越前，对齐前端 a.sortNo-b.sortNo；2026-07-19 ALTER 补列)',
   `invited_product_line_names` JSON         DEFAULT NULL COMMENT '邀请产品线名快照(展示免JOIN；关系真相源见 request_product_line)',
   `category_names`             JSON         DEFAULT NULL COMMENT '分类名快照(关系见 request_category)',
   `sla_status`                 VARCHAR(20)  NOT NULL DEFAULT 'normal' COMMENT 'normal/warning/overdue/responded(派生)',
@@ -422,6 +426,151 @@ CREATE TABLE `alert` (
   PRIMARY KEY (`id`),
   KEY `idx_alert_status` (`alert_type`, `alert_status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='运营告警';
+
+-- =============================================================================
+-- 19~25. Phase 6 补充表（2026-07-19）：会议任务 / 吐槽墙 / 情报中心 / 讨论区
+--   背景：这些模块 PRD v1.0 标记为下期，但前端页面已交付且用户要求全量切真实接口，
+--   字段口径按前端 apis/*/types.ts + mocks/*.json 实发契约反推（详见迁移方案 Phase 6）。
+--   枚举值一律取自前端 mock 实测值；status 统一采用 meeting/task 模块五值口径。
+-- =============================================================================
+CREATE TABLE `meeting` (
+  `id`            BIGINT       NOT NULL COMMENT '主键(雪花)',
+  `name`          VARCHAR(200) NOT NULL COMMENT '会议名',
+  `meeting_date`  DATETIME     DEFAULT NULL COMMENT '会议时间',
+  `recorder_id`   BIGINT       DEFAULT NULL COMMENT '记录人 FK',
+  `recorder_name` VARCHAR(64)  DEFAULT NULL COMMENT '记录人姓名快照',
+  `create_by`     BIGINT       DEFAULT NULL,
+  `update_by`     BIGINT       DEFAULT NULL,
+  `create_time`   DATETIME     DEFAULT NULL,
+  `update_time`   DATETIME     DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_meeting_date` (`meeting_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会议';
+
+CREATE TABLE `meeting_task` (
+  `id`               BIGINT       NOT NULL COMMENT '主键(雪花)',
+  `meeting_id`       BIGINT       NOT NULL COMMENT '会议 FK',
+  `meeting_name`     VARCHAR(200) DEFAULT NULL COMMENT '会议名快照',
+  `meeting_date`     DATETIME     DEFAULT NULL COMMENT '会议时间快照',
+  `recorder_name`    VARCHAR(64)  DEFAULT NULL COMMENT '记录人姓名快照',
+  `task_desc`        VARCHAR(500) NOT NULL COMMENT '任务描述',
+  `priority`         VARCHAR(20)  NOT NULL DEFAULT 'normal' COMMENT 'normal/urgent/critical',
+  `deadline`         DATETIME     DEFAULT NULL COMMENT '截止时间',
+  `status`           VARCHAR(20)  NOT NULL DEFAULT 'pending' COMMENT 'pending/processing/completed/transferred/cancelled',
+  `assignee_ids`     JSON         DEFAULT NULL COMMENT '执行人 id 集',
+  `assignee_names`   JSON         DEFAULT NULL COMMENT '执行人姓名快照集',
+  `transfer_from`    VARCHAR(64)  DEFAULT NULL COMMENT '转出人姓名(空=非转交)',
+  `transfer_history` JSON         DEFAULT NULL COMMENT '转交历史[{time,from,to,reason}]',
+  `complete_remark`  VARCHAR(200) DEFAULT NULL COMMENT '完成备注',
+  `cancel_reason`    VARCHAR(200) DEFAULT NULL COMMENT '取消原因',
+  `last_urged_at`    DATETIME     DEFAULT NULL COMMENT '最近催办时间',
+  `create_by`        BIGINT       DEFAULT NULL,
+  `update_by`        BIGINT       DEFAULT NULL,
+  `create_time`      DATETIME     DEFAULT NULL,
+  `update_time`      DATETIME     DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_mt_meeting` (`meeting_id`),
+  KEY `idx_mt_status` (`status`),
+  KEY `idx_mt_deadline` (`deadline`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会议任务';
+
+CREATE TABLE `feedback` (
+  `id`          BIGINT       NOT NULL COMMENT '主键(雪花)',
+  `title`       VARCHAR(200) NOT NULL COMMENT '标题',
+  `content`     TEXT         DEFAULT NULL COMMENT '内容',
+  `anon_name`   VARCHAR(64)  DEFAULT NULL COMMENT '匿名昵称(后端生成，不暴露真实身份)',
+  `emoji`       VARCHAR(16)  DEFAULT NULL COMMENT '表情',
+  `color`       VARCHAR(16)  DEFAULT NULL COMMENT '卡片色',
+  `like_count`  INT          NOT NULL DEFAULT 0 COMMENT '点赞数',
+  `create_by`   BIGINT       DEFAULT NULL COMMENT '真实作者(仅后台反滥用，接口不出)',
+  `update_by`   BIGINT       DEFAULT NULL,
+  `create_time` DATETIME     DEFAULT NULL,
+  `update_time` DATETIME     DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_fb_created` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='匿名反馈(吐槽墙)';
+
+CREATE TABLE `competitor_intel` (
+  `id`             BIGINT       NOT NULL COMMENT '主键(雪花)',
+  `brand`          VARCHAR(64)  NOT NULL COMMENT '竞品品牌',
+  `product`        VARCHAR(128) DEFAULT NULL COMMENT '竞品产品',
+  `intel_type`     VARCHAR(20)  DEFAULT NULL COMMENT 'new_product/price_change/customer_case/other',
+  `title`          VARCHAR(200) NOT NULL COMMENT '标题',
+  `summary`        VARCHAR(500) DEFAULT NULL COMMENT '摘要',
+  `source`         VARCHAR(128) DEFAULT NULL COMMENT '情报来源',
+  `submitter_id`   BIGINT       DEFAULT NULL COMMENT '提交人 FK',
+  `submitter_name` VARCHAR(64)  DEFAULT NULL COMMENT '提交人姓名快照',
+  `overview`       MEDIUMTEXT   DEFAULT NULL COMMENT '详情-概述',
+  `analysis`       MEDIUMTEXT   DEFAULT NULL COMMENT '详情-分析',
+  `impact`         MEDIUMTEXT   DEFAULT NULL COMMENT '详情-影响',
+  `specs`          JSON         DEFAULT NULL COMMENT '关键信息[{label,value}]',
+  `like_count`     INT          NOT NULL DEFAULT 0,
+  `collect_count`  INT          NOT NULL DEFAULT 0,
+  `view_count`     INT          NOT NULL DEFAULT 0,
+  `create_by`      BIGINT       DEFAULT NULL,
+  `update_by`      BIGINT       DEFAULT NULL,
+  `create_time`    DATETIME     DEFAULT NULL,
+  `update_time`    DATETIME     DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_ci_brand` (`brand`),
+  KEY `idx_ci_type` (`intel_type`),
+  KEY `idx_ci_created` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='竞品情报';
+
+CREATE TABLE `industry_intel` (
+  `id`            BIGINT       NOT NULL COMMENT '主键(雪花)',
+  `industry`      VARCHAR(20)  NOT NULL COMMENT 'trend/automotive/policy/energy/industrial/smartcity',
+  `title`         VARCHAR(200) NOT NULL COMMENT '标题',
+  `summary`       VARCHAR(500) DEFAULT NULL COMMENT '摘要',
+  `source`        VARCHAR(128) DEFAULT NULL COMMENT '来源',
+  `overview`      MEDIUMTEXT   DEFAULT NULL COMMENT '详情-概述',
+  `analysis`      MEDIUMTEXT   DEFAULT NULL COMMENT '详情-分析',
+  `impact`        MEDIUMTEXT   DEFAULT NULL COMMENT '详情-影响',
+  `key_points`    JSON         DEFAULT NULL COMMENT '要点列表',
+  `like_count`    INT          NOT NULL DEFAULT 0,
+  `collect_count` INT          NOT NULL DEFAULT 0,
+  `view_count`    INT          NOT NULL DEFAULT 0,
+  `create_by`     BIGINT       DEFAULT NULL,
+  `update_by`     BIGINT       DEFAULT NULL,
+  `create_time`   DATETIME     DEFAULT NULL,
+  `update_time`   DATETIME     DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_ii_industry` (`industry`),
+  KEY `idx_ii_created` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='行业情报';
+
+CREATE TABLE `discussion_post` (
+  `id`          BIGINT       NOT NULL COMMENT '主键(雪花)',
+  `title`       VARCHAR(200) NOT NULL COMMENT '标题',
+  `content`     MEDIUMTEXT   DEFAULT NULL COMMENT '正文',
+  `topic`       VARCHAR(20)  NOT NULL COMMENT 'business/solution/experience/industry/complaint',
+  `author_id`   BIGINT       NOT NULL COMMENT '作者 FK',
+  `author_name` VARCHAR(64)  DEFAULT NULL COMMENT '作者姓名快照',
+  `tags`        JSON         DEFAULT NULL COMMENT '标签列表',
+  `reply_count` INT          NOT NULL DEFAULT 0 COMMENT '回帖数',
+  `view_count`  INT          NOT NULL DEFAULT 0 COMMENT '浏览数',
+  `is_hot`      TINYINT(1)   NOT NULL DEFAULT 0 COMMENT '热帖标记',
+  `create_by`   BIGINT       DEFAULT NULL,
+  `update_by`   BIGINT       DEFAULT NULL,
+  `create_time` DATETIME     DEFAULT NULL,
+  `update_time` DATETIME     DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_dp_topic` (`topic`),
+  KEY `idx_dp_created` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='讨论帖';
+
+CREATE TABLE `discussion_reply` (
+  `id`          BIGINT      NOT NULL COMMENT '主键(雪花)',
+  `post_id`     BIGINT      NOT NULL COMMENT '所属帖 FK',
+  `parent_id`   BIGINT      DEFAULT NULL COMMENT '父回帖 FK(自引用树，NULL=一级)',
+  `author_id`   BIGINT      NOT NULL COMMENT '作者 FK',
+  `author_name` VARCHAR(64) DEFAULT NULL COMMENT '作者姓名快照',
+  `content`     TEXT        DEFAULT NULL COMMENT '内容',
+  `create_time` DATETIME    DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_dr_post` (`post_id`),
+  KEY `idx_dr_parent` (`parent_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='讨论回帖';
 
 SET FOREIGN_KEY_CHECKS = 1;
 -- =============================================================================
