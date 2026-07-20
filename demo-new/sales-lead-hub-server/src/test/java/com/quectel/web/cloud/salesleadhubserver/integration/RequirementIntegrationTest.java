@@ -1,13 +1,19 @@
 package com.quectel.web.cloud.salesleadhubserver.integration;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.quectel.web.cloud.salesleadhubserver.dao.RequestCategoryDao;
 import com.quectel.web.cloud.salesleadhubserver.dao.RequirementDao;
 import com.quectel.web.cloud.salesleadhubserver.pojo.OpportunityRequestDO;
+import com.quectel.web.cloud.salesleadhubserver.pojo.RequestCategoryDO;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -23,6 +29,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>反选执行：{@code mvn test -Dtest=RequirementIntegrationTest -Dgroups=integration
  * -Dsurefire.excludedGroups=}，且 <b>Tests run: 0 视为 FAIL</b>。</p>
+ *
+ * <p><b>兜底清理</b>：本用例每次插入一条「并发测试」需求。此前无清理逻辑，导致每跑必在
+ * opportunity_request 残留一行。改为在 {@link AfterEach} 里按记录的 id 逐行删除（逻辑删，
+ * 与 AuditIntegrationTest 一致），即便断言中途失败也能清；并防御式清其关联表 request_category
+ * （本用例直连 dao、categoryNames 仅落主表 JSON 列、未写 join 行，故此处通常为 0 行，null 安全）。</p>
  */
 @Tag("integration")
 @SpringBootTest
@@ -33,6 +44,26 @@ class RequirementIntegrationTest {
 
     @Autowired
     RequirementDao dao;
+
+    @Autowired
+    RequestCategoryDao requestCategoryDao;
+
+    /** 本用例创建的需求 id，供 AfterEach 兜底清理。 */
+    private final List<Long> createdReqIds = new ArrayList<>();
+
+    @AfterEach
+    void cleanup() {
+        for (Long id : createdReqIds) {
+            if (id == null) {
+                continue;
+            }
+            // 先清关联表 request_category（防御式，本用例通常无 join 行）
+            requestCategoryDao.remove(new LambdaQueryWrapper<RequestCategoryDO>()
+                    .eq(RequestCategoryDO::getRequestId, id));
+            dao.removeById(id);
+        }
+        createdReqIds.clear();
+    }
 
     /** 黑盒② 乐观锁真实生效 + 黑盒⑤ List&lt;String&gt; 的 JacksonTypeHandler 往返。 */
     @Test
@@ -51,6 +82,7 @@ class RequirementIntegrationTest {
         dao.save(d);
 
         Long id = d.getId();
+        createdReqIds.add(id);   // 立即登记，确保后续任一断言失败也能被 AfterEach 清掉
         assertNotNull(id, "雪花 id 应回填");
 
         OpportunityRequestDO a = dao.getById(id);
