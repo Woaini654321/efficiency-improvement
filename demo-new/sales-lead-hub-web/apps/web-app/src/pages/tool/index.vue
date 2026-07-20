@@ -282,6 +282,7 @@ definePage({
   name: 'ToolAssistant',
   meta: {
     layout: 'default',
+    order: 4,
     menu: { icon: 'q-icon:shop-linear' },
     title: 'tool'
   } satisfies RouteMeta

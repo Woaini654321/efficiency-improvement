@@ -129,6 +129,7 @@ definePage({
   name: 'MyTask',
   meta: {
     layout: 'default',
+    order: 3,
     menu: { icon: 'q-icon:point-list-linear' },
     title: 'task'
     // authCode: '',

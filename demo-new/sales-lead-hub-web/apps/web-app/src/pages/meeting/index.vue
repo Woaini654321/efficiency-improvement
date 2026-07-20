@@ -123,6 +123,7 @@ definePage({
   name: 'MeetingTask',
   meta: {
     layout: 'default',
+    order: 2,
     menu: { icon: 'q-icon:calendar-linear' },
     title: 'meeting'
     // authCode: '',

@@ -240,6 +240,7 @@ definePage({
   name: 'HomeDashboard',
   meta: {
     layout: 'default',
+    order: 1,
     menu: { icon: 'q-icon:home-linear' },
     title: 'home'
     // authCode: '',

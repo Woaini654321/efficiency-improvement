@@ -82,6 +82,7 @@ definePage({
   name: 'FeedbackWall',
   meta: {
     layout: 'default',
+    order: 5,
     menu: { icon: 'q-icon:like-linear' },
     title: 'feedback'
     // authCode: '',

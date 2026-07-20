@@ -345,7 +345,7 @@ definePage({
   name: 'ProfileCenter',
   meta: {
     layout: 'default',
-    order: 4,
+    order: 7,
     menu: { icon: 'q-icon:bookmark-linear' },
     title: 'profile'
   } satisfies RouteMeta
