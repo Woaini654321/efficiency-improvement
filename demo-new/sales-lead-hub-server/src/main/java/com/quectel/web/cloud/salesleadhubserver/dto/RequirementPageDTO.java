@@ -1,30 +1,15 @@
 package com.quectel.web.cloud.salesleadhubserver.dto;
 
 import lombok.Data;
-
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import lombok.EqualsAndHashCode;
 
 /**
- * 需求分页入参。字段名随前端 {@code @q-mono-x/types/base} 的 PaginationParams
- * 及 requirement 模块扩展（keyword/urgency/status/sort，<b>有 sort、无 industry</b>）。
- *
- * <p>DTO 保持 camelCase：全局 Jackson 未开 snake_case 策略，前端实发即 camelCase。</p>
+ * 需求分页入参。分页四字段继承 {@link BasePageDTO}；
+ * 模块扩展字段 keyword/status/urgency/sort（<b>有 sort、无 industry</b>，随前端实发）。
  */
 @Data
-public class RequirementPageDTO {
-
-    @Min(1)
-    private Integer pageNumber;
-
-    /** 框架分页拦截器 maxLimit=500 会静默截断，此处显式夹逼避免"返 500 条但 total 是全量"。 */
-    @Min(1)
-    @Max(500)
-    private Integer pageSize;
-
-    private String orderBy;
-
-    private String orderDirection;
+@EqualsAndHashCode(callSuper = true)
+public class RequirementPageDTO extends BasePageDTO {
 
     private String keyword;
 

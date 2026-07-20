@@ -70,4 +70,10 @@ public class RequirementDetailVO {
 
     /** 供前端 update 时原样回传，乐观锁依赖它。 */
     private Integer version;
+
+    /** 方案响应数组。键名对齐前端 requirementAdapter.ts 的 mapResponses（见 RequirementResponseVO）。 */
+    private List<RequirementResponseVO> responses;
+
+    /** 去重响应人数（按 responder_id 去重），供前端展示「N 人响应」。 */
+    private Integer responderCount;
 }

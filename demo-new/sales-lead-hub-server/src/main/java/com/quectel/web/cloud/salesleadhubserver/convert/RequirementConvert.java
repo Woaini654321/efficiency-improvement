@@ -3,8 +3,10 @@ package com.quectel.web.cloud.salesleadhubserver.convert;
 import com.quectel.web.cloud.salesleadhubserver.dto.RequirementCreateDTO;
 import com.quectel.web.cloud.salesleadhubserver.dto.RequirementUpdateDTO;
 import com.quectel.web.cloud.salesleadhubserver.pojo.OpportunityRequestDO;
+import com.quectel.web.cloud.salesleadhubserver.pojo.SolutionResponseDO;
 import com.quectel.web.cloud.salesleadhubserver.vo.RequirementDetailVO;
 import com.quectel.web.cloud.salesleadhubserver.vo.RequirementPageVO;
+import com.quectel.web.cloud.salesleadhubserver.vo.RequirementResponseVO;
 import org.springframework.stereotype.Component;
 
 /**
@@ -99,6 +101,21 @@ public class RequirementConvert {
 
     // 两个 toXxxVO 各自逐字段显式赋值，字段集相同也不抽公共基类/不用反射：
     // 契约类型保持扁平可读，任一 VO 增减字段时编译器能直接指到这里。
+
+    /** solution_response DO → 详情页方案数组元素。 */
+    public RequirementResponseVO toResponseVO(SolutionResponseDO r) {
+        RequirementResponseVO v = new RequirementResponseVO();
+        v.setResponseId(toIdString(r.getId()));
+        v.setResponderName(r.getResponderName());
+        v.setResponderDeptName(r.getResponderDeptName());
+        v.setContent(r.getContent());
+        // DO isAdopted 是 0/1 的 Integer，契约出参用 Boolean
+        v.setIsAdopted(r.getIsAdopted() != null && r.getIsAdopted() == 1);
+        v.setCreatedAt(r.getCreateTime());
+        v.setProductLineName(null);          // 无来源列，前端兜底（见 VO javadoc）
+        v.setFiles(r.getAttachments());
+        return v;
+    }
 
     private String toIdString(Long id) {
         return id == null ? null : String.valueOf(id);

@@ -4,9 +4,11 @@ import com.quectel.code.security.utils.SecurityUtils;
 import com.quectel.code.web.exception.BaseException;
 import com.quectel.code.web.exception.ErrorCode;
 import com.quectel.web.cloud.salesleadhubserver.convert.RequirementConvert;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.quectel.web.cloud.salesleadhubserver.dao.CategoryDao;
 import com.quectel.web.cloud.salesleadhubserver.dao.RequestCategoryDao;
 import com.quectel.web.cloud.salesleadhubserver.dao.RequirementDao;
+import com.quectel.web.cloud.salesleadhubserver.dao.SolutionResponseDao;
 import com.quectel.web.cloud.salesleadhubserver.dto.RequirementCreateDTO;
 import com.quectel.web.cloud.salesleadhubserver.dto.RequirementUpdateDTO;
 import com.quectel.web.cloud.salesleadhubserver.pojo.CategoryDO;
@@ -34,10 +36,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.quectel.web.cloud.salesleadhubserver.pojo.SolutionResponseDO;
+import org.mockito.Answers;
+
+import java.util.Collections;
 
 /**
  * service 核心 CRUD 单测：角色门槛 / 发布人回填 / 归属校验 / 乐观锁 / 可见性 / 分类双写。
@@ -51,6 +60,7 @@ class RequirementServiceImplTest {
     @Mock RequirementDao dao;
     @Mock CategoryDao categoryDao;
     @Mock RequestCategoryDao requestCategoryDao;
+    @Mock SolutionResponseDao solutionResponseDao;
     @Mock CurrentUserResolver currentUser;
     @Spy  RequirementConvert convert = new RequirementConvert();
     @InjectMocks RequirementServiceImpl service;
@@ -260,6 +270,68 @@ class RequirementServiceImplTest {
         try (MockedStatic<SecurityUtils> sec = mockStatic(SecurityUtils.class)) {
             sec.when(SecurityUtils::getCurrentUserId).thenReturn(9999L);   // 非发布人
             assertThrows(BaseException.class, () -> service.detail(5L));
+        }
+    }
+
+    // —— 可见性交集（dept / personnel / admin）——
+
+    /** 让 solution_response 的 lambdaQuery 链返回空方案列表（可见路径会走到组装）。 */
+    private void stubEmptyResponses() {
+        @SuppressWarnings("unchecked")
+        LambdaQueryChainWrapper<SolutionResponseDO> chain =
+                mock(LambdaQueryChainWrapper.class, Answers.RETURNS_SELF);
+        when(chain.list()).thenReturn(Collections.emptyList());
+        when(solutionResponseDao.lambdaQuery()).thenReturn(chain);
+    }
+
+    @Test
+    void detail_allows_dept_member_by_intersection() {
+        OpportunityRequestDO d = new OpportunityRequestDO();
+        d.setId(6L);
+        d.setVisibilityScope("dept");
+        d.setVisibilityValues(Arrays.asList("1001"));   // 可见部门
+        d.setPublisherId(9002L);
+        when(dao.getById(6L)).thenReturn(d);
+        // 当前人非发布人，但属部门 1001 → 交集命中可见
+        when(currentUser.currentOrNull()).thenReturn(localUser(7777L, "李四", CurrentUserResolver.ROLE_SALES));
+        stubEmptyResponses();
+
+        try (MockedStatic<SecurityUtils> sec = mockStatic(SecurityUtils.class)) {
+            sec.when(SecurityUtils::getCurrentUserId).thenReturn(7777L);
+            assertDoesNotThrow(() -> service.detail(6L), "部门交集命中应可见");
+        }
+    }
+
+    @Test
+    void detail_rejects_dept_non_member() {
+        OpportunityRequestDO d = new OpportunityRequestDO();
+        d.setId(7L);
+        d.setVisibilityScope("dept");
+        d.setVisibilityValues(Arrays.asList("2002"));   // 仅部门 2002 可见
+        d.setPublisherId(9002L);
+        when(dao.getById(7L)).thenReturn(d);
+        when(currentUser.currentOrNull()).thenReturn(localUser(7777L, "李四", CurrentUserResolver.ROLE_SALES)); // 部门 1001
+
+        try (MockedStatic<SecurityUtils> sec = mockStatic(SecurityUtils.class)) {
+            sec.when(SecurityUtils::getCurrentUserId).thenReturn(7777L);
+            assertThrows(BaseException.class, () -> service.detail(7L), "非可见部门成员应被拒");
+        }
+    }
+
+    @Test
+    void detail_allows_admin_any_scope() {
+        OpportunityRequestDO d = new OpportunityRequestDO();
+        d.setId(8L);
+        d.setVisibilityScope("personnel");
+        d.setVisibilityValues(Arrays.asList("123"));    // 仅指定人员
+        d.setPublisherId(9002L);
+        when(dao.getById(8L)).thenReturn(d);
+        when(currentUser.currentOrNull()).thenReturn(localUser(5L, "管理员", CurrentUserResolver.ROLE_ADMIN));
+        stubEmptyResponses();
+
+        try (MockedStatic<SecurityUtils> sec = mockStatic(SecurityUtils.class)) {
+            sec.when(SecurityUtils::getCurrentUserId).thenReturn(5L);
+            assertDoesNotThrow(() -> service.detail(8L), "admin 全可见");
         }
     }
 }

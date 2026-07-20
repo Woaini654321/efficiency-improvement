@@ -10,6 +10,7 @@ import com.quectel.web.cloud.salesleadhubserver.convert.RequirementConvert;
 import com.quectel.web.cloud.salesleadhubserver.dao.CategoryDao;
 import com.quectel.web.cloud.salesleadhubserver.dao.RequestCategoryDao;
 import com.quectel.web.cloud.salesleadhubserver.dao.RequirementDao;
+import com.quectel.web.cloud.salesleadhubserver.dao.SolutionResponseDao;
 import com.quectel.web.cloud.salesleadhubserver.dto.RequirementCreateDTO;
 import com.quectel.web.cloud.salesleadhubserver.dto.RequirementPageDTO;
 import com.quectel.web.cloud.salesleadhubserver.dto.RequirementUpdateDTO;
@@ -17,6 +18,7 @@ import com.quectel.web.cloud.salesleadhubserver.exception.RequirementErrorCode;
 import com.quectel.web.cloud.salesleadhubserver.pojo.CategoryDO;
 import com.quectel.web.cloud.salesleadhubserver.pojo.OpportunityRequestDO;
 import com.quectel.web.cloud.salesleadhubserver.pojo.RequestCategoryDO;
+import com.quectel.web.cloud.salesleadhubserver.pojo.SolutionResponseDO;
 import com.quectel.web.cloud.salesleadhubserver.pojo.SysUserDO;
 import com.quectel.web.cloud.salesleadhubserver.service.CurrentUserResolver;
 import com.quectel.web.cloud.salesleadhubserver.service.RequirementService;
@@ -28,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,17 +42,20 @@ public class RequirementServiceImpl implements RequirementService {
     private final RequirementDao dao;
     private final CategoryDao categoryDao;
     private final RequestCategoryDao requestCategoryDao;
+    private final SolutionResponseDao solutionResponseDao;
     private final CurrentUserResolver currentUser;
     private final RequirementConvert convert;
 
     public RequirementServiceImpl(RequirementDao dao,
                                   CategoryDao categoryDao,
                                   RequestCategoryDao requestCategoryDao,
+                                  SolutionResponseDao solutionResponseDao,
                                   CurrentUserResolver currentUser,
                                   RequirementConvert convert) {
         this.dao = dao;
         this.categoryDao = categoryDao;
         this.requestCategoryDao = requestCategoryDao;
+        this.solutionResponseDao = solutionResponseDao;
         this.currentUser = currentUser;
         this.convert = convert;
     }
@@ -118,17 +124,16 @@ public class RequirementServiceImpl implements RequirementService {
     public PageVO<RequirementPageVO> page(RequirementPageDTO dto) {
         int pageNumber = dto.getPageNumber() == null ? 1 : dto.getPageNumber();
         int pageSize = dto.getPageSize() == null ? 10 : Math.min(dto.getPageSize(), MAX_PAGE_SIZE);
-        Long uid = SecurityUtils.getCurrentUserId();
+        SysUserDO me = currentUser.currentOrNull();
+        boolean admin = me != null && CurrentUserResolver.ROLE_ADMIN.equals(me.getRole());
 
         Page<OpportunityRequestDO> p = new Page<>(pageNumber, pageSize);
         IPage<OpportunityRequestDO> r = dao.lambdaQuery()
                 .like(dto.getKeyword() != null, OpportunityRequestDO::getTitle, dto.getKeyword())
                 .eq(dto.getStatus() != null, OpportunityRequestDO::getStatus, dto.getStatus())
                 .eq(dto.getUrgency() != null, OpportunityRequestDO::getUrgency, dto.getUrgency())
-                // 最小可见性收敛：公开的、或自己发布的。
-                // dept/personnel 的精确成员解析属已知缺口，见计划 Task 10 Step 7。
-                .and(w -> w.eq(OpportunityRequestDO::getVisibilityScope, "all")
-                        .or().eq(OpportunityRequestDO::getPublisherId, uid))
+                // admin 全可见，不加可见性谓词；其余人按 all/publisher/dept 交集/personnel 交集放行
+                .and(!admin, w -> applyVisibility(w, me))
                 .orderByDesc(OpportunityRequestDO::getCreateTime)
                 .page(p);
 
@@ -146,12 +151,75 @@ public class RequirementServiceImpl implements RequirementService {
             throw new BaseException(ErrorCode.NOT_FOUND, "需求不存在");
         }
         Long uid = SecurityUtils.getCurrentUserId();
-        boolean visible = "all".equals(d.getVisibilityScope())
-                || (d.getPublisherId() != null && d.getPublisherId().equals(uid));
-        if (!visible) {
+        SysUserDO me = currentUser.currentOrNull();
+        if (!isVisible(d, uid, me)) {
             throw new BaseException(ErrorCode.FORBIDDEN, "无权查看该需求");
         }
-        return convert.toDetailVO(d);
+
+        RequirementDetailVO vo = convert.toDetailVO(d);
+        // 组装方案数组：一次批量查询，避免逐条 N+1
+        List<SolutionResponseDO> responses = solutionResponseDao.lambdaQuery()
+                .eq(SolutionResponseDO::getRequestId, id)
+                .orderByAsc(SolutionResponseDO::getCreateTime)
+                .list();
+        vo.setResponses(responses.stream().map(convert::toResponseVO).collect(Collectors.toList()));
+        vo.setResponderCount((int) responses.stream()
+                .map(SolutionResponseDO::getResponderId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .count());
+        return vo;
+    }
+
+    /**
+     * 可见性判定（与列表页 SQL 谓词同口径，只是详情已有 DO 在手，改为内存判定）。
+     *
+     * <p>admin 全可见；否则 all / 本人发布 / dept 命中我的部门 / personnel 命中我的 id 之一即可见。
+     * visibility_values 存的是字符串 id 数组（List&lt;String&gt;），故用 String 比对。</p>
+     */
+    private boolean isVisible(OpportunityRequestDO d, Long uid, SysUserDO me) {
+        if (me != null && CurrentUserResolver.ROLE_ADMIN.equals(me.getRole())) {
+            return true;
+        }
+        if ("all".equals(d.getVisibilityScope())) {
+            return true;
+        }
+        if (uid != null && uid.equals(d.getPublisherId())) {
+            return true;
+        }
+        if (me == null || d.getVisibilityValues() == null) {
+            return false;
+        }
+        if ("dept".equals(d.getVisibilityScope()) && me.getDepartmentId() != null) {
+            return d.getVisibilityValues().contains(String.valueOf(me.getDepartmentId()));
+        }
+        if ("personnel".equals(d.getVisibilityScope())) {
+            return d.getVisibilityValues().contains(String.valueOf(me.getId()));
+        }
+        return false;
+    }
+
+    /**
+     * 列表可见性谓词（DB 侧）。all 或 本人发布 或 dept/personnel JSON 数组命中。
+     *
+     * <p>visibility_values 是字符串 id 的 JSON 数组（如 {@code ["1001"]}），故用
+     * {@code JSON_CONTAINS(col, JSON_QUOTE(?))} 匹配字符串标量；参数走 {@code {0}} 占位符
+     * 参数化，禁字符串拼接（防注入）。</p>
+     */
+    private void applyVisibility(LambdaQueryWrapper<OpportunityRequestDO> w, SysUserDO me) {
+        w.eq(OpportunityRequestDO::getVisibilityScope, "all");
+        if (me == null) {
+            return;
+        }
+        w.or().eq(OpportunityRequestDO::getPublisherId, me.getId());
+        if (me.getDepartmentId() != null) {
+            w.or(x -> x.eq(OpportunityRequestDO::getVisibilityScope, "dept")
+                    .apply("JSON_CONTAINS(visibility_values, JSON_QUOTE({0}))",
+                            String.valueOf(me.getDepartmentId())));
+        }
+        w.or(x -> x.eq(OpportunityRequestDO::getVisibilityScope, "personnel")
+                .apply("JSON_CONTAINS(visibility_values, JSON_QUOTE({0}))",
+                        String.valueOf(me.getId())));
     }
 
     /**

@@ -1,10 +1,13 @@
 package com.quectel.web.cloud.salesleadhubserver.controller;
 
 import com.quectel.code.web.pojo.Result;
+import com.quectel.web.cloud.salesleadhubserver.dto.RequirementAdoptDTO;
+import com.quectel.web.cloud.salesleadhubserver.dto.RequirementCloseDTO;
 import com.quectel.web.cloud.salesleadhubserver.dto.RequirementCreateDTO;
 import com.quectel.web.cloud.salesleadhubserver.dto.RequirementPageDTO;
 import com.quectel.web.cloud.salesleadhubserver.dto.RequirementUpdateDTO;
 import com.quectel.web.cloud.salesleadhubserver.service.RequirementService;
+import com.quectel.web.cloud.salesleadhubserver.service.ResponseService;
 import com.quectel.web.cloud.salesleadhubserver.vo.PageVO;
 import com.quectel.web.cloud.salesleadhubserver.vo.RequirementDetailVO;
 import com.quectel.web.cloud.salesleadhubserver.vo.RequirementPageVO;
@@ -32,9 +35,11 @@ import javax.validation.Valid;
 public class RequirementController {
 
     private final RequirementService service;
+    private final ResponseService responseService;
 
-    public RequirementController(RequirementService service) {
+    public RequirementController(RequirementService service, ResponseService responseService) {
         this.service = service;
+        this.responseService = responseService;
     }
 
     @PostMapping("/page")
@@ -55,6 +60,20 @@ public class RequirementController {
     @PostMapping("/update")
     public Result<Void> update(@Valid @RequestBody RequirementUpdateDTO dto) {
         service.update(dto);
+        return Result.success();
+    }
+
+    /** 采纳方案：仅发布人或 admin，需求与方案双写同事务。 */
+    @PostMapping("/adopt")
+    public Result<Void> adopt(@Valid @RequestBody RequirementAdoptDTO dto) {
+        responseService.adopt(dto);
+        return Result.success();
+    }
+
+    /** 关闭需求：仅发布人或 admin，Pending/Collecting → Closed。 */
+    @PostMapping("/close")
+    public Result<Void> close(@Valid @RequestBody RequirementCloseDTO dto) {
+        responseService.close(dto);
         return Result.success();
     }
 }
